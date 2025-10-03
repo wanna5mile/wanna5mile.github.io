@@ -1,0 +1,512 @@
+/* Reset & Global */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html, body {
+  background-color: #d4d4d4;
+  cursor: url('cursor.png') 4 4, auto;
+  cursor: url('pointer.png'), pointer;
+  height: 100%;
+  flex-direction: column;
+}
+
+/* Remove purple visited state + blue outline */
+a,
+a:visited {
+  color: white;
+  text-decoration: none;
+}
+a:focus {
+  outline: none; /* kill default blue outline */
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #111;
+  padding: 10px 20px;
+}
+header a, footer a {
+  margin: 0 10px;
+  color: white;
+  text-decoration: none;
+  font-family: monospace;
+  font-weight: bold;
+  transition: color 0.3s, text-decoration 0.3s;
+}
+header a:hover, footer a:hover {
+  color: #ff4444;
+  text-decoration: underline;
+  text-decoration-color: #ff4444;
+}
+header img {
+  width: 30px;
+  height: auto;
+}
+
+/* Left nav (anchors) */
+.nav-links {
+  display: flex;
+  gap: 15px;
+}
+.nav-links a {
+  font-family: monospace;
+  font-weight: bold;
+}
+.nav-links a:hover {
+  color: #ff4444;
+  text-decoration: underline;
+  text-decoration-color: #ff4444;
+}
+
+/* Right side controls */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Profile picture */
+#pfp {
+  width: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+#pfp:hover {
+  transform: scale(1.1);
+}
+
+/* Dashboard button */
+#dashboardBtn {
+  width: 40px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  transition: transform 0.25s ease;
+}
+#dashboardBtn:hover {
+  transform: scale(1.1);
+}
+
+/* Fixed dropdown menu */
+.dashboard-menu {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.95);
+  border-radius: 10px;
+  display: none;
+  flex-direction: column;
+  min-width: 200px;
+  padding: 10px 0;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+.dashboard-menu a {
+  padding: 12px 16px;
+  font-family: monospace;
+  color: white;
+  text-decoration: none;
+  display: block;
+  transition: color 0.3s, text-decoration 0.3s, background 0.3s;
+}
+.dashboard-menu a:hover {
+  color: #ff4444;
+  text-decoration: underline;
+  text-decoration-color: #ff4444;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Search box */
+.search-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.search-box input {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.search-box button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #333;
+  color: #fff;
+}
+.search-box button:hover {
+  background: #555;
+}
+
+/* Mid Container Grid */
+#container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  background-color: #d3d3d3;
+  justify-items: center;
+  align-items: start;
+  min-height: calc(100vh - 120px);
+}
+#container div {
+  width: 280px;
+  min-height: 220px;
+  background: #d4d4d4;
+  text-align: center;
+  border-radius: 15%;
+  padding: 10px;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid transparent;
+  transition: opacity 0.3s ease;
+}
+#container div img {
+  width: 100px;
+  height: auto;
+  display: block;
+  margin: 0 auto 10px;
+  border-radius: 15%;
+  transition: transform 0.3s ease;
+}
+#container div:hover img { transform: scale(1.05); }
+#container div:hover p { transform: scale(1.1); }
+#container div:hover h3 { transform: scale(1.1); }
+
+/* BIG Container Grid */
+#container-discov {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 20px;
+  background-color: #d3d3d3;
+}
+#container-discov div {
+  flex: 1 1 280px;
+  width: 280px;
+  margin: 10px;
+  background: #d4d4d4;
+  text-align: center;
+  border-radius: 15%;
+  padding: 10px;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid transparent;
+}
+#container-discov div img {
+  width: 300px;
+  height: auto;
+  display: block;
+  margin: 0 auto 10px;
+  border-radius: 15%;
+  transition: transform 0.3s ease;
+}
+#container-discov div:hover img { transform: scale(1.05); }
+#container-discov div:hover p { transform: scale(1.1); }
+#container-discov div:hover h3 { transform: scale(1.1); }
+
+/* Status Effects */
+.soon {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.soon::after {
+  content: "COMING SOON";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+/* Hover Borders */
+.ok:hover {
+  border: 3px solid #00ff00;
+  box-shadow: 0 0 10px #00ff00;
+}
+.FIX:hover, .soon:hover {
+  border: 3px solid #ff0000;
+  box-shadow: 0 0 10px #ff0000;
+}
+
+/* Image Filters by Status */
+.FIX img {
+  filter: invert(100%);
+  opacity: 0.7;
+}
+.soon img {
+  filter: grayscale(100%);
+  opacity: 0.7;
+}
+
+/* FIX Icon Overlay */
+.FIX::after {
+  content: url('images/status/progress.jpeg');
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.8;
+  width: 60px;
+  height: 60px;
+  pointer-events: none;
+}
+
+/* Embed Fullscreen */
+embed {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Floating "Back to Top" Button */
+#toTopBtn {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-family: monospace;
+  border: none;
+  border-radius: 8px;
+  background: #000;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  opacity: 0.6;
+  transition: color 0.3s, text-decoration 0.3s;
+}
+#toTopBtn:hover {
+  opacity: 0.8;
+  color: #ff0000;
+  text-decoration: underline;
+  text-decoration-color: #ff0000;
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+  background: #555;
+  text-align: center;
+  padding: 40px;
+}
+
+/* Unified Text Styling */
+#container div h3,
+#container div p,
+#container-discov div h3,
+#container-discov div p {
+  color: white;
+  font-family: monospace;
+  text-decoration: none;
+  transition: color 0.3s, text-decoration 0.3s;
+}
+#container div h3:hover,
+#container div p:hover,
+#container-discov div h3:hover,
+#container-discov div p:hover {
+  color: #ff4444;
+  text-decoration: underline;
+  text-decoration-color: #ff4444;
+}
+/* Search Box Styling */
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #f0f0f0; /* light background like your cards */
+  border-radius: 25px;
+  padding: 4px 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.search-box:focus-within {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  flex: 1;
+  padding: 8px;
+  font-family: inherit;
+  color: #333;
+}
+
+.search-box input::placeholder {
+  color: #888;
+}
+
+.search-box button {
+  background: #333; /* matches your header vibe */
+  border: none;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.search-box button img {
+  width: 16px;
+  height: 16px;
+}
+
+.search-box button:hover {
+  background: #555;
+  transform: scale(1.1);
+}
+#searchFeedback {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+}
+
+#searchFeedback img {
+  max-width: 250px;
+  border-radius: 10px; /* optional for smoother edges */
+  image-rendering: pixelated; /* keeps retro style if your gif is pixel art */
+}
+/* Page arrows */
+.pages-anchor button {
+  background: transparent;      /* no background */
+  border: none;                 /* remove default button border */
+  padding: 5px;                 /* space around the image */
+  cursor: pointer;              /* pointer cursor */
+  border-radius: 0;             /* sharp edges */
+  display: flex;                /* keep image centered */
+  align-items: center;
+  justify-content: center;
+}
+
+.pages-anchor button img {
+  width: 40px;                  /* adjust size of arrow images */
+  height: 40px;                 /* keeps it square */
+  object-fit: contain;          /* prevent stretching */
+  transition: transform 0.2s ease;
+}
+
+.pages-anchor button:hover img {
+  transform: scale(1.15);       /* zoom on hover */
+}
+/* Keep page controls in a row */
+.pages-anchor {
+  display: flex;
+  align-items: center;
+  gap: 10px;          /* space between arrow + span */
+  margin-left: 20px;  /* push away from nav links */
+}
+
+.pages-anchor .page-indicator {
+  font-weight: bold;
+  font-size: 1rem;
+  color: white;       /* make it visible in dark header */
+  font-family: monospace;
+}
+.pages-anchor .page-indicator {
+  line-height: 1; 
+}
+/* Nav container holds links + page controls neatly */
+.nav-links {
+  display: flex;
+  align-items: center;   /* vertically align links and page controls */
+  gap: 15px;
+}
+
+/* Page controls */
+.pages-anchor {
+  display: inline-flex;  /* keep in row but not act like block */
+  align-items: center;   /* center arrows + span */
+  gap: 8px;
+  margin-left: 10px;     /* small spacing from links */
+}
+
+.pages-anchor button {
+  background: transparent;
+  border: none;
+  padding: 0;            /* tighter so buttons don’t expand div */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pages-anchor button img {
+  width: 28px;           /* smaller so they match link height */
+  height: 28px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.pages-anchor button:hover img {
+  transform: scale(1.2);
+}
+
+.pages-anchor .page-indicator {
+  font-weight: bold;
+  font-size: 0.9rem;     /* scale text closer to nav link size */
+  color: white;
+  font-family: monospace;
+  line-height: 1;        /* prevents vertical stretching */
+}
+.search-error {
+  display: none;  
+  position: fixed; /* stick to viewport */
+  top: 80px;       /* adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4d4d;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 1000;
+}
+#searchFeedback {
+  display: none;
+  position: fixed;
+  top: 80px;       /* adjust so it doesn’t overlap header */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  text-align: center;
+}
+#searchFeedback img {
+  max-height: 120px;
+}
+body.dark {
+  background: #1e1e1e;
+  color: #f4f4f4;
+}
+body.light {
+  background: #f4f4f4;
+  color: #111;
+}
