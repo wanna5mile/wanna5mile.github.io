@@ -154,7 +154,7 @@
 <script>
 async function loadGames() {
   const container = document.getElementById("container");
-  container.textContent = "Loading games...";
+  container.textContent = "Loading assets...";
 
   try {
     const response = await fetch("system/json/assets-test.json");
@@ -179,7 +179,7 @@ async function loadGames() {
       container.appendChild(gameDiv);
     });
   } catch (err) {
-    container.textContent = "⚠ Failed to load game list.";
+    container.textContent = "⚠ Failed to load.";
     console.error(err);
   }
 }
