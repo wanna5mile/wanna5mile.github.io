@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const response = await fetch("system/json/assets-test.json");
-      if (!response.) throw new Error("Failed to load JSON");
+      if (!response.ok) throw new Error("Failed to load JSON");
       gamesData = await response.json();
 
       // Normalize page numbers (force them to integers)
@@ -34,14 +34,21 @@ document.addEventListener("DOMContentLoaded", () => {
       pageItems.forEach(game => {
         const gameDiv = document.createElement("div");
         gameDiv.className = "game-card";
+
+        // Only add status if it exists and is NOT "ok"
+        const statusHTML = (game.status && game.status.toLowerCase() !== "ok") 
+          ? `<span class="status">${game.status}</span>` 
+          : "";
+
         gameDiv.innerHTML = `
           <a href="${game.link}" target="_blank">
             <img src="${game.image}" alt="${game.title}">
             <h3>${game.title}</h3>
           </a>
           <p>${game.author}</p>
-          <span class="status">${game.status || ""}</span>
+          ${statusHTML}
         `;
+
         container.appendChild(gameDiv);
       });
     }
