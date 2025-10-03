@@ -1,0 +1,82 @@
+[
+  {
+    "title": "Friday Night Funkin'",
+    "author": "ninjamuffin99",
+    "link": "library/fridaynightfunkin/index.html",
+    "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/funkinlogo.png",
+    "status": "ok",
+    "page": 1
+  },
+  {
+    "title": "Snow Rider 3D",
+    "author": "ashima Prabhakar",
+    "link": "library/snowrider3d/index.html",
+    "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/snowrider3d.jpeg",
+    "status": "ok",
+    "page": 1
+  },
+  {
+    "title": "1v1.lol",
+    "author": "justplay.lol",
+    "link": "library/1v1lol/index.html",
+    "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/1v1.png",
+    "status": "ok",
+    "page": 1
+  },
+  {
+    "title": "Retro Bowl",
+    "author": "New Star",
+    "link": "library/retrobowl/index.html",
+    "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/retro.jpeg",
+    "status": "ok",
+    "page": 1
+  },
+  {
+    "title": "Monkey Mart",
+    "author": "PRXYBOSS101",
+    "link": "library/monkeymart/index.html",
+    "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/monkeymart.png",
+    "status": "ok",
+    "page": 1
+  },
+  {
+    "title": "Slope",
+    "author": "Rob Kay",
+    "link": "library/slope/index.html",
+    "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/slope.jpg",
+    "status": "ok",
+    "page": 1
+  },
+  {
+    "title": "slope 2",
+    "author": "Y8",
+    "link": "library/slope2/index.html",
+    "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/slope2.jpeg",
+    "status": "ok",
+    "page": 1
+  },
+  {
+    "title": "Omori",
+    "author": "OmoCat studio",
+    "link": "https://bguhm.github.io./library/omori/index.html",
+    "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/Omori_cover.jpg",
+    "status": "ok",
+    "page": 1
+  },
+  {
+    "title": "Five Nights At Freddy's",
+    "author": "Scott Cawthon",
+    "link": "library/fnaf1/index.html",
+    "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/fnaf1.png",
+    "status": "ok",
+    "page": 1
+  },
+  {
+    "title": "Five Nights At Freddy's 2",
+    "author": "Scott Cawthon",
+    "link": "library/fnaf2/index.html",
+    "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/fnaf2.png",
+    "status": "ok",
+    "page": 1
+  }
+]
