@@ -13,10 +13,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok) throw new Error("Failed to load JSON");
       gamesData = await response.json();
 
+      // Normalize page numbers (force them to integers)
+      gamesData.forEach(g => g.page = parseInt(g.page));
+
       showPage(currentPage);
     } catch (err) {
       container.textContent = "⚠ Failed to load.";
-      console.error(err);
+      console.error("Error loading games:", err);
     }
   }
 
@@ -37,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <h3>${game.title}</h3>
           </a>
           <p>${game.author}</p>
+          <span class="status">${game.status || ""}</span>
         `;
         container.appendChild(gameDiv);
       });
