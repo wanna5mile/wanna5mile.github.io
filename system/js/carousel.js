@@ -16,13 +16,12 @@ document.addEventListener("DOMContentLoaded", () => {
       // Normalize page numbers
       gamesData.forEach(g => g.page = parseInt(g.page));
 
-      // Build all game cards (hidden initially)
+      // Build all cards once
       container.innerHTML = "";
       gamesData.forEach(game => {
         const gameDiv = document.createElement("div");
         gameDiv.className = "game-card";
-        gameDiv.dataset.page = game.page; // store page number
-        gameDiv.style.display = "none"; // hide by default
+        gameDiv.dataset.page = game.page;
         gameDiv.innerHTML = `
           <a href="${game.link}" target="_blank">
             <img src="${game.image}" alt="${game.title}">
@@ -54,9 +53,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // If nothing found, tell the user
+    // If no games on that page, just show a message (without destroying the DOM)
     if (visibleCount === 0) {
-      container.innerHTML = `<p>No games on page ${pageNum}.</p>`;
+      container.querySelectorAll(".no-games").forEach(el => el.remove());
+      const msg = document.createElement("p");
+      msg.className = "no-games";
+      msg.textContent = `No games on page ${pageNum}.`;
+      container.appendChild(msg);
+    } else {
+      container.querySelectorAll(".no-games").forEach(el => el.remove());
     }
 
     pageIndicator.textContent = `Page ${pageNum}`;
