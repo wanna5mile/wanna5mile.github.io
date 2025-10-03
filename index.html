@@ -9,16 +9,20 @@
     <link rel="stylesheet" href="system/css/commands.css" />
     <meta name="author" content="Bg.uhm by rhap5ody" />
     <meta name="keywords" content="fun, library, github, rhap5ody" />
+    
+    <!-- Core scripts -->
     <script src="system/js/quote.js" defer></script> 
     <script src="system/js/settings.js" defer></script>
     <script src="system/js/searcherror.js" defer></script> 
     <script src="system/js/carousel.js" defer></script> 
     <script src="system/js/commands.js" defer></script> 
-    <!--Creates Discord Widget-->
+    <script src="system/js/paging.js" defer></script> <!-- paging + JSON loader -->
+    
+    <!-- Discord Widget -->
     <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3" async defer>
       new Crate({
-          server: '1273329263923302430', // server
-          channel: '1329289920845713471' // #channels
+          server: '1273329263923302430',
+          channel: '1329289920845713471'
       })
     </script>
   </head>
@@ -39,7 +43,7 @@
       <button class="arrowleft" onclick="prevPage()">
         <img src="system/icons/left.png" alt="Previous Page">
       </button>
-      <a href="index.html"><span class="page-indicator">pages</span></a>
+      <a href="index.html"><span class="page-indicator">Page 1</span></a>
       <button class="arrowright" onclick="nextPage()">
         <img src="system/icons/right.png" alt="Next Page">
       </button>
@@ -58,23 +62,24 @@
     <img src="system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn" />
   </div>
 </header>
-	  <!-- Make-shift Marquee -->
-  <div id="quoteWrapper">
-    <p id="quoteBox"></p>
-  </div>
+
+<!-- Make-shift Marquee -->
+<div id="quoteWrapper">
+  <p id="quoteBox"></p>
+</div>
 	  
 <main>
   <div id="container">loading assets...</div>
 </main>
 
 <button id="toTopBtn">⬆ Top</button>
+
 <footer>
   <a href="system/pages/sources.html">sources</a>
   <a href="system/pages/contributors.html">contribute</a>
   <a href="system/pages/discord.html">Discord</a>
   <a href="system/pages/bugsNfixes.html">Bugs & fixes</a>
   <a href="system/pages/contact.html">Socials</a>
-  <!-- ==VERSION UPDATES== -->
   <a href="system/pages/version-log.html">version V0.7.2</a>
 </footer>
 
@@ -85,7 +90,7 @@
   <a href="system/pages/alt.html">Alternative Links</a>
 </div>
 
-<!-- ========== Dashboard toggle ========== -->
+<!-- Dashboard toggle -->
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const dashboardBtn = document.getElementById("dashboardBtn");
@@ -103,7 +108,7 @@
   });
 </script>
 
-<!-- ========== Scroll-to-top button ========== -->
+<!-- Scroll-to-top button -->
 <script>
   const toTopBtn = document.getElementById("toTopBtn");
 
@@ -127,7 +132,7 @@
   });
 </script>
 
-<!-- ========== Search filter ========== -->
+<!-- Search filter -->
 <script>
   function filterGames(query) {
     const input = query.toLowerCase();
@@ -148,43 +153,6 @@
     const query = document.getElementById("searchInputHeader").value;
     filterGames(query);
   });
-</script>
-
-<!-- ========== JSON Loader ========== -->
-<script>
-async function loadGames() {
-  const container = document.getElementById("container");
-  container.textContent = "Loading assets...";
-
-  try {
-    const response = await fetch("system/json/assets-test.json");
-    if (!response.ok) throw new Error("Failed to load JSON");
-    const games = await response.json();
-
-    container.innerHTML = "";
-    games.forEach(game => {
-      const gameDiv = document.createElement("div");
-      gameDiv.className = "game-card";
-
-      gameDiv.innerHTML = `
-        <a href="${game.link}" target="_blank">
-          <img src="${game.image}" alt="${game.title}">
-          <h3>${game.title}</h3>
-        </a>
-        <p>${game.author}</p>
-        <p>Status: ${game.status}</p>
-        <p>Page: ${game.page}</p>
-      `;
-
-      container.appendChild(gameDiv);
-    });
-  } catch (err) {
-    container.textContent = "⚠ Failed to load.";
-    console.error(err);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", loadGames);
 </script>
 
 </body>
