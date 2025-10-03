@@ -157,7 +157,7 @@ async function loadGames() {
   container.textContent = "Loading games...";
 
   try {
-    const response = await fetch("system/assets-test.json");
+    const response = await fetch("system/json/assets-test.json");
     if (!response.ok) throw new Error("Failed to load JSON");
     const games = await response.json();
 
