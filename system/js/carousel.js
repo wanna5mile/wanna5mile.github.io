@@ -1,39 +1,62 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const totalPages = 10; // adjust if needed
   const pageIndicator = document.querySelector(".page-indicator");
+  const container = document.getElementById("container");
 
-  // Load saved page for this session, or default to 1
+  let gamesData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
 
+  async function loadGames() {
+    container.textContent = "Loading assets...";
+
+    try {
+      const response = await fetch("system/json/assets-test.json");
+      if (!response.ok) throw new Error("Failed to load JSON");
+      gamesData = await response.json();
+
+      showPage(currentPage);
+    } catch (err) {
+      container.textContent = "⚠ Failed to load.";
+      console.error(err);
+    }
+  }
+
   function showPage(pageNum) {
-    const allItems = document.querySelectorAll('[class*="page-"]');
+    container.innerHTML = "";
 
-    allItems.forEach(item => {
-      if (item.classList.contains(`page-${pageNum}`)) {
-        item.style.display = "block"; // visible
-      } else {
-        item.style.display = "none"; // hidden
-      }
-    });
+    const pageItems = gamesData.filter(game => game.page === pageNum);
 
-    // Update span text
+    if (pageItems.length === 0) {
+      container.textContent = "No games on this page.";
+    } else {
+      pageItems.forEach(game => {
+        const gameDiv = document.createElement("div");
+        gameDiv.className = "game-card";
+        gameDiv.innerHTML = `
+          <a href="${game.link}" target="_blank">
+            <img src="${game.image}" alt="${game.title}">
+            <h3>${game.title}</h3>
+          </a>
+          <p>${game.author}</p>
+        `;
+        container.appendChild(gameDiv);
+      });
+    }
+
     pageIndicator.textContent = `Page ${pageNum}`;
-
-    // Save page for this session only
     sessionStorage.setItem("currentPage", pageNum);
   }
 
-  // Expose controls to HTML buttons
   window.nextPage = function () {
-    currentPage = currentPage >= totalPages ? 1 : currentPage + 1;
+    const maxPage = Math.max(...gamesData.map(g => g.page));
+    currentPage = currentPage >= maxPage ? 1 : currentPage + 1;
     showPage(currentPage);
   };
 
   window.prevPage = function () {
-    currentPage = currentPage <= 1 ? totalPages : currentPage - 1;
+    const maxPage = Math.max(...gamesData.map(g => g.page));
+    currentPage = currentPage <= 1 ? maxPage : currentPage - 1;
     showPage(currentPage);
   };
 
-  // Show the stored (or first) page
-  showPage(currentPage);
+  loadGames();
 });
