@@ -16,7 +16,7 @@
     <script src="system/js/carousel.js" defer></script> 
     <script src="system/js/commands.js" defer></script> 
     <!--Creates Discord Widget-->
-        <script src='https://cdn.jsdelivr.net/npm/@widgetbot/crate@3' async defer>
+    <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3" async defer>
       new Crate({
           server: '1273329263923302430', // server
           channel: '1329289920845713471' // #channels
@@ -71,74 +71,72 @@
     <p id="quoteBox"></p>
   </div>
 	  
-    <main>
-<div id="container">loading assets...</div>
-		</main>
+<main>
+  <div id="container">loading assets...</div>
+</main>
 
-    <button id="toTopBtn">⬆ Top</button>
-    <footer>
-      <a href="system/pages/sources.html">sources</a>
-      <a href="system/pages/contributors.html">contribute</a>
-      <a href="system/pages/discord.html">Discord</a>
-      <a href="system/pages/bugsNfixes.html">Bugs & fixes</a>
-      <a href="system/pages/contact.html">Socials</a>
-		<!-- ==VERSION UPDATES== -->
-      <a href="system/pages/version-log.html">version V0.7.2</a>
-    </footer>
+<button id="toTopBtn">⬆ Top</button>
+<footer>
+  <a href="system/pages/sources.html">sources</a>
+  <a href="system/pages/contributors.html">contribute</a>
+  <a href="system/pages/discord.html">Discord</a>
+  <a href="system/pages/bugsNfixes.html">Bugs & fixes</a>
+  <a href="system/pages/contact.html">Socials</a>
+  <!-- ==VERSION UPDATES== -->
+  <a href="system/pages/version-log.html">version V0.7.2</a>
+</footer>
 
-    <div id="dashboardMenu" class="dashboard-menu">
-      <a href="music-player.html">Music Player</a>
-      <a href="system/pages/settings-themes.html">Themes</a>
-      <a href="system/pages/credits.html">Credits</a>
-      <a href="system/pages/alt.html">Alternative Links</a>
-    </div>
+<div id="dashboardMenu" class="dashboard-menu">
+  <a href="music-player.html">Music Player</a>
+  <a href="system/pages/settings-themes.html">Themes</a>
+  <a href="system/pages/credits.html">Credits</a>
+  <a href="system/pages/alt.html">Alternative Links</a>
+</div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const dashboardBtn = document.getElementById("dashboardBtn");
-        const dashboardMenu = document.getElementById("dashboardMenu");
+<!-- ========== Dashboard toggle ========== -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const dashboardBtn = document.getElementById("dashboardBtn");
+    const dashboardMenu = document.getElementById("dashboardMenu");
 
-        dashboardBtn.onclick = function () {
-          dashboardMenu.style.display = dashboardMenu.style.display === "flex" ? "none" : "flex";
-        };
+    dashboardBtn.onclick = function () {
+      dashboardMenu.style.display = dashboardMenu.style.display === "flex" ? "none" : "flex";
+    };
 
-        // Close if clicked outside
-        window.addEventListener("click", function (e) {
-          if (!dashboardBtn.contains(e.target) && !dashboardMenu.contains(e.target)) {
-            dashboardMenu.style.display = "none";
-          }
-        });
-      });
-    </script>
+    window.addEventListener("click", function (e) {
+      if (!dashboardBtn.contains(e.target) && !dashboardMenu.contains(e.target)) {
+        dashboardMenu.style.display = "none";
+      }
+    });
+  });
+</script>
 
-    <script>
-      const toTopBtn = document.getElementById("toTopBtn");
+<!-- ========== Scroll-to-top button ========== -->
+<script>
+  const toTopBtn = document.getElementById("toTopBtn");
 
-      // Show button when scrolled down 200px
-      window.onscroll = function () {
-        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 200) {
-          toTopBtn.style.display = "block";
-        } else {
-          toTopBtn.style.display = "none";
-        }
-      };
+  window.onscroll = function () {
+    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 200) {
+      toTopBtn.style.display = "block";
+    } else {
+      toTopBtn.style.display = "none";
+    }
+  };
 
-      // Scroll smoothly to top on click
-      toTopBtn.onclick = function () {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-      };
-    </script>
+  toTopBtn.onclick = function () {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
-    <script>
-      // double click to start it
-      toTopBtn.addEventListener("dblclick", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
-    </script>
-		<script>
+  toTopBtn.addEventListener("dblclick", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+</script>
+
+<!-- ========== Search filter ========== -->
+<script>
   function filterGames(query) {
     const input = query.toLowerCase();
     const games = document.querySelectorAll("#container > div");
@@ -149,153 +147,53 @@
       game.style.display = title.includes(input) || author.includes(input) ? "block" : "none";
     });
   }
-  // live search while typing
+
   document.getElementById("searchInputHeader").addEventListener("keyup", function () {
     filterGames(this.value);
   });
 
-  // search when clicking button
   document.getElementById("searchBtnHeader").addEventListener("click", function () {
     const query = document.getElementById("searchInputHeader").value;
     filterGames(query);
   });
 </script>
-		<!--ddlc-->
-		       <script>
-       function confirmDownload() {
-       return confirm("⚠️ Warning! You are about to download a port of Doki Doki Literature Club. After downloading, open 'index.html' inside the folder to play. Check port-help.html for extra resources.");
-       }
-       </script><script>
-function realLoader() {
-  const counterEl = document.getElementById("counter");
-  const loaderImg = document.getElementById("loaderImage");
-  const preloader = document.getElementById("preloader");
 
-  const images = document.querySelectorAll("#container img");
-  const total = images.length;
-  let loaded = 0;
+<!-- ========== JSON Loader ========== -->
+<script>
+async function loadGames() {
+  const container = document.getElementById("container");
+  container.textContent = "Loading games...";
 
-  function updateProgress() {
-    loaded++;
-    const percent = Math.round((loaded / total) * 100);
-    counterEl.textContent = percent + "%";
+  try {
+    const response = await fetch("system/assets-test.json");
+    if (!response.ok) throw new Error("Failed to load JSON");
+    const games = await response.json();
 
-    if (percent >= 100) {
-      // Step 1: swap GIF
-      loaderImg.src = "fire.gif";
+    container.innerHTML = "";
+    games.forEach(game => {
+      const gameDiv = document.createElement("div");
+      gameDiv.className = "game-card";
 
-      // Step 2: fade out
-      setTimeout(() => {
-        preloader.classList.add("fade");
-      }, 1000);
+      gameDiv.innerHTML = `
+        <a href="${game.link}" target="_blank">
+          <img src="${game.image}" alt="${game.title}">
+          <h3>${game.title}</h3>
+        </a>
+        <p>${game.author}</p>
+        <p>Status: ${game.status}</p>
+        <p>Page: ${game.page}</p>
+      `;
 
-      // Step 3: hide preloader and show content
-      setTimeout(() => {
-        preloader.style.display = "none";
-        document.body.style.overflow = "auto"; // unlock scrolling
-      }, 2000);
-    }
+      container.appendChild(gameDiv);
+    });
+  } catch (err) {
+    container.textContent = "⚠ Failed to load game list.";
+    console.error(err);
   }
-
-  if (total === 0) {
-    // no images, just skip
-    counterEl.textContent = "100%";
-    preloader.style.display = "none";
-    return;
-  }
-
-  images.forEach((img) => {
-    if (img.complete) {
-      updateProgress();
-    } else {
-      img.addEventListener("load", updateProgress);
-      img.addEventListener("error", updateProgress); // count errors too
-    }
-  });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.body.style.overflow = "hidden"; // prevent scroll while loading
-  realLoader();
-});
+document.addEventListener("DOMContentLoaded", loadGames);
 </script>
 
-	  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const savedPic = localStorage.getItem("profilePic");
-    if (savedPic) {
-      document.getElementById("pfp").src = savedPic;
-    }
-  });
-</script>
-	  <!--settings or sum-->
-  <script>
-    // Helper: set favicon
-    function setFavicon(url) {
-      let link = document.querySelector("link[rel~='icon']");
-      if (!link) {
-        link = document.createElement("link");
-        link.rel = "icon";
-        document.head.appendChild(link);
-      }
-      link.href = url;
-    }
-
-    // Generic toggle setup with localStorage
-    function setupToggle(id, callback) {
-      const el = document.getElementById(id);
-
-      // Restore saved state
-      const saved = localStorage.getItem(id);
-      if (saved === "on") {
-        el.classList.add("on");
-        el.textContent = "ON";
-      }
-
-      // Apply initial state
-      if (callback) callback(el.classList.contains("on"));
-
-      el.addEventListener("click", () => {
-        el.classList.toggle("on");
-        const isOn = el.classList.contains("on");
-        el.textContent = isOn ? "ON" : "OFF";
-
-        // Save state
-        localStorage.setItem(id, isOn ? "on" : "off");
-
-        // Run feature change
-        if (callback) callback(isOn);
-      });
-    }
-
-    // Cloak Mode toggle
-    if setupToggle("cloakToggle", (active) => {
-      if (active) {
-        document.title = "Google Docs";
-        setFavicon("icons/docs.png");
-      } else {
-        document.title = "Bguhm.GuiHub.io";
-        setFavicon("icons/default.png");
-      }
-    });
-
-    // Dark Theme toggle
-    if setupToggle("themeToggle", (active) => {
-      if (active) {
-        document.body.style.background = "#1e1e1e";
-        document.body.style.color = "#f4f4f4";
-      } else {
-        document.body.style.background = "#f4f4f4";
-        document.body.style.color = "#111";
-      }
-    });
-
-    // Background Image toggle
-    setupToggle("bgToggle", (active) => {
-      document.body.style.backgroundImage = active 
-        ? "url('images/bg1.jpg')" 
-        : "none";
-    });
-  </script>
-  </body>
+</body>
 </html>
