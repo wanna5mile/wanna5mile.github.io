@@ -13,8 +13,25 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok) throw new Error("Failed to load JSON");
       gamesData = await response.json();
 
-      // Normalize page numbers (force them to integers)
+      // Normalize page numbers
       gamesData.forEach(g => g.page = parseInt(g.page));
+
+      // Build all game cards (hidden by default)
+      container.innerHTML = "";
+      gamesData.forEach(game => {
+        const gameDiv = document.createElement("div");
+        gameDiv.className = "game-card";
+        gameDiv.dataset.page = game.page; // store page number
+        gameDiv.innerHTML = `
+          <a href="${game.link}" target="_blank">
+            <img src="${game.image}" alt="${game.title}">
+            <h3>${game.title}</h3>
+          </a>
+          <p>${game.author}</p>
+          <span class="status">${game.status || ""}</span>
+        `;
+        container.appendChild(gameDiv);
+      });
 
       showPage(currentPage);
     } catch (err) {
@@ -24,33 +41,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showPage(pageNum) {
-    container.innerHTML = "";
+    const allGames = container.querySelectorAll(".game-card");
+    let visibleCount = 0;
 
-    const pageItems = gamesData.filter(game => game.page === pageNum);
+    allGames.forEach(gameDiv => {
+      if (parseInt(gameDiv.dataset.page) === pageNum) {
+        gameDiv.style.display = "block";
+        visibleCount++;
+      } else {
+        gameDiv.style.display = "none";
+      }
+    });
 
-    if (pageItems.length === 0) {
-      container.textContent = "No games on this page.";
-    } else {
-      pageItems.forEach(game => {
-        const gameDiv = document.createElement("div");
-        gameDiv.className = "game-card";
-
-        // Only add status if it exists and is NOT "ok"
-        const statusHTML = (game.status && game.status.toLowerCase() !== "ok") 
-          ? `<span class="status">${game.status}</span>` 
-          : "";
-
-        gameDiv.innerHTML = `
-          <a href="${game.link}" target="_blank">
-            <img src="${game.image}" alt="${game.title}">
-            <h3>${game.title}</h3>
-          </a>
-          <p>${game.author}</p>
-          ${statusHTML}
-        `;
-
-        container.appendChild(gameDiv);
-      });
+    if (visibleCount === 0) {
+      container.innerHTML = "<p>No games on this page.</p>";
     }
 
     pageIndicator.textContent = `Page ${pageNum}`;
