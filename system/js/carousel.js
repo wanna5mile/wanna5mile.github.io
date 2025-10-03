@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const response = await fetch("system/json/assets-test.json");
-      if (!response.ok) throw new Error("Failed to load JSON");
+      if (!response.) throw new Error("Failed to load JSON");
       gamesData = await response.json();
 
       // Normalize page numbers (force them to integers)
