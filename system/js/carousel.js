@@ -5,34 +5,35 @@ document.addEventListener("DOMContentLoaded", () => {
   let gamesData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
 
-  // Dynamically determine correct JSON path
+  // Determine JSON path dynamically
   const jsonPath = location.pathname.includes("/system/")
     ? "../json/assets-test.json"
     : "system/json/assets-test.json";
 
   async function loadGames() {
-    // Show loading message centered
+    // Temporary loading message, centered
     container.textContent = "Loading assets...";
-    container.style.textAlign = "center"; // center temporary message
+    container.style.textAlign = "center";
 
     try {
       const response = await fetch(jsonPath);
       if (!response.ok) throw new Error(`Failed to load: ${jsonPath}`);
       gamesData = await response.json();
 
-      // Guard against malformed JSON
       if (!Array.isArray(gamesData)) {
         throw new Error("Invalid JSON format: expected an array.");
       }
 
-      // Reset text alignment for actual game cards
+      // Reset alignment for actual game cards
       container.style.textAlign = "";
 
       // Normalize page numbers
       gamesData.forEach(g => (g.page = parseInt(g.page)));
 
-      // Clear and build UI
+      // Clear container
       container.innerHTML = "";
+
+      // Build game cards
       gamesData.forEach(game => {
         const gameDiv = document.createElement("div");
         gameDiv.className = "game-card";
@@ -59,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
       showPage(currentPage);
     } catch (err) {
       container.textContent = "⚠ Failed to load game data.";
-      container.style.textAlign = "center"; // center error message
+      container.style.textAlign = "center";
       console.error("Error loading games:", err);
     }
   }
@@ -82,19 +83,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const msg = document.createElement("p");
       msg.className = "no-games";
       msg.textContent = "No games on this page.";
+      msg.style.textAlign = "center";
       container.appendChild(msg);
-      container.style.textAlign = "center"; // center no-games message
-    } else {
-      container.style.textAlign = ""; // reset alignment for cards
     }
 
-    // Hide page indicator (kept functional)
-    pageIndicator.textContent = "";
-    pageIndicator.style.display = "none";
+    // Update page indicator and make it visible
+    pageIndicator.textContent = `Page ${pageNum}`;
+    pageIndicator.style.display = "inline"; // ensures it's visible
 
     sessionStorage.setItem("currentPage", pageNum);
   }
 
+  // Page controls
   window.nextPage = function () {
     const maxPage = Math.max(...gamesData.map(g => g.page));
     currentPage = currentPage >= maxPage ? 1 : currentPage + 1;
