@@ -18,6 +18,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok) throw new Error(`Failed to load: ${jsonPath}`);
       gamesData = await response.json();
 
+      // ✅ Guard against malformed JSON
+      if (!Array.isArray(gamesData)) {
+        throw new Error("Invalid JSON format: expected an array.");
+      }
+
       // Normalize page numbers
       gamesData.forEach(g => (g.page = parseInt(g.page)));
 
