@@ -5,11 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let gamesData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
 
-  // ✅ Add one or more remote JSON URLs here
+  // Add one or more remote JSON URLs here
   const jsonSources = [
-    "https://theworldpt1.github.io/source/system/json/assets-test.json",
-    // You can add more JSON files if needed
-    // "https://another-source.github.io/library/data.json"
+    "https://theworldpt1.github.io/system/json/assets-test.json"
   ];
 
   async function loadGames() {
@@ -104,6 +102,5 @@ document.addEventListener("DOMContentLoaded", () => {
     showPage(currentPage);
   };
 
-  // ✅ Start by loading the JSON from sources
   loadGames();
 });
