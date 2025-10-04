@@ -22,14 +22,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const gameDiv = document.createElement("div");
         gameDiv.className = "game-card";
         gameDiv.dataset.page = game.page;
+
+        // Build visible card (no status shown)
         gameDiv.innerHTML = `
           <a href="${game.link}" target="_blank">
             <img src="${game.image}" alt="${game.title}">
             <h3>${game.title}</h3>
           </a>
           <p>${game.author}</p>
-          <span class="status">${game.status || ""}</span>
         `;
+
+        // Add status element (kept hidden in DOM for data completeness)
+        const hiddenStatus = document.createElement("span");
+        hiddenStatus.className = "status";
+        hiddenStatus.style.display = "none"; // fully hidden
+        hiddenStatus.textContent = game.status || "";
+        gameDiv.appendChild(hiddenStatus);
+
         container.appendChild(gameDiv);
       });
 
@@ -53,18 +62,20 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // If no games on that page, just show a message (without destroying the DOM)
+    // If no games on that page, show message
+    container.querySelectorAll(".no-games").forEach(el => el.remove());
     if (visibleCount === 0) {
-      container.querySelectorAll(".no-games").forEach(el => el.remove());
       const msg = document.createElement("p");
       msg.className = "no-games";
-      msg.textContent = `No games on page ${pageNum}.`;
+      msg.textContent = `No games on this page.`;
       container.appendChild(msg);
-    } else {
-      container.querySelectorAll(".no-games").forEach(el => el.remove());
     }
 
-    pageIndicator.textContent = `Page ${pageNum}`;
+    // Hide the page indicator text entirely
+    pageIndicator.textContent = "";
+    pageIndicator.style.display = "none";
+
+    // Save last page to session
     sessionStorage.setItem("currentPage", pageNum);
   }
 
