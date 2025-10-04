@@ -5,25 +5,39 @@ document.addEventListener("DOMContentLoaded", () => {
   let gamesData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
 
+  // ✅ Add one or more remote JSON URLs here
+  const jsonSources = [
+    "https://theworldpt1.github.io/source/system/json/assets-test.json",
+    // You can add more JSON files if needed
+    // "https://another-source.github.io/library/data.json"
+  ];
+
   async function loadGames() {
     container.textContent = "Loading assets...";
 
     try {
-      const response = await fetch("system/json/assets-test.json");
-      if (!response.ok) throw new Error("Failed to load JSON");
-      gamesData = await response.json();
+      // Fetch all JSON sources in parallel
+      const allResponses = await Promise.all(
+        jsonSources.map(url =>
+          fetch(url).then(r => {
+            if (!r.ok) throw new Error(`Failed to load: ${url}`);
+            return r.json();
+          })
+        )
+      );
 
-      // Normalize page numbers
-      gamesData.forEach(g => g.page = parseInt(g.page));
+      // Merge all loaded arrays into one
+      gamesData = allResponses.flat();
 
-      // Build all cards once
+      // Normalize and build UI
+      gamesData.forEach(g => (g.page = parseInt(g.page)));
+
       container.innerHTML = "";
       gamesData.forEach(game => {
         const gameDiv = document.createElement("div");
         gameDiv.className = "game-card";
         gameDiv.dataset.page = game.page;
 
-        // Build visible card (no status shown)
         gameDiv.innerHTML = `
           <a href="${game.link}" target="_blank">
             <img src="${game.image}" alt="${game.title}">
@@ -32,10 +46,10 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>${game.author}</p>
         `;
 
-        // Add status element (kept hidden in DOM for data completeness)
+        // Hidden status element for internal data
         const hiddenStatus = document.createElement("span");
         hiddenStatus.className = "status";
-        hiddenStatus.style.display = "none"; // fully hidden
+        hiddenStatus.style.display = "none";
         hiddenStatus.textContent = game.status || "";
         gameDiv.appendChild(hiddenStatus);
 
@@ -44,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       showPage(currentPage);
     } catch (err) {
-      container.textContent = "⚠ Failed to load.";
+      container.textContent = "⚠ Failed to load game data.";
       console.error("Error loading games:", err);
     }
   }
@@ -62,20 +76,19 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // If no games on that page, show message
     container.querySelectorAll(".no-games").forEach(el => el.remove());
     if (visibleCount === 0) {
       const msg = document.createElement("p");
       msg.className = "no-games";
-      msg.textContent = `No games on this page.`;
+      msg.textContent = "No games on this page.";
       container.appendChild(msg);
     }
 
-    // Hide the page indicator text entirely
+    // Hide page indicator
     pageIndicator.textContent = "";
     pageIndicator.style.display = "none";
 
-    // Save last page to session
+    // Save last page
     sessionStorage.setItem("currentPage", pageNum);
   }
 
@@ -91,5 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
     showPage(currentPage);
   };
 
+  // ✅ Start by loading the JSON from sources
   loadGames();
 });
