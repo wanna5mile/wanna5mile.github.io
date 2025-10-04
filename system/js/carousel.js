@@ -5,31 +5,25 @@ document.addEventListener("DOMContentLoaded", () => {
   let gamesData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
 
-  // Add one or more remote JSON URLs here
-  const jsonSources = [
-    "https://theworldpt1.github.io/system/json/assets-test.json"
-  ];
+  // Dynamically determine correct JSON path
+  // If your HTML is in root, use "system/json/assets-test.json"
+  // If it's in /system/pages/, use "../json/assets-test.json"
+  const jsonPath = location.pathname.includes("/system/pages/")
+    ? "../json/assets-test.json"
+    : "system/json/assets-test.json";
 
   async function loadGames() {
     container.textContent = "Loading assets...";
 
     try {
-      // Fetch all JSON sources in parallel
-      const allResponses = await Promise.all(
-        jsonSources.map(url =>
-          fetch(url).then(r => {
-            if (!r.ok) throw new Error(`Failed to load: ${url}`);
-            return r.json();
-          })
-        )
-      );
+      const response = await fetch(jsonPath);
+      if (!response.ok) throw new Error(`Failed to load: ${jsonPath}`);
+      gamesData = await response.json();
 
-      // Merge all loaded arrays into one
-      gamesData = allResponses.flat();
-
-      // Normalize and build UI
+      // Normalize page numbers
       gamesData.forEach(g => (g.page = parseInt(g.page)));
 
+      // Clear and build UI
       container.innerHTML = "";
       gamesData.forEach(game => {
         const gameDiv = document.createElement("div");
@@ -44,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>${game.author}</p>
         `;
 
-        // Hidden status element for internal data
+        // Hidden status element
         const hiddenStatus = document.createElement("span");
         hiddenStatus.className = "status";
         hiddenStatus.style.display = "none";
@@ -82,11 +76,10 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(msg);
     }
 
-    // Hide page indicator
+    // Hide page indicator (kept functional)
     pageIndicator.textContent = "";
     pageIndicator.style.display = "none";
 
-    // Save last page
     sessionStorage.setItem("currentPage", pageNum);
   }
 
