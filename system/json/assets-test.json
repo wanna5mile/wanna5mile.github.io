@@ -69,7 +69,7 @@
     "link": "library/fnaf1/index.html",
     "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/fnaf1.png",
     "status": "ok",
-    "page": 2
+    "page": 1
   },
   {
     "title": "Five Nights At Freddy's 2",
@@ -77,6 +77,134 @@
     "link": "library/fnaf2/index.html",
     "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/fnaf2.png",
     "status": "ok",
-    "page": 2
-  }
-]
+    "page": 1
+  },
+    {
+      "title": "Friday Night Funkin'",
+      "author": "ninjamuffin99",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/funkinlogo.png",
+      "link": "library/fridaynightfunkin/index.html"
+    },
+    {
+      "title": "Snow Rider 3D",
+      "author": "ashima Prabhakar",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/snowrider3d.jpeg",
+      "link": "library/snowrider3d/index.html"
+      "status": "ok",
+      "page": 1
+    },
+    {
+      "title": "1v1.lol",
+      "author": "justplay.lol",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/1v1.png",
+      "link": "library/1v1lol/index.html"
+    },
+    {
+      "title": "Retro Bowl",
+      "author": "New Star",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/retro.jpeg",
+      "link": "library/retrobowl/index.html"
+    },
+    {
+      "title": "Monkey Mart",
+      "author": "PRXYBOSS101",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/monkeymart.png",
+      "link": "library/monkeymart/index.html"
+    },
+    {
+      "title": "Slope",
+      "author": "Rob Kay",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/slope.jpg",
+      "link": "library/slope/index.html"
+    },
+    {
+      "title": "Slope 2",
+      "author": "Y8",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/slope2.jpeg",
+      "link": "library/slope2/index.html"
+    },
+    {
+      "title": "Omori",
+      "author": "OmoCat Studio",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/Omori_cover.jpg",
+      "link": "https://bguhm.github.io./library/omori/index.html"
+    },
+    {
+      "title": "Five Nights At Freddy's",
+      "author": "Scott Cawthon",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/fnaf1.png",
+      "link": "library/fnaf1/index.html"
+    },
+    {
+      "title": "Five Nights At Freddy's 2",
+      "author": "Scott Cawthon",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/fnaf2.png",
+      "link": "library/fnaf2/index.html"
+    },
+    {
+      "title": "Five Nights At Freddy's 3",
+      "author": "Scott Cawthon",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/fnaf3.png",
+      "link": "library/fnaf3/index.html"
+    },
+    {
+      "title": "Five Nights At Freddy's 4",
+      "author": "Scott Cawthon",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/fnaf4.png",
+      "link": "library/fnaf4/index.html"
+    },
+    {
+      "title": "Five Nights At Freddy's 4 Halloween",
+      "author": "Scott Cawthon",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/fnaf4halloween.png",
+      "link": "library/fnaf4halloween/index.html"
+    },
+    {
+      "title": "Five Nights At Freddy's World",
+      "author": "Scott Cawthon",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/world.png",
+      "link": "library/fnafworld/index.html"
+    },
+    {
+      "title": "Five Nights At Freddy's Pizza Simulator",
+      "author": "Scott Cawthon",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/pizzasim.png",
+      "link": "library/pizzasimulator/index.html"
+    },
+    {
+      "title": "Five Nights At Freddy's Ultimate Custom Night",
+      "author": "Scott Cawthon",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/ucn.png",
+      "link": "library/UCN/index.html"
+    },
+    {
+      "title": "Five Nights At Freddy's Sister Location",
+      "author": "Scott Cawthon",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/sisterlocation.png",
+      "link": "library/sisterlocation/index.html"
+    },
+    {
+      "title": "Crazy Cattle 3D",
+      "author": "4nn4t4t",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/crazycattle3d.jpg",
+      "link": "library/crazycattle3d/index.html"
+    },
+    {
+      "title": "Cuphead",
+      "author": "Studio MDHR",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/cuphead.png",
+      "link": "library/cuphead/index.html"
+    },
+    {
+      "title": "Class of '09",
+      "author": "SBN3 / Wrath Club",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/09.png",
+      "link": "library/class-of-09/index.html"
+    },
+    {
+      "title": "Kindergarten",
+      "author": "Con Man Games & Sean Young / SmashGames",
+      "image": "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/library/images/kinder.png",
+      "link": "library/kindergarten/index.html"
+    }
+  ]
