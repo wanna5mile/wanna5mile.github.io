@@ -6,8 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
 
   // Dynamically determine correct JSON path
-  // If your HTML is in root, use "system/json/assets-test.json"
-  // If it's in /system/pages/, use "../json/assets-test.json"
   const jsonPath = location.pathname.includes("/system/")
     ? "../json/assets-test.json"
     : "system/json/assets-test.json";
