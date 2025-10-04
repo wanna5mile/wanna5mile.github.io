@@ -11,17 +11,22 @@ document.addEventListener("DOMContentLoaded", () => {
     : "system/json/assets-test.json";
 
   async function loadGames() {
+    // Show loading message centered
     container.textContent = "Loading assets...";
+    container.style.textAlign = "center"; // center temporary message
 
     try {
       const response = await fetch(jsonPath);
       if (!response.ok) throw new Error(`Failed to load: ${jsonPath}`);
       gamesData = await response.json();
 
-      // ✅ Guard against malformed JSON
+      // Guard against malformed JSON
       if (!Array.isArray(gamesData)) {
         throw new Error("Invalid JSON format: expected an array.");
       }
+
+      // Reset text alignment for actual game cards
+      container.style.textAlign = "";
 
       // Normalize page numbers
       gamesData.forEach(g => (g.page = parseInt(g.page)));
@@ -54,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
       showPage(currentPage);
     } catch (err) {
       container.textContent = "⚠ Failed to load game data.";
+      container.style.textAlign = "center"; // center error message
       console.error("Error loading games:", err);
     }
   }
@@ -77,6 +83,9 @@ document.addEventListener("DOMContentLoaded", () => {
       msg.className = "no-games";
       msg.textContent = "No games on this page.";
       container.appendChild(msg);
+      container.style.textAlign = "center"; // center no-games message
+    } else {
+      container.style.textAlign = ""; // reset alignment for cards
     }
 
     // Hide page indicator (kept functional)
