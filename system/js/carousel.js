@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
     : "system/json/assets-test.json";
 
   async function loadGames() {
-    // Temporary loading message, centered
     container.textContent = "Loading assets...";
     container.style.textAlign = "center";
 
@@ -20,26 +19,18 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok) throw new Error(`Failed to load: ${jsonPath}`);
       gamesData = await response.json();
 
-      if (!Array.isArray(gamesData)) {
-        throw new Error("Invalid JSON format: expected an array.");
-      }
+      if (!Array.isArray(gamesData)) throw new Error("Invalid JSON: expected array");
 
-      // Reset alignment for actual game cards
       container.style.textAlign = "";
-
-      // Normalize page numbers
-      gamesData.forEach(g => (g.page = parseInt(g.page)));
-
-      // Clear container
       container.innerHTML = "";
 
-      // Build game cards
+      // Create game cards
       gamesData.forEach(game => {
-        const gameDiv = document.createElement("div");
-        gameDiv.className = "game-card";
-        gameDiv.dataset.page = game.page;
+        const card = document.createElement("div");
+        card.className = "game-card";
+        card.dataset.page = game.page;
 
-        gameDiv.innerHTML = `
+        card.innerHTML = `
           <a href="${game.link}" target="_blank">
             <img src="${game.image}" alt="${game.title}">
             <h3>${game.title}</h3>
@@ -47,21 +38,20 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>${game.author}</p>
         `;
 
-        // Hidden status element
         const hiddenStatus = document.createElement("span");
         hiddenStatus.className = "status";
         hiddenStatus.style.display = "none";
         hiddenStatus.textContent = game.status || "";
-        gameDiv.appendChild(hiddenStatus);
+        card.appendChild(hiddenStatus);
 
-        container.appendChild(gameDiv);
+        container.appendChild(card);
       });
 
       showPage(currentPage);
     } catch (err) {
       container.textContent = "⚠ Failed to load game data.";
       container.style.textAlign = "center";
-      console.error("Error loading games:", err);
+      console.error(err);
     }
   }
 
@@ -69,16 +59,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const allGames = container.querySelectorAll(".game-card");
     let visibleCount = 0;
 
-    allGames.forEach(gameDiv => {
-      if (parseInt(gameDiv.dataset.page) === pageNum) {
-        gameDiv.style.display = "block";
+    allGames.forEach(card => {
+      if (parseInt(card.dataset.page) === pageNum) {
+        card.style.display = "block";
         visibleCount++;
       } else {
-        gameDiv.style.display = "none";
+        card.style.display = "none";
       }
     });
 
     container.querySelectorAll(".no-games").forEach(el => el.remove());
+
     if (visibleCount === 0) {
       const msg = document.createElement("p");
       msg.className = "no-games";
@@ -87,14 +78,15 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(msg);
     }
 
-    // Update page indicator and make it visible
-    pageIndicator.textContent = `Page ${pageNum}`;
-    pageIndicator.style.display = "inline"; // ensures it's visible
+    // Update page indicator
+    const maxPage = Math.max(...gamesData.map(g => g.page));
+    pageIndicator.textContent = `Page ${pageNum} of ${maxPage}`;
+    pageIndicator.style.display = "inline";
 
     sessionStorage.setItem("currentPage", pageNum);
   }
 
-  // Page controls
+  // Expose navigation functions
   window.nextPage = function () {
     const maxPage = Math.max(...gamesData.map(g => g.page));
     currentPage = currentPage >= maxPage ? 1 : currentPage + 1;
