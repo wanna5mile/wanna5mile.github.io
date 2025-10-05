@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let gamesData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
   const gamesPerPage = 10;
+  const maxAllowedPage = 10;
 
   const jsonPath = location.pathname.includes("/system/")
     ? "../json/assets.json"
@@ -32,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         card.dataset.title = (game.title || "").toLowerCase();
         card.dataset.author = (game.author || "").toLowerCase();
         card.dataset.page = game.page || 1;
-        card.dataset.filtered = "true"; // default all visible
+        card.dataset.filtered = "true";
 
         card.innerHTML = `
           <a href="${game.link || "#"}" target="_blank">
@@ -52,18 +53,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function getFilteredCards() {
+    return Array.from(container.querySelectorAll(".game-card")).filter(c => c.dataset.filtered === "true");
+  }
+
   function renderPage() {
-    const allCards = Array.from(container.querySelectorAll(".game-card"));
-    const filteredCards = allCards.filter(c => c.dataset.filtered === "true");
+    const filteredCards = getFilteredCards();
+    if (!filteredCards.length) {
+      currentPage = 1;
+    }
 
-    const maxPage = Math.max(...filteredCards.map(c => parseInt(c.dataset.page)), 1);
-    if (currentPage > maxPage) currentPage = maxPage;
-
+    // Show cards only for the current page
     filteredCards.forEach(card => {
-      card.style.display = (parseInt(card.dataset.page) === currentPage) ? "block" : "none";
+      const cardPage = parseInt(card.dataset.page);
+      card.style.display = (cardPage === currentPage) ? "block" : "none";
     });
 
-    pageIndicator.textContent = `Page ${currentPage} of ${maxPage}`;
+    pageIndicator.textContent = `Page ${currentPage} of ${maxAllowedPage}`;
     sessionStorage.setItem("currentPage", currentPage);
 
     gameCountInfo.textContent = `${filteredCards.filter(c => c.style.display !== "none").length} Games on page ${currentPage}`;
@@ -72,36 +78,60 @@ document.addEventListener("DOMContentLoaded", () => {
   function filterGames(query) {
     const q = query.toLowerCase();
     const allCards = Array.from(container.querySelectorAll(".game-card"));
+
     allCards.forEach(card => {
-      if (!q || card.dataset.title.includes(q) || card.dataset.author.includes(q)) {
-        card.dataset.filtered = "true";
-      } else {
-        card.dataset.filtered = "false";
-      }
+      card.dataset.filtered = (!q || card.dataset.title.includes(q) || card.dataset.author.includes(q)) ? "true" : "false";
     });
 
-    // Only move to first page if current page has no visible cards
-    const filteredCards = allCards.filter(c => c.dataset.filtered === "true");
-    const currentVisible = filteredCards.some(c => parseInt(c.dataset.page) === currentPage);
-    if (!currentVisible && filteredCards.length) currentPage = parseInt(filteredCards[0].dataset.page);
+    const filteredCards = getFilteredCards();
+
+    // If current page has no visible cards, move to nearest page with content
+    if (!filteredCards.some(c => parseInt(c.dataset.page) === currentPage)) {
+      const pagesWithContent = Array.from(new Set(filteredCards.map(c => parseInt(c.dataset.page)))).sort((a,b) => a-b);
+      if (pagesWithContent.length) {
+        // Find nearest page lower or higher
+        const nearest = pagesWithContent.find(p => p > currentPage) || pagesWithContent[0];
+        currentPage = nearest;
+      } else {
+        currentPage = 1;
+      }
+    }
 
     renderPage();
   }
 
   function prevPage() {
-    if (currentPage > 1) {
-      currentPage--;
-      renderPage();
+    const filteredCards = getFilteredCards();
+    const pagesWithContent = Array.from(new Set(filteredCards.map(c => parseInt(c.dataset.page)))).sort((a,b) => a-b);
+
+    if (!pagesWithContent.length) return;
+
+    let newPage = currentPage - 1;
+    while (newPage >= 1 && !pagesWithContent.includes(newPage)) {
+      newPage--;
     }
+    if (newPage < 1) {
+      newPage = Math.max(...pagesWithContent); // wrap backward
+    }
+    currentPage = newPage;
+    renderPage();
   }
 
   function nextPage() {
-    const filteredCards = Array.from(container.querySelectorAll(".game-card")).filter(c => c.dataset.filtered === "true");
-    const maxPage = Math.max(...filteredCards.map(c => parseInt(c.dataset.page)), 1);
-    if (currentPage < maxPage) {
-      currentPage++;
-      renderPage();
+    const filteredCards = getFilteredCards();
+    const pagesWithContent = Array.from(new Set(filteredCards.map(c => parseInt(c.dataset.page)))).sort((a,b) => a-b);
+
+    if (!pagesWithContent.length) return;
+
+    let newPage = currentPage + 1;
+    while (newPage <= maxAllowedPage && !pagesWithContent.includes(newPage)) {
+      newPage++;
     }
+    if (newPage > maxAllowedPage) {
+      newPage = Math.min(...pagesWithContent); // wrap forward
+    }
+    currentPage = newPage;
+    renderPage();
   }
 
   // Placeholder cycle
@@ -120,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startPlaceholderCycle() {
     function cycle() {
-      const visibleCount = container.querySelectorAll(".game-card:not([style*='display: none'])").length;
+      const visibleCount = getFilteredCards().filter(c => c.dataset.page == currentPage).length;
       fadePlaceholder(searchInput, `${visibleCount} Games on page ${currentPage}`, () => {
         setTimeout(() => {
           fadePlaceholder(searchInput, "Search games...", () => setTimeout(cycle, 4000));
