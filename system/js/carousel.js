@@ -1,11 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   const pageIndicator = document.querySelector(".page-indicator");
   const container = document.getElementById("container");
-
   let gamesData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
 
-  // Determine JSON path dynamically
   const jsonPath = location.pathname.includes("/system/")
     ? "../json/assets.json"
     : "system/json/assets.json";
@@ -19,12 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok) throw new Error(`Failed to load: ${jsonPath}`);
       gamesData = await response.json();
 
-      if (!Array.isArray(gamesData)) throw new Error("Invalid JSON: expected array");
-
       container.style.textAlign = "";
       container.innerHTML = "";
 
-      // Create game cards
       gamesData.forEach(game => {
         const card = document.createElement("div");
         card.className = "game-card";
@@ -56,37 +51,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showPage(pageNum) {
-    const allGames = container.querySelectorAll(".game-card");
-    let visibleCount = 0;
+    const allGames = Array.from(container.querySelectorAll(".game-card"));
+    const filteredGames = allGames.filter(card => card.style.display !== "none" || card.dataset.filtered === undefined);
+
+    const maxPage = Math.max(...gamesData.map(g => g.page));
+    currentPage = Math.min(pageNum, maxPage);
 
     allGames.forEach(card => {
-      if (parseInt(card.dataset.page) === pageNum) {
-        card.style.display = "block";
-        visibleCount++;
-      } else {
-        card.style.display = "none";
-      }
+      card.style.display = parseInt(card.dataset.page) === currentPage ? "block" : "none";
     });
 
-    container.querySelectorAll(".no-games").forEach(el => el.remove());
-
-    if (visibleCount === 0) {
-      const msg = document.createElement("p");
-      msg.className = "no-games";
-      msg.textContent = "No games on this page.";
-      msg.style.textAlign = "center";
-      container.appendChild(msg);
-    }
-
-    // Update page indicator
-    const maxPage = Math.max(...gamesData.map(g => g.page));
-    pageIndicator.textContent = `Page ${pageNum} of ${maxPage}`;
+    // Page indicator
+    pageIndicator.textContent = `Page ${currentPage} of ${maxPage}`;
     pageIndicator.style.display = "inline";
 
-    sessionStorage.setItem("currentPage", pageNum);
+    sessionStorage.setItem("currentPage", currentPage);
   }
 
-  // Expose navigation functions
   window.nextPage = function () {
     const maxPage = Math.max(...gamesData.map(g => g.page));
     currentPage = currentPage >= maxPage ? 1 : currentPage + 1;
@@ -98,6 +79,41 @@ document.addEventListener("DOMContentLoaded", () => {
     currentPage = currentPage <= 1 ? maxPage : currentPage - 1;
     showPage(currentPage);
   };
+
+  // --- Search ---
+  const searchInput = document.getElementById("searchInputHeader");
+  const searchBtn = document.getElementById("searchBtnHeader");
+
+  function filterGames(query) {
+    const input = query.toLowerCase();
+    const allGames = container.querySelectorAll(".game-card");
+    allGames.forEach(card => {
+      const title = card.querySelector("h3")?.textContent.toLowerCase() || "";
+      const author = card.querySelector("p")?.textContent.toLowerCase() || "";
+      if (title.includes(input) || author.includes(input)) {
+        card.dataset.filtered = "true";
+      } else {
+        card.dataset.filtered = "false";
+      }
+    });
+    // Reset to first page after search
+    currentPage = 1;
+    showFilteredPage();
+  }
+
+  function showFilteredPage() {
+    const allGames = Array.from(container.querySelectorAll(".game-card"));
+    const filteredGames = allGames.filter(card => card.dataset.filtered === "true");
+
+    filteredGames.forEach(card => card.style.display = "block");
+    allGames.filter(card => card.dataset.filtered !== "true").forEach(card => card.style.display = "none");
+
+    // Update page indicator
+    pageIndicator.textContent = `Page ${currentPage} of ${Math.max(...gamesData.map(g => g.page))}`;
+  }
+
+  searchInput.addEventListener("keyup", () => filterGames(searchInput.value));
+  searchBtn.addEventListener("click", () => filterGames(searchInput.value));
 
   loadGames();
 });
