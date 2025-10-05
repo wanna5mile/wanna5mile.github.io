@@ -52,12 +52,13 @@
 
   <!-- Search / profile / dashboard grouped -->
   <div class="header-controls">
-    <div class="search-box">
-      <input type="text" id="searchInputHeader" placeholder="Search games..." />
-      <button id="searchBtnHeader">
-        <img src="system/icons/search.png" alt="Search" />
-      </button>
-    </div>	  
+<div class="search-box">
+  <input type="text" id="searchInputHeader" placeholder="Search games..." />
+  <button id="searchBtnHeader">
+    <img src="system/icons/search.png" alt="Search" />
+  </button>
+</div>
+<p id="gameCountInfo" style="color: var(--text-color); font-size: 0.9em; margin-top: 4px;"></p>  
     <a href="system/pages/profile.html"><img src="system/icons/profile.png" alt="profile" id="pfp" /></a>
     <img src="system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn" />
   </div>
@@ -133,7 +134,17 @@
 </script>
 
 <!-- Search filter -->
+<!-- Search filter + game count display -->
 <script>
+  function updateGameCount() {
+    const container = document.getElementById("container");
+    const allGames = container.querySelectorAll("div");
+    const visibleGames = Array.from(allGames).filter(g => g.style.display !== "none");
+    const currentPage = 1; // static since you said all use "page": 1
+    document.getElementById("gameCountInfo").textContent =
+      `Current amount of games: ${visibleGames.length} inside of page ${currentPage}`;
+  }
+
   function filterGames(query) {
     const input = query.toLowerCase();
     const games = document.querySelectorAll("#container > div");
@@ -143,15 +154,25 @@
       const author = game.querySelector("p")?.textContent.toLowerCase() || "";
       game.style.display = title.includes(input) || author.includes(input) ? "block" : "none";
     });
+
+    updateGameCount();
   }
 
-  document.getElementById("searchInputHeader").addEventListener("keyup", function () {
-    filterGames(this.value);
-  });
+  document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("searchInputHeader");
+    const searchBtn = document.getElementById("searchBtnHeader");
 
-  document.getElementById("searchBtnHeader").addEventListener("click", function () {
-    const query = document.getElementById("searchInputHeader").value;
-    filterGames(query);
+    searchInput.addEventListener("keyup", function () {
+      filterGames(this.value);
+    });
+
+    searchBtn.addEventListener("click", function () {
+      const query = searchInput.value;
+      filterGames(query);
+    });
+
+    // initialize count on load
+    updateGameCount();
   });
 </script>
 
