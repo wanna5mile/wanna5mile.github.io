@@ -126,55 +126,48 @@
 
 <!-- Popup, dashboard, scroll-to-top scripts -->
 <script>
-  // --- Update Popup ---
-  document.addEventListener("DOMContentLoaded", () => {
-    const popup = document.getElementById("updatePopup");
-    const closeBtn = document.getElementById("closeUpdateBtn");
-    const viewUpdateBtn = document.getElementById("viewUpdateBtn");
-    const viewInfoBtn = document.getElementById("viewUpdateInfoBtn");
-    const dontShowBtn = document.getElementById("dontShowBtn");
+	// --- Update Popup to pause vid when closed ---
+document.addEventListener("DOMContentLoaded", () => {
+  const popup = document.getElementById("updatePopup");
+  const video = document.getElementById("updateVideo");
+  const closeBtn = document.getElementById("closeUpdateBtn");
+  const viewUpdateBtn = document.getElementById("viewUpdateBtn");
+  const viewInfoBtn = document.getElementById("viewUpdateInfoBtn");
+  const dontShowBtn = document.getElementById("dontShowBtn");
 
-    const currentVersion = "v0.8";
-    const storedVersion = localStorage.getItem("dismissedUpdateVersion");
+  const currentVersion = "v0.8";
+  const storedVersion = localStorage.getItem("dismissedUpdateVersion");
 
-    if (storedVersion !== currentVersion && !sessionStorage.getItem("updatePopupClosed")) {
-      setTimeout(() => popup.classList.add("show"), 1500);
-    }
+  if (storedVersion !== currentVersion && !sessionStorage.getItem("updatePopupClosed")) {
+    setTimeout(() => popup.classList.add("show"), 1500);
+  }
 
-    closeBtn.addEventListener("click", () => {
-      popup.classList.remove("show");
-      sessionStorage.setItem("updatePopupClosed", "true");
-    });
+  function stopVideo() {
+    const src = video.src;
+    video.src = "";    // unloads video → stops audio
+    video.src = src;   // reloads video when reopened
+  }
 
-    dontShowBtn.addEventListener("click", () => {
-      localStorage.setItem("dismissedUpdateVersion", currentVersion);
-      popup.classList.remove("show");
-    });
-
-    viewUpdateBtn.addEventListener("click", () => {
-      window.open("system/pages/updates.html", "_blank");
-    });
-
-    viewInfoBtn.addEventListener("click", () => {
-      window.open("system/pages/update-info.html", "_blank");
-    });
+  closeBtn.addEventListener("click", () => {
+    popup.classList.remove("show");
+    sessionStorage.setItem("updatePopupClosed", "true");
+    stopVideo();
   });
 
-  // --- Dashboard Toggle ---
-  document.addEventListener("DOMContentLoaded", () => {
-    const dashboardBtn = document.getElementById("dashboardBtn");
-    const dashboardMenu = document.getElementById("dashboardMenu");
-
-    dashboardBtn.onclick = () => {
-      dashboardMenu.style.display = dashboardMenu.style.display === "flex" ? "none" : "flex";
-    };
-
-    window.addEventListener("click", e => {
-      if (!dashboardBtn.contains(e.target) && !dashboardMenu.contains(e.target)) {
-        dashboardMenu.style.display = "none";
-      }
-    });
+  dontShowBtn.addEventListener("click", () => {
+    localStorage.setItem("dismissedUpdateVersion", currentVersion);
+    popup.classList.remove("show");
+    stopVideo();
   });
+
+  viewUpdateBtn.addEventListener("click", () => {
+    window.open("system/pages/updates.html", "_blank");
+  });
+
+  viewInfoBtn.addEventListener("click", () => {
+    window.open("system/pages/update-info.html", "_blank");
+  });
+});
 
   // --- Scroll-to-Top ---
   const toTopBtn = document.getElementById("toTopBtn");
