@@ -1,94 +1,110 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Test 003</title>
-    <link rel="icon" href="system/images/bguhm.png" />
-    <link rel="stylesheet" href="system/css/main.css" />
-    <link rel="stylesheet" href="system/css/quote.css" />
-    <link rel="stylesheet" href="system/css/themes.css" />
-    <link rel="stylesheet" href="system/css/commands.css" />
-    <meta name="author" content="Bg.uhm by rhap5ody" />
-    <meta name="keywords" content="fun, library, github, rhap5ody" />
-    
-    <!-- Core scripts -->
-    <script src="system/js/quote.js" defer></script> 
-    <script src="system/js/settings.js" defer></script>
-    <script src="system/js/searcherror.js" defer></script> 
-    <script src="system/js/carousel.js" defer></script> 
-    <script src="system/js/commands.js" defer></script> 
-    <script src="system/js/paging.js" defer></script> <!-- paging + JSON loader -->
-    
-    <!-- Discord Widget -->
-    <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3" async defer>
-      new Crate({
-          server: '1273329263923302430',
-          channel: '1329289920845713471'
-      })
-    </script>
-  </head>
-  <body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test 003</title>
+  <link rel="icon" href="system/images/bguhm.png">
+  <link rel="stylesheet" href="system/css/main.css">
+  <style>
+    /* Popup overlay */
+    .update-popup {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(6px);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
 
-  <!-- Nav anchors / links -->
-<header>
-  <nav class="nav-links">
-    <a href="system/pages/home.html">Home</a>
-    <a href="system/pages/favorite.html">Favorites</a>
-    <a href="system/pages/discover.html">Discovery</a>
-    <a href="system/pages/settings.html">Settings</a>
-    <a href="system/pages/support.html">Support</a>
-    <a href="system/pages/info.html">Info</a>
+    .update-popup.show {
+      opacity: 1;
+      pointer-events: all;
+    }
 
-    <!-- Pages control -->
-    <div class="pages-anchor">
-      <button class="arrowleft" onclick="prevPage()">
-        <img src="system/icons/left.png" alt="Previous Page">
-      </button>
-      <span class="page-indicator">...</span>
-      <button class="arrowright" onclick="nextPage()">
-        <img src="system/icons/right.png" alt="Next Page">
-      </button>
-    </div>
-  </nav>
+    /* Popup content */
+    .update-popup-content {
+      background: var(--background-color, #1e1e1e);
+      border-radius: 14px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      width: 90%;
+      max-width: 480px;
+      text-align: center;
+      padding: 20px;
+      color: var(--text-color, #fff);
+      animation: popup-bounce 0.6s ease;
+    }
 
-  <!-- Search / profile / dashboard grouped -->
-  <div class="header-controls">
-<div class="search-box">
-  <input type="text" id="searchInputHeader" placeholder="Search games..." />
-  <button id="searchBtnHeader">
-    <img src="system/icons/search.png" alt="Search" />
-  </button>
-</div>
-<p id="gameCountInfo" style="color: var(--text-color); font-size: 0.9em; margin-top: 4px;"></p>  
-    <a href="system/pages/profile.html"><img src="system/icons/profile.png" alt="profile" id="pfp" /></a>
-    <img src="system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn" />
-  </div>
-</header>
+    .update-popup-content h2 {
+      margin-top: 0;
+      color: var(--accent-color, #fff);
+    }
 
-<!-- Make-shift Marquee -->
-<div id="quoteWrapper">
-  <p id="quoteBox"></p>
-</div>
+    .update-popup-content p {
+      font-size: 0.95em;
+      margin: 10px 0 20px;
+    }
 
+    .update-video {
+      margin-bottom: 15px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
 
+    /* Buttons side by side */
+    .update-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
 
-	  
+    .update-buttons button {
+      flex: 1;
+      min-width: 100px;
+      background: var(--accent-color, #2e2e2e);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .update-buttons button:hover {
+      background: #3e3e3e;
+    }
+
+    @keyframes popup-bounce {
+      0% { transform: scale(0.9); opacity: 0; }
+      60% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
 <!-- v0.8 Update Promo Popup -->
 <div id="updatePopup" class="update-popup">
   <div class="update-popup-content">
     <h2>🎉 Version 0.8 Update!</h2>
     <p>New games, smoother loading, and visual tweaks across the library!</p>
 
-    <!-- update video -->
     <div class="update-video">
       <iframe 
         id="updateVideo"
         width="100%" 
         height="200" 
-        src="https://www.youtube.com/embed/Ik4Cgquw-D8?si=JPMig9VTfb-PYVNg&amp;controls=0" 
+        src="https://www.youtube.com/embed/Ik4Cgquw-D8?si=JPMig9VTfb-PYVNg&controls=0" 
         title="v0.8 Update Trailer" 
         frameborder="0" 
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-        referrerpolicy="strict-origin-when-cross-origin" 
         allowfullscreen>
       </iframe>
     </div>
@@ -102,239 +118,40 @@
   </div>
 </div>
 
-<style>
-  .update-buttons {
-    display: flex;
-    flex-direction: row; /* side-by-side */
-    justify-content: space-between; /* even spacing */
-    gap: 8px;
-    flex-wrap: wrap; /* allows wrapping on smaller screens */
-  }
-
-  .update-buttons button {
-    flex: 1; /* buttons take equal width */
-    min-width: 100px; /* optional: ensures buttons aren't too small */
-    background: var(--accent-color, #2e2e2e);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 8px;
-    font-size: 0.9em;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .update-buttons button:hover {
-    background: #3e3e3e;
-  }
-</style>
-
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const popup = document.getElementById("updatePopup");
-    const closeBtn = document.getElementById("closeUpdateBtn");
-    const viewUpdateBtn = document.getElementById("viewUpdateBtn");
-    const viewInfoBtn = document.getElementById("viewUpdateInfoBtn");
-    const dontShowBtn = document.getElementById("dontShowBtn");
+document.addEventListener("DOMContentLoaded", () => {
+  const popup = document.getElementById("updatePopup");
+  const closeBtn = document.getElementById("closeUpdateBtn");
+  const viewUpdateBtn = document.getElementById("viewUpdateBtn");
+  const viewInfoBtn = document.getElementById("viewUpdateInfoBtn");
+  const dontShowBtn = document.getElementById("dontShowBtn");
 
-    const currentVersion = "v0.8"; // <- update this each release
-    const storedVersion = localStorage.getItem("dismissedUpdateVersion");
+  const currentVersion = "v0.8";
+  const storedVersion = localStorage.getItem("dismissedUpdateVersion");
 
-    // Always check localStorage first
-    if (storedVersion !== currentVersion) {
-      // Check if user closed it in current session
-      const sessionDismissed = sessionStorage.getItem("updatePopupClosed");
-      if (!sessionDismissed) {
-        setTimeout(() => popup.classList.add("show"), 1500);
-      }
-    }
+  // Show popup if not dismissed permanently or in this session
+  if (storedVersion !== currentVersion && !sessionStorage.getItem("updatePopupClosed")) {
+    setTimeout(() => popup.classList.add("show"), 1000);
+  }
 
-    // Close for this session
-    closeBtn.addEventListener("click", () => {
-      popup.classList.remove("show");
-      sessionStorage.setItem("updatePopupClosed", "true");
-    });
-
-    // Don't show again (permanent)
-    dontShowBtn.addEventListener("click", () => {
-      localStorage.setItem("dismissedUpdateVersion", currentVersion);
-      popup.classList.remove("show");
-    });
-
-    // Example buttons (replace URLs)
-    viewUpdateBtn.addEventListener("click", () => {
-      window.open("system/pages/updates.html", "_blank");
-    });
-
-    viewInfoBtn.addEventListener("click", () => {
-      window.open("system/pages/update-info.html", "_blank");
-    });
+  closeBtn.addEventListener("click", () => {
+    popup.classList.remove("show");
+    sessionStorage.setItem("updatePopupClosed", "true");
   });
-</script>
 
-
-
-	  
-<main>
-  <div id="container">loading assets...</div>
-</main>
-
-<button id="toTopBtn">⬆ Top</button>
-
-<footer>
-  <a href="system/pages/sources.html">sources</a>
-  <a href="system/pages/contributors.html">contribute</a>
-  <a href="system/pages/discord.html">Discord</a>
-  <a href="system/pages/bugsNfixes.html">Bugs & fixes</a>
-  <a href="system/pages/contact.html">Socials</a>
-  <a href="system/pages/version-log.html">version V0.7.2</a>
-</footer>
-
-<div id="dashboardMenu" class="dashboard-menu">
-  <a href="system/pages/music-player.html">Music Player</a>
-  <a href="system/pages/settings-themes.html">Themes</a>
-  <a href="system/pages/credits.html">Credits</a>
-  <a href="system/pages/alt.html">Alternative Links</a>
-</div>
-
-<!-- Dashboard toggle -->
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const dashboardBtn = document.getElementById("dashboardBtn");
-    const dashboardMenu = document.getElementById("dashboardMenu");
-
-    dashboardBtn.onclick = function () {
-      dashboardMenu.style.display = dashboardMenu.style.display === "flex" ? "none" : "flex";
-    };
-
-    window.addEventListener("click", function (e) {
-      if (!dashboardBtn.contains(e.target) && !dashboardMenu.contains(e.target)) {
-        dashboardMenu.style.display = "none";
-      }
-    });
+  dontShowBtn.addEventListener("click", () => {
+    localStorage.setItem("dismissedUpdateVersion", currentVersion);
+    popup.classList.remove("show");
   });
-</script>
 
-<!-- Scroll-to-top button -->
-<script>
-  const toTopBtn = document.getElementById("toTopBtn");
-
-  window.onscroll = function () {
-    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 200) {
-      toTopBtn.style.display = "block";
-    } else {
-      toTopBtn.style.display = "none";
-    }
-  };
-
-  toTopBtn.onclick = function () {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  toTopBtn.addEventListener("dblclick", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  viewUpdateBtn.addEventListener("click", () => {
+    window.open("system/pages/updates.html", "_blank");
   });
-</script>
 
-<!-- Search filter -->
-<style>
-  #searchInputHeader {
-    transition: color 0.3s ease, opacity 0.3s ease;
-  }
-
-  #searchInputHeader.fade-out {
-    opacity: 0;
-  }
-
-  #searchInputHeader.fade-in {
-    opacity: 1;
-  }
-</style>
-
-<style>
-  #searchInputHeader {
-    transition: opacity 0.5s ease;
-  }
-  #searchInputHeader.fade-out {
-    opacity: 0;
-  }
-  #searchInputHeader.fade-in {
-    opacity: 1;
-  }
-</style>
-
-<script>
-  function updateGameCount() {
-    const container = document.getElementById("container");
-    const allGames = container.querySelectorAll("div");
-    const visibleGames = Array.from(allGames).filter(g => g.style.display !== "none");
-    const currentPage = 1;
-    return `Current amount of games: ${visibleGames.length} inside of page ${currentPage}`;
-  }
-
-  function fadePlaceholder(input, newText, callback) {
-    input.classList.add("fade-out");
-    setTimeout(() => {
-      input.placeholder = newText;
-      input.classList.remove("fade-out");
-      input.classList.add("fade-in");
-      setTimeout(() => {
-        input.classList.remove("fade-in");
-        if (callback) callback();
-      }, 500);
-    }, 500);
-  }
-
-  function startPlaceholderCycle() {
-    const input = document.getElementById("searchInputHeader");
-
-    function cycle() {
-      const countText = updateGameCount();
-      fadePlaceholder(input, countText, () => {
-        setTimeout(() => {
-          fadePlaceholder(input, "Search games...", () => {
-            setTimeout(cycle, 4000); // time before looping again
-          });
-        }, 4000); // how long the count text stays visible
-      });
-    }
-
-    cycle();
-  }
-
-  function filterGames(query) {
-    const input = query.toLowerCase();
-    const games = document.querySelectorAll("#container > div");
-
-    games.forEach((game) => {
-      const title = game.querySelector("h3")?.textContent.toLowerCase() || "";
-      const author = game.querySelector("p")?.textContent.toLowerCase() || "";
-      game.style.display = title.includes(input) || author.includes(input) ? "block" : "none";
-    });
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const searchInput = document.getElementById("searchInputHeader");
-    const searchBtn = document.getElementById("searchBtnHeader");
-
-    searchInput.addEventListener("focus", () => {
-      searchInput.placeholder = "Search games...";
-    });
-
-    searchInput.addEventListener("keyup", function () {
-      filterGames(this.value);
-    });
-
-    searchBtn.addEventListener("click", function () {
-      const query = searchInput.value;
-      filterGames(query);
-    });
-
-    startPlaceholderCycle();
+  viewInfoBtn.addEventListener("click", () => {
+    window.open("system/pages/update-info.html", "_blank");
   });
+});
 </script>
 
 </body>
