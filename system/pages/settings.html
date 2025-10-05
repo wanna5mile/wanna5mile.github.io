@@ -4,142 +4,57 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settings</title>
-
-  <!-- Corrected CSS paths -->
   <link rel="stylesheet" href="../system/css/main.css">
-  <link rel="stylesheet" href="../system/css/themes.css">
-  <link rel="stylesheet" href="../system/css/commands.css">
-
   <meta name="author" content="Bg.uhm by rhap5ody">
   <meta name="keywords" content="fun, library, github, rhap5ody">
-
-  <!-- JS -->
   <script src="../system/js/settings.js" defer></script>
-
-  <!-- Page-Specific Styling -->
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      color: var(--text-color, #fff);
-      background-color: var(--background-color, #111);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+    main { padding:20px; max-width:800px; margin:0 auto; }
+    .setting { margin-bottom:40px; }
+    .setting h2 { margin-bottom:10px; }
+    .cloak-buttons button, .save-btn, .return-btn {
+      margin:4px; padding:8px 12px; border:none; border-radius:6px;
+      cursor:pointer; background:#333; color:#fff; transition:background 0.2s ease;
     }
-
-    header, footer {
-      background: var(--header-footer-bg, #1b1b1b);
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-
-    .nav-links a {
-      color: var(--text-color, #fff);
-      margin: 0 8px;
-      text-decoration: none;
-      font-size: 0.95em;
-      transition: opacity 0.2s;
-    }
-    .nav-links a:hover { opacity: 0.7; }
-
-    main {
-      flex: 1;
-      padding: 30px 20px;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    h1.page-title {
-      font-size: 2em;
-      margin-bottom: 25px;
-      text-align: center;
-      color: var(--accent-color, #fff);
-    }
-
-    section.setting {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 25px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.4);
-    }
-
-    section.setting h2 {
-      color: var(--accent-color, #fff);
-      margin-top: 0;
-    }
-
-    .setting label {
-      display: block;
-      margin: 10px 0 5px;
-      font-weight: 600;
-      color: var(--text-color, #fff);
-    }
-
-    .setting input[type="color"],
-    .setting input[type="text"] {
-      width: 100%;
-      padding: 6px;
-      border: none;
-      border-radius: 6px;
-      background: #2b2b2b;
-      color: #fff;
-    }
-
-    .setting button {
-      background: var(--accent-color, #333);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 14px;
-      cursor: pointer;
-      font-weight: 600;
-      margin-top: 10px;
-      transition: background 0.2s ease, transform 0.1s ease;
-    }
-
-    .setting button:hover {
-      background: #444;
-      transform: scale(1.03);
-    }
-
-    .cloak-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    footer {
-      justify-content: center;
-      gap: 10px;
-      font-size: 0.85em;
-    }
-    footer a {
-      color: var(--text-color, #ccc);
-      text-decoration: none;
-    }
-    footer a:hover {
-      color: var(--accent-color, #fff);
+    .cloak-buttons button:hover, .save-btn:hover, .return-btn:hover { background:#555; }
+    input[type="color"], input[type="text"] {
+      display:block; margin:6px 0 12px; padding:6px; border-radius:6px;
+      border:1px solid #444; background:#222; color:#fff; width:100%;
     }
   </style>
 </head>
-
 <body>
 
   <!-- Header -->
   <header>
     <nav class="nav-links">
-      <a href="../index.html">Home</a>
+      <a href="home.html">Home</a>
       <a href="favorite.html">Favorites</a>
-      <a href="discover.html">Discover</a>
-      <a href="settings.html" class="active">Settings</a>
+      <a href="discover.html">Discovery</a>
+      <a href="settings.html">Settings</a>
       <a href="support.html">Support</a>
       <a href="info.html">Info</a>
     </nav>
+
+    <div class="header-controls">
+      <div class="search-box">
+        <input type="text" id="searchInputHeader" placeholder="Search games..." />
+        <button id="searchBtnHeader"><img src="../system/icons/search.png" alt="Search"></button>
+      </div>
+      <a href="profile.html"><img src="../system/icons/profile.png" alt="profile" id="pfp"></a>
+      <img src="../system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
+    </div>
   </header>
+
+  <!-- Dashboard Menu -->
+  <div id="dashboardMenu" class="dashboard-menu">
+    <a href="profile.html">Profile</a>
+    <a href="favorite.html">Favorites</a>
+    <a href="settings.html">Settings</a>
+    <a href="support.html">Support</a>
+    <a href="info.html">Info</a>
+    <a href="version-log.html">Version Log</a>
+  </div>
 
   <!-- Main Settings -->
   <main>
@@ -155,12 +70,9 @@
         <button onclick="setCloak('New Tab','../system/icons/newtab.png')">New Tab</button>
         <button onclick="resetCloak()">Reset</button>
       </div>
-
-      <label for="customCloakUrl">Custom Cloak Image URL:</label>
       <input type="text" id="customCloakUrl" placeholder="Paste favicon URL">
-      <label for="customCloakTitle">Custom Cloak Title:</label>
       <input type="text" id="customCloakTitle" placeholder="Enter custom tab title">
-      <button onclick="saveCustomCloak()">Save Custom Cloak</button>
+      <button class="save-btn" onclick="saveCustomCloak()">Save Custom Cloak</button>
     </section>
 
     <!-- Theme Customization -->
@@ -168,18 +80,14 @@
       <h2>Customize Theme</h2>
       <label for="bgColor">Background Color:</label>
       <input type="color" id="bgColor">
-
       <label for="marqueeColor">Marquee Text Color:</label>
       <input type="color" id="marqueeColor">
-
       <label for="headerColor">Header Background:</label>
       <input type="color" id="headerColor">
-
       <label for="footerColor">Footer Background:</label>
       <input type="color" id="footerColor">
-
-      <button onclick="saveTheme()">Save Theme</button>
-      <button onclick="window.location.href='../index.html'">Return to Page</button>
+      <button class="save-btn" onclick="saveTheme()">Save Theme</button>
+      <button class="return-btn" onclick="window.location.href='../../index.html'">Return to Page</button>
     </section>
   </main>
 
@@ -190,33 +98,39 @@
     <a href="discord.html">Discord</a>
     <a href="bugsNfixes.html">Bugs & Fixes</a>
     <a href="contact.html">Socials</a>
-    <a href="version-log.html">v0.7.2</a>
+    <a href="version-log.html">Version V0.7.2</a>
   </footer>
 
-  <!-- Dashboard Script -->
   <script>
-    // Cloak logic
+    // === Cloak Logic ===
     function setCloak(title, icon) {
       localStorage.setItem("cloakTitle", title);
       localStorage.setItem("cloakIcon", icon);
-      alert("Cloak set to " + title);
+      document.title = title;
+      const link = document.querySelector("link[rel~='icon']") || document.createElement("link");
+      link.rel = "icon"; link.href = icon;
+      document.head.appendChild(link);
     }
+
     function resetCloak() {
       localStorage.removeItem("cloakTitle");
       localStorage.removeItem("cloakIcon");
-      alert("Cloak reset.");
+      document.title = "Bguhm.GuiHub.io";
+      const link = document.querySelector("link[rel~='icon']");
+      if (link) link.href = "../system/icons/default.png";
     }
+
     function saveCustomCloak() {
       const url = document.getElementById("customCloakUrl").value.trim();
       const title = document.getElementById("customCloakTitle").value.trim();
       if (url && title) {
         localStorage.setItem("cloakTitle", title);
         localStorage.setItem("cloakIcon", url);
-        alert("Custom cloak saved!");
-      } else alert("Please provide both a title and image URL.");
+        setCloak(title, url);
+      }
     }
 
-    // Theme logic
+    // === Theme Logic (auto-applied globally) ===
     function saveTheme() {
       const theme = {
         bgColor: document.getElementById("bgColor").value,
@@ -226,14 +140,18 @@
       };
       localStorage.setItem("customTheme", JSON.stringify(theme));
       localStorage.setItem("theme", "custom");
-      alert("Theme saved!");
+      applyTheme(theme);
+    }
+
+    function applyTheme(theme) {
+      if (theme.bgColor) document.body.style.backgroundColor = theme.bgColor;
+      if (theme.headerColor) document.querySelector("header").style.backgroundColor = theme.headerColor;
+      if (theme.footerColor) document.querySelector("footer").style.backgroundColor = theme.footerColor;
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       const savedTheme = JSON.parse(localStorage.getItem("customTheme") || "{}");
-      if (savedTheme.bgColor) document.body.style.backgroundColor = savedTheme.bgColor;
-      if (savedTheme.headerColor) document.querySelector("header").style.backgroundColor = savedTheme.headerColor;
-      if (savedTheme.footerColor) document.querySelector("footer").style.backgroundColor = savedTheme.footerColor;
+      applyTheme(savedTheme);
     });
   </script>
 </body>
