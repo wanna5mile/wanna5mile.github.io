@@ -186,6 +186,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 </script>
-  
+<!--dashboard-->
+	<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const dashboardBtn = document.getElementById("dashboardBtn");
+  const dashboardMenu = document.getElementById("dashboardMenu");
+
+  if (!dashboardBtn || !dashboardMenu) return;
+
+  // Start hidden
+  dashboardMenu.style.display = "none";
+  dashboardMenu.style.opacity = 0;
+  dashboardMenu.style.transition = "opacity 0.3s ease";
+
+  // Toggle visibility
+  dashboardBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isVisible = dashboardMenu.style.display === "block";
+    if (isVisible) {
+      dashboardMenu.style.opacity = 0;
+      setTimeout(() => (dashboardMenu.style.display = "none"), 300);
+    } else {
+      dashboardMenu.style.display = "block";
+      setTimeout(() => (dashboardMenu.style.opacity = 1), 10);
+    }
+  });
+
+  // Click outside → close
+  document.addEventListener("click", (e) => {
+    if (!dashboardMenu.contains(e.target) && e.target !== dashboardBtn) {
+      if (dashboardMenu.style.display === "block") {
+        dashboardMenu.style.opacity = 0;
+        setTimeout(() => (dashboardMenu.style.display = "none"), 300);
+      }
+    }
+  });
+});
+</script>
+
 </body>
 </html>
