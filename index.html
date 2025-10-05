@@ -116,6 +116,32 @@
     }
     #searchInputHeader.fade-out { opacity: 0; }
     #searchInputHeader.fade-in { opacity: 1; }
+
+    /* Video wrapper & tooltip */
+.update-video-wrapper {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.video-tooltip {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8em;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* so it doesn’t block mouse */
+}
+
+.update-video-wrapper:hover .video-tooltip {
+  opacity: 1;
+}
   </style>
 </head>
 <body>
@@ -157,12 +183,16 @@
     <h2>🎉 Version 0.8 Update!</h2>
     <p>New games, smoother loading, and visual tweaks across the library!</p>
 
-    <div class="update-video">
-      <iframe id="updateVideo" width="100%" height="200" 
-        src="https://www.youtube.com/embed/Ik4Cgquw-D8?si=JPMig9VTfb-PYVNg&controls=0" 
-        title="v0.8 Update Trailer" frameborder="0" 
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-        allowfullscreen></iframe>
+    <div class="update-video-wrapper">
+      <div class="update-video">
+        <iframe id="updateVideo" width="100%" height="200" 
+          src="https://www.youtube.com/embed/Ik4Cgquw-D8?si=JPMig9VTfb-PYVNg&controls=0" 
+          title="v0.8 Update Trailer" frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          allowfullscreen>
+        </iframe>
+      </div>
+      <div class="video-tooltip">Press F or double click for full screen</div>
     </div>
 
     <div class="update-buttons">
