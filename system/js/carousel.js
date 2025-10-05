@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (searchInput) searchInput.addEventListener("input", e => filterGames(e.target.value));
   if (searchBtn) searchBtn.addEventListener("click", () => filterGames(searchInput.value));
 
-  // --- Main: Load JSON ---
+  // --- Main: Load JSON (with image load delay) ---
   async function loadGames() {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif"; // default loading
@@ -147,6 +147,22 @@ document.addEventListener("DOMContentLoaded", () => {
       renderPage();
       startPlaceholderCycle();
 
+      // Wait until all images are fully loaded
+      const allImages = Array.from(container.querySelectorAll(".game-card img"));
+      await Promise.allSettled(
+        allImages.map(
+          img =>
+            new Promise(resolve => {
+              if (img.complete) return resolve();
+              img.addEventListener("load", resolve);
+              img.addEventListener("error", resolve);
+            })
+        )
+      );
+
+      // Add small delay for smoother fade
+      await new Promise(r => setTimeout(r, 800));
+
       // Success: show load-fire.gif and fade preloader
       if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
       if (preloader) {
@@ -159,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
       showLoading("⚠ Failed to load game data.");
 
       // Failure: switch to fail.gif, keep preloader visible
-      if (loaderImage) loaderImage.src = "fail.gif";
+      if (loaderImage) loaderImage.src = "system/images/GIF/fail.gif";
     }
   }
 
