@@ -43,9 +43,11 @@ header a:hover, footer a:hover {
   text-decoration: underline;
   text-decoration-color: #ff4444;
 }
+/* Header icons */
 header img {
   width: 30px;
-  height: auto;
+  height: 30px; /* force square to prevent oval */
+  object-fit: cover; /* ensures circular crop looks clean */
 }
 
 /* Left nav (anchors) */
@@ -72,10 +74,12 @@ header img {
 
 /* Profile picture */
 #pfp {
-  width: 30px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   cursor: pointer;
   transition: transform 0.25s ease;
+  object-fit: cover; /* crop instead of stretch */
 }
 #pfp:hover {
   transform: scale(1.1);
