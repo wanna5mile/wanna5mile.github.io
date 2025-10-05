@@ -12,23 +12,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const jsonPath = "system/json/assets.json";
 
   // --- Load JSON and create cards ---
-  async function loadGames() {
-    showLoading("Loading assets...");
-    try {
-      const res = await fetch(jsonPath);
-      if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
-      gamesData = await res.json();
+async function loadGames() {
+  showLoading("Loading assets...");
+  try {
+    const res = await fetch(jsonPath);
+    if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
+    gamesData = await res.json();
 
-      container.innerHTML = "";
-      createGameCards(gamesData);
+    container.innerHTML = "";
+    createGameCards(gamesData);
 
-      renderPage();
-      startPlaceholderCycle();
-    } catch (err) {
-      showLoading("⚠ Failed to load game data.");
-      console.error("Error loading JSON:", err);
+    renderPage();
+    startPlaceholderCycle();
+
+    // ✅ Hide preloader
+    const preloader = document.getElementById("preloader");
+    if (preloader) {
+      preloader.classList.add("fade");
+      setTimeout(() => preloader.style.display = "none", 500); // matches CSS transition
     }
+  } catch (err) {
+    showLoading("⚠ Failed to load game data.");
+    console.error("Error loading JSON:", err);
   }
+}
 
   function showLoading(text) {
     if (container) {
