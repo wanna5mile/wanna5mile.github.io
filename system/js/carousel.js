@@ -1,21 +1,28 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // --- DOM Elements ---
   const container = document.getElementById("container");
   const pageIndicator = document.querySelector(".page-indicator");
   const searchInput = document.getElementById("searchInputHeader");
   const searchBtn = document.getElementById("searchBtnHeader");
-  const gameCountInfo = document.getElementById("gameCountInfo");
 
+  // Add gameCountInfo dynamically if missing
+  let gameCountInfo = document.getElementById("gameCountInfo");
+  if (!gameCountInfo) {
+    gameCountInfo = document.createElement("div");
+    gameCountInfo.id = "gameCountInfo";
+    searchInput?.parentElement?.appendChild(gameCountInfo);
+  }
+
+  // --- Config & State ---
   let gamesData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
   const gamesPerPage = 10;
   const maxAllowedPage = 10;
-
   const jsonPath = "system/json/assets.json";
 
-  // --- Load games from JSON ---
+  // --- Load JSON and create cards ---
   async function loadGames() {
     showLoading("Loading assets...");
-
     try {
       const res = await fetch(jsonPath);
       if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
@@ -33,12 +40,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showLoading(text) {
-    container.textContent = text;
-    container.style.textAlign = "center";
+    if (container) {
+      container.textContent = text;
+      container.style.textAlign = "center";
+    }
   }
 
-  // --- Create game card elements ---
   function createGameCards(data) {
+    if (!container) return;
     data.forEach(game => {
       const card = document.createElement("div");
       card.className = "game-card";
@@ -59,8 +68,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Helpers ---
+  function getAllCards() {
+    return Array.from(container.querySelectorAll(".game-card"));
+  }
+
   function getFilteredCards() {
-    return Array.from(container.querySelectorAll(".game-card")).filter(c => c.dataset.filtered === "true");
+    return getAllCards().filter(c => c.dataset.filtered === "true");
   }
 
   function getPagesWithContent() {
@@ -68,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return pages.sort((a, b) => a - b);
   }
 
-  // --- Render current page ---
+  // --- Render Page ---
   function renderPage() {
     const filteredCards = getFilteredCards();
 
@@ -79,14 +92,14 @@ document.addEventListener("DOMContentLoaded", () => {
       card.style.display = parseInt(card.dataset.page) === currentPage ? "block" : "none";
     });
 
-    pageIndicator.textContent = `Page ${currentPage} of ${maxAllowedPage}`;
+    if (pageIndicator) pageIndicator.textContent = `Page ${currentPage} of ${maxAllowedPage}`;
     sessionStorage.setItem("currentPage", currentPage);
 
     const visibleCount = filteredCards.filter(c => parseInt(c.dataset.page) === currentPage).length;
     if (gameCountInfo) gameCountInfo.textContent = `${visibleCount} Games on page ${currentPage}`;
   }
 
-  // --- Search/filter games ---
+  // --- Search / Filter ---
   function filterGames(query) {
     const q = query.toLowerCase();
     getAllCards().forEach(card => {
@@ -101,9 +114,8 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPage();
   }
 
-  function getAllCards() {
-    return Array.from(container.querySelectorAll(".game-card"));
-  }
+  searchInput?.addEventListener("keyup", () => filterGames(searchInput.value));
+  searchBtn?.addEventListener("click", () => filterGames(searchInput.value));
 
   // --- Pagination ---
   function prevPage() {
@@ -119,11 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.prevPage = prevPage;
   window.nextPage = nextPage;
 
-  // --- Search input events ---
-  searchInput.addEventListener("keyup", () => filterGames(searchInput.value));
-  searchBtn.addEventListener("click", () => filterGames(searchInput.value));
-
-  // --- Placeholder cycle ---
+  // --- Placeholder Fade Cycle ---
   function fadePlaceholder(input, text, cb) {
     input.classList.add("fade-out");
     setTimeout(() => {
@@ -149,5 +157,6 @@ document.addEventListener("DOMContentLoaded", () => {
     cycle();
   }
 
+  // --- Initialize ---
   loadGames();
 });
