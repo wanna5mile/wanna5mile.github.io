@@ -184,6 +184,15 @@
   toTopBtn.onclick = () => { window.scrollTo({ top: 0, behavior: "smooth" }); };
   toTopBtn.addEventListener("dblclick", () => { window.scrollTo({ top: 0, behavior: "smooth" }); });
 </script>
-
+  <!--pfp-->
+	  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const savedPic = localStorage.getItem("profilePic");
+    if (savedPic) {
+      document.getElementById("pfp").src = savedPic;
+    }
+  });
+</script>
+  
 </body>
 </html>
