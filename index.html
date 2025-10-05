@@ -148,25 +148,55 @@
   }
 </style>
 
+<style>
+  #searchInputHeader {
+    transition: opacity 0.5s ease;
+  }
+  #searchInputHeader.fade-out {
+    opacity: 0;
+  }
+  #searchInputHeader.fade-in {
+    opacity: 1;
+  }
+</style>
+
 <script>
   function updateGameCount() {
     const container = document.getElementById("container");
     const allGames = container.querySelectorAll("div");
     const visibleGames = Array.from(allGames).filter(g => g.style.display !== "none");
-    const currentPage = 1; // since all pages use "page": 1
-    const searchInput = document.getElementById("searchInputHeader");
-    const countText = `Current amount of games: ${visibleGames.length} inside of page ${currentPage}`;
+    const currentPage = 1;
+    return `Current amount of games: ${visibleGames.length} inside of page ${currentPage}`;
+  }
 
-    // Smooth fade transition between placeholders
-    searchInput.classList.add("fade-out");
+  function fadePlaceholder(input, newText, callback) {
+    input.classList.add("fade-out");
     setTimeout(() => {
-      searchInput.placeholder = countText;
-      searchInput.classList.remove("fade-out");
-      searchInput.classList.add("fade-in");
+      input.placeholder = newText;
+      input.classList.remove("fade-out");
+      input.classList.add("fade-in");
       setTimeout(() => {
-        searchInput.classList.remove("fade-in");
-      }, 300);
-    }, 300);
+        input.classList.remove("fade-in");
+        if (callback) callback();
+      }, 500);
+    }, 500);
+  }
+
+  function startPlaceholderCycle() {
+    const input = document.getElementById("searchInputHeader");
+
+    function cycle() {
+      const countText = updateGameCount();
+      fadePlaceholder(input, countText, () => {
+        setTimeout(() => {
+          fadePlaceholder(input, "Search games...", () => {
+            setTimeout(cycle, 4000); // time before looping again
+          });
+        }, 4000); // how long the count text stays visible
+      });
+    }
+
+    cycle();
   }
 
   function filterGames(query) {
@@ -178,8 +208,6 @@
       const author = game.querySelector("p")?.textContent.toLowerCase() || "";
       game.style.display = title.includes(input) || author.includes(input) ? "block" : "none";
     });
-
-    updateGameCount();
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -187,7 +215,6 @@
     const searchBtn = document.getElementById("searchBtnHeader");
 
     searchInput.addEventListener("focus", () => {
-      // restore placeholder when user focuses again
       searchInput.placeholder = "Search games...";
     });
 
@@ -200,7 +227,7 @@
       filterGames(query);
     });
 
-    updateGameCount();
+    startPlaceholderCycle();
   });
 </script>
 
