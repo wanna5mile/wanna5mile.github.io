@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Determine JSON path dynamically
   const jsonPath = location.pathname.includes("/system/")
-    ? "../json/assets-test.json"
-    : "system/json/assets-test.json";
+    ? "../json/assets.json"
+    : "system/json/assets.json";
 
   async function loadGames() {
     container.textContent = "Loading assets...";
