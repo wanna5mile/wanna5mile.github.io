@@ -1,8 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const pageIndicator = document.querySelector(".page-indicator");
   const container = document.getElementById("container");
+  const pageIndicator = document.querySelector(".page-indicator");
+  const searchInput = document.getElementById("searchInputHeader");
+  const searchBtn = document.getElementById("searchBtnHeader");
+
   let gamesData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
+  const gamesPerPage = 10; // change as needed
 
   const jsonPath = location.pathname.includes("/system/")
     ? "../json/assets.json"
@@ -17,12 +21,15 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok) throw new Error(`Failed to load: ${jsonPath}`);
       gamesData = await response.json();
 
-      container.style.textAlign = "";
       container.innerHTML = "";
+      container.style.textAlign = "";
 
+      // Create all cards
       gamesData.forEach(game => {
         const card = document.createElement("div");
         card.className = "game-card";
+        card.dataset.title = game.title.toLowerCase();
+        card.dataset.author = game.author.toLowerCase();
         card.dataset.page = game.page;
 
         card.innerHTML = `
@@ -33,87 +40,113 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>${game.author}</p>
         `;
 
-        const hiddenStatus = document.createElement("span");
-        hiddenStatus.className = "status";
-        hiddenStatus.style.display = "none";
-        hiddenStatus.textContent = game.status || "";
-        card.appendChild(hiddenStatus);
-
         container.appendChild(card);
       });
 
-      showPage(currentPage);
+      renderPage();
+      startPlaceholderCycle();
     } catch (err) {
       container.textContent = "⚠ Failed to load game data.";
-      container.style.textAlign = "center";
       console.error(err);
     }
   }
 
-  function showPage(pageNum) {
-    const allGames = Array.from(container.querySelectorAll(".game-card"));
-    const filteredGames = allGames.filter(card => card.style.display !== "none" || card.dataset.filtered === undefined);
-
-    const maxPage = Math.max(...gamesData.map(g => g.page));
-    currentPage = Math.min(pageNum, maxPage);
-
-    allGames.forEach(card => {
-      card.style.display = parseInt(card.dataset.page) === currentPage ? "block" : "none";
+  function renderPage() {
+    const allCards = Array.from(container.querySelectorAll(".game-card"));
+    const filteredCards = allCards.filter(card => {
+      return card.style.display !== "none" && card.dataset.filtered !== "false";
     });
 
-    // Page indicator
-    pageIndicator.textContent = `Page ${currentPage} of ${maxPage}`;
-    pageIndicator.style.display = "inline";
+    const totalPages = Math.ceil(filteredCards.length / gamesPerPage) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
 
+    filteredCards.forEach((card, idx) => {
+      const start = (currentPage - 1) * gamesPerPage;
+      const end = currentPage * gamesPerPage;
+      card.style.display = (idx >= start && idx < end) ? "block" : "none";
+    });
+
+    // Hide cards that are filtered out
+    allCards.filter(c => c.dataset.filtered === "false").forEach(c => c.style.display = "none");
+
+    // Update page indicator
+    pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
     sessionStorage.setItem("currentPage", currentPage);
+
+    updateGameCount();
   }
 
-  window.nextPage = function () {
-    const maxPage = Math.max(...gamesData.map(g => g.page));
-    currentPage = currentPage >= maxPage ? 1 : currentPage + 1;
-    showPage(currentPage);
-  };
-
-  window.prevPage = function () {
-    const maxPage = Math.max(...gamesData.map(g => g.page));
-    currentPage = currentPage <= 1 ? maxPage : currentPage - 1;
-    showPage(currentPage);
-  };
-
-  // --- Search ---
-  const searchInput = document.getElementById("searchInputHeader");
-  const searchBtn = document.getElementById("searchBtnHeader");
+  function updateGameCount() {
+    const allCards = Array.from(container.querySelectorAll(".game-card"));
+    const visible = allCards.filter(c => c.style.display !== "none");
+    const info = document.getElementById("gameCountInfo");
+    if (info) info.textContent = `${visible.length} Games on page ${currentPage}`;
+  }
 
   function filterGames(query) {
-    const input = query.toLowerCase();
-    const allGames = container.querySelectorAll(".game-card");
-    allGames.forEach(card => {
-      const title = card.querySelector("h3")?.textContent.toLowerCase() || "";
-      const author = card.querySelector("p")?.textContent.toLowerCase() || "";
-      if (title.includes(input) || author.includes(input)) {
+    const q = query.toLowerCase();
+    const allCards = Array.from(container.querySelectorAll(".game-card"));
+    allCards.forEach(card => {
+      if (card.dataset.title.includes(q) || card.dataset.author.includes(q)) {
         card.dataset.filtered = "true";
       } else {
         card.dataset.filtered = "false";
       }
     });
-    // Reset to first page after search
     currentPage = 1;
-    showFilteredPage();
+    renderPage();
   }
 
-  function showFilteredPage() {
-    const allGames = Array.from(container.querySelectorAll(".game-card"));
-    const filteredGames = allGames.filter(card => card.dataset.filtered === "true");
+  function prevPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPage();
+    }
+  }
 
-    filteredGames.forEach(card => card.style.display = "block");
-    allGames.filter(card => card.dataset.filtered !== "true").forEach(card => card.style.display = "none");
+  function nextPage() {
+    const allCards = Array.from(container.querySelectorAll(".game-card"));
+    const filteredCards = allCards.filter(card => card.dataset.filtered !== "false");
+    const totalPages = Math.ceil(filteredCards.length / gamesPerPage) || 1;
 
-    // Update page indicator
-    pageIndicator.textContent = `Page ${currentPage} of ${Math.max(...gamesData.map(g => g.page))}`;
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderPage();
+    }
   }
 
   searchInput.addEventListener("keyup", () => filterGames(searchInput.value));
   searchBtn.addEventListener("click", () => filterGames(searchInput.value));
+
+  // Placeholder cycling
+  function fadePlaceholder(input, text, cb) {
+    input.classList.add("fade-out");
+    setTimeout(() => {
+      input.placeholder = text;
+      input.classList.remove("fade-out");
+      input.classList.add("fade-in");
+      setTimeout(() => {
+        input.classList.remove("fade-in");
+        if (cb) cb();
+      }, 500);
+    }, 500);
+  }
+
+  function startPlaceholderCycle() {
+    const input = searchInput;
+    function cycle() {
+      fadePlaceholder(input, `${container.querySelectorAll(".game-card:not([style*='display: none'])").length} Games on page ${currentPage}`, () => {
+        setTimeout(() => {
+          fadePlaceholder(input, "Search games...", () => setTimeout(cycle, 4000));
+        }, 4000);
+      });
+    }
+    cycle();
+  }
+
+  // Expose globally for buttons
+  window.prevPage = prevPage;
+  window.nextPage = nextPage;
 
   loadGames();
 });
