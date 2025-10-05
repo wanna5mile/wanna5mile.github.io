@@ -18,7 +18,7 @@
   <script src="system/js/searcherror.js" defer></script>
   <script src="system/js/carousel.js" defer></script>
   <script src="system/js/commands.js" defer></script>
-  <script src="system/js/paging.js" defer></script> <!-- your main JS -->
+  <script src="system/js/paging.js" defer></script>
 
   <!-- Discord Widget -->
   <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3" async defer>
@@ -30,7 +30,6 @@
 
   <!-- Popup & placeholder CSS -->
   <style>
-    /* Popup overlay */
     .update-popup { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
     .update-popup.show { opacity: 1; pointer-events: all; }
     .update-popup-content { background: var(--background-color,#1e1e1e); border-radius: 14px; box-shadow: 0 0 20px rgba(0,0,0,0.6); width: 90%; max-width: 480px; text-align: center; padding: 20px; color: var(--text-color,#fff); animation: popup-bounce 0.6s ease; }
@@ -71,8 +70,9 @@
     <div class="search-box">
       <input type="text" id="searchInputHeader" placeholder="Search games..." />
       <button id="searchBtnHeader"><img src="system/icons/search.png" alt="Search"></button>
+      <!-- Game count now inside the search box -->
+      <span id="gameCountInfo" style="color: var(--text-color); font-size: 0.85em; margin-top: 2px; display:block;"></span>
     </div>
-    <p id="gameCountInfo" style="color: var(--text-color); font-size: 0.9em; margin-top: 4px;"></p>
     <a href="system/pages/profile.html"><img src="system/icons/profile.png" alt="profile" id="pfp"></a>
     <img src="system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
   </div>
@@ -126,7 +126,7 @@
   <a href="system/pages/alt.html">Alternative Links</a>
 </div>
 
-<!-- Keep only scripts for popup, dashboard, scroll-to-top -->
+<!-- Popup, dashboard, scroll-to-top scripts -->
 <script>
   // --- Update Popup ---
   document.addEventListener("DOMContentLoaded", () => {
