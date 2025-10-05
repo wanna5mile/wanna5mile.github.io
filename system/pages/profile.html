@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #111;
+      font-family: monospace;
+      color: white;
+      flex-direction: column;
+    }
+
+    .profile-card, .edit-card {
+      background: #222;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .profile-card {
+      width: 320px;
+    }
+
+    .profile-card img {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+      border: 4px solid #444;
+    }
+
+    .username {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .edit-card {
+      width: 400px;
+      display: none; /* hidden by default */
+    }
+
+    .profile-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+      border: 3px solid #444;
+    }
+
+    input[type="file"] {
+      margin: 15px 0;
+      color: white;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      width: 80%;
+      border-radius: 6px;
+      border: none;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    /* Buttons */
+    .edit-btn,
+    .follow-btn,
+    .like-btn,
+    .remove-btn,
+    .save-btn,
+    .return-btn {
+      display: inline-block;
+      padding: 10px 18px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 5px;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .edit-btn, .follow-btn {
+      background: #ff4444;
+    }
+    .edit-btn:hover, .follow-btn:hover {
+      transform: scale(1.05);
+      background: #ff6666;
+    }
+
+    .follow-btn.following {
+      background: #555;
+      color: #ccc;
+    }
+
+    .like-btn {
+      background: #555;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+    .like-btn .heart {
+      color: white;
+      transition: color 0.2s;
+    }
+    .like-btn.liked .heart {
+      color: red;
+    }
+
+    .remove-btn {
+      background: #444;
+    }
+    .remove-btn:hover {
+      background: #666;
+    }
+
+    .save-btn {
+      background: #ff4444;
+    }
+    .save-btn:hover {
+      background: #ff6666;
+    }
+
+    .return-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff0000;
+      padding: 12px 24px;
+    }
+    .return-btn:hover {
+      transform: translateX(-50%) scale(1.05);
+      background: #ff3333;
+    }
+  </style>
+</head>
+<body>
+  <!-- Profile Card -->
+  <div class="profile-card" id="profileCard">
+    <img src="https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/system/images/profile.png" alt="Profile Picture" id="profilePic">
+    <div class="username" id="username">Nickname</div>
+    <button class="edit-btn" id="editBtn">Edit Profile</button>
+
+    <div class="button-group">
+      <button class="follow-btn" id="followBtn">Follow</button>
+      <button class="like-btn" id="likeBtn"><span class="heart">♥</span> Like</button>
+    </div>
+  </div>
+
+  <!-- Edit Card -->
+  <div class="edit-card" id="editCard">
+    <h2>Edit Profile</h2>
+    <img id="profilePreview" class="profile-preview" src="https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/system/images/profile.png" alt="Profile Picture"><br>
+
+    <form id="editForm">
+      <label for="profilePicInput">Change Profile Picture:</label><br>
+      <input type="file" id="profilePicInput" accept="image/*"><br>
+      <button type="button" class="remove-btn" id="removePicBtn">Remove Picture</button><br><br>
+
+      <label for="usernameInput">Edit Username:</label><br>
+      <input type="text" id="usernameInput" placeholder="Enter nickname"><br>
+
+      <button type="submit" class="save-btn">Save Changes</button>
+    </form>
+  </div>
+
+  <button class="return-btn" onclick="window.location.href='https://bguhm.github.io./index.html'">Return to Page</button>
+
+  <script>
+    const defaultPic = "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/system/images/profile.png";
+    const profileCard = document.getElementById("profileCard");
+    const editCard = document.getElementById("editCard");
+
+    const profilePic = document.getElementById("profilePic");
+    const usernameDisplay = document.getElementById("username");
+    const editBtn = document.getElementById("editBtn");
+
+    const preview = document.getElementById("profilePreview");
+    const usernameInput = document.getElementById("usernameInput");
+    const fileInput = document.getElementById("profilePicInput");
+    const removeBtn = document.getElementById("removePicBtn");
+    const form = document.getElementById("editForm");
+
+    const followBtn = document.getElementById("followBtn");
+    const likeBtn = document.getElementById("likeBtn");
+
+    // Load saved profile info
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedPic = localStorage.getItem("profilePic");
+      const savedName = localStorage.getItem("nickname");
+
+      profilePic.src = savedPic ? savedPic : defaultPic;
+      preview.src = savedPic ? savedPic : defaultPic;
+      usernameDisplay.textContent = savedName ? savedName : "Nickname";
+      usernameInput.value = savedName ? savedName : "";
+
+      // Load follow/like state
+      if (localStorage.getItem("isFollowing") === "true") {
+        followBtn.textContent = "Following";
+        followBtn.classList.add("following");
+      }
+      if (localStorage.getItem("isLiked") === "true") {
+        likeBtn.classList.add("liked");
+      }
+    });
+
+    // Switch to edit mode
+    editBtn.addEventListener("click", () => {
+      profileCard.style.display = "none";
+      editCard.style.display = "block";
+    });
+
+    // Remove picture -> reset to default
+    removeBtn.addEventListener("click", () => {
+      preview.src = defaultPic;
+      localStorage.setItem("profilePic", defaultPic);
+    });
+
+    // Save profile changes
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const username = usernameInput.value.trim();
+      if (username) {
+        localStorage.setItem("nickname", username);
+        usernameDisplay.textContent = username;
+      }
+
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          localStorage.setItem("profilePic", e.target.result);
+          profilePic.src = e.target.result;
+        }
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        localStorage.setItem("profilePic", preview.src);
+        profilePic.src = preview.src;
+      }
+
+      // Switch back to profile view
+      editCard.style.display = "none";
+      profileCard.style.display = "block";
+    });
+
+    // Follow button toggle
+    followBtn.addEventListener("click", () => {
+      if (followBtn.classList.contains("following")) {
+        followBtn.textContent = "Follow";
+        followBtn.classList.remove("following");
+        localStorage.setItem("isFollowing", "false");
+      } else {
+        followBtn.textContent = "Following";
+        followBtn.classList.add("following");
+        localStorage.setItem("isFollowing", "true");
+      }
+    });
+
+    // Like button toggle
+    likeBtn.addEventListener("click", () => {
+      likeBtn.classList.toggle("liked");
+      localStorage.setItem("isLiked", likeBtn.classList.contains("liked"));
+    });
+  </script>
+</body>
+</html>
