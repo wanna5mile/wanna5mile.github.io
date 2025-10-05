@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Main: Load JSON ---
   async function loadGames() {
     showLoading("Loading assets...");
-    if (loaderImage) loaderImage.src = "loading.gif"; // default loading
+    if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif"; // default loading
 
     try {
       const res = await fetch(jsonPath);
@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
       startPlaceholderCycle();
 
       // Success: show load-fire.gif and fade preloader
-      if (loaderImage) loaderImage.src = "load-fire.gif";
+      if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
       if (preloader) {
         preloader.classList.add("fade");
         setTimeout(() => preloader.style.display = "none", 600);
