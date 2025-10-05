@@ -57,13 +57,21 @@ document.addEventListener("DOMContentLoaded", () => {
     return Array.from(container.querySelectorAll(".game-card")).filter(c => c.dataset.filtered === "true");
   }
 
+  function getPagesWithContent() {
+    const filteredCards = getFilteredCards();
+    const pages = Array.from(new Set(filteredCards.map(c => parseInt(c.dataset.page))));
+    return pages.sort((a, b) => a - b);
+  }
+
   function renderPage() {
     const filteredCards = getFilteredCards();
-    if (!filteredCards.length) {
-      currentPage = 1;
-    }
+    const pagesWithContent = getPagesWithContent();
 
-    // Show cards only for the current page
+    // Ensure currentPage is always valid
+    if (currentPage < 1) currentPage = maxAllowedPage;
+    if (currentPage > maxAllowedPage) currentPage = 1;
+
+    // Show cards for current page, empty if none exist
     filteredCards.forEach(card => {
       const cardPage = parseInt(card.dataset.page);
       card.style.display = (cardPage === currentPage) ? "block" : "none";
@@ -72,7 +80,8 @@ document.addEventListener("DOMContentLoaded", () => {
     pageIndicator.textContent = `Page ${currentPage} of ${maxAllowedPage}`;
     sessionStorage.setItem("currentPage", currentPage);
 
-    gameCountInfo.textContent = `${filteredCards.filter(c => c.style.display !== "none").length} Games on page ${currentPage}`;
+    const visibleCount = filteredCards.filter(c => parseInt(c.dataset.page) === currentPage).length;
+    gameCountInfo.textContent = `${visibleCount} Games on page ${currentPage}`;
   }
 
   function filterGames(query) {
@@ -83,53 +92,39 @@ document.addEventListener("DOMContentLoaded", () => {
       card.dataset.filtered = (!q || card.dataset.title.includes(q) || card.dataset.author.includes(q)) ? "true" : "false";
     });
 
-    const filteredCards = getFilteredCards();
+    const pagesWithContent = getPagesWithContent();
 
-    // If current page has no visible cards, move to nearest page with content
-    if (!filteredCards.some(c => parseInt(c.dataset.page) === currentPage)) {
-      const pagesWithContent = Array.from(new Set(filteredCards.map(c => parseInt(c.dataset.page)))).sort((a,b) => a-b);
-      if (pagesWithContent.length) {
-        // Find nearest page lower or higher
-        const nearest = pagesWithContent.find(p => p > currentPage) || pagesWithContent[0];
-        currentPage = nearest;
-      } else {
-        currentPage = 1;
-      }
+    // If current page has no visible cards, move to nearest page in-between or closest content
+    if (!pagesWithContent.includes(currentPage)) {
+      // Find nearest page lower or higher
+      let nearest = pagesWithContent.find(p => p > currentPage);
+      if (!nearest) nearest = pagesWithContent[0]; // wrap forward
+      currentPage = nearest || 1;
     }
 
     renderPage();
   }
 
   function prevPage() {
-    const filteredCards = getFilteredCards();
-    const pagesWithContent = Array.from(new Set(filteredCards.map(c => parseInt(c.dataset.page)))).sort((a,b) => a-b);
-
-    if (!pagesWithContent.length) return;
-
+    const pagesWithContent = getPagesWithContent();
     let newPage = currentPage - 1;
-    while (newPage >= 1 && !pagesWithContent.includes(newPage)) {
-      newPage--;
-    }
-    if (newPage < 1) {
-      newPage = Math.max(...pagesWithContent); // wrap backward
-    }
+
+    // Wrap backward if needed
+    if (newPage < 1) newPage = maxAllowedPage;
+
+    // If the page is empty but in-between or corner, still allow it
     currentPage = newPage;
     renderPage();
   }
 
   function nextPage() {
-    const filteredCards = getFilteredCards();
-    const pagesWithContent = Array.from(new Set(filteredCards.map(c => parseInt(c.dataset.page)))).sort((a,b) => a-b);
-
-    if (!pagesWithContent.length) return;
-
+    const pagesWithContent = getPagesWithContent();
     let newPage = currentPage + 1;
-    while (newPage <= maxAllowedPage && !pagesWithContent.includes(newPage)) {
-      newPage++;
-    }
-    if (newPage > maxAllowedPage) {
-      newPage = Math.min(...pagesWithContent); // wrap forward
-    }
+
+    // Wrap forward if needed
+    if (newPage > maxAllowedPage) newPage = 1;
+
+    // If the page is empty but in-between or corner, still allow it
     currentPage = newPage;
     renderPage();
   }
@@ -150,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startPlaceholderCycle() {
     function cycle() {
-      const visibleCount = getFilteredCards().filter(c => c.dataset.page == currentPage).length;
+      const visibleCount = getFilteredCards().filter(c => parseInt(c.dataset.page) === currentPage).length;
       fadePlaceholder(searchInput, `${visibleCount} Games on page ${currentPage}`, () => {
         setTimeout(() => {
           fadePlaceholder(searchInput, "Search games...", () => setTimeout(cycle, 4000));
