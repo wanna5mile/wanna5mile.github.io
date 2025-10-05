@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const pageIndicator = document.querySelector(".page-indicator");
   const searchInput = document.getElementById("searchInputHeader");
   const searchBtn = document.getElementById("searchBtnHeader");
+  const preloader = document.getElementById("preloader");
+  const loaderImage = document.getElementById("loaderImage");
 
   // --- Config & State ---
   let gamesData = [];
@@ -11,32 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const gamesPerPage = 10;
   const jsonPath = "system/json/assets.json";
 
-  // --- Load JSON and create cards ---
-async function loadGames() {
-  showLoading("Loading assets...");
-  try {
-    const res = await fetch(jsonPath);
-    if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
-    gamesData = await res.json();
-
-    container.innerHTML = "";
-    createGameCards(gamesData);
-
-    renderPage();
-    startPlaceholderCycle();
-
-    // ✅ Hide preloader
-    const preloader = document.getElementById("preloader");
-    if (preloader) {
-      preloader.classList.add("fade");
-      setTimeout(() => preloader.style.display = "none", 500); // matches CSS transition
-    }
-  } catch (err) {
-    showLoading("⚠ Failed to load game data.");
-    console.error("Error loading JSON:", err);
-  }
-}
-
+  // --- Helper: Show loading message in container ---
   function showLoading(text) {
     if (container) {
       container.textContent = text;
@@ -44,6 +21,7 @@ async function loadGames() {
     }
   }
 
+  // --- Helper: Create game cards ---
   function createGameCards(data) {
     if (!container) return;
     data.forEach((game, i) => {
@@ -65,21 +43,15 @@ async function loadGames() {
     });
   }
 
-  // --- Helpers ---
-  function getAllCards() {
-    return Array.from(container.querySelectorAll(".game-card"));
-  }
-
-  function getFilteredCards() {
-    return getAllCards().filter(c => c.dataset.filtered === "true");
-  }
-
+  // --- Helpers for filtering/pagination ---
+  function getAllCards() { return Array.from(container.querySelectorAll(".game-card")); }
+  function getFilteredCards() { return getAllCards().filter(c => c.dataset.filtered === "true"); }
   function getPagesWithContent() {
     const pages = new Set(getFilteredCards().map(c => parseInt(c.dataset.page)));
     return [...pages].sort((a, b) => a - b);
   }
 
-  // --- Render Page ---
+  // --- Render page ---
   function renderPage() {
     const filteredCards = getFilteredCards();
     const pagesWithContent = getPagesWithContent();
@@ -102,7 +74,7 @@ async function loadGames() {
     sessionStorage.setItem("currentPage", currentPage);
   }
 
-  // --- Search / Filter ---
+  // --- Search/filter ---
   function filterGames(query) {
     const q = query.toLowerCase().trim();
     getAllCards().forEach(card => {
@@ -121,26 +93,7 @@ async function loadGames() {
     renderPage();
   }
 
-  // --- Events ---
-  if (searchInput) {
-    searchInput.addEventListener("input", e => filterGames(e.target.value));
-  }
-  if (searchBtn) {
-    searchBtn.addEventListener("click", () => filterGames(searchInput.value));
-  }
-
-  // --- Pagination ---
-  window.prevPage = function () {
-    currentPage--;
-    renderPage();
-  };
-
-  window.nextPage = function () {
-    currentPage++;
-    renderPage();
-  };
-
-  // --- Placeholder Cycle ---
+  // --- Placeholder cycle ---
   function fadePlaceholder(input, text, cb) {
     if (!input) return;
     input.classList.add("fade-out");
@@ -169,6 +122,45 @@ async function loadGames() {
       });
     };
     cycle();
+  }
+
+  // --- Pagination controls ---
+  window.prevPage = function () { currentPage--; renderPage(); };
+  window.nextPage = function () { currentPage++; renderPage(); };
+
+  if (searchInput) searchInput.addEventListener("input", e => filterGames(e.target.value));
+  if (searchBtn) searchBtn.addEventListener("click", () => filterGames(searchInput.value));
+
+  // --- Main: Load JSON ---
+  async function loadGames() {
+    showLoading("Loading assets...");
+    if (loaderImage) loaderImage.src = "loading.gif"; // default loading
+
+    try {
+      const res = await fetch(jsonPath);
+      if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
+      gamesData = await res.json();
+
+      container.innerHTML = "";
+      createGameCards(gamesData);
+
+      renderPage();
+      startPlaceholderCycle();
+
+      // Success: show load-fire.gif and fade preloader
+      if (loaderImage) loaderImage.src = "load-fire.gif";
+      if (preloader) {
+        preloader.classList.add("fade");
+        setTimeout(() => preloader.style.display = "none", 600);
+      }
+
+    } catch (err) {
+      console.error("Error loading JSON:", err);
+      showLoading("⚠ Failed to load game data.");
+
+      // Failure: switch to fail.gif, keep preloader visible
+      if (loaderImage) loaderImage.src = "fail.gif";
+    }
   }
 
   // --- Initialize ---
