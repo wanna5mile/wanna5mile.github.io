@@ -92,6 +92,7 @@
 
     <div class="update-buttons">
       <button id="viewUpdateBtn">Check it out!</button>
+      <button id="viewUpdateInfoBtn">More information</button>
       <button id="closeUpdateBtn">Close</button>
       <button id="dontShowBtn">Don’t show again</button>
     </div>
@@ -120,7 +121,6 @@
 
   .update-popup-content {
     background: var(--background-color, #1e1e1e);
-    border: 2px solid var(--accent-color, #ffbf00);
     border-radius: 14px;
     box-shadow: 0 0 20px rgba(0,0,0,0.6);
     width: 90%;
@@ -133,7 +133,7 @@
 
   .update-popup-content h2 {
     margin-top: 0;
-    color: var(--accent-color, #ffbf00);
+    color: var(--accent-color, #fff);
   }
 
   .update-popup-content p {
@@ -154,8 +154,8 @@
   }
 
   .update-buttons button {
-    background: var(--accent-color, #ffbf00);
-    color: #222;
+    background: var(--accent-color, #2e2e2e);
+    color: #fff;
     border: none;
     border-radius: 8px;
     padding: 8px;
@@ -165,7 +165,7 @@
   }
 
   .update-buttons button:hover {
-    background: #ffd94a;
+    background: #3e3e3e;
   }
 
   @keyframes popup-bounce {
@@ -180,6 +180,7 @@
     const popup = document.getElementById("updatePopup");
     const closeBtn = document.getElementById("closeUpdateBtn");
     const viewBtn = document.getElementById("viewUpdateBtn");
+    const viewBtn = document.getElementById("viewUpdateInfoBtn");
     const dontShowBtn = document.getElementById("dontShowBtn");
 
     const currentVersion = "v0.8"; // <- update this each release
@@ -202,9 +203,9 @@
       localStorage.setItem("dismissedUpdateVersion", currentVersion);
       popup.classList.remove("show");
     });
-
+// UPDATE HTTPS://VIDEOLINK!
     viewBtn.addEventListener("click", () => {
-      window.open("https://www.youtube.com/watch?v=YOUR_VIDEO_ID_HERE", "_blank");
+      window.open("", "_blank");
     });
   });
 </script>
