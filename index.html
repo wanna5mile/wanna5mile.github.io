@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Test 003</title>
-  <link rel="icon" href="system/images/bguhm.png">
+  <link rel="icon" href="system/images/10x76.png">
+  <link rel="stylesheet" href="css/loading-screen.css" />
   <link rel="stylesheet" href="system/css/main.css">
   <link rel="stylesheet" href="system/css/quote.css">
   <link rel="stylesheet" href="system/css/themes.css">
@@ -49,7 +50,15 @@
   </style>
 </head>
 <body>
-
+  <!-- Preloader -->
+  <div class="preloader" id="preloader">
+    <div class="loader-gif">
+      <img src="loading.gif" alt="Loading..." id="loaderImage"/>
+    </div>
+    <div class="counter" id="counter">0%</div>
+    <div class="loading-text">Loading...</div>
+  </div>
+	
 <header>
   <nav class="nav-links">
     <a href="system/pages/home.html">Home</a>
