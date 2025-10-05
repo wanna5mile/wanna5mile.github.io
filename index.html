@@ -229,8 +229,9 @@
   <a href="system/pages/alt.html">Alternative Links</a>
 </div>
 
-<!-- Scripts -->
+  <!-- Scripts -->
 <script>
+  // --- Update Popup Logic ---
   document.addEventListener("DOMContentLoaded", () => {
     const popup = document.getElementById("updatePopup");
     const closeBtn = document.getElementById("closeUpdateBtn");
@@ -264,7 +265,7 @@
     });
   });
 
-  // Dashboard toggle
+  // --- Dashboard Toggle ---
   document.addEventListener("DOMContentLoaded", () => {
     const dashboardBtn = document.getElementById("dashboardBtn");
     const dashboardMenu = document.getElementById("dashboardMenu");
@@ -280,7 +281,7 @@
     });
   });
 
-  // Scroll-to-top
+  // --- Scroll-to-Top Button ---
   const toTopBtn = document.getElementById("toTopBtn");
   window.onscroll = () => {
     if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 200) {
@@ -292,13 +293,22 @@
   toTopBtn.onclick = () => { window.scrollTo({ top: 0, behavior: "smooth" }); };
   toTopBtn.addEventListener("dblclick", () => { window.scrollTo({ top: 0, behavior: "smooth" }); });
 
-  // Search filtering
+  // --- Search & Pagination Logic ---
+  let currentPage = 1;
+  const gamesPerPage = 10; // adjust per your layout
+  const container = document.getElementById("container");
+  let totalPages = 1;
+
   function updateGameCount() {
-    const container = document.getElementById("container");
-    const allGames = container.querySelectorAll("div");
-    const visibleGames = Array.from(allGames).filter(g => g.style.display !== "none");
-    const currentPage = 1;
-    return `${visibleGames.length} Games inside of page ${currentPage}`;
+    const allGames = Array.from(container.querySelectorAll("div"));
+    const visibleGames = allGames.filter(g => g.style.display !== "none");
+    totalPages = Math.ceil(visibleGames.length / gamesPerPage);
+
+    // Update page-indicator
+    const pageSpan = document.querySelector(".page-indicator");
+    if (pageSpan) pageSpan.textContent = `Page ${currentPage}`;
+
+    return `${visibleGames.length} Games on page ${currentPage}`;
   }
 
   function fadePlaceholder(input, newText, callback) {
@@ -331,21 +341,57 @@
 
   function filterGames(query) {
     const input = query.toLowerCase();
-    const games = document.querySelectorAll("#container > div");
-    games.forEach((game) => {
+    const allGames = Array.from(container.querySelectorAll("div"));
+    allGames.forEach(game => {
       const title = game.querySelector("h3")?.textContent.toLowerCase() || "";
       const author = game.querySelector("p")?.textContent.toLowerCase() || "";
-      game.style.display = title.includes(input) || author.includes(input) ? "block" : "none";
+      game.style.display = (title.includes(input) || author.includes(input)) ? "block" : "none";
     });
+
+    // Reset to first page on search
+    currentPage = 1;
+    renderPage();
   }
 
+  function renderPage() {
+    const allGames = Array.from(container.querySelectorAll("div"));
+    const visibleGames = allGames.filter(g => g.style.display !== "none");
+    totalPages = Math.ceil(visibleGames.length / gamesPerPage);
+
+    visibleGames.forEach((game, index) => {
+      const start = (currentPage - 1) * gamesPerPage;
+      const end = currentPage * gamesPerPage;
+      game.style.display = (index >= start && index < end) ? "block" : "none";
+    });
+
+    updateGameCount();
+  }
+
+  function prevPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPage();
+    }
+  }
+
+  function nextPage() {
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderPage();
+    }
+  }
+
+  // --- Event Listeners for Search ---
   document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("searchInputHeader");
     const searchBtn = document.getElementById("searchBtnHeader");
 
     searchInput.addEventListener("focus", () => { searchInput.placeholder = "Search games..."; });
     searchInput.addEventListener("keyup", function () { filterGames(this.value); });
-    searchBtn.addEventListener("click", function () { filterGames(searchInput.value); });
+    searchBtn.addEventListener("click", () => filterGames(searchInput.value));
+
+    // Initialize page + placeholder cycle
+    renderPage();
     startPlaceholderCycle();
   });
 </script>
