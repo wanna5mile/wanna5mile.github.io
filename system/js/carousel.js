@@ -10,23 +10,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const gamesPerPage = 10;
   const maxAllowedPage = 10;
 
-  const jsonPath = location.pathname.includes("/system/")
-    ? "../json/assets.json"
-    : "system/json/assets.json";
+  // JSON source: local or GitHub link
+  const jsonPath = "system/json/assets.json";
+  // const jsonPath = "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/json/assets.json";
 
+  // Load games from JSON
   async function loadGames() {
     container.textContent = "Loading assets...";
     container.style.textAlign = "center";
 
     try {
       const response = await fetch(jsonPath);
-      if (!response.ok) throw new Error(`Failed to load: ${jsonPath}`);
+      if (!response.ok) throw new Error(`Failed to fetch JSON: ${response.status}`);
       gamesData = await response.json();
 
       container.innerHTML = "";
       container.style.textAlign = "";
 
-      // Create cards
+      // Create game cards
       gamesData.forEach(game => {
         const card = document.createElement("div");
         card.className = "game-card";
@@ -53,8 +54,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Helper: get only visible/filtered cards
   function getFilteredCards() {
-    return Array.from(container.querySelectorAll(".game-card")).filter(c => c.dataset.filtered === "true");
+    return Array.from(container.querySelectorAll(".game-card"))
+                .filter(c => c.dataset.filtered === "true");
   }
 
   function getPagesWithContent() {
@@ -63,15 +66,13 @@ document.addEventListener("DOMContentLoaded", () => {
     return pages.sort((a, b) => a - b);
   }
 
+  // Render current page
   function renderPage() {
     const filteredCards = getFilteredCards();
-    const pagesWithContent = getPagesWithContent();
 
-    // Ensure currentPage is always valid
     if (currentPage < 1) currentPage = maxAllowedPage;
     if (currentPage > maxAllowedPage) currentPage = 1;
 
-    // Show cards for current page, empty if none exist
     filteredCards.forEach(card => {
       const cardPage = parseInt(card.dataset.page);
       card.style.display = (cardPage === currentPage) ? "block" : "none";
@@ -84,6 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
     gameCountInfo.textContent = `${visibleCount} Games on page ${currentPage}`;
   }
 
+  // Filter games by search query
   function filterGames(query) {
     const q = query.toLowerCase();
     const allCards = Array.from(container.querySelectorAll(".game-card"));
@@ -93,43 +95,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const pagesWithContent = getPagesWithContent();
-
-    // If current page has no visible cards, move to nearest page in-between or closest content
     if (!pagesWithContent.includes(currentPage)) {
-      // Find nearest page lower or higher
-      let nearest = pagesWithContent.find(p => p > currentPage);
-      if (!nearest) nearest = pagesWithContent[0]; // wrap forward
+      // Jump to nearest page with content
+      let nearest = pagesWithContent.find(p => p > currentPage) || pagesWithContent[0];
       currentPage = nearest || 1;
     }
 
     renderPage();
   }
 
+  // Pagination
   function prevPage() {
-    const pagesWithContent = getPagesWithContent();
-    let newPage = currentPage - 1;
-
-    // Wrap backward if needed
-    if (newPage < 1) newPage = maxAllowedPage;
-
-    // If the page is empty but in-between or corner, still allow it
-    currentPage = newPage;
+    currentPage = currentPage - 1 < 1 ? maxAllowedPage : currentPage - 1;
     renderPage();
   }
 
   function nextPage() {
-    const pagesWithContent = getPagesWithContent();
-    let newPage = currentPage + 1;
-
-    // Wrap forward if needed
-    if (newPage > maxAllowedPage) newPage = 1;
-
-    // If the page is empty but in-between or corner, still allow it
-    currentPage = newPage;
+    currentPage = currentPage + 1 > maxAllowedPage ? 1 : currentPage + 1;
     renderPage();
   }
 
-  // Placeholder cycle
+  // Placeholder fade effect
   function fadePlaceholder(input, text, cb) {
     input.classList.add("fade-out");
     setTimeout(() => {
