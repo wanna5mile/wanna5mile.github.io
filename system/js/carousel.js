@@ -5,14 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("searchInputHeader");
   const searchBtn = document.getElementById("searchBtnHeader");
 
-  // Add gameCountInfo dynamically if missing
-  let gameCountInfo = document.getElementById("gameCountInfo");
-  if (!gameCountInfo) {
-    gameCountInfo = document.createElement("div");
-    gameCountInfo.id = "gameCountInfo";
-    searchInput?.parentElement?.appendChild(gameCountInfo);
-  }
-
   // --- Config & State ---
   let gamesData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
@@ -94,16 +86,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (pageIndicator) pageIndicator.textContent = `Page ${currentPage} of ${maxAllowedPage}`;
     sessionStorage.setItem("currentPage", currentPage);
-
-    const visibleCount = filteredCards.filter(c => parseInt(c.dataset.page) === currentPage).length;
-    if (gameCountInfo) gameCountInfo.textContent = `${visibleCount} Games on page ${currentPage}`;
   }
 
   // --- Search / Filter ---
   function filterGames(query) {
     const q = query.toLowerCase();
     getAllCards().forEach(card => {
-      card.dataset.filtered = !q || card.dataset.title.includes(q) || card.dataset.author.includes(q) ? "true" : "false";
+      card.dataset.filtered =
+        !q || card.dataset.title.includes(q) || card.dataset.author.includes(q)
+          ? "true"
+          : "false";
     });
 
     const pagesWithContent = getPagesWithContent();
@@ -147,7 +139,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startPlaceholderCycle() {
     const cycle = () => {
-      const visibleCount = getFilteredCards().filter(c => parseInt(c.dataset.page) === currentPage).length;
+      const visibleCount = getFilteredCards().filter(
+        c => parseInt(c.dataset.page) === currentPage
+      ).length;
+
       fadePlaceholder(searchInput, `${visibleCount} Games on page ${currentPage}`, () => {
         setTimeout(() => {
           fadePlaceholder(searchInput, "Search games...", () => setTimeout(cycle, 4000));
