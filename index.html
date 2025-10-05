@@ -298,7 +298,7 @@
     const allGames = container.querySelectorAll("div");
     const visibleGames = Array.from(allGames).filter(g => g.style.display !== "none");
     const currentPage = 1;
-    return `Current amount of games: ${visibleGames.length} inside of page ${currentPage}`;
+    return `${visibleGames.length} Games inside of page ${currentPage}`;
   }
 
   function fadePlaceholder(input, newText, callback) {
