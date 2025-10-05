@@ -14,7 +14,7 @@
 </head>
 <body>
 
-  <!-- Header (reused from index.html) -->
+  <!-- Header -->
   <header>
     <nav class="nav-links">
       <a href="system/pages/home.html">Home</a>
@@ -41,6 +41,16 @@
       <img src="system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
     </div>
   </header>
+
+  <!-- Dashboard Menu -->
+  <div id="dashboardMenu" class="dashboard-menu">
+    <a href="system/pages/profile.html">Profile</a>
+    <a href="system/pages/favorite.html">Favorites</a>
+    <a href="system/pages/settings.html">Settings</a>
+    <a href="system/pages/support.html">Support</a>
+    <a href="system/pages/info.html">Info</a>
+    <a href="system/pages/version-log.html">Version Log</a>
+  </div>
 
   <!-- Main Settings Container -->
   <main style="padding:20px; max-width:800px; margin:0 auto;">
@@ -79,7 +89,7 @@
     </section>
   </main>
 
-  <!-- Footer (reused from index.html) -->
+  <!-- Footer -->
   <footer>
     <a href="system/pages/sources.html">sources</a>
     <a href="system/pages/contributors.html">contribute</a>
@@ -91,7 +101,40 @@
 
   <!-- Scripts -->
   <script>
-    // Cloak Logic
+    // === Dashboard Menu Logic ===
+    document.addEventListener("DOMContentLoaded", () => {
+      const dashboardBtn = document.getElementById("dashboardBtn");
+      const dashboardMenu = document.getElementById("dashboardMenu");
+
+      if (!dashboardBtn || !dashboardMenu) return;
+
+      dashboardMenu.style.display = "none";
+      dashboardMenu.style.opacity = 0;
+      dashboardMenu.style.transition = "opacity 0.3s ease";
+
+      dashboardBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isVisible = dashboardMenu.style.display === "block";
+        if (isVisible) {
+          dashboardMenu.style.opacity = 0;
+          setTimeout(() => (dashboardMenu.style.display = "none"), 300);
+        } else {
+          dashboardMenu.style.display = "block";
+          setTimeout(() => (dashboardMenu.style.opacity = 1), 10);
+        }
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!dashboardMenu.contains(e.target) && e.target !== dashboardBtn) {
+          if (dashboardMenu.style.display === "block") {
+            dashboardMenu.style.opacity = 0;
+            setTimeout(() => (dashboardMenu.style.display = "none"), 300);
+          }
+        }
+      });
+    });
+
+    // === Cloak Logic ===
     function setCloak(title, icon) {
       localStorage.setItem("cloakTitle", title);
       localStorage.setItem("cloakIcon", icon);
@@ -112,7 +155,7 @@
       } else alert("Please provide both a title and image URL.");
     }
 
-    // Theme Logic
+    // === Theme Logic ===
     function saveTheme() {
       const theme = {
         bgColor: document.getElementById("bgColor").value,
@@ -125,7 +168,6 @@
       alert("Theme saved!");
     }
 
-    // Load saved theme on page load
     document.addEventListener("DOMContentLoaded", () => {
       const savedTheme = JSON.parse(localStorage.getItem("customTheme") || "{}");
       if (savedTheme.bgColor) document.body.style.backgroundColor = savedTheme.bgColor;
