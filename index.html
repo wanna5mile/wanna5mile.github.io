@@ -69,6 +69,9 @@
   <p id="quoteBox"></p>
 </div>
 
+
+
+	  
 <!-- v0.8 Update Promo Popup -->
 <div id="updatePopup" class="update-popup">
   <div class="update-popup-content">
@@ -100,60 +103,17 @@
 </div>
 
 <style>
-  .update-popup {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(6px);
-    z-index: 9999;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.5s ease;
-  }
-
-  .update-popup.show {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  .update-popup-content {
-    background: var(--background-color, #1e1e1e);
-    border-radius: 14px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.6);
-    width: 90%;
-    max-width: 480px;
-    text-align: center;
-    padding: 20px;
-    color: var(--text-color, #fff);
-    animation: popup-bounce 0.6s ease;
-  }
-
-  .update-popup-content h2 {
-    margin-top: 0;
-    color: var(--accent-color, #fff);
-  }
-
-  .update-popup-content p {
-    font-size: 0.95em;
-    margin: 10px 0 20px;
-  }
-
-  .update-video {
-    margin-bottom: 15px;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
   .update-buttons {
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* side-by-side */
+    justify-content: space-between; /* even spacing */
     gap: 8px;
+    flex-wrap: wrap; /* allows wrapping on smaller screens */
   }
 
   .update-buttons button {
+    flex: 1; /* buttons take equal width */
+    min-width: 100px; /* optional: ensures buttons aren't too small */
     background: var(--accent-color, #2e2e2e);
     color: #fff;
     border: none;
@@ -167,45 +127,47 @@
   .update-buttons button:hover {
     background: #3e3e3e;
   }
-
-  @keyframes popup-bounce {
-    0% { transform: scale(0.9); opacity: 0; }
-    60% { transform: scale(1.05); opacity: 1; }
-    100% { transform: scale(1); }
-  }
 </style>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const popup = document.getElementById("updatePopup");
     const closeBtn = document.getElementById("closeUpdateBtn");
-    const viewBtn = document.getElementById("viewUpdateBtn");
-    const viewBtn = document.getElementById("viewUpdateInfoBtn");
+    const viewUpdateBtn = document.getElementById("viewUpdateBtn");
+    const viewInfoBtn = document.getElementById("viewUpdateInfoBtn");
     const dontShowBtn = document.getElementById("dontShowBtn");
 
     const currentVersion = "v0.8"; // <- update this each release
     const storedVersion = localStorage.getItem("dismissedUpdateVersion");
-    const sessionDismissed = sessionStorage.getItem("updatePopupClosed");
 
-    // Show popup only if:
-    // - User hasn’t permanently dismissed it, AND
-    // - User hasn’t closed it during this session
-    if (storedVersion !== currentVersion && !sessionDismissed) {
-      setTimeout(() => popup.classList.add("show"), 1500);
+    // Always check localStorage first
+    if (storedVersion !== currentVersion) {
+      // Check if user closed it in current session
+      const sessionDismissed = sessionStorage.getItem("updatePopupClosed");
+      if (!sessionDismissed) {
+        setTimeout(() => popup.classList.add("show"), 1500);
+      }
     }
 
+    // Close for this session
     closeBtn.addEventListener("click", () => {
       popup.classList.remove("show");
       sessionStorage.setItem("updatePopupClosed", "true");
     });
 
+    // Don't show again (permanent)
     dontShowBtn.addEventListener("click", () => {
       localStorage.setItem("dismissedUpdateVersion", currentVersion);
       popup.classList.remove("show");
     });
-// UPDATE HTTPS://VIDEOLINK!
-    viewBtn.addEventListener("click", () => {
-      window.open("", "_blank");
+
+    // Example buttons (replace URLs)
+    viewUpdateBtn.addEventListener("click", () => {
+      window.open("system/pages/updates.html", "_blank");
+    });
+
+    viewInfoBtn.addEventListener("click", () => {
+      window.open("system/pages/update-info.html", "_blank");
     });
   });
 </script>
