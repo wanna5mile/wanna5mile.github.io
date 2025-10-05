@@ -4,70 +4,163 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settings</title>
+
+  <!-- Corrected CSS paths -->
   <link rel="stylesheet" href="../system/css/main.css">
+  <link rel="stylesheet" href="../system/css/themes.css">
+  <link rel="stylesheet" href="../system/css/commands.css">
+
   <meta name="author" content="Bg.uhm by rhap5ody">
   <meta name="keywords" content="fun, library, github, rhap5ody">
+
+  <!-- JS -->
   <script src="../system/js/settings.js" defer></script>
+
+  <!-- Page-Specific Styling -->
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-color, #fff);
+      background-color: var(--background-color, #111);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header, footer {
+      background: var(--header-footer-bg, #1b1b1b);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: var(--text-color, #fff);
+      margin: 0 8px;
+      text-decoration: none;
+      font-size: 0.95em;
+      transition: opacity 0.2s;
+    }
+    .nav-links a:hover { opacity: 0.7; }
+
+    main {
+      flex: 1;
+      padding: 30px 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1.page-title {
+      font-size: 2em;
+      margin-bottom: 25px;
+      text-align: center;
+      color: var(--accent-color, #fff);
+    }
+
+    section.setting {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
+
+    section.setting h2 {
+      color: var(--accent-color, #fff);
+      margin-top: 0;
+    }
+
+    .setting label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 600;
+      color: var(--text-color, #fff);
+    }
+
+    .setting input[type="color"],
+    .setting input[type="text"] {
+      width: 100%;
+      padding: 6px;
+      border: none;
+      border-radius: 6px;
+      background: #2b2b2b;
+      color: #fff;
+    }
+
+    .setting button {
+      background: var(--accent-color, #333);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 10px;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .setting button:hover {
+      background: #444;
+      transform: scale(1.03);
+    }
+
+    .cloak-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    footer {
+      justify-content: center;
+      gap: 10px;
+      font-size: 0.85em;
+    }
+    footer a {
+      color: var(--text-color, #ccc);
+      text-decoration: none;
+    }
+    footer a:hover {
+      color: var(--accent-color, #fff);
+    }
+  </style>
 </head>
+
 <body>
 
   <!-- Header -->
   <header>
     <nav class="nav-links">
-      <a href="system/pages/home.html">Home</a>
-      <a href="system/pages/favorite.html">Favorites</a>
-      <a href="system/pages/discover.html">Discovery</a>
-      <a href="system/pages/settings.html">Settings</a>
-      <a href="system/pages/support.html">Support</a>
-      <a href="system/pages/info.html">Info</a>
-
-      <div class="pages-anchor">
-        <button class="arrowleft" onclick="prevPage()"><img src="system/icons/left.png" alt="Previous Page"></button>
-        <span class="page-indicator">...</span>
-        <button class="arrowright" onclick="nextPage()"><img src="system/icons/right.png" alt="Next Page"></button>
-      </div>
+      <a href="../index.html">Home</a>
+      <a href="favorite.html">Favorites</a>
+      <a href="discover.html">Discover</a>
+      <a href="settings.html" class="active">Settings</a>
+      <a href="support.html">Support</a>
+      <a href="info.html">Info</a>
     </nav>
-
-    <div class="header-controls">
-      <div class="search-box">
-        <input type="text" id="searchInputHeader" placeholder="Search games..." />
-        <button id="searchBtnHeader"><img src="system/icons/search.png" alt="Search"></button>
-      </div>
-      <p id="gameCountInfo"></p>
-      <a href="system/pages/profile.html"><img src="system/icons/profile.png" alt="profile" id="pfp"></a>
-      <img src="system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
-    </div>
   </header>
 
-  <!-- Dashboard Menu -->
-  <div id="dashboardMenu" class="dashboard-menu">
-    <a href="system/pages/profile.html">Profile</a>
-    <a href="system/pages/favorite.html">Favorites</a>
-    <a href="system/pages/settings.html">Settings</a>
-    <a href="system/pages/support.html">Support</a>
-    <a href="system/pages/info.html">Info</a>
-    <a href="system/pages/version-log.html">Version Log</a>
-  </div>
-
-  <!-- Main Settings Container -->
-  <main style="padding:20px; max-width:800px; margin:0 auto;">
+  <!-- Main Settings -->
+  <main>
     <h1 class="page-title">Settings</h1>
 
     <!-- Cloak Mode -->
     <section class="setting">
       <h2>Cloak Mode</h2>
       <div class="cloak-buttons">
-        <button onclick="setCloak('Google Docs','icons/docs.png')">Google Docs</button>
-        <button onclick="setCloak('Canvas','icons/canvas.png')">Canvas</button>
-        <button onclick="setCloak('Clever','icons/clever.png')">Clever</button>
-        <button onclick="setCloak('New Tab','icons/newtab.png')">New Tab</button>
+        <button onclick="setCloak('Google Docs','../system/icons/docs.png')">Google Docs</button>
+        <button onclick="setCloak('Canvas','../system/icons/canvas.png')">Canvas</button>
+        <button onclick="setCloak('Clever','../system/icons/clever.png')">Clever</button>
+        <button onclick="setCloak('New Tab','../system/icons/newtab.png')">New Tab</button>
         <button onclick="resetCloak()">Reset</button>
       </div>
+
       <label for="customCloakUrl">Custom Cloak Image URL:</label>
       <input type="text" id="customCloakUrl" placeholder="Paste favicon URL">
       <label for="customCloakTitle">Custom Cloak Title:</label>
       <input type="text" id="customCloakTitle" placeholder="Enter custom tab title">
-      <button class="save-btn" onclick="saveCustomCloak()">Save Custom Cloak</button>
+      <button onclick="saveCustomCloak()">Save Custom Cloak</button>
     </section>
 
     <!-- Theme Customization -->
@@ -75,63 +168,34 @@
       <h2>Customize Theme</h2>
       <label for="bgColor">Background Color:</label>
       <input type="color" id="bgColor">
+
       <label for="marqueeColor">Marquee Text Color:</label>
       <input type="color" id="marqueeColor">
+
       <label for="headerColor">Header Background:</label>
       <input type="color" id="headerColor">
+
       <label for="footerColor">Footer Background:</label>
       <input type="color" id="footerColor">
-      <button class="save-btn" onclick="saveTheme()">Save Theme</button>
-      <button class="return-btn" onclick="window.location.href='https://theworldpt1.github.io/index.html'">Return to Page</button>
+
+      <button onclick="saveTheme()">Save Theme</button>
+      <button onclick="window.location.href='../index.html'">Return to Page</button>
     </section>
   </main>
 
   <!-- Footer -->
   <footer>
-    <a href="system/pages/sources.html">sources</a>
-    <a href="system/pages/contributors.html">contribute</a>
-    <a href="system/pages/discord.html">Discord</a>
-    <a href="system/pages/bugsNfixes.html">Bugs & fixes</a>
-    <a href="system/pages/contact.html">Socials</a>
-    <a href="system/pages/version-log.html">version V0.7.2</a>
+    <a href="sources.html">Sources</a>
+    <a href="contributors.html">Contribute</a>
+    <a href="discord.html">Discord</a>
+    <a href="bugsNfixes.html">Bugs & Fixes</a>
+    <a href="contact.html">Socials</a>
+    <a href="version-log.html">v0.7.2</a>
   </footer>
 
-  <!-- Scripts -->
+  <!-- Dashboard Script -->
   <script>
-    // === Dashboard Menu Logic ===
-    document.addEventListener("DOMContentLoaded", () => {
-      const dashboardBtn = document.getElementById("dashboardBtn");
-      const dashboardMenu = document.getElementById("dashboardMenu");
-
-      if (!dashboardBtn || !dashboardMenu) return;
-
-      dashboardMenu.style.display = "none";
-      dashboardMenu.style.opacity = 0;
-      dashboardMenu.style.transition = "opacity 0.3s ease";
-
-      dashboardBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const isVisible = dashboardMenu.style.display === "block";
-        if (isVisible) {
-          dashboardMenu.style.opacity = 0;
-          setTimeout(() => (dashboardMenu.style.display = "none"), 300);
-        } else {
-          dashboardMenu.style.display = "block";
-          setTimeout(() => (dashboardMenu.style.opacity = 1), 10);
-        }
-      });
-
-      document.addEventListener("click", (e) => {
-        if (!dashboardMenu.contains(e.target) && e.target !== dashboardBtn) {
-          if (dashboardMenu.style.display === "block") {
-            dashboardMenu.style.opacity = 0;
-            setTimeout(() => (dashboardMenu.style.display = "none"), 300);
-          }
-        }
-      });
-    });
-
-    // === Cloak Logic ===
+    // Cloak logic
     function setCloak(title, icon) {
       localStorage.setItem("cloakTitle", title);
       localStorage.setItem("cloakIcon", icon);
@@ -152,7 +216,7 @@
       } else alert("Please provide both a title and image URL.");
     }
 
-    // === Theme Logic ===
+    // Theme logic
     function saveTheme() {
       const theme = {
         bgColor: document.getElementById("bgColor").value,
