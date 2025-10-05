@@ -46,7 +46,7 @@
 
     .edit-card {
       width: 400px;
-      display: none; /* hidden by default */
+      display: none;
     }
 
     .profile-preview {
@@ -177,7 +177,7 @@
     </form>
   </div>
 
-  <button class="return-btn" onclick="window.location.href='https://bguhm.github.io./index.html'">Return to Page</button>
+  <button class="return-btn" id="returnBtn">Return to Page</button>
 
   <script>
     const defaultPic = "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/system/images/profile.png";
@@ -196,6 +196,11 @@
 
     const followBtn = document.getElementById("followBtn");
     const likeBtn = document.getElementById("likeBtn");
+
+    // Return button: go back to index.html dynamically
+    document.getElementById("returnBtn").addEventListener("click", () => {
+      window.location.href = window.location.origin + "/index.html";
+    });
 
     // Load saved profile info
     window.addEventListener("DOMContentLoaded", () => {
@@ -223,13 +228,13 @@
       editCard.style.display = "block";
     });
 
-    // Remove picture -> reset to default
+    // Remove picture
     removeBtn.addEventListener("click", () => {
       preview.src = defaultPic;
       localStorage.setItem("profilePic", defaultPic);
     });
 
-    // Save profile changes
+    // Save profile
     form.addEventListener("submit", (e) => {
       e.preventDefault();
 
@@ -251,12 +256,11 @@
         profilePic.src = preview.src;
       }
 
-      // Switch back to profile view
       editCard.style.display = "none";
       profileCard.style.display = "block";
     });
 
-    // Follow button toggle
+    // Follow toggle
     followBtn.addEventListener("click", () => {
       if (followBtn.classList.contains("following")) {
         followBtn.textContent = "Follow";
@@ -269,7 +273,7 @@
       }
     });
 
-    // Like button toggle
+    // Like toggle
     likeBtn.addEventListener("click", () => {
       likeBtn.classList.toggle("liked");
       localStorage.setItem("isLiked", likeBtn.classList.contains("liked"));
