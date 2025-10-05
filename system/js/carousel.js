@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const pageIndicator = document.querySelector(".page-indicator");
   const searchInput = document.getElementById("searchInputHeader");
   const searchBtn = document.getElementById("searchBtnHeader");
+  const gameCountInfo = document.getElementById("gameCountInfo");
 
   let gamesData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
@@ -31,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
         card.dataset.title = (game.title || "").toLowerCase();
         card.dataset.author = (game.author || "").toLowerCase();
         card.dataset.page = game.page || 1;
+        card.dataset.filtered = "true"; // default all visible
 
         card.innerHTML = `
           <a href="${game.link || "#"}" target="_blank">
@@ -39,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
           </a>
           <p>${game.author || "Unknown"}</p>
         `;
-
         container.appendChild(card);
       });
 
@@ -53,10 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderPage() {
     const allCards = Array.from(container.querySelectorAll(".game-card"));
-    const filteredCards = allCards.filter(card => card.dataset.filtered !== "false");
+    const filteredCards = allCards.filter(c => c.dataset.filtered === "true");
 
-    // Use max page from JSON instead of filtered length
-    const maxPage = Math.max(...gamesData.map(g => g.page || 1), 1);
+    const maxPage = Math.max(...filteredCards.map(c => parseInt(c.dataset.page)), 1);
     if (currentPage > maxPage) currentPage = maxPage;
 
     filteredCards.forEach(card => {
@@ -66,14 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pageIndicator.textContent = `Page ${currentPage} of ${maxPage}`;
     sessionStorage.setItem("currentPage", currentPage);
 
-    updateGameCount();
-  }
-
-  function updateGameCount() {
-    const visible = Array.from(container.querySelectorAll(".game-card"))
-      .filter(c => c.style.display !== "none");
-    const info = document.getElementById("gameCountInfo");
-    if (info) info.textContent = `${visible.length} Games on page ${currentPage}`;
+    gameCountInfo.textContent = `${filteredCards.filter(c => c.style.display !== "none").length} Games on page ${currentPage}`;
   }
 
   function filterGames(query) {
@@ -86,7 +79,12 @@ document.addEventListener("DOMContentLoaded", () => {
         card.dataset.filtered = "false";
       }
     });
-    currentPage = 1;
+
+    // Only move to first page if current page has no visible cards
+    const filteredCards = allCards.filter(c => c.dataset.filtered === "true");
+    const currentVisible = filteredCards.some(c => parseInt(c.dataset.page) === currentPage);
+    if (!currentVisible && filteredCards.length) currentPage = parseInt(filteredCards[0].dataset.page);
+
     renderPage();
   }
 
@@ -98,16 +96,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function nextPage() {
-    const maxPage = Math.max(...gamesData.map(g => g.page || 1), 1);
+    const filteredCards = Array.from(container.querySelectorAll(".game-card")).filter(c => c.dataset.filtered === "true");
+    const maxPage = Math.max(...filteredCards.map(c => parseInt(c.dataset.page)), 1);
     if (currentPage < maxPage) {
       currentPage++;
       renderPage();
     }
   }
 
-  searchInput.addEventListener("keyup", () => filterGames(searchInput.value));
-  searchBtn.addEventListener("click", () => filterGames(searchInput.value));
-
+  // Placeholder cycle
   function fadePlaceholder(input, text, cb) {
     input.classList.add("fade-out");
     setTimeout(() => {
@@ -122,16 +119,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function startPlaceholderCycle() {
-    const input = searchInput;
     function cycle() {
-      fadePlaceholder(input, `${container.querySelectorAll(".game-card:not([style*='display: none'])").length} Games on page ${currentPage}`, () => {
+      const visibleCount = container.querySelectorAll(".game-card:not([style*='display: none'])").length;
+      fadePlaceholder(searchInput, `${visibleCount} Games on page ${currentPage}`, () => {
         setTimeout(() => {
-          fadePlaceholder(input, "Search games...", () => setTimeout(cycle, 4000));
+          fadePlaceholder(searchInput, "Search games...", () => setTimeout(cycle, 4000));
         }, 4000);
       });
     }
     cycle();
   }
+
+  searchInput.addEventListener("keyup", () => filterGames(searchInput.value));
+  searchBtn.addEventListener("click", () => filterGames(searchInput.value));
 
   window.prevPage = prevPage;
   window.nextPage = nextPage;
