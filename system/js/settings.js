@@ -16,7 +16,7 @@ function setFavicon(url) {
     document.title = "Google Docs";
     setFavicon("icons/docs.png");
   } else {
-    document.title = "Bguhm.GuiHub.io";
+    document.title = "TITLE HERE";
     setFavicon("icons/default.png");
   }
 })();
