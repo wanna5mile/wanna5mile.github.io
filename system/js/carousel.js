@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (searchInput) searchInput.addEventListener("input", e => filterGames(e.target.value));
   if (searchBtn) searchBtn.addEventListener("click", () => filterGames(searchInput.value));
 
-  // --- Main: Load JSON (with image load delay) ---
+  // --- Main: Load JSON (waits for load-fire.gif before fade) ---
   async function loadGames() {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif"; // default loading
@@ -160,14 +160,22 @@ document.addEventListener("DOMContentLoaded", () => {
         )
       );
 
-      // Add small delay for smoother fade
+      // Small delay for smoother transition
       await new Promise(r => setTimeout(r, 800));
 
-      // Success: show load-fire.gif and fade preloader
-      if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
+      // Success: switch to load-fire.gif and wait until it fully loads
+      if (loaderImage) {
+        await new Promise(resolve => {
+          loaderImage.onload = resolve;
+          loaderImage.onerror = resolve;
+          loaderImage.src = "system/images/GIF/load-fire.gif";
+        });
+      }
+
+      // Once load-fire.gif is fully shown, fade preloader
       if (preloader) {
         preloader.classList.add("fade");
-        setTimeout(() => preloader.style.display = "none", 600);
+        setTimeout(() => (preloader.style.display = "none"), 600);
       }
 
     } catch (err) {
