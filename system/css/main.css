@@ -132,6 +132,7 @@ header img {
 .search-box {
   display: inline-flex;
   align-items: center;
+  font-family:monospace;
   gap: 5px;
 }
 .search-box input {
