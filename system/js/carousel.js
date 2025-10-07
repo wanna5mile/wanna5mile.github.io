@@ -36,9 +36,13 @@ document.addEventListener("DOMContentLoaded", () => {
       card.dataset.page = game.page || Math.floor(i / gamesPerPage) + 1;
       card.dataset.filtered = "true";
 
-      // --- handle missing image ---
+      // --- Only use fallback if image is "" or "blank" ---
       const imageSrc =
-        game.image && game.image.trim() !== "" ? game.image : fallbackImage;
+        !game.image ||
+        game.image.trim() === "" ||
+        game.image.trim().toLowerCase() === "blank"
+          ? fallbackImage
+          : game.image;
 
       card.innerHTML = `
         <a href="${game.link || "#"}" target="_blank" rel="noopener">
