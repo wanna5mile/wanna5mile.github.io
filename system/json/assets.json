@@ -103,5 +103,8 @@
   { "title": "Solitaire", "author": "by warpdesign", "link": "https://solitaire.warpdesign.fr/", "image": "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/solitaire/solitaire.png", "status": "ok", "page": 2 },
   { "title": "Blumgi Paintball", "author": "by Blumgi", "link": "https://theworldpt1.github.io./BlumgiPaintball/", "image": "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/paintball.png", "status": "ok", "page": 2 },
   { "title": "Blumgi Racers", "author": "by Blumgi", "link": "https://theworldpt1.github.io./BlumgiRacers/", "image": "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/racers.png", "status": "ok", "page": 2 },
-  { "title": "OSU-MANIA", "author": "", "link": "https://theworldpt1.github.io./source/osumania/", "image": "https://raw.githubusercontent.com/theworldpt1/source/main/osumania/mania.jpg", "status": "", "page": 2 }
+  { "title": "OSU-MANIA", "author": "", "link": "https://theworldpt1.github.io./source/osumania/", "image": "https://raw.githubusercontent.com/theworldpt1/source/main/osumania/mania.jpg", "status": "", "page": 2 },
+  { "title": "Title", "author": "", "link": "", "image": "", "status": "blank", "page": 2 },
+  { "title": "Title", "author": "", "link": "", "image": "", "status": "blank", "page": 2 },
+  { "title": "Title", "author": "", "link": "", "image": "", "status": "blank", "page": 2 }
 ]
