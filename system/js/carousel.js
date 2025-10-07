@@ -24,6 +24,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Helper: Create game cards ---
   function createGameCards(data) {
     if (!container) return;
+
+    const fallbackImage =
+      "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/icons/blank_404.png";
+
     data.forEach((game, i) => {
       const card = document.createElement("div");
       card.className = "game-card";
@@ -32,9 +36,17 @@ document.addEventListener("DOMContentLoaded", () => {
       card.dataset.page = game.page || Math.floor(i / gamesPerPage) + 1;
       card.dataset.filtered = "true";
 
+      // --- handle missing image ---
+      const imageSrc =
+        game.image && game.image.trim() !== "" ? game.image : fallbackImage;
+
       card.innerHTML = `
         <a href="${game.link || "#"}" target="_blank" rel="noopener">
-          <img src="${game.image || "system/images/placeholder.png"}" alt="${game.title || "Game"}">
+          <img 
+            src="${imageSrc}" 
+            alt="${game.title || "Game"}"
+            style="image-rendering: pixelated;"
+          >
           <h3>${game.title || "Untitled"}</h3>
         </a>
         <p>${game.author || "Unknown"}</p>
@@ -44,8 +56,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Helpers for filtering/pagination ---
-  function getAllCards() { return Array.from(container.querySelectorAll(".game-card")); }
-  function getFilteredCards() { return getAllCards().filter(c => c.dataset.filtered === "true"); }
+  function getAllCards() {
+    return Array.from(container.querySelectorAll(".game-card"));
+  }
+  function getFilteredCards() {
+    return getAllCards().filter(c => c.dataset.filtered === "true");
+  }
   function getPagesWithContent() {
     const pages = new Set(getFilteredCards().map(c => parseInt(c.dataset.page)));
     return [...pages].sort((a, b) => a - b);
@@ -117,7 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       fadePlaceholder(searchInput, `${visibleCount} games on this page`, () => {
         setTimeout(() => {
-          fadePlaceholder(searchInput, "Search games...", () => setTimeout(cycle, 4000));
+          fadePlaceholder(searchInput, "Search games...", () =>
+            setTimeout(cycle, 4000)
+          );
         }, 4000);
       });
     };
@@ -125,11 +143,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Pagination controls ---
-  window.prevPage = function () { currentPage--; renderPage(); };
-  window.nextPage = function () { currentPage++; renderPage(); };
+  window.prevPage = function () {
+    currentPage--;
+    renderPage();
+  };
+  window.nextPage = function () {
+    currentPage++;
+    renderPage();
+  };
 
-  if (searchInput) searchInput.addEventListener("input", e => filterGames(e.target.value));
-  if (searchBtn) searchBtn.addEventListener("click", () => filterGames(searchInput.value));
+  if (searchInput)
+    searchInput.addEventListener("input", e => filterGames(e.target.value));
+  if (searchBtn)
+    searchBtn.addEventListener("click", () => filterGames(searchInput.value));
 
   // --- Main: Load JSON (waits for load-fire.gif before fade) ---
   async function loadGames() {
@@ -177,7 +203,6 @@ document.addEventListener("DOMContentLoaded", () => {
         preloader.classList.add("fade");
         setTimeout(() => (preloader.style.display = "none"), 600);
       }
-
     } catch (err) {
       console.error("Error loading JSON:", err);
       showLoading("⚠ Failed to load game data.");
