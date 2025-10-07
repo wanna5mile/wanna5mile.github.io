@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>10x76 Music Library</title>
+  <link rel="icon" href="system/images/10x76.png">
+
+  <!-- Core styles -->
+  <link rel="stylesheet" href="system/css/loading-screen.css" />
+  <link rel="stylesheet" href="system/css/main.css">
+  <link rel="stylesheet" href="system/css/music-player.css">
+  <link rel="stylesheet" href="system/css/themes.css">
+
+  <meta name="author" content="Bg.uhm by rhap5ody">
+  <meta name="keywords" content="music, rhap5ody, player, bguhm">
+
+  <!-- Core scripts -->
+  <script src="system/js/music.js" defer></script> <!-- updated fetcher -->
+  <script src="system/js/music-player.js" defer></script>
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <style>
+    /* --- Music player dock --- */
+    .music-dock {
+      position: fixed;
+      bottom: -200px; /* hidden by default */
+      left: 0;
+      right: 0;
+      height: 200px;
+      background: var(--background, #1a1a1a);
+      border-top: 1px solid #333;
+      transition: bottom 0.4s ease;
+      z-index: 10000;
+    }
+
+    .music-dock.show {
+      bottom: 0; /* slide up */
+    }
+
+    .music-dock .wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+    }
+
+    .music-dock .track-art {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .music-dock img {
+      width: 70px;
+      height: 70px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .music-dock .track-info {
+      color: #fff;
+    }
+
+    .music-dock .track-info h3 {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .music-dock .track-info p {
+      font-size: 0.85rem;
+      color: #bbb;
+      margin: 0;
+    }
+
+    .music-dock .controls {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: #fff;
+    }
+
+    .music-dock .controls i {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .music-dock .controls i:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Preloader -->
+  <div class="preloader" id="preloader">
+    <div class="loader-gif">
+      <img src="system/images/GIF/loading.gif" id="loaderImage" alt="Loading..." />
+    </div>
+    <div class="counter" id="counter">0%</div>
+    <div class="loading-text">Loading...</div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <nav class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">Favorites</a>
+      <a href="#">Discover</a>
+      <a href="#">Settings</a>
+      <a href="#">Support</a>
+      <a href="#">Info</a>
+      <div class="pages-anchor">
+        <button class="arrowleft" onclick="prevPage()"><img src="system/icons/left.png" alt="Prev"></button>
+        <span class="page-indicator">...</span>
+        <button class="arrowright" onclick="nextPage()"><img src="system/icons/right.png" alt="Next"></button>
+      </div>
+    </nav>
+
+    <div class="header-controls">
+      <div class="search-box">
+        <input type="text" id="searchInputHeader" placeholder="Search music..." />
+        <button id="searchBtnHeader"><img src="system/icons/search.png" alt="Search"></button>
+      </div>
+      <a href="system/pages/profile.html"><img src="system/icons/profile.png" alt="profile" id="pfp"></a>
+      <img src="system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main>
+    <div id="container">Loading music...</div>
+  </main>
+
+  <!-- Now Playing Dock -->
+  <div class="music-dock" id="musicDock">
+    <div class="wrapper">
+      <div class="track-art">
+        <img id="dockCover" src="system/images/placeholder.png" alt="Cover">
+        <div class="track-info">
+          <h3 id="dockTitle">Select a song</h3>
+          <p id="dockArtist">—</p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <i class="fa fa-step-backward fa-2x" id="dockPrev"></i>
+        <i class="fa fa-play-circle fa-3x" id="dockPlay"></i>
+        <i class="fa fa-step-forward fa-2x" id="dockNext"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <a href="#">sources</a>
+    <a href="#">contributors</a>
+    <a href="#">discord</a>
+    <a href="#">bugs</a>
+    <a href="#">socials</a>
+  </footer>
+
+  <!-- Optional dashboard + profile script same as your index -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const dock = document.getElementById("musicDock");
+      const dockCover = document.getElementById("dockCover");
+      const dockTitle = document.getElementById("dockTitle");
+      const dockArtist = document.getElementById("dockArtist");
+      const dockPlay = document.getElementById("dockPlay");
+
+      document.body.addEventListener("click", e => {
+        const card = e.target.closest(".music-card");
+        if (!card) return;
+
+        const img = card.querySelector("img");
+        const title = card.querySelector("h3");
+        const artist = card.querySelector("p");
+
+        dockCover.src = img?.src || "system/images/placeholder.png";
+        dockTitle.textContent = title?.textContent || "Untitled";
+        dockArtist.textContent = artist?.textContent || "Unknown Artist";
+        dock.classList.add("show");
+      });
+
+      dockPlay.addEventListener("click", () => {
+        const icon = dockPlay.classList.contains("fa-play-circle") ? "fa-pause-circle" : "fa-play-circle";
+        dockPlay.className = `fa ${icon} fa-3x`;
+      });
+    });
+  </script>
+</body>
+</html>
