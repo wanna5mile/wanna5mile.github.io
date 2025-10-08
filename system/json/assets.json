@@ -148,7 +148,11 @@
   { "title": "Retro Bowl: Collage", "author": "made by", "link": "", "image": "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/icons/blank_404.jpg", "status": "blank", "page": 2 },
   { "title": "Soccer Random", "author": "made by", "link": "", "image": "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/icons/blank_404.jpg", "status": "blank", "page": 2 },
   { "title": "Bombastic Chicken", "author": "made by", "link": "", "image": "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/icons/blank_404.jpg", "status": "blank", "page": 2 },
-  { "title": "Tunnel Rush", "author": "made by", "link": "https://theworldpt1.github.io./source/tunnelrush/", "image": "https://raw.githubusercontent.com/theworldpt1/source/main/tunnelrush/tunnel.jpg", "status": "blank", "page": 2 },
+  { "title": "Tunnel Rush", "author": "made by", "link": "https://theworldpt1.github.io./source/tunnelrush/", "image": "https://raw.githubusercontent.com/theworldpt1/source/main/tunnelrush/tunnel.jpg", "status": "ok", "page": 2 },
   { "title": "Wordle", "author": "made by", "link": "", "image": "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/icons/blank_404.jpg", "status": "blank", "page": 2 },
-  { "title": "Yohoho!", "author": "made by", "link": "https://theworldpt1.github.io./source/yohoho/", "image": "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/yohoho.jpg", "status": "blank", "page": 2 }
+  { "title": "Yohoho!", "author": "made by", "link": "https://theworldpt1.github.io./source/yohoho/", "image": "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/yohoho.jpg", "status": "ok", "page": 2 },
+  { "title": "", "author": "made by", "link": "", "image": "", "status": "blank", "page": 3 },
+  { "title": "", "author": "made by", "link": "", "image": "", "status": "blank", "page": 3 },
+  { "title": "", "author": "made by", "link": "", "image": "", "status": "blank", "page": 3 },
+  { "title": "", "author": "made by", "link": "", "image": "", "status": "blank", "page": 3 }
 ]
