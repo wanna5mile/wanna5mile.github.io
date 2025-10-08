@@ -58,6 +58,15 @@
     transition: width 0.3s;
   }
 
+  #pressSpace {
+    display: none;
+    font-size: 12px;
+    margin-top: 25px;
+    color: #ffffff;
+    opacity: 0;
+    animation: blink 1s infinite alternate;
+  }
+
   #mainContent {
     display: none;
     opacity: 0;
@@ -70,9 +79,24 @@
     display: inline-block;
     animation: blink 0.8s infinite alternate;
   }
+
   @keyframes blink {
     from { opacity: 1; }
     to { opacity: 0; }
+  }
+
+  /* white flash effect */
+  #whiteFlash {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    z-index: 999;
   }
 </style>
 </head>
@@ -84,7 +108,10 @@
     <div id="progressBar">
       <div id="progressBarFill"></div>
     </div>
+    <div id="pressSpace">PRESS [SPACE]</div>
   </div>
+
+  <div id="whiteFlash"></div>
 
   <div id="mainContent">
     <h1>🎵 Welcome to bg.uhm 🎵</h1>
@@ -97,6 +124,13 @@
   const barFill = document.getElementById("progressBarFill");
   const container = document.getElementById("loadingContainer");
   const mainContent = document.getElementById("mainContent");
+  const pressSpace = document.getElementById("pressSpace");
+  const whiteFlash = document.getElementById("whiteFlash");
+
+  // preload music (optional)
+  const music = new Audio("trackload.mp3");
+  music.loop = true;
+  music.volume = 0.5;
 
   const loadingMessage = "LOADING...";
   const funkinQuotes = [
@@ -112,6 +146,7 @@
   ];
 
   let i = 0;
+
   function typeLetter() {
     if (i < loadingMessage.length) {
       loadingText.textContent = loadingMessage.substring(0, i + 1);
@@ -121,6 +156,11 @@
       loadingText.innerHTML += '<span class="cursor">_</span>';
       showRandomSubtext();
       simulateLoading();
+      // start music
+      music.play().catch(() => {
+        // will play when user interacts if autoplay blocked
+        document.addEventListener("click", () => music.play(), { once: true });
+      });
     }
   }
 
@@ -137,21 +177,39 @@
       if (progress >= 100) {
         progress = 100;
         clearInterval(interval);
-        setTimeout(finishLoading, 600);
+        setTimeout(showPressSpace, 600);
       }
       barFill.style.width = progress + "%";
     }, 300);
   }
 
-  function finishLoading() {
-    container.style.opacity = 0;
+  function showPressSpace() {
+    subtext.style.opacity = 0;
+    pressSpace.style.display = "block";
+    setTimeout(() => pressSpace.style.opacity = 1, 50);
+
+    // wait for spacebar press
+    window.addEventListener("keydown", handleSpacePress);
+  }
+
+  function handleSpacePress(e) {
+    if (e.code === "Space") {
+      window.removeEventListener("keydown", handleSpacePress);
+      flashOut();
+    }
+  }
+
+  function flashOut() {
+    whiteFlash.style.opacity = 1;
     setTimeout(() => {
+      music.pause();
       container.style.display = "none";
       mainContent.style.display = "block";
       requestAnimationFrame(() => {
+        whiteFlash.style.opacity = 0;
         mainContent.style.opacity = 1;
       });
-    }, 1000);
+    }, 500);
   }
 
   window.addEventListener("load", typeLetter);
