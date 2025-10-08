@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const fallbackImage =
       "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
-    const fallbackLink = "https://theworldpt1.github.io/source/dino/";
+    const fallbackLink = "https://theworldpt1.github.io./source/dino/";
 
     data.forEach((game, i) => {
       const card = document.createElement("div");
