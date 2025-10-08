@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!container) return;
 
     const fallbackImage =
-      "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/icons/blank_404.png";
+      "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
     const fallbackLink = "https://theworldpt1.github.io/source/dino/";
 
     data.forEach((game, i) => {
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
         imageSrc = fallbackImage;
       }
 
-      // Otherwise, if image is missing/blank string, keep as-is or use fallback
+      // Otherwise, if image is missing/blank string, use fallback image
       if (imageSrc.trim() === "" || imageSrc.trim().toLowerCase() === "blank") {
         imageSrc = fallbackImage;
       }
@@ -66,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
           <img 
             src="${imageSrc}" 
             alt="${game.title || "Game"}"
-            style="image-rendering: pixelated;"
           >
           <h3>${game.title || "Untitled"}</h3>
         </a>
