@@ -1,461 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- ========== META & BASIC SETUP ========== -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>10x76 Test 005</title>
-  <link rel="icon" href="system/images/10x76.png">
-  <link rel="stylesheet" href="system/css/main.css">
-  <link rel="stylesheet" href="system/css/quotes.css">
-  <link rel="stylesheet" href="system/css/themes.css">
-  <link rel="stylesheet" href="system/css/commands.css">
-  <meta name="author" content="Bg.uhm by rhap5ody">
-  <meta name="keywords" content="fun, library, github, rhap5ody">
+  <meta name="author" content="Bg.uhm by rhap5ody" />
+  <meta name="keywords" content="fun, library, github, rhap5ody" />
 
-  <script src="system/js/quotes.js" defer></script>
-  <script src="system/js/searcherror.js" defer></script>
-  <script src="system/js/carousel.js" defer></script>
-  <script src="system/js/commands.js" defer></script>
-  <script src="system/js/paging.js" defer></script>
+  <!-- ========== ICON & FONTS ========== -->
+  <link rel="icon" href="system/images/10x76.png" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" as="style" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" />
 
+  <!-- ========== STYLES ========== -->
+  <link rel="stylesheet" href="system/css/main.css" />
+  <link rel="stylesheet" href="system/css/quotes.css" />
+  <link rel="stylesheet" href="system/css/themes.css" />
+  <link rel="stylesheet" href="system/css/commands.css" />
+
+  <!-- ========== WIDGETBOT ========== -->
   <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3" async defer>
     new Crate({
-        server: '1273329263923302430',
-        channel: '1329289920845713471'
-    })
+      server: '1273329263923302430',
+      channel: '1329289920845713471'
+    });
   </script>
 
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  /* Modified: Remove `overflow: hidden` and `display: flex` from body initially */
-  body, html {
-    height: 100%;
-    background: #000;
-    /* overflow: hidden;  <-- REMOVED */
-    /* display: flex;     <-- REMOVED */
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    color: #fff;
-    font-family: 'Press Start 2P', monospace;
-    position: relative;
-  }
-  
-  /* ADDED: Initial state for the body when the splash screen is active */
-  body.splash-active {
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  /* ADDED: Hide the main content by default */
-  #mainContent {
-    display: none;
-    width: 100%; /* Ensure main content uses full width */
-  }
-
-  /* Your existing loading/splash screen styles */
-  #loadingContainer {
-    position: fixed; /* Ensures it overlays everything */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    opacity: 1;
-    transition: opacity 1s ease-in-out;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center; /* Center content */
-    z-index: 1000; /* Ensure it's on top */
-  }
-  
-  #progressBar {
-    width: 200px;
-    height: 6px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 5px;
-    overflow: hidden;
-    margin-top: 16px;
-  }
-
-  #progressBarFill {
-    width: 0%;
-    height: 100%;
-    background: #ff4ee0;
-    box-shadow: 0 0 10px #ff4ee0;
-    transition: width 0.3s;
-  }
-
-  .subtext {
-    font-size: 12px;
-    color: #aaffff;
-    opacity: 0;
-    transition: opacity 0.5s;
-    margin-top: 12px;
-  }
-
-  #pressSpaceScreen {
-    position: fixed; /* Ensures it overlays everything */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    display: none;
-    opacity: 0;
-    transition: opacity 1s;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    z-index: 1000; /* Ensure it's on top */
-  }
-
-  #pressSpaceScreen.active {
-    display: flex;
-  }
-
-  #pressSpaceScreen.show {
-    opacity: 1;
-  }
-
-  #pressText {
-    font-size: 14px;
-    color: #ff4ee0;
-    text-shadow: 0 0 10px #ff4ee0;
-    margin-top: 20px;
-    animation: blink 1s infinite alternate;
-  }
-
-  @keyframes blink {
-    from { opacity: 1; }
-    to { opacity: 0; }
-  }
-
-  /* White flash overlay */
-  #whiteFlash {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: #fff;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 9999;
-    transition: opacity 0.3s ease;
-  }
-
-  #whiteFlash.active {
-    opacity: 1;
-  }
-</style>
   <style>
-    .update-popup { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      background: #000;
+      color: #fff;
+      font-family: 'Press Start 2P', monospace;
+      overflow-x: hidden;
+    }
+
+    body.splash-active { overflow: hidden; }
+
+    #mainContent {
+      display: none;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    #mainContent.show { opacity: 1; }
+
+    /* ===== SPLASH SCREENS ===== */
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      background: #000;
+      z-index: 1000;
+      transition: opacity 1s ease;
+    }
+    .splash-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #progressBar {
+      width: 200px;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    #progressBarFill {
+      width: 0%;
+      height: 100%;
+      background: #ff4ee0;
+      box-shadow: 0 0 10px #ff4ee0;
+      transition: width 0.3s;
+    }
+
+    .subtext {
+      font-size: 12px;
+      color: #aaffff;
+      opacity: 0;
+      transition: opacity 0.5s;
+      margin-top: 12px;
+    }
+
+    #pressText {
+      font-size: 14px;
+      color: #ff4ee0;
+      text-shadow: 0 0 10px #ff4ee0;
+      margin-top: 20px;
+      animation: blink 1s infinite alternate;
+    }
+    @keyframes blink { from { opacity: 1; } to { opacity: 0; } }
+
+    #whiteFlash {
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 9999;
+    }
+    #whiteFlash.active { opacity: 1; }
+
+    /* ===== UPDATE POPUP ===== */
+    .update-popup {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(6px);
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
     .update-popup.show { opacity: 1; pointer-events: all; }
-    .update-popup-content { background: var(--background-color,#1e1e1e); border-radius: 14px; box-shadow: 0 0 20px rgba(0,0,0,0.6); width: 90%; max-width: 480px; text-align: center; padding: 20px; color: var(--text-color,#fff); animation: popup-bounce 0.6s ease; }
-    .update-popup-content h2 { margin-top:0; color: var(--accent-color,#fff); }
-    .update-popup-content p { font-size:0.95em; margin:10px 0 20px; }
-    .update-video { margin-bottom:15px; border-radius:10px; overflow:hidden; }
-    .update-buttons { display:flex; gap:8px; flex-wrap:wrap; justify-content:space-between; }
-    .update-buttons button { flex:1; min-width:100px; background:var(--accent-color,#2e2e2e); color:#fff; border:none; border-radius:8px; padding:8px; font-size:0.9em; cursor:pointer; transition:all 0.2s ease; }
-    .update-buttons button:hover { background:#3e3e3e; }
-    @keyframes popup-bounce {0%{transform:scale(0.9);opacity:0;}60%{transform:scale(1.05);opacity:1;}100%{transform:scale(1);}}
-    #searchInputHeader { transition: opacity 0.5s ease; }
-    #searchInputHeader.fade-out { opacity:0; }
-    #searchInputHeader.fade-in { opacity:1; }
-    .update-video-wrapper { position: relative; border-radius: 10px; overflow: hidden; }
-    .video-tooltip { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 0.8em; opacity:0; transition: opacity 0.3s ease; pointer-events:none; }
-    .update-video-wrapper:hover .video-tooltip { opacity:1; }
   </style>
 </head>
+
 <body class="splash-active">
 
-
+  <!-- ===== WHITE FLASH ===== -->
   <div id="whiteFlash"></div>
 
-  <div id="loadingContainer">
-    <h1 style="color:#ff4ee0; text-shadow:0 0 10px #ff4ee0;">10x76</h1>
+  <!-- ===== LOADING SCREEN ===== -->
+  <div id="loadingContainer" class="splash-screen">
+    <h1 style="color:#ff4ee0;text-shadow:0 0 10px #ff4ee0;">10x76</h1>
     <div id="progressBar"><div id="progressBarFill"></div></div>
     <div class="subtext" id="subtext"></div>
   </div>
 
-  <div id="pressSpaceScreen">
-    <h1 style="color:#fff;text-shadow:0 0 10px #ff4ee0;"> Welcome to 10x76 </h1>
-    <div id="pressText"> [ Press SPACE to begin ] </div>
+  <!-- ===== PRESS SPACE SCREEN ===== -->
+  <div id="pressSpaceScreen" class="splash-screen hidden">
+    <h1 style="color:#fff;text-shadow:0 0 10px #ff4ee0;">Welcome to 10x76</h1>
+    <div id="pressText">[ Press SPACE to begin ]</div>
   </div>
 
-	<script>
-const body = document.body;
-const subtext = document.getElementById("subtext");
-const barFill = document.getElementById("progressBarFill");
-const loadingContainer = document.getElementById("loadingContainer");
-const pressSpaceScreen = document.getElementById("pressSpaceScreen");
-const whiteFlash = document.getElementById("whiteFlash");
-const mainContent = document.getElementById("mainContent");
+  <!-- ===== MAIN CONTENT ===== -->
+  <div id="mainContent">
+    <header>
+      <nav class="nav-links">
+        <a href="system/pages/home.html">Home</a>
+        <a href="system/pages/favorite.html">Favorites</a>
+        <a href="system/pages/discover.html">Discovery</a>
+        <a href="system/pages/settings.html">Settings</a>
+        <a href="system/pages/support.html">Support</a>
+        <a href="system/pages/info.html">Info</a>
+      </nav>
+    </header>
 
-const funkinQuotes = [
-  "I AM THE MUSIC",
-  "Made By Rhap5ody.",
-  "Reworking Music Player",
-  "Page 3 soon"
-];
+    <main>
+      <div id="container">loading assets...</div>
+    </main>
 
-let quoteInterval;
-let hasFlashed = false;
-
-function changeQuote() {
-  subtext.style.opacity = 0;
-  setTimeout(() => {
-    const randomQuote = funkinQuotes[Math.floor(Math.random() * funkinQuotes.length)];
-    subtext.textContent = randomQuote;
-    subtext.style.opacity = 1;
-  }, 400);
-}
-
-function simulateLoading() {
-  let progress = 0;
-  changeQuote();
-  quoteInterval = setInterval(changeQuote, 2000);
-
-  const interval = setInterval(() => {
-    progress += Math.random() * 15;
-    if (progress >= 100) {
-      progress = 100;
-      clearInterval(interval);
-      clearInterval(quoteInterval);
-      setTimeout(finishLoading, 600);
-    }
-    barFill.style.width = progress + "%";
-  }, 300);
-}
-
-function finishLoading() {
-  loadingContainer.style.opacity = 0;
-  setTimeout(() => {
-    loadingContainer.style.display = "none";
-    pressSpaceScreen.classList.add("active");
-    requestAnimationFrame(() => pressSpaceScreen.classList.add("show"));
-  }, 800);
-}
-
-function startGame() {
-  // Flash effect
-  whiteFlash.classList.add("active");
-  setTimeout(() => {
-    whiteFlash.classList.remove("active");
-  }, 300);
-
-  // Hide the press space screen
-  pressSpaceScreen.style.opacity = 0;
-  setTimeout(() => {
-    pressSpaceScreen.style.display = "none";
-    pressSpaceScreen.classList.remove("active");
-    // Reveal main content
-    mainContent.style.display = "block";
-    body.classList.remove("splash-active");
-    body.style.overflow = "auto";
-  }, 800);
-}
-
-document.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && pressSpaceScreen.classList.contains("active") && !hasFlashed) {
-    e.preventDefault(); // prevent accidental scroll
-    hasFlashed = true;
-    startGame();
-  }
-});
-
-window.addEventListener("load", simulateLoading);
-</script>
-
-<div id="mainContent">
-  	
-<header>
-  <nav class="nav-links">
-    <a href="system/pages/home.html">Home</a>
-    <a href="system/pages/favorite.html">Favorites</a>
-    <a href="system/pages/discover.html">Discovery</a>
-    <a href="system/pages/settings.html">Settings</a>
-    <a href="system/pages/support.html">Support</a>
-    <a href="system/pages/info.html">Info</a>
-
-    <div class="pages-anchor">
-      <button class="arrowleft" onclick="prevPage()"><img src="system/icons/left.png" alt="Previous Page"></button>
-      <span class="page-indicator">...</span>
-      <button class="arrowright" onclick="nextPage()"><img src="system/icons/right.png" alt="Next Page"></button>
-    </div>
-  </nav>
-
-  <div class="header-controls">
-    <div class="search-box">
-      <input type="text" id="searchInputHeader" placeholder="Search games..." />
-      <button id="searchBtnHeader"><img src="system/icons/search.png" alt="Search"></button>
-    </div>
-    <a href="system/pages/profile.html"><img src="system/icons/profile.png" alt="profile" id="pfp"></a>
-    <img src="system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
+    <footer>
+      <a href="system/pages/sources.html">sources</a>
+      <a href="system/pages/contributors.html">contribute</a>
+      <a href="system/pages/discord.html">Discord</a>
+      <a href="system/pages/bugsNfixes.html">Bugs & fixes</a>
+      <a href="system/pages/contact.html">Socials</a>
+      <a href="system/pages/version-log.html">version V0.8</a>
+    </footer>
   </div>
-</header>
 
-<div id="quoteWrapper"><p id="quoteBox"></p></div>
-
-<div id="updatePopup" class="update-popup">
-  <div class="update-popup-content">
-    <h2>🎉 Version 0.8 Update!</h2>
-    <p>New games, smoother loading, and visual tweaks across the library!</p>
-    <div class="update-video-wrapper">
-      <div class="update-video">
-        <iframe id="updateVideo" width="100%" height="200" 
-          src="https://www.youtube.com/embed/Ik4Cgquw-D8?si=JPMig9VTfb-PYVNg&controls=0" 
-          title="v0.8 Update Trailer" frameborder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-          allowfullscreen>
-        </iframe>
-      </div>
-      <div class="video-tooltip">Press F or double click for full screen</div>
-    </div>
-    <div class="update-buttons">
-      <button id="viewUpdateBtn">Check it out!</button>
-      <button id="viewUpdateInfoBtn">More information</button>
-      <button id="closeUpdateBtn">Close</button>
-      <button id="dontShowBtn">Don’t show again</button>
-    </div>
-  </div>
-</div>
-
-<main>
-  <div id="container">loading assets...</div>
-</main>
-
-<button id="toTopBtn">⬆ Top</button>
-
-<footer>
-  <a href="system/pages/sources.html">sources</a>
-  <a href="system/pages/contributors.html">contribute</a>
-  <a href="system/pages/discord.html">Discord</a>
-  <a href="system/pages/bugsNfixes.html">Bugs & fixes</a>
-  <a href="system/pages/contact.html">Socials</a>
-  <a href="system/pages/version-log.html">version V0.8</a>
-</footer>
-
-<div id="dashboardMenu" class="dashboard-menu">
-  <a href="system/pages/music-player.html">Music Player</a>
-  <a href="system/pages/settings-themes.html">Themes</a>
-  <a href="system/pages/credits.html">Credits</a>
-  <a href="system/pages/alt.html">Alternative Links</a>
-</div>
-</div>
-<script>
-	// --- Update Popup to pause vid when closed ---
-document.addEventListener("DOMContentLoaded", () => {
-  const popup = document.getElementById("updatePopup");
-  const video = document.getElementById("updateVideo");
-  const closeBtn = document.getElementById("closeUpdateBtn");
-  const viewUpdateBtn = document.getElementById("viewUpdateBtn");
-  const viewInfoBtn = document.getElementById("viewUpdateInfoBtn");
-  const dontShowBtn = document.getElementById("dontShowBtn");
-
-  const currentVersion = "v0.8";
-  const storedVersion = localStorage.getItem("dismissedUpdateVersion");
-
-  if (storedVersion !== currentVersion && !sessionStorage.getItem("updatePopupClosed")) {
-    // Only show popup if main content is visible (i.e., splash screen is gone)
-    // The popup logic will now run after 'startGame' is called.
-    // However, since this script is near the end of <body>, it runs late.
-    // For proper initial hiding, we wrap all main content.
-    // The setTimeout is kept for a slight delay.
-    // The check for splash screen active is implicit now as the DOM is loaded.
-    setTimeout(() => {
-      // Check if the splash screen is fully gone before showing the popup
-      if (!document.body.classList.contains('splash-active')) {
-        popup.classList.add("show");
-      }
-    }, 1500); 
-  }
-
-  function stopVideo() {
-    const src = video.src;
-    video.src = "";    // unloads video → stops audio
-    video.src = src;   // reloads video when reopened
-  }
-
-  closeBtn.addEventListener("click", () => {
-    popup.classList.remove("show");
-    sessionStorage.setItem("updatePopupClosed", "true");
-    stopVideo();
-  });
-
-  dontShowBtn.addEventListener("click", () => {
-    localStorage.setItem("dismissedUpdateVersion", currentVersion);
-    popup.classList.remove("show");
-    stopVideo();
-  });
-
-  viewUpdateBtn.addEventListener("click", () => {
-    window.open("system/pages/updates.html", "_blank");
-  });
-
-  viewInfoBtn.addEventListener("click", () => {
-    window.open("system/pages/update-info.html", "_blank");
-  });
-});
-
-  // --- Scroll-to-Top ---
-  const toTopBtn = document.getElementById("toTopBtn");
-  window.onscroll = () => {
-    toTopBtn.style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 200) ? "block" : "none";
-  };
-  toTopBtn.onclick = () => { window.scrollTo({ top: 0, behavior: "smooth" }); };
-  toTopBtn.addEventListener("dblclick", () => { window.scrollTo({ top: 0, behavior: "smooth" }); });
-</script>
+  <!-- ===== LOADER SCRIPT ===== -->
   <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const savedPic = localStorage.getItem("profilePic");
-    if (savedPic) {
-      document.getElementById("pfp").src = savedPic;
+    const body = document.body;
+    const loadingContainer = document.getElementById("loadingContainer");
+    const pressSpaceScreen = document.getElementById("pressSpaceScreen");
+    const whiteFlash = document.getElementById("whiteFlash");
+    const mainContent = document.getElementById("mainContent");
+    const subtext = document.getElementById("subtext");
+    const barFill = document.getElementById("progressBarFill");
+
+    const funkinQuotes = [
+      "I AM THE MUSIC",
+      "Made By Rhap5ody.",
+      "Reworking Music Player",
+      "Page 3 soon"
+    ];
+
+    let quoteInterval;
+    let hasStarted = false;
+
+    function changeQuote() {
+      subtext.style.opacity = 0;
+      setTimeout(() => {
+        subtext.textContent = funkinQuotes[Math.floor(Math.random() * funkinQuotes.length)];
+        subtext.style.opacity = 1;
+      }, 400);
     }
-  });
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const dashboardBtn = document.getElementById("dashboardBtn");
-  const dashboardMenu = document.getElementById("dashboardMenu");
 
-  if (!dashboardBtn || !dashboardMenu) return;
+    function simulateLoading() {
+      let progress = 0;
+      changeQuote();
+      quoteInterval = setInterval(changeQuote, 2000);
 
-  // Start hidden
-  dashboardMenu.style.display = "none";
-  dashboardMenu.style.opacity = 0;
-  dashboardMenu.style.transition = "opacity 0.3s ease";
-
-  // Toggle visibility
-  dashboardBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const isVisible = dashboardMenu.style.display === "block";
-    if (isVisible) {
-      dashboardMenu.style.opacity = 0;
-      setTimeout(() => (dashboardMenu.style.display = "none"), 300);
-    } else {
-      dashboardMenu.style.display = "block";
-      setTimeout(() => (dashboardMenu.style.opacity = 1), 10);
+      const interval = setInterval(() => {
+        progress += Math.random() * 20;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          clearInterval(quoteInterval);
+          setTimeout(finishLoading, 500);
+        }
+        barFill.style.width = progress + "%";
+      }, 300);
     }
-  });
 
-  // Click outside → close
-  document.addEventListener("click", (e) => {
-    if (!dashboardMenu.contains(e.target) && e.target !== dashboardBtn) {
-      if (dashboardMenu.style.display === "block") {
-        dashboardMenu.style.opacity = 0;
-        setTimeout(() => (dashboardMenu.style.display = "none"), 300);
+    function finishLoading() {
+      loadingContainer.classList.add("hidden");
+      setTimeout(() => {
+        loadingContainer.style.display = "none";
+        pressSpaceScreen.classList.remove("hidden");
+      }, 1000);
+    }
+
+    function startGame() {
+      whiteFlash.classList.add("active");
+      setTimeout(() => {
+        whiteFlash.classList.remove("active");
+        pressSpaceScreen.classList.add("hidden");
+        setTimeout(() => {
+          pressSpaceScreen.style.display = "none";
+          mainContent.style.display = "block";
+          requestAnimationFrame(() => mainContent.classList.add("show"));
+          body.classList.remove("splash-active");
+        }, 800);
+      }, 300);
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space" && !hasStarted && !pressSpaceScreen.classList.contains("hidden")) {
+        hasStarted = true;
+        e.preventDefault();
+        startGame();
       }
-    }
-  });
-});
-</script>
+    });
+
+    window.addEventListener("load", simulateLoading);
+  </script>
 
 </body>
 </html>
