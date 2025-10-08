@@ -6,11 +6,7 @@
 <title>replace this when merged</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body, html {
     height: 100%;
@@ -157,20 +153,9 @@ const pressSpaceScreen = document.getElementById("pressSpaceScreen");
 const mainContent = document.getElementById("mainContent");
 const whiteFlash = document.getElementById("whiteFlash");
 
-const funkinQuotes = [
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10"
-];
-
+const funkinQuotes = ["1","2","3","4","5","6","7","8","9","10"];
 let quoteInterval;
+let hasFlashed = false; // ✅ Prevents multiple white flashes
 
 function changeQuote() {
   subtext.style.opacity = 0;
@@ -184,7 +169,7 @@ function changeQuote() {
 function simulateLoading() {
   let progress = 0;
   changeQuote();
-  quoteInterval = setInterval(changeQuote, 2000); // change every 2 seconds
+  quoteInterval = setInterval(changeQuote, 2000);
   const interval = setInterval(() => {
     progress += Math.random() * 15;
     if (progress >= 100) {
@@ -208,10 +193,12 @@ function finishLoading() {
   }, 1000);
 }
 
-// White flash + transition
+// ✅ Runs flash only once
 document.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && pressSpaceScreen.classList.contains("active")) {
+  if (e.code === "Space" && pressSpaceScreen.classList.contains("active") && !hasFlashed) {
+    hasFlashed = true;
     whiteFlash.classList.add("active");
+
     setTimeout(() => {
       whiteFlash.classList.remove("active");
       pressSpaceScreen.style.opacity = 0;
