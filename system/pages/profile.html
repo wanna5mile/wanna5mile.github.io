@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile</title>
+
+  <!-- Cropper.js CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" rel="stylesheet">
+
   <style>
     body {
       margin: 0;
@@ -72,7 +76,6 @@
       font-size: 16px;
     }
 
-    /* Buttons */
     .edit-btn,
     .follow-btn,
     .like-btn,
@@ -145,6 +148,26 @@
       transform: translateX(-50%) scale(1.05);
       background: #ff3333;
     }
+
+    /* Crop container */
+    #cropContainer {
+      display: none;
+      margin-top: 10px;
+    }
+
+    #cropPreview {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+
+    #cropActions {
+      margin-top: 10px;
+    }
+
+    #cropActions button {
+      background: #444;
+      margin: 5px;
+    }
   </style>
 </head>
 <body>
@@ -168,8 +191,17 @@
     <form id="editForm">
       <label for="profilePicInput">Change Profile Picture:</label><br>
       <input type="file" id="profilePicInput" accept="image/*"><br>
-      <button type="button" class="remove-btn" id="removePicBtn">Remove Picture</button><br><br>
+      <button type="button" class="remove-btn" id="removePicBtn">Remove Picture</button>
 
+      <div id="cropContainer">
+        <img id="cropPreview">
+        <div id="cropActions">
+          <button type="button" id="cropConfirm">✅ Crop</button>
+          <button type="button" id="cropCancel">❌ Cancel</button>
+        </div>
+      </div>
+
+      <br><br>
       <label for="usernameInput">Edit Username:</label><br>
       <input type="text" id="usernameInput" placeholder="Enter nickname"><br>
 
@@ -178,6 +210,9 @@
   </div>
 
   <button class="return-btn" id="returnBtn">Return to Page</button>
+
+  <!-- Cropper.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 
   <script>
     const defaultPic = "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/system/images/profile.png";
@@ -197,22 +232,29 @@
     const followBtn = document.getElementById("followBtn");
     const likeBtn = document.getElementById("likeBtn");
 
-    // Return button: go back to index.html dynamically
+    // Crop elements
+    const cropContainer = document.getElementById("cropContainer");
+    const cropPreview = document.getElementById("cropPreview");
+    const cropConfirm = document.getElementById("cropConfirm");
+    const cropCancel = document.getElementById("cropCancel");
+    let cropper = null;
+    let croppedImageData = null;
+
+    // Return button
     document.getElementById("returnBtn").addEventListener("click", () => {
       window.location.href = window.location.origin + "/index.html";
     });
 
-    // Load saved profile info
+    // Load saved info
     window.addEventListener("DOMContentLoaded", () => {
       const savedPic = localStorage.getItem("profilePic");
       const savedName = localStorage.getItem("nickname");
 
-      profilePic.src = savedPic ? savedPic : defaultPic;
-      preview.src = savedPic ? savedPic : defaultPic;
-      usernameDisplay.textContent = savedName ? savedName : "Nickname";
-      usernameInput.value = savedName ? savedName : "";
+      profilePic.src = savedPic || defaultPic;
+      preview.src = savedPic || defaultPic;
+      usernameDisplay.textContent = savedName || "Nickname";
+      usernameInput.value = savedName || "";
 
-      // Load follow/like state
       if (localStorage.getItem("isFollowing") === "true") {
         followBtn.textContent = "Following";
         followBtn.classList.add("following");
@@ -222,58 +264,77 @@
       }
     });
 
-    // Switch to edit mode
     editBtn.addEventListener("click", () => {
       profileCard.style.display = "none";
       editCard.style.display = "block";
     });
 
-    // Remove picture
     removeBtn.addEventListener("click", () => {
       preview.src = defaultPic;
       localStorage.setItem("profilePic", defaultPic);
     });
 
+    // Handle file input + cropping
+    fileInput.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          cropContainer.style.display = "block";
+          cropPreview.src = e.target.result;
+
+          if (cropper) cropper.destroy();
+          cropper = new Cropper(cropPreview, {
+            aspectRatio: 1,
+            viewMode: 1,
+            background: false,
+            dragMode: "move",
+            cropBoxResizable: true,
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    cropConfirm.addEventListener("click", () => {
+      const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+      croppedImageData = canvas.toDataURL("image/png");
+      preview.src = croppedImageData;
+      cropContainer.style.display = "none";
+      cropper.destroy();
+      cropper = null;
+    });
+
+    cropCancel.addEventListener("click", () => {
+      cropContainer.style.display = "none";
+      if (cropper) cropper.destroy();
+      cropper = null;
+      fileInput.value = "";
+    });
+
     // Save profile
     form.addEventListener("submit", (e) => {
       e.preventDefault();
-
       const username = usernameInput.value.trim();
       if (username) {
         localStorage.setItem("nickname", username);
         usernameDisplay.textContent = username;
       }
 
-      if (fileInput.files && fileInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          localStorage.setItem("profilePic", e.target.result);
-          profilePic.src = e.target.result;
-        }
-        reader.readAsDataURL(fileInput.files[0]);
-      } else {
-        localStorage.setItem("profilePic", preview.src);
-        profilePic.src = preview.src;
-      }
+      const finalImage = croppedImageData || preview.src || defaultPic;
+      localStorage.setItem("profilePic", finalImage);
+      profilePic.src = finalImage;
 
       editCard.style.display = "none";
       profileCard.style.display = "block";
     });
 
-    // Follow toggle
     followBtn.addEventListener("click", () => {
-      if (followBtn.classList.contains("following")) {
-        followBtn.textContent = "Follow";
-        followBtn.classList.remove("following");
-        localStorage.setItem("isFollowing", "false");
-      } else {
-        followBtn.textContent = "Following";
-        followBtn.classList.add("following");
-        localStorage.setItem("isFollowing", "true");
-      }
+      const following = followBtn.classList.toggle("following");
+      followBtn.textContent = following ? "Following" : "Follow";
+      localStorage.setItem("isFollowing", following);
     });
 
-    // Like toggle
     likeBtn.addEventListener("click", () => {
       likeBtn.classList.toggle("liked");
       localStorage.setItem("isLiked", likeBtn.classList.contains("liked"));
