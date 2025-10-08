@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bg.uhm | Loading...</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    text-align: center;
+  }
+
+  #loadingContainer {
+    opacity: 1;
+    transition: opacity 1s ease-in-out;
+  }
+
+  .loading-text {
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: #ff4ee0;
+    text-shadow: 0 0 10px #ff4ee0;
+    margin-bottom: 25px;
+  }
+
+  .subtext {
+    font-size: 12px;
+    color: #aaffff;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  #progressBar {
+    margin-top: 30px;
+    width: 200px;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  #progressBarFill {
+    width: 0%;
+    height: 100%;
+    background: #ff4ee0;
+    box-shadow: 0 0 10px #ff4ee0;
+    transition: width 0.3s;
+  }
+
+  #mainContent {
+    display: none;
+    opacity: 0;
+    transition: opacity 1s;
+    color: #fff;
+  }
+
+  /* blinking underscore */
+  .cursor {
+    display: inline-block;
+    animation: blink 0.8s infinite alternate;
+  }
+  @keyframes blink {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+  <div id="loadingContainer">
+    <div class="loading-text" id="loadingText"></div>
+    <div class="subtext" id="subtext"></div>
+    <div id="progressBar">
+      <div id="progressBarFill"></div>
+    </div>
+  </div>
+
+  <div id="mainContent">
+    <h1>🎵 Welcome to bg.uhm 🎵</h1>
+    <p>Main page content loads here...</p>
+  </div>
+
+<script>
+  const loadingText = document.getElementById("loadingText");
+  const subtext = document.getElementById("subtext");
+  const barFill = document.getElementById("progressBarFill");
+  const container = document.getElementById("loadingContainer");
+  const mainContent = document.getElementById("mainContent");
+
+  const loadingMessage = "LOADING...";
+  const funkinQuotes = [
+    "3...2...1... GO!",
+    "Bopeebo’ing your files...",
+    "Droppin’ some fresh beats...",
+    "Loading vibes...",
+    "Mic check 1, 2!",
+    "Charting notes...",
+    "Press R to retry (jk)",
+    "Getting funky!",
+    "Spittin’ code instead of bars..."
+  ];
+
+  let i = 0;
+  function typeLetter() {
+    if (i < loadingMessage.length) {
+      loadingText.textContent = loadingMessage.substring(0, i + 1);
+      i++;
+      setTimeout(typeLetter, 100);
+    } else {
+      loadingText.innerHTML += '<span class="cursor">_</span>';
+      showRandomSubtext();
+      simulateLoading();
+    }
+  }
+
+  function showRandomSubtext() {
+    const randomQuote = funkinQuotes[Math.floor(Math.random() * funkinQuotes.length)];
+    subtext.textContent = randomQuote;
+    subtext.style.opacity = 1;
+  }
+
+  function simulateLoading() {
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 15;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        setTimeout(finishLoading, 600);
+      }
+      barFill.style.width = progress + "%";
+    }, 300);
+  }
+
+  function finishLoading() {
+    container.style.opacity = 0;
+    setTimeout(() => {
+      container.style.display = "none";
+      mainContent.style.display = "block";
+      requestAnimationFrame(() => {
+        mainContent.style.opacity = 1;
+      });
+    }, 1000);
+  }
+
+  window.addEventListener("load", typeLetter);
+</script>
+
+</body>
+</html>
