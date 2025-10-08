@@ -189,14 +189,14 @@
     <div id="pressText"> [ Press SPACE to begin ] </div>
   </div>
 
-<script>
-const body = document.body; // New reference to the body element
+	<script>
+const body = document.body;
 const subtext = document.getElementById("subtext");
 const barFill = document.getElementById("progressBarFill");
 const loadingContainer = document.getElementById("loadingContainer");
 const pressSpaceScreen = document.getElementById("pressSpaceScreen");
 const whiteFlash = document.getElementById("whiteFlash");
-const mainContent = document.getElementById("mainContent"); // New reference to the main content container
+const mainContent = document.getElementById("mainContent");
 
 const funkinQuotes = [
   "I AM THE MUSIC",
@@ -240,33 +240,33 @@ function finishLoading() {
     loadingContainer.style.display = "none";
     pressSpaceScreen.classList.add("active");
     requestAnimationFrame(() => pressSpaceScreen.classList.add("show"));
-  }, 1000);
+  }, 800);
 }
 
 function startGame() {
-  // 1. Reveal main content
-  mainContent.style.display = 'block'; 
-  
-  // 2. Hide press space screen
+  // Flash effect
+  whiteFlash.classList.add("active");
+  setTimeout(() => {
+    whiteFlash.classList.remove("active");
+  }, 300);
+
+  // Hide the press space screen
   pressSpaceScreen.style.opacity = 0;
   setTimeout(() => {
     pressSpaceScreen.style.display = "none";
     pressSpaceScreen.classList.remove("active");
-    
-    // 3. Remove splash-active class from body to allow scrolling and normal layout
-    body.classList.remove('splash-active');
-  }, 1000); // Wait for opacity transition
+    // Reveal main content
+    mainContent.style.display = "block";
+    body.classList.remove("splash-active");
+    body.style.overflow = "auto";
+  }, 800);
 }
 
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space" && pressSpaceScreen.classList.contains("active") && !hasFlashed) {
+    e.preventDefault(); // prevent accidental scroll
     hasFlashed = true;
-    whiteFlash.classList.add("active");
-
-    setTimeout(() => {
-      whiteFlash.classList.remove("active");
-      startGame(); // Call the new function to reveal the main page
-    }, 300);
+    startGame();
   }
 });
 
