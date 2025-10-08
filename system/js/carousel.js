@@ -37,28 +37,19 @@ document.addEventListener("DOMContentLoaded", () => {
       card.dataset.page = game.page || Math.floor(i / gamesPerPage) + 1;
       card.dataset.filtered = "true";
 
-      // --- Logic for fallback image and link ---
-      let imageSrc = game.image || "";
-      let linkSrc = game.link || "";
+      // --- Image and link fallback logic ---
+      let imageSrc = game.image?.trim() || "";
+      let linkSrc = game.link?.trim() || "";
 
-      // If image is "" and status is "blank", use fallback image
       if (
-        imageSrc.trim() === "" &&
-        game.status &&
-        game.status.trim().toLowerCase() === "blank"
+        imageSrc === "" ||
+        imageSrc.toLowerCase() === "blank" ||
+        imageSrc.toLowerCase().includes("404")
       ) {
         imageSrc = fallbackImage;
       }
 
-      // Otherwise, if image is missing/blank string, use fallback image
-      if (imageSrc.trim() === "" || imageSrc.trim().toLowerCase() === "blank") {
-        imageSrc = fallbackImage;
-      }
-
-      // If link is empty, use the fallback dino link
-      if (linkSrc.trim() === "") {
-        linkSrc = fallbackLink;
-      }
+      if (linkSrc === "") linkSrc = fallbackLink;
 
       // --- Create the card HTML ---
       card.innerHTML = `
@@ -180,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Main: Load JSON (waits for load-fire.gif before fade) ---
   async function loadGames() {
     showLoading("Loading assets...");
-    if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif"; // default loading
+    if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
 
     try {
       const res = await fetch(jsonPath);
@@ -193,7 +184,6 @@ document.addEventListener("DOMContentLoaded", () => {
       renderPage();
       startPlaceholderCycle();
 
-      // Wait until all images are fully loaded
       const allImages = Array.from(container.querySelectorAll(".game-card img"));
       await Promise.allSettled(
         allImages.map(
@@ -206,10 +196,8 @@ document.addEventListener("DOMContentLoaded", () => {
         )
       );
 
-      // Small delay for smoother transition
       await new Promise(r => setTimeout(r, 800));
 
-      // Success: switch to load-fire.gif and wait until it fully loads
       if (loaderImage) {
         await new Promise(resolve => {
           loaderImage.onload = resolve;
@@ -218,7 +206,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      // Once load-fire.gif is fully shown, fade preloader
       if (preloader) {
         preloader.classList.add("fade");
         setTimeout(() => (preloader.style.display = "none"), 600);
@@ -227,7 +214,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Error loading JSON:", err);
       showLoading("⚠ Failed to load game data.");
 
-      // Failure: switch to fail.gif, keep preloader visible
       if (loaderImage) loaderImage.src = "system/images/GIF/fail.gif";
     }
   }
