@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const fallbackImage =
       "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/icons/blank_404.png";
+    const fallbackLink = "https://theworldpt1.github.io/source/dino/";
 
     data.forEach((game, i) => {
       const card = document.createElement("div");
@@ -36,16 +37,32 @@ document.addEventListener("DOMContentLoaded", () => {
       card.dataset.page = game.page || Math.floor(i / gamesPerPage) + 1;
       card.dataset.filtered = "true";
 
-      // --- Only use fallback if image is "" or "blank" ---
-      const imageSrc =
-        !game.image ||
-        game.image.trim() === "" ||
-        game.image.trim().toLowerCase() === "blank"
-          ? fallbackImage
-          : game.image;
+      // --- Logic for fallback image and link ---
+      let imageSrc = game.image || "";
+      let linkSrc = game.link || "";
 
+      // If image is "" and status is "blank", use fallback image
+      if (
+        imageSrc.trim() === "" &&
+        game.status &&
+        game.status.trim().toLowerCase() === "blank"
+      ) {
+        imageSrc = fallbackImage;
+      }
+
+      // Otherwise, if image is missing/blank string, keep as-is or use fallback
+      if (imageSrc.trim() === "" || imageSrc.trim().toLowerCase() === "blank") {
+        imageSrc = fallbackImage;
+      }
+
+      // If link is empty, use the fallback dino link
+      if (linkSrc.trim() === "") {
+        linkSrc = fallbackLink;
+      }
+
+      // --- Create the card HTML ---
       card.innerHTML = `
-        <a href="${game.link || "#"}" target="_blank" rel="noopener">
+        <a href="${linkSrc}" target="_blank" rel="noopener">
           <img 
             src="${imageSrc}" 
             alt="${game.title || "Game"}"
