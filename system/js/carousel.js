@@ -13,6 +13,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const gamesPerPage = 10;
   const jsonPath = "system/json/assets.json";
 
+  // --- Fallback paths ---
+  const fallbackImage =
+    "system/images/blank_404.jpg";
+  const fallbackLink = "https://theworldpt1.github.io./source/dino/";
+
   // --- Helper: Show loading message in container ---
   function showLoading(text) {
     if (container) {
@@ -24,11 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Helper: Create game cards ---
   function createGameCards(data) {
     if (!container) return;
-
-    const fallbackImage =
-      "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
-    const fallbackLink = "https://theworldpt1.github.io./source/dino/";
-
     data.forEach((game, i) => {
       const card = document.createElement("div");
       card.className = "game-card";
@@ -52,16 +52,30 @@ document.addEventListener("DOMContentLoaded", () => {
       if (linkSrc === "") linkSrc = fallbackLink;
 
       // --- Create the card HTML ---
-      card.innerHTML = `
-        <a href="${linkSrc}" target="_blank" rel="noopener">
-          <img 
-            src="${imageSrc}" 
-            alt="${game.title || "Game"}"
-          >
-          <h3>${game.title || "Untitled"}</h3>
-        </a>
-        <p>${game.author || "Unknown"}</p>
-      `;
+      const img = document.createElement("img");
+      img.src = imageSrc;
+      img.alt = game.title || "Game";
+
+      // --- NEW: handle broken image fallback ---
+      img.addEventListener("error", () => {
+        if (!img.dataset.fallbackApplied) {
+          img.src = fallbackImage;
+          img.dataset.fallbackApplied = "true";
+        }
+      });
+
+      const link = document.createElement("a");
+      link.href = linkSrc;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.appendChild(img);
+      link.innerHTML += `<h3>${game.title || "Untitled"}</h3>`;
+
+      const author = document.createElement("p");
+      author.textContent = game.author || "Unknown";
+
+      card.appendChild(link);
+      card.appendChild(author);
       container.appendChild(card);
     });
   }
@@ -213,7 +227,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error("Error loading JSON:", err);
       showLoading("⚠ Failed to load game data.");
-
       if (loaderImage) loaderImage.src = "system/images/GIF/fail.gif";
     }
   }
