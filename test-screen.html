@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>replace this when merged</title>
+<title>10x76 | Loading...</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,7 +35,6 @@
     height: auto;
     image-rendering: pixelated;
     filter: brightness(100) contrast(100) saturate(100);
-    opacity: 1;
     margin-bottom: 12px;
   }
 
@@ -74,13 +73,8 @@
     text-align: center;
   }
 
-  #pressSpaceScreen.active {
-    display: flex;
-  }
-
-  #pressSpaceScreen.show {
-    opacity: 1;
-  }
+  #pressSpaceScreen.active { display: flex; }
+  #pressSpaceScreen.show { opacity: 1; }
 
   #pressText {
     font-size: 14px;
@@ -90,10 +84,7 @@
     animation: blink 1s infinite alternate;
   }
 
-  @keyframes blink {
-    from { opacity: 1; }
-    to { opacity: 0; }
-  }
+  @keyframes blink { from { opacity: 1; } to { opacity: 0; } }
 
   #mainContent {
     display: none;
@@ -104,20 +95,14 @@
   /* White flash overlay */
   #whiteFlash {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: #fff;
     opacity: 0;
     pointer-events: none;
     z-index: 9999;
     transition: opacity 0.3s ease;
   }
-
-  #whiteFlash.active {
-    opacity: 1;
-  }
+  #whiteFlash.active { opacity: 1; }
 </style>
 </head>
 <body>
@@ -153,9 +138,21 @@ const pressSpaceScreen = document.getElementById("pressSpaceScreen");
 const mainContent = document.getElementById("mainContent");
 const whiteFlash = document.getElementById("whiteFlash");
 
-const funkinQuotes = ["1","2","3","4","5","6","7","8","9","10"];
+const funkinQuotes = [
+  "Bootin’ up 10x76...",
+  "Tuning the speakers...",
+  "Mic check! 1, 2, 3!",
+  "Loading rhythm engine...",
+  "Spittin' hot code...",
+  "Droppin' beats per minute...",
+  "Adjusting pixel shaders...",
+  "Syncing vibes...",
+  "Almost ready to drop!",
+  "Get ready to groove!"
+];
+
 let quoteInterval;
-let hasFlashed = false; // ✅ Prevents multiple white flashes
+let hasFlashed = false; // ensures the flash only happens once
 
 function changeQuote() {
   subtext.style.opacity = 0;
@@ -170,6 +167,7 @@ function simulateLoading() {
   let progress = 0;
   changeQuote();
   quoteInterval = setInterval(changeQuote, 2000);
+
   const interval = setInterval(() => {
     progress += Math.random() * 15;
     if (progress >= 100) {
@@ -187,13 +185,11 @@ function finishLoading() {
   setTimeout(() => {
     loadingContainer.style.display = "none";
     pressSpaceScreen.classList.add("active");
-    requestAnimationFrame(() => {
-      pressSpaceScreen.classList.add("show");
-    });
+    requestAnimationFrame(() => pressSpaceScreen.classList.add("show"));
   }, 1000);
 }
 
-// ✅ Runs flash only once
+// Space key transition (runs once)
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space" && pressSpaceScreen.classList.contains("active") && !hasFlashed) {
     hasFlashed = true;
@@ -202,6 +198,7 @@ document.addEventListener("keydown", (e) => {
     setTimeout(() => {
       whiteFlash.classList.remove("active");
       pressSpaceScreen.style.opacity = 0;
+
       setTimeout(() => {
         pressSpaceScreen.style.display = "none";
         mainContent.style.display = "block";
