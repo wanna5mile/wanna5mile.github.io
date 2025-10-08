@@ -12,15 +12,12 @@
   <meta name="author" content="Bg.uhm by rhap5ody">
   <meta name="keywords" content="fun, library, github, rhap5ody">
 
-  <!-- Core scripts -->
   <script src="system/js/quotes.js" defer></script>
-  <!--<script src="system/js/settings.js" defer></script>-->
   <script src="system/js/searcherror.js" defer></script>
   <script src="system/js/carousel.js" defer></script>
   <script src="system/js/commands.js" defer></script>
   <script src="system/js/paging.js" defer></script>
 
-  <!-- Discord Widget -->
   <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3" async defer>
     new Crate({
         server: '1273329263923302430',
@@ -32,11 +29,12 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  /* Modified: Remove `overflow: hidden` and `display: flex` from body initially */
   body, html {
     height: 100%;
     background: #000;
-    overflow: hidden;
-    display: flex;
+    /* overflow: hidden;  <-- REMOVED */
+    /* display: flex;     <-- REMOVED */
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -44,16 +42,39 @@
     font-family: 'Press Start 2P', monospace;
     position: relative;
   }
+  
+  /* ADDED: Initial state for the body when the splash screen is active */
+  body.splash-active {
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* ADDED: Hide the main content by default */
+  #mainContent {
+    display: none;
+    width: 100%; /* Ensure main content uses full width */
+  }
 
+  /* Your existing loading/splash screen styles */
   #loadingContainer {
+    position: fixed; /* Ensures it overlays everything */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
     opacity: 1;
     transition: opacity 1s ease-in-out;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center; /* Center content */
+    z-index: 1000; /* Ensure it's on top */
   }
-
+  
   #progressBar {
     width: 200px;
     height: 6px;
@@ -80,6 +101,12 @@
   }
 
   #pressSpaceScreen {
+    position: fixed; /* Ensures it overlays everything */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
     display: none;
     opacity: 0;
     transition: opacity 1s;
@@ -87,6 +114,7 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+    z-index: 1000; /* Ensure it's on top */
   }
 
   #pressSpaceScreen.active {
@@ -126,7 +154,6 @@
     opacity: 1;
   }
 </style>
-  <!-- Popup & placeholder CSS -->
   <style>
     .update-popup { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
     .update-popup.show { opacity: 1; pointer-events: all; }
@@ -146,30 +173,30 @@
     .update-video-wrapper:hover .video-tooltip { opacity:1; }
   </style>
 </head>
-<body>
+<body class="splash-active">
 
 
   <div id="whiteFlash"></div>
 
-  <!-- Preloader -->
   <div id="loadingContainer">
     <h1 style="color:#ff4ee0; text-shadow:0 0 10px #ff4ee0;">10x76</h1>
     <div id="progressBar"><div id="progressBarFill"></div></div>
     <div class="subtext" id="subtext"></div>
   </div>
 
-  <!-- Press Space Screen -->
   <div id="pressSpaceScreen">
     <h1 style="color:#fff;text-shadow:0 0 10px #ff4ee0;"> Welcome to 10x76 </h1>
     <div id="pressText"> [ Press SPACE to begin ] </div>
   </div>
 
 <script>
+const body = document.body; // New reference to the body element
 const subtext = document.getElementById("subtext");
 const barFill = document.getElementById("progressBarFill");
 const loadingContainer = document.getElementById("loadingContainer");
 const pressSpaceScreen = document.getElementById("pressSpaceScreen");
 const whiteFlash = document.getElementById("whiteFlash");
+const mainContent = document.getElementById("mainContent"); // New reference to the main content container
 
 const funkinQuotes = [
   "I AM THE MUSIC",
@@ -216,6 +243,21 @@ function finishLoading() {
   }, 1000);
 }
 
+function startGame() {
+  // 1. Reveal main content
+  mainContent.style.display = 'block'; 
+  
+  // 2. Hide press space screen
+  pressSpaceScreen.style.opacity = 0;
+  setTimeout(() => {
+    pressSpaceScreen.style.display = "none";
+    pressSpaceScreen.classList.remove("active");
+    
+    // 3. Remove splash-active class from body to allow scrolling and normal layout
+    body.classList.remove('splash-active');
+  }, 1000); // Wait for opacity transition
+}
+
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space" && pressSpaceScreen.classList.contains("active") && !hasFlashed) {
     hasFlashed = true;
@@ -223,8 +265,7 @@ document.addEventListener("keydown", (e) => {
 
     setTimeout(() => {
       whiteFlash.classList.remove("active");
-      // Redirect after flash
-      // or use: window.location.href = "index.html";
+      startGame(); // Call the new function to reveal the main page
     }, 300);
   }
 });
@@ -232,10 +273,8 @@ document.addEventListener("keydown", (e) => {
 window.addEventListener("load", simulateLoading);
 </script>
 
-
-
-
-	
+<div id="mainContent">
+  	
 <header>
   <nav class="nav-links">
     <a href="system/pages/home.html">Home</a>
@@ -309,8 +348,7 @@ window.addEventListener("load", simulateLoading);
   <a href="system/pages/credits.html">Credits</a>
   <a href="system/pages/alt.html">Alternative Links</a>
 </div>
-
-<!-- Popup, dashboard, scroll-to-top scripts -->
+</div>
 <script>
 	// --- Update Popup to pause vid when closed ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -325,7 +363,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const storedVersion = localStorage.getItem("dismissedUpdateVersion");
 
   if (storedVersion !== currentVersion && !sessionStorage.getItem("updatePopupClosed")) {
-    setTimeout(() => popup.classList.add("show"), 1500);
+    // Only show popup if main content is visible (i.e., splash screen is gone)
+    // The popup logic will now run after 'startGame' is called.
+    // However, since this script is near the end of <body>, it runs late.
+    // For proper initial hiding, we wrap all main content.
+    // The setTimeout is kept for a slight delay.
+    // The check for splash screen active is implicit now as the DOM is loaded.
+    setTimeout(() => {
+      // Check if the splash screen is fully gone before showing the popup
+      if (!document.body.classList.contains('splash-active')) {
+        popup.classList.add("show");
+      }
+    }, 1500); 
   }
 
   function stopVideo() {
@@ -363,8 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
   toTopBtn.onclick = () => { window.scrollTo({ top: 0, behavior: "smooth" }); };
   toTopBtn.addEventListener("dblclick", () => { window.scrollTo({ top: 0, behavior: "smooth" }); });
 </script>
-  <!--pfp-->
-	  <script>
+  <script>
   document.addEventListener("DOMContentLoaded", () => {
     const savedPic = localStorage.getItem("profilePic");
     if (savedPic) {
@@ -372,8 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 </script>
-<!--dashboard-->
-	<script>
+<script>
 document.addEventListener("DOMContentLoaded", () => {
   const dashboardBtn = document.getElementById("dashboardBtn");
   const dashboardMenu = document.getElementById("dashboardMenu");
