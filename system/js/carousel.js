@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Fallback paths ---
   const fallbackImage =
-    "system/images/blank_404.jpg";
+    "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
   const fallbackLink = "https://theworldpt1.github.io./source/dino/";
 
   // --- Helper: Show loading message in container ---
