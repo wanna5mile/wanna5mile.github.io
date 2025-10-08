@@ -1,239 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>bg.uhm | Loading...</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<style>
-  body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    background: #000;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    color: #fff;
-    font-family: 'Press Start 2P', monospace;
-    text-align: center;
-  }
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
 
-  #loadingContainer {
-    opacity: 1;
-    transition: opacity 1s ease-in-out;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
 
-  .loading-text {
-    font-size: 18px;
-    letter-spacing: 2px;
-    color: #ff4ee0;
-    text-shadow: 0 0 10px #ff4ee0;
-    margin-bottom: 25px;
-  }
+/* Preloader overlay */
+.preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #000 url('load-bg.png') center/cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999; /* always on top */
+  opacity: 1;
+  pointer-events: all;
+  transition: opacity 0.6s ease; /* fade effect */
+}
 
-  .subtext {
-    font-size: 12px;
-    color: #aaffff;
-    opacity: 0;
-    transition: opacity 0.5s;
-    margin-bottom: 20px;
-  }
+/* Loader GIF */
+.loader-gif img {
+  width: 300px;
+  image-rendering: pixelated;
+  height: auto;
+}
 
-  #progressBar {
-    margin-top: 10px;
-    width: 200px;
-    height: 6px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 5px;
-    overflow: hidden;
-  }
+/* Fade out class for JS */
+.preloader.fade {
+  opacity: 0;
+  pointer-events: none;
+}
 
-  #progressBarFill {
-    width: 0%;
-    height: 100%;
-    background: #ff4ee0;
-    box-shadow: 0 0 10px #ff4ee0;
-    transition: width 0.3s;
-  }
-
-  /* Mini pixelated loading gif */
-  .loader-gif {
-    margin-top: 50px;
-    width: 120px;
-    height: 120px;
-    filter: brightness(200%) contrast(400%) grayscale(1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .loader-gif img {
-    width: 100%;
-    height: auto;
-    image-rendering: pixelated;
-    filter: brightness(2) saturate(0) contrast(2);
-    opacity: 0.9;
-  }
-
-  #mainContent {
-    display: none;
-    opacity: 0;
-    transition: opacity 1s;
-    color: #fff;
-  }
-
-  /* blinking underscore */
-  .cursor {
-    display: inline-block;
-    animation: blink 0.8s infinite alternate;
-  }
-  @keyframes blink {
-    from { opacity: 1; }
-    to { opacity: 0; }
-  }
-
-  /* white flash effect */
-  #whiteFlash {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: white;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.5s ease;
-    z-index: 999;
-  }
-
-  #pressSpace {
-    display: none;
-    font-size: 12px;
-    margin-top: 25px;
-    color: #ffffff;
-    opacity: 0;
-    animation: blink 1s infinite alternate;
-  }
-</style>
-</head>
-<body>
-
-  <div id="loadingContainer">
-    <div class="loading-text" id="loadingText"></div>
-    <div class="subtext" id="subtext"></div>
-    <div id="progressBar">
-      <div id="progressBarFill"></div>
-    </div>
-    <div id="pressSpace">PRESS [SPACE]</div>
-
-    <!-- Mini glowing loading gif -->
-    <div class="loader-gif">
-      <img src="system/images/GIF/loading.gif" alt="Loading...">
-    </div>
-  </div>
-
-  <div id="whiteFlash"></div>
-
-  <div id="mainContent">
-    <h1>🎵 Welcome to bg.uhm 🎵</h1>
-    <p>Main page content loads here...</p>
-  </div>
-
-<script>
-  const loadingText = document.getElementById("loadingText");
-  const subtext = document.getElementById("subtext");
-  const barFill = document.getElementById("progressBarFill");
-  const container = document.getElementById("loadingContainer");
-  const mainContent = document.getElementById("mainContent");
-  const pressSpace = document.getElementById("pressSpace");
-  const whiteFlash = document.getElementById("whiteFlash");
-
-  const music = new Audio("trackload.mp3");
-  music.loop = true;
-  music.volume = 0.4;
-
-  const loadingMessage = "LOADING...";
-  const funkinQuotes = [
-    "3...2...1... GO!",
-    "Bopeebo’ing your files...",
-    "Droppin’ some fresh beats...",
-    "Loading vibes...",
-    "Mic check 1, 2!",
-    "Charting notes...",
-    "Press R to retry (jk)",
-    "Getting funky!",
-    "Spittin’ code instead of bars..."
-  ];
-
-  let i = 0;
-
-  function typeLetter() {
-    if (i < loadingMessage.length) {
-      loadingText.textContent = loadingMessage.substring(0, i + 1);
-      i++;
-      setTimeout(typeLetter, 100);
-    } else {
-      loadingText.innerHTML += '<span class="cursor">_</span>';
-      showRandomSubtext();
-      simulateLoading();
-      // try playing music
-      music.play().catch(() => {
-        document.addEventListener("click", () => music.play(), { once: true });
-      });
-    }
-  }
-
-  function showRandomSubtext() {
-    const randomQuote = funkinQuotes[Math.floor(Math.random() * funkinQuotes.length)];
-    subtext.textContent = randomQuote;
-    subtext.style.opacity = 1;
-  }
-
-  function simulateLoading() {
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 15;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        setTimeout(showPressSpace, 600);
-      }
-      barFill.style.width = progress + "%";
-    }, 300);
-  }
-
-  function showPressSpace() {
-    subtext.style.opacity = 0;
-    pressSpace.style.display = "block";
-    setTimeout(() => pressSpace.style.opacity = 1, 100);
-    window.addEventListener("keydown", handleSpacePress);
-  }
-
-  function handleSpacePress(e) {
-    if (e.code === "Space") {
-      window.removeEventListener("keydown", handleSpacePress);
-      flashOut();
-    }
-  }
-
-  function flashOut() {
-    whiteFlash.style.opacity = 1;
-    setTimeout(() => {
-      music.pause();
-      container.style.display = "none";
-      mainContent.style.display = "block";
-      requestAnimationFrame(() => {
-        whiteFlash.style.opacity = 0;
-        mainContent.style.opacity = 1;
-      });
-    }, 500);
-  }
-
-  window.addEventListener("load", typeLetter);
-</script>
-
-</body>
-</html>
+/* Invisible counter / text while still "running" */
+.counter,
+.loading-text {
+  color: #000;
+  font-size: 0.1em; /* practically invisible */
+  font-weight: 700;
+  margin-top: 10px;
+  text-align: center;
+}
