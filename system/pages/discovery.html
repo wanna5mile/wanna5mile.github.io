@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discovery</title>
+  <link rel="icon" href="../images/10x76.png">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/quotes.css">
+  <link rel="stylesheet" href="../css/themes.css">
+  <link rel="stylesheet" href="../css/commands.css">
+  <meta name="author" content="Bg.uhm by rhap5ody">
+  <meta name="keywords" content="fun, discovery, library, github, rhap5ody">
+
+  <!-- Core scripts -->
+  <script src="../js/quotes.js" defer></script>
+  <script src="../js/searcherror.js" defer></script>
+  <script src="../js/carousel.js" defer></script>
+  <script src="../js/commands.js" defer></script>
+  <script src="../js/paging.js" defer></script>
+
+  <!-- Discord Widget -->
+  <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3" async defer>
+    new Crate({
+        server: '1273329263923302430',
+        channel: '1329289920845713471'
+    })
+  </script>
+
+  <style>
+    .update-popup { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+    .update-popup.show { opacity: 1; pointer-events: all; }
+    .update-popup-content { background: var(--background-color,#1e1e1e); border-radius: 14px; box-shadow: 0 0 20px rgba(0,0,0,0.6); width: 90%; max-width: 480px; text-align: center; padding: 20px; color: var(--text-color,#fff); animation: popup-bounce 0.6s ease; }
+    .update-popup-content h2 { margin-top:0; color: var(--accent-color,#fff); }
+    .update-popup-content p { font-size:0.95em; margin:10px 0 20px; }
+    .update-video { margin-bottom:15px; border-radius:10px; overflow:hidden; }
+    .update-buttons { display:flex; gap:8px; flex-wrap:wrap; justify-content:space-between; }
+    .update-buttons button { flex:1; min-width:100px; background:var(--accent-color,#2e2e2e); color:#fff; border:none; border-radius:8px; padding:8px; font-size:0.9em; cursor:pointer; transition:all 0.2s ease; }
+    .update-buttons button:hover { background:#3e3e3e; }
+    @keyframes popup-bounce {0%{transform:scale(0.9);opacity:0;}60%{transform:scale(1.05);opacity:1;}100%{transform:scale(1);}}
+    #searchInputHeader { transition: opacity 0.5s ease; }
+    #searchInputHeader.fade-out { opacity:0; }
+    #searchInputHeader.fade-in { opacity:1; }
+    .update-video-wrapper { position: relative; border-radius: 10px; overflow: hidden; }
+    .video-tooltip { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 0.8em; opacity:0; transition: opacity 0.3s ease; pointer-events:none; }
+    .update-video-wrapper:hover .video-tooltip { opacity:1; }
+  </style>
+</head>
+<body>
+	
+<header>
+  <nav class="nav-links">
+    <a href="home.html">Home</a>
+    <a href="favorite.html">Favorites</a>
+    <a href="discover.html" class="active">Discovery</a>
+    <a href="settings.html">Settings</a>
+    <a href="support.html">Support</a>
+    <a href="info.html">Info</a>
+
+    <div class="pages-anchor">
+      <button class="arrowleft" onclick="prevPage()"><img src="../icons/left.png" alt="Previous Page"></button>
+      <span class="page-indicator">...</span>
+      <button class="arrowright" onclick="nextPage()"><img src="../icons/right.png" alt="Next Page"></button>
+    </div>
+  </nav>
+
+  <div class="header-controls">
+    <div class="search-box">
+      <input type="text" id="searchInputHeader" placeholder="Search discovery..." />
+      <button id="searchBtnHeader"><img src="../icons/search.png" alt="Search"></button>
+    </div>
+    <a href="profile.html"><img src="../icons/profile.png" alt="profile" id="pfp"></a>
+    <img src="../icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
+  </div>
+</header>
+
+<div id="quoteWrapper"><p id="quoteBox"></p></div>
+
+<main>
+  <div id="discoveryContainer">loading discovery...</div>
+</main>
+
+<button id="toTopBtn">⬆ Top</button>
+
+<footer>
+  <a href="sources.html">sources</a>
+  <a href="contributors.html">contribute</a>
+  <a href="discord.html">Discord</a>
+  <a href="bugsNfixes.html">Bugs & fixes</a>
+  <a href="contact.html">Socials</a>
+  <a href="version-log.html">version V0.8</a>
+</footer>
+
+<div id="dashboardMenu" class="dashboard-menu">
+  <a href="music-player.html">Music Player</a>
+  <a href="settings-themes.html">Themes</a>
+  <a href="credits.html">Credits</a>
+  <a href="alt.html">Alternative Links</a>
+</div>
+
+<!-- Discovery JSON loader -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("discoveryContainer");
+
+  fetch("../data/discovery.json")
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to load discovery.json");
+      return res.json();
+    })
+    .then(data => {
+      container.innerHTML = data.map(item => `
+        <div class="discovery-item">
+          <img src="${item.image}" alt="${item.title}">
+          <h3>${item.title}</h3>
+          <p>${item.description || ''}</p>
+        </div>
+      `).join("");
+    })
+    .catch(err => {
+      container.innerHTML = `<p class="error">⚠️ Error loading discovery.json</p>`;
+      console.error(err);
+    });
+});
+</script>
+
+<!-- pfp loader -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const savedPic = localStorage.getItem("profilePic");
+  if (savedPic) document.getElementById("pfp").src = savedPic;
+});
+</script>
+
+<!-- dashboard menu -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const dashboardBtn = document.getElementById("dashboardBtn");
+  const dashboardMenu = document.getElementById("dashboardMenu");
+
+  dashboardMenu.style.display = "none";
+  dashboardMenu.style.opacity = 0;
+  dashboardMenu.style.transition = "opacity 0.3s ease";
+
+  dashboardBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isVisible = dashboardMenu.style.display === "block";
+    if (isVisible) {
+      dashboardMenu.style.opacity = 0;
+      setTimeout(() => (dashboardMenu.style.display = "none"), 300);
+    } else {
+      dashboardMenu.style.display = "block";
+      setTimeout(() => (dashboardMenu.style.opacity = 1), 10);
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!dashboardMenu.contains(e.target) && e.target !== dashboardBtn) {
+      if (dashboardMenu.style.display === "block") {
+        dashboardMenu.style.opacity = 0;
+        setTimeout(() => (dashboardMenu.style.display = "none"), 300);
+      }
+    }
+  });
+});
+</script>
+
+<!-- scroll-to-top -->
+<script>
+const toTopBtn = document.getElementById("toTopBtn");
+window.onscroll = () => {
+  toTopBtn.style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 200) ? "block" : "none";
+};
+toTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+</script>
+</body>
+</html>
