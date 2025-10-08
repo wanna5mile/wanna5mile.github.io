@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>10x76 | Loading...</title>
+<title>10x76 Loader</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,21 +30,13 @@
     align-items: center;
   }
 
-  .loader-gif img {
-    width: 120px;
-    height: auto;
-    image-rendering: pixelated;
-    filter: brightness(100) contrast(100) saturate(100);
-    margin-bottom: 12px;
-  }
-
   #progressBar {
     width: 200px;
     height: 6px;
     background: rgba(255,255,255,0.1);
     border-radius: 5px;
     overflow: hidden;
-    margin-bottom: 20px;
+    margin-top: 16px;
   }
 
   #progressBarFill {
@@ -60,7 +52,7 @@
     color: #aaffff;
     opacity: 0;
     transition: opacity 0.5s;
-    margin-top: 5px;
+    margin-top: 12px;
   }
 
   #pressSpaceScreen {
@@ -73,8 +65,13 @@
     text-align: center;
   }
 
-  #pressSpaceScreen.active { display: flex; }
-  #pressSpaceScreen.show { opacity: 1; }
+  #pressSpaceScreen.active {
+    display: flex;
+  }
+
+  #pressSpaceScreen.show {
+    opacity: 1;
+  }
 
   #pressText {
     font-size: 14px;
@@ -84,25 +81,26 @@
     animation: blink 1s infinite alternate;
   }
 
-  @keyframes blink { from { opacity: 1; } to { opacity: 0; } }
-
-  #mainContent {
-    display: none;
-    opacity: 0;
-    transition: opacity 1s ease;
+  @keyframes blink {
+    from { opacity: 1; }
+    to { opacity: 0; }
   }
 
   /* White flash overlay */
   #whiteFlash {
     position: fixed;
-    inset: 0;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background: #fff;
     opacity: 0;
     pointer-events: none;
     z-index: 9999;
     transition: opacity 0.3s ease;
   }
-  #whiteFlash.active { opacity: 1; }
+
+  #whiteFlash.active {
+    opacity: 1;
+  }
 </style>
 </head>
 <body>
@@ -111,10 +109,7 @@
 
   <!-- Preloader -->
   <div id="loadingContainer">
-    <div class="loader-gif">
-      <img src="system/images/GIF/loading.gif" alt="loading" />
-    </div>
-
+    <h1 style="color:#ff4ee0; text-shadow:0 0 10px #ff4ee0;">10x76</h1>
     <div id="progressBar"><div id="progressBarFill"></div></div>
     <div class="subtext" id="subtext"></div>
   </div>
@@ -125,34 +120,22 @@
     <div id="pressText">[ Press SPACE to begin ]</div>
   </div>
 
-  <!-- Main Content -->
-  <div id="mainContent">
-    <h2>Main site content goes here...</h2>
-  </div>
-
 <script>
 const subtext = document.getElementById("subtext");
 const barFill = document.getElementById("progressBarFill");
 const loadingContainer = document.getElementById("loadingContainer");
 const pressSpaceScreen = document.getElementById("pressSpaceScreen");
-const mainContent = document.getElementById("mainContent");
 const whiteFlash = document.getElementById("whiteFlash");
 
 const funkinQuotes = [
-  "Bootin’ up 10x76...",
-  "Tuning the speakers...",
-  "Mic check! 1, 2, 3!",
-  "Loading rhythm engine...",
-  "Spittin' hot code...",
-  "Droppin' beats per minute...",
-  "Adjusting pixel shaders...",
-  "Syncing vibes...",
-  "Almost ready to drop!",
-  "Get ready to groove!"
+  "I AM THE MUSIC",
+  "Made By Rhap5ody.",
+  "Reworking Music Player",
+  "Page 3 soon"
 ];
 
 let quoteInterval;
-let hasFlashed = false; // ensures the flash only happens once
+let hasFlashed = false;
 
 function changeQuote() {
   subtext.style.opacity = 0;
@@ -189,7 +172,6 @@ function finishLoading() {
   }, 1000);
 }
 
-// Space key transition (runs once)
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space" && pressSpaceScreen.classList.contains("active") && !hasFlashed) {
     hasFlashed = true;
@@ -197,15 +179,9 @@ document.addEventListener("keydown", (e) => {
 
     setTimeout(() => {
       whiteFlash.classList.remove("active");
-      pressSpaceScreen.style.opacity = 0;
-
-      setTimeout(() => {
-        pressSpaceScreen.style.display = "none";
-        mainContent.style.display = "block";
-        requestAnimationFrame(() => {
-          mainContent.style.opacity = 1;
-        });
-      }, 600);
+      // Redirect after flash
+      window.location.href = "https://theworldpt1.github.io/";
+      // or use: window.location.href = "index.html";
     }, 300);
   }
 });
