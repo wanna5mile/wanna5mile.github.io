@@ -41,11 +41,8 @@ document.addEventListener("DOMContentLoaded", () => {
       let imageSrc = game.image?.trim() || "";
       let linkSrc = game.link?.trim() || "";
 
-      if (
-        imageSrc === "" ||
-        imageSrc.toLowerCase() === "blank" ||
-        imageSrc.toLowerCase().includes("404")
-      ) {
+      // --- NEW: Apply fallback if image is empty or status is "blank" ---
+      if (imageSrc === "" || imageSrc.toLowerCase() === "blank" || game.status?.toLowerCase() === "blank") {
         imageSrc = fallbackImage;
       }
 
@@ -56,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
       img.src = imageSrc;
       img.alt = game.title || "Game";
 
-      // --- NEW: handle broken image fallback ---
+      // --- Handle broken image fallback ---
       img.addEventListener("error", () => {
         if (!img.dataset.fallbackApplied) {
           img.src = fallbackImage;
@@ -74,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const author = document.createElement("p");
       author.textContent = game.author || "Unknown";
 
-      // --- ✅ NEW: Handle "coming soon" games ---
+      // --- Handle "coming soon" games ---
       if (game.status?.toLowerCase() === "soon") {
         card.classList.add("soon");
         link.removeAttribute("href"); // make non-clickable
