@@ -26,11 +26,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- Create Favorite Cards Only ---
+  // --- Create Favorite Cards (ignore page property) ---
   function createGameCards(data) {
     if (!container) return;
 
-    const favoriteGames = data.filter((g) => favorites.has(g.title));
+    // Filter all games regardless of page number
+    const favoriteGames = data.filter(
+      (g) => favorites.has(g.title?.trim())
+    );
+
     container.innerHTML = "";
 
     if (favoriteGames.length === 0) {
@@ -52,8 +56,9 @@ document.addEventListener("DOMContentLoaded", () => {
         imageSrc === "" ||
         imageSrc.toLowerCase() === "blank" ||
         game.status?.toLowerCase() === "blank"
-      )
+      ) {
         imageSrc = fallbackImage;
+      }
       if (linkSrc === "") linkSrc = fallbackLink;
 
       const img = document.createElement("img");
