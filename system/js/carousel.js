@@ -41,8 +41,13 @@ document.addEventListener("DOMContentLoaded", () => {
       let imageSrc = game.image?.trim() || "";
       let linkSrc = game.link?.trim() || "";
 
-      // --- NEW: Apply fallback if image is empty or status is "blank" ---
-      if (imageSrc === "" || imageSrc.toLowerCase() === "blank" || game.status?.toLowerCase() === "blank") {
+      // --- NEW: Apply fallback if image is empty, status is "blank", or image is a placeholder URL ---
+      if (
+        imageSrc === "" ||
+        imageSrc.toLowerCase() === "blank" ||
+        game.status?.toLowerCase() === "blank" ||
+        imageSrc === "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/"
+      ) {
         imageSrc = fallbackImage;
       }
 
@@ -53,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
       img.src = imageSrc;
       img.alt = game.title || "Game";
 
-      // --- Handle broken image fallback ---
+      // --- Handle any broken image fallback ---
       img.addEventListener("error", () => {
         if (!img.dataset.fallbackApplied) {
           img.src = fallbackImage;
