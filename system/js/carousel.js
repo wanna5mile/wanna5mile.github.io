@@ -19,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
   const fallbackLink = "https://theworldpt1.github.io./source/dino/";
 
-  // --- Helper: Show loading message in container ---
   function showLoading(text) {
     if (container) {
       container.textContent = text;
@@ -27,16 +26,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- Save favorites to localStorage ---
   function saveFavorites() {
     localStorage.setItem("favorites", JSON.stringify([...favorites]));
   }
 
-  // --- Helper: Create game cards ---
   function createGameCards(data) {
     if (!container) return;
 
-    // Sort: Favorites first
     const sortedData = [...data].sort((a, b) => {
       const aFav = favorites.has(a.title);
       const bFav = favorites.has(b.title);
@@ -51,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
       card.dataset.page = game.page || Math.floor(i / gamesPerPage) + 1;
       card.dataset.filtered = "true";
 
-      // --- Image and link fallback logic ---
       let imageSrc = game.image?.trim() || "";
       let linkSrc = game.link?.trim() || "";
       if (
@@ -65,11 +60,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (linkSrc === "") linkSrc = fallbackLink;
 
-      // --- Create elements ---
       const img = document.createElement("img");
       img.src = imageSrc;
       img.alt = game.title || "Game";
-
       img.addEventListener("error", () => {
         if (!img.dataset.fallbackApplied) {
           img.src = fallbackImage;
@@ -87,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const author = document.createElement("p");
       author.textContent = game.author || "Unknown";
 
-      // --- Favorite Star ---
+      // --- Favorite Star (moved to bottom) ---
       const star = document.createElement("span");
       star.className = "favorite-star";
       star.textContent = favorites.has(game.title) ? "★" : "☆";
@@ -107,7 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
         refreshCards();
       });
 
-      // --- Handle "coming soon" games ---
       if (game.status?.toLowerCase() === "soon") {
         card.classList.add("soon");
         link.removeAttribute("href");
@@ -115,15 +107,15 @@ document.addEventListener("DOMContentLoaded", () => {
         link.style.cursor = "default";
       }
 
-      // --- Assemble card ---
-      card.appendChild(star);
+      // --- Reordered Assembly (star now at bottom) ---
       card.appendChild(link);
       card.appendChild(author);
+      card.appendChild(star);
+
       container.appendChild(card);
     });
   }
 
-  // --- Helpers for filtering/pagination ---
   function getAllCards() {
     return Array.from(container.querySelectorAll(".game-card"));
   }
@@ -135,7 +127,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return [...pages].sort((a, b) => a - b);
   }
 
-  // --- Render page ---
   function renderPage() {
     const filteredCards = getFilteredCards();
     const pagesWithContent = getPagesWithContent();
@@ -158,7 +149,6 @@ document.addEventListener("DOMContentLoaded", () => {
     sessionStorage.setItem("currentPage", currentPage);
   }
 
-  // --- Search/filter ---
   function filterGames(query) {
     const q = query.toLowerCase().trim();
     getAllCards().forEach((card) => {
@@ -177,14 +167,12 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPage();
   }
 
-  // --- Refresh cards when favorites change ---
   function refreshCards() {
     container.innerHTML = "";
     createGameCards(gamesData);
     renderPage();
   }
 
-  // --- Placeholder cycle ---
   function fadePlaceholder(input, text, cb) {
     if (!input) return;
     input.classList.add("fade-out");
@@ -217,7 +205,6 @@ document.addEventListener("DOMContentLoaded", () => {
     cycle();
   }
 
-  // --- Pagination controls ---
   window.prevPage = function () {
     currentPage--;
     renderPage();
@@ -232,7 +219,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (searchBtn)
     searchBtn.addEventListener("click", () => filterGames(searchInput.value));
 
-  // --- Main: Load JSON ---
   async function loadGames() {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
@@ -244,7 +230,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       container.innerHTML = "";
       createGameCards(gamesData);
-
       renderPage();
       startPlaceholderCycle();
 
@@ -281,6 +266,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- Initialize ---
   loadGames();
 });
