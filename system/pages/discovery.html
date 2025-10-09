@@ -8,17 +8,70 @@
   <link rel="stylesheet" href="../css/main.css" />
   <link rel="stylesheet" href="../css/themes.css" />
   <style>
-    body { padding: 1rem 2rem; color: #fff; font-family: 'Segoe UI', sans-serif; }
-    h1, h2, h3 { margin: 0.5em 0; }
-    h1 { font-size: 2em; text-align: center; }
-    .category { margin-top: 2em; border-top: 2px solid var(--accent-color,#6a0dad); padding-top: 1em; }
-    .subcategory { margin-top: 1.2em; }
-    .subcategory h3 { color: var(--accent-color,#c77dff); }
+    body {
+      padding: 2rem;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+    }
+    h1 { font-size: 2em; margin-bottom: 1em; }
+
+    /* Centered search bar */
+    .search-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0 auto 1.5rem;
+      max-width: 400px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 0.4rem 0.6rem;
+    }
+    .search-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+    }
+    .search-box button {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .search-box img { width: 22px; height: 22px; filter: invert(1); }
+
+    /* Category buttons */
+    .category-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .category-buttons button {
+      background: var(--accent-color, #7b2cbf);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6em 1.2em;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .category-buttons button:hover {
+      background: #9d4edd;
+      transform: scale(1.05);
+    }
+
+    /* Game grid */
     .games-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 1rem;
-      margin-top: 0.6em;
+      margin-top: 1em;
     }
     .game-card {
       background: rgba(255,255,255,0.05);
@@ -40,95 +93,119 @@
     }
     .game-card h4 { margin: 0.4em 0 0.2em; font-size: 1em; }
     .game-card p { margin: 0; font-size: 0.85em; color: #bbb; }
-    a { text-decoration: none; color: inherit; }
     .soon { opacity: 0.6; pointer-events: none; }
   </style>
 </head>
 <body>
   <h1>🎮 Discover Games</h1>
-  <div id="discoveryContainer">Loading categories...</div>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search games..." />
+    <button id="searchBtn"><img src="../icons/search.png" alt="Search"></button>
+  </div>
+
+  <div class="category-buttons">
+    <button data-category="Action">Action</button>
+    <button data-category="Rhythm">Rhythm</button>
+    <button data-category="Other">Other</button>
+  </div>
+
+  <div id="discoveryContainer">Select a category or search to begin.</div>
 
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
       const container = document.getElementById("discoveryContainer");
+      const searchInput = document.getElementById("searchInput");
+      const searchBtn = document.getElementById("searchBtn");
+      const buttons = document.querySelectorAll(".category-buttons button");
+
       const jsonPath = "../json/assets.json";
       const fallbackImage = "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
       const fallbackLink = "https://theworldpt1.github.io./source/dino/";
+      let games = [];
 
+      // Load JSON once
       try {
         const res = await fetch(jsonPath);
         if (!res.ok) throw new Error("Failed to load JSON");
-        const games = await res.json();
-
-        // --- Group by category and subcategory ---
-        const grouped = {};
-        games.forEach(game => {
-          const cat = (game.category || "Uncategorized").trim() || "Uncategorized";
-          const sub = (game["sub-category"] || "Misc").trim() || "Misc";
-          if (!grouped[cat]) grouped[cat] = {};
-          if (!grouped[cat][sub]) grouped[cat][sub] = [];
-          grouped[cat][sub].push(game);
-        });
-
-        // --- Build HTML ---
-        container.innerHTML = "";
-        for (const [category, subcats] of Object.entries(grouped)) {
-          const catDiv = document.createElement("div");
-          catDiv.className = "category";
-          catDiv.innerHTML = `<h2>${category}</h2>`;
-
-          for (const [sub, gamesList] of Object.entries(subcats)) {
-            const subDiv = document.createElement("div");
-            subDiv.className = "subcategory";
-            subDiv.innerHTML = `<h3>${sub}</h3>`;
-
-            const grid = document.createElement("div");
-            grid.className = "games-grid";
-
-            gamesList.forEach(game => {
-              let imgSrc = game.image?.trim() || "";
-              let linkSrc = game.link?.trim() || "";
-              if (!imgSrc || imgSrc.toLowerCase() === "blank" || game.status?.toLowerCase() === "blank")
-                imgSrc = fallbackImage;
-              if (!linkSrc) linkSrc = fallbackLink;
-
-              const card = document.createElement("div");
-              card.className = "game-card";
-              if (game.status?.toLowerCase() === "soon") card.classList.add("soon");
-
-              const link = document.createElement("a");
-              link.href = linkSrc;
-              link.target = "_blank";
-              link.rel = "noopener";
-
-              const img = document.createElement("img");
-              img.src = imgSrc;
-              img.alt = game.title || "Game";
-              img.onerror = () => { img.src = fallbackImage; };
-
-              const title = document.createElement("h4");
-              title.textContent = game.title || "Untitled";
-
-              const author = document.createElement("p");
-              author.textContent = game.author || "Unknown";
-
-              link.appendChild(img);
-              link.appendChild(title);
-              link.appendChild(author);
-              card.appendChild(link);
-              grid.appendChild(card);
-            });
-
-            subDiv.appendChild(grid);
-            catDiv.appendChild(subDiv);
-          }
-          container.appendChild(catDiv);
-        }
-
+        games = await res.json();
       } catch (err) {
         console.error(err);
         container.innerHTML = "<p>⚠ Failed to load game data.</p>";
+        return;
       }
+
+      // Render cards
+      function renderGames(list) {
+        container.innerHTML = "";
+        if (!list.length) {
+          container.innerHTML = "<p>No games found.</p>";
+          return;
+        }
+
+        const grid = document.createElement("div");
+        grid.className = "games-grid";
+
+        list.forEach(game => {
+          let imgSrc = game.image?.trim() || "";
+          let linkSrc = game.link?.trim() || "";
+          if (!imgSrc || imgSrc.toLowerCase() === "blank" || game.status?.toLowerCase() === "blank")
+            imgSrc = fallbackImage;
+          if (!linkSrc) linkSrc = fallbackLink;
+
+          const card = document.createElement("div");
+          card.className = "game-card";
+          if (game.status?.toLowerCase() === "soon") card.classList.add("soon");
+
+          const link = document.createElement("a");
+          link.href = linkSrc;
+          link.target = "_blank";
+          link.rel = "noopener";
+
+          const img = document.createElement("img");
+          img.src = imgSrc;
+          img.alt = game.title || "Game";
+          img.onerror = () => { img.src = fallbackImage; };
+
+          const title = document.createElement("h4");
+          title.textContent = game.title || "Untitled";
+
+          const author = document.createElement("p");
+          author.textContent = game.author || "Unknown";
+
+          link.appendChild(img);
+          link.appendChild(title);
+          link.appendChild(author);
+          card.appendChild(link);
+          grid.appendChild(card);
+        });
+
+        container.appendChild(grid);
+      }
+
+      // Category filtering
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const cat = btn.dataset.category.toLowerCase();
+          const filtered = games.filter(
+            g => (g.category || "").toLowerCase() === cat
+          );
+          renderGames(filtered);
+        });
+      });
+
+      // Search filtering
+      function searchGames() {
+        const q = searchInput.value.toLowerCase().trim();
+        const filtered = games.filter(
+          g => g.title?.toLowerCase().includes(q)
+        );
+        renderGames(filtered);
+      }
+      searchBtn.addEventListener("click", searchGames);
+      searchInput.addEventListener("keydown", e => {
+        if (e.key === "Enter") searchGames();
+      });
     });
   </script>
 </body>
