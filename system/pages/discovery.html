@@ -7,19 +7,23 @@
   <link rel="icon" href="../images/10x76.png" />
   <link rel="stylesheet" href="../css/main.css" />
   <link rel="stylesheet" href="../css/themes.css" />
+
   <style>
     body {
-      padding: 2rem;
       color: #fff;
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
+      margin: 0;
+    }
+    main {
+      padding: 2rem;
     }
     h1 {
       font-size: 2em;
       margin-bottom: 1em;
     }
 
-    /* Search bar */
+    /* Center search bar */
     .search-box {
       display: flex;
       justify-content: center;
@@ -114,6 +118,30 @@
   </style>
 </head>
 <body>
+
+<header>
+  <nav class="nav-links">
+    <a href="home.html">Home</a>
+    <a href="favorite.html">Favorites</a>
+    <a href="discovery.html" class="active">Discovery</a>
+    <a href="settings.html">Settings</a>
+    <a href="support.html">Support</a>
+    <a href="info.html">Info</a>
+
+    <div class="pages-anchor">
+      <button class="arrowleft" onclick="prevPage()"><img src="../icons/left.png" alt="Previous Page"></button>
+      <span class="page-indicator">...</span>
+      <button class="arrowright" onclick="nextPage()"><img src="../icons/right.png" alt="Next Page"></button>
+    </div>
+  </nav>
+
+  <div class="header-controls">
+    <a href="profile.html"><img src="../icons/profile.png" alt="profile" id="pfp"></a>
+    <img src="../icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
+  </div>
+</header>
+
+<main>
   <h1>Discover Games</h1>
 
   <div class="search-box">
@@ -130,108 +158,152 @@
   </div>
 
   <div id="discoveryContainer">Loading games...</div>
+</main>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      const container = document.getElementById("discoveryContainer");
-      const searchInput = document.getElementById("searchInput");
-      const searchBtn = document.getElementById("searchBtn");
-      const buttons = document.querySelectorAll(".category-buttons button");
+<footer>
+  <a href="sources.html">sources</a>
+  <a href="contributors.html">contribute</a>
+  <a href="discord.html">Discord</a>
+  <a href="bugsNfixes.html">Bugs & fixes</a>
+  <a href="contact.html">Socials</a>
+  <a href="version-log.html">version V0.8</a>
+</footer>
 
-      const jsonPath = "../json/assets.json";
-      const fallbackImage = "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
-      const fallbackLink = "https://theworldpt1.github.io./source/dino/";
-      let games = [];
+<div id="dashboardMenu" class="dashboard-menu">
+  <a href="music-player.html">Music Player</a>
+  <a href="settings-themes.html">Themes</a>
+  <a href="credits.html">Credits</a>
+  <a href="alt.html">Alternative Links</a>
+</div>
 
-      // Load JSON
-      try {
-        const res = await fetch(jsonPath);
-        if (!res.ok) throw new Error("Failed to load JSON");
-        games = await res.json();
-      } catch (err) {
-        console.error(err);
-        container.innerHTML = "<p>⚠ Failed to load game data.</p>";
-        return;
-      }
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const container = document.getElementById("discoveryContainer");
+  const searchInput = document.getElementById("searchInput");
+  const searchBtn = document.getElementById("searchBtn");
+  const buttons = document.querySelectorAll(".category-buttons button");
 
-      // --- Render cards ---
-      function renderGames(list) {
-        container.innerHTML = "";
-        if (!list.length) {
-          container.innerHTML = "<p>No games found.</p>";
-          return;
-        }
+  const jsonPath = "../json/assets.json";
+  const fallbackImage = "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
+  const fallbackLink = "https://theworldpt1.github.io./source/dino/";
+  let games = [];
 
-        const grid = document.createElement("div");
-        grid.className = "games-grid";
+  try {
+    const res = await fetch(jsonPath);
+    if (!res.ok) throw new Error("Failed to load JSON");
+    games = await res.json();
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = "<p>⚠ Failed to load game data.</p>";
+    return;
+  }
 
-        list.forEach(game => {
-          let imgSrc = game.image?.trim() || "";
-          let linkSrc = game.link?.trim() || "";
-          if (!imgSrc || imgSrc.toLowerCase() === "blank" || game.status?.toLowerCase() === "blank")
-            imgSrc = fallbackImage;
-          if (!linkSrc) linkSrc = fallbackLink;
+  function renderGames(list) {
+    container.innerHTML = "";
+    if (!list.length) {
+      container.innerHTML = "<p>No games found.</p>";
+      return;
+    }
+    const grid = document.createElement("div");
+    grid.className = "games-grid";
 
-          const card = document.createElement("div");
-          card.className = "game-card";
-          if (game.status?.toLowerCase() === "soon") card.classList.add("soon");
+    list.forEach(game => {
+      let imgSrc = game.image?.trim() || "";
+      let linkSrc = game.link?.trim() || "";
+      if (!imgSrc || imgSrc.toLowerCase() === "blank" || game.status?.toLowerCase() === "blank")
+        imgSrc = fallbackImage;
+      if (!linkSrc) linkSrc = fallbackLink;
 
-          const link = document.createElement("a");
-          link.href = linkSrc;
-          link.target = "_blank";
-          link.rel = "noopener";
+      const card = document.createElement("div");
+      card.className = "game-card";
+      if (game.status?.toLowerCase() === "soon") card.classList.add("soon");
 
-          const img = document.createElement("img");
-          img.src = imgSrc;
-          img.alt = game.title || "Game";
-          img.onerror = () => { img.src = fallbackImage; };
+      const link = document.createElement("a");
+      link.href = linkSrc;
+      link.target = "_blank";
+      link.rel = "noopener";
 
-          const title = document.createElement("h4");
-          title.textContent = game.title || "Untitled";
+      const img = document.createElement("img");
+      img.src = imgSrc;
+      img.alt = game.title || "Game";
+      img.onerror = () => { img.src = fallbackImage; };
 
-          const author = document.createElement("p");
-          author.textContent = game.author || "Unknown";
+      const title = document.createElement("h4");
+      title.textContent = game.title || "Untitled";
 
-          link.appendChild(img);
-          link.appendChild(title);
-          link.appendChild(author);
-          card.appendChild(link);
-          grid.appendChild(card);
-        });
+      const author = document.createElement("p");
+      author.textContent = game.author || "Unknown";
 
-        container.appendChild(grid);
-      }
-
-      // --- Default load ---
-      renderGames(games);
-
-      // --- Category filter (by category field) ---
-      buttons.forEach(btn => {
-        btn.addEventListener("click", () => {
-          const cat = btn.dataset.category.toLowerCase();
-          const filtered = games.filter(
-            g => g.category?.toLowerCase() === cat
-          );
-          renderGames(filtered);
-        });
-      });
-
-      // --- Search filter (by title or sub-category) ---
-      function searchGames() {
-        const q = searchInput.value.toLowerCase().trim();
-        const filtered = games.filter(
-          g =>
-            g.title?.toLowerCase().includes(q) ||
-            g["sub-category"]?.toLowerCase().includes(q)
-        );
-        renderGames(filtered);
-      }
-
-      searchBtn.addEventListener("click", searchGames);
-      searchInput.addEventListener("keydown", e => {
-        if (e.key === "Enter") searchGames();
-      });
+      link.appendChild(img);
+      link.appendChild(title);
+      link.appendChild(author);
+      card.appendChild(link);
+      grid.appendChild(card);
     });
-  </script>
+
+    container.appendChild(grid);
+  }
+
+  renderGames(games);
+
+  // --- Filter by category ---
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const cat = btn.dataset.category.toLowerCase();
+      const filtered = games.filter(g => g.category?.toLowerCase() === cat);
+      renderGames(filtered);
+    });
+  });
+
+  // --- Search filter ---
+  function searchGames() {
+    const q = searchInput.value.toLowerCase().trim();
+    const filtered = games.filter(
+      g =>
+        g.title?.toLowerCase().includes(q) ||
+        g["sub-category"]?.toLowerCase().includes(q)
+    );
+    renderGames(filtered);
+  }
+
+  searchBtn.addEventListener("click", searchGames);
+  searchInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") searchGames();
+  });
+
+  // --- Profile pic from storage ---
+  const savedPic = localStorage.getItem("profilePic");
+  if (savedPic) document.getElementById("pfp").src = savedPic;
+
+  // --- Dashboard toggle ---
+  const dashboardBtn = document.getElementById("dashboardBtn");
+  const dashboardMenu = document.getElementById("dashboardMenu");
+
+  dashboardMenu.style.display = "none";
+  dashboardMenu.style.opacity = 0;
+  dashboardMenu.style.transition = "opacity 0.3s ease";
+
+  dashboardBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isVisible = dashboardMenu.style.display === "block";
+    if (isVisible) {
+      dashboardMenu.style.opacity = 0;
+      setTimeout(() => (dashboardMenu.style.display = "none"), 300);
+    } else {
+      dashboardMenu.style.display = "block";
+      setTimeout(() => (dashboardMenu.style.opacity = 1), 10);
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!dashboardMenu.contains(e.target) && e.target !== dashboardBtn) {
+      if (dashboardMenu.style.display === "block") {
+        dashboardMenu.style.opacity = 0;
+        setTimeout(() => (dashboardMenu.style.display = "none"), 300);
+      }
+    }
+  });
+});
+</script>
 </body>
 </html>
