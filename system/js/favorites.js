@@ -31,7 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function createGameCards(data) {
     if (!container) return;
 
-    // Filter only favorited games
     const favoriteGames = data.filter((g) => favorites.has(g.title));
     if (favoriteGames.length === 0) {
       container.innerHTML = "<p>⚠ No favorited games found.</p>";
@@ -53,10 +52,10 @@ document.addEventListener("DOMContentLoaded", () => {
         imageSrc === "" ||
         imageSrc.toLowerCase() === "blank" ||
         game.status?.toLowerCase() === "blank"
-      ) imageSrc = fallbackImage;
+      )
+        imageSrc = fallbackImage;
       if (linkSrc === "") linkSrc = fallbackLink;
 
-      // --- Elements ---
       const img = document.createElement("img");
       img.src = imageSrc;
       img.alt = game.title || "Game";
@@ -77,13 +76,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const author = document.createElement("p");
       author.textContent = game.author || "Unknown";
 
-      // --- Star icon (non-toggle in this page) ---
       const star = document.createElement("span");
       star.className = "favorite-star";
       star.textContent = "★";
       star.title = "Favorited";
 
-      // --- Handle "soon" ---
       if (game.status?.toLowerCase() === "soon") {
         card.classList.add("soon");
         link.removeAttribute("href");
@@ -91,7 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
         link.style.cursor = "default";
       }
 
-      // --- Assemble card ---
       card.appendChild(star);
       card.appendChild(link);
       card.appendChild(author);
@@ -201,6 +197,18 @@ document.addEventListener("DOMContentLoaded", () => {
   if (searchBtn)
     searchBtn.addEventListener("click", () => filterGames(searchInput.value));
 
+  // --- Hide preloader safely ---
+  function hidePreloader(success = true) {
+    if (!preloader) return;
+    if (loaderImage) {
+      loaderImage.src = success
+        ? "system/images/GIF/load-fire.gif"
+        : "system/images/GIF/fail.gif";
+    }
+    preloader.classList.add("fade");
+    setTimeout(() => (preloader.style.display = "none"), 800);
+  }
+
   // --- Main: Load JSON ---
   async function loadGames() {
     showLoading("Loading favorites...");
@@ -216,36 +224,27 @@ document.addEventListener("DOMContentLoaded", () => {
       renderPage();
       startPlaceholderCycle();
 
+      // Wait for images to load or timeout
       const allImages = Array.from(container.querySelectorAll(".game-card img"));
-      await Promise.allSettled(
-        allImages.map(
-          (img) =>
-            new Promise((resolve) => {
-              if (img.complete) return resolve();
-              img.addEventListener("load", resolve);
-              img.addEventListener("error", resolve);
-            })
-        )
-      );
+      await Promise.race([
+        Promise.allSettled(
+          allImages.map(
+            (img) =>
+              new Promise((resolve) => {
+                if (img.complete) return resolve();
+                img.addEventListener("load", resolve);
+                img.addEventListener("error", resolve);
+              })
+          )
+        ),
+        new Promise((resolve) => setTimeout(resolve, 3000)), // timeout safety
+      ]);
 
-      await new Promise((r) => setTimeout(r, 800));
-
-      if (loaderImage) {
-        await new Promise((resolve) => {
-          loaderImage.onload = resolve;
-          loaderImage.onerror = resolve;
-          loaderImage.src = "system/images/GIF/load-fire.gif";
-        });
-      }
-
-      if (preloader) {
-        preloader.classList.add("fade");
-        setTimeout(() => (preloader.style.display = "none"), 600);
-      }
+      hidePreloader(true);
     } catch (err) {
       console.error("Error loading JSON:", err);
       showLoading("⚠ Failed to load favorites.");
-      if (loaderImage) loaderImage.src = "system/images/GIF/fail.gif";
+      hidePreloader(false);
     }
   }
 
