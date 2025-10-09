@@ -14,9 +14,12 @@
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
     }
-    h1 { font-size: 2em; margin-bottom: 1em; }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 1em;
+    }
 
-    /* Centered search bar */
+    /* Search bar */
     .search-box {
       display: flex;
       justify-content: center;
@@ -41,7 +44,11 @@
       border: none;
       cursor: pointer;
     }
-    .search-box img { width: 22px; height: 22px; filter: invert(1); }
+    .search-box img {
+      width: 22px;
+      height: 22px;
+      filter: invert(1);
+    }
 
     /* Category buttons */
     .category-buttons {
@@ -52,7 +59,7 @@
       flex-wrap: wrap;
     }
     .category-buttons button {
-      background: var(--accent-color, #7b2cbf);
+      background: #222;
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -62,11 +69,11 @@
       transition: background 0.3s, transform 0.2s;
     }
     .category-buttons button:hover {
-      background: #9d4edd;
+      background: #444;
       transform: scale(1.05);
     }
 
-    /* Game grid */
+    /* Games grid */
     .games-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -91,17 +98,29 @@
       border-radius: 8px;
       background: #111;
     }
-    .game-card h4 { margin: 0.4em 0 0.2em; font-size: 1em; }
-    .game-card p { margin: 0; font-size: 0.85em; color: #bbb; }
-    .soon { opacity: 0.6; pointer-events: none; }
+    .game-card h4 {
+      margin: 0.4em 0 0.2em;
+      font-size: 1em;
+    }
+    .game-card p {
+      margin: 0;
+      font-size: 0.85em;
+      color: #bbb;
+    }
+    .soon {
+      opacity: 0.6;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
-  <h1>🎮 Discover Games</h1>
+  <h1>Discover Games</h1>
 
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="Search games..." />
-    <button id="searchBtn"><img src="../icons/search.png" alt="Search"></button>
+    <button id="searchBtn">
+      <img src="../icons/search.png" alt="Search" />
+    </button>
   </div>
 
   <div class="category-buttons">
@@ -110,7 +129,7 @@
     <button data-category="Other">Other</button>
   </div>
 
-  <div id="discoveryContainer">Select a category or search to begin.</div>
+  <div id="discoveryContainer">Loading games...</div>
 
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
@@ -124,7 +143,7 @@
       const fallbackLink = "https://theworldpt1.github.io./source/dino/";
       let games = [];
 
-      // Load JSON once
+      // Load JSON
       try {
         const res = await fetch(jsonPath);
         if (!res.ok) throw new Error("Failed to load JSON");
@@ -135,7 +154,7 @@
         return;
       }
 
-      // Render cards
+      // --- Render cards ---
       function renderGames(list) {
         container.innerHTML = "";
         if (!list.length) {
@@ -183,25 +202,31 @@
         container.appendChild(grid);
       }
 
-      // Category filtering
+      // --- Default load ---
+      renderGames(games);
+
+      // --- Category filter (by category field) ---
       buttons.forEach(btn => {
         btn.addEventListener("click", () => {
           const cat = btn.dataset.category.toLowerCase();
           const filtered = games.filter(
-            g => (g.category || "").toLowerCase() === cat
+            g => g.category?.toLowerCase() === cat
           );
           renderGames(filtered);
         });
       });
 
-      // Search filtering
+      // --- Search filter (by title or sub-category) ---
       function searchGames() {
         const q = searchInput.value.toLowerCase().trim();
         const filtered = games.filter(
-          g => g.title?.toLowerCase().includes(q)
+          g =>
+            g.title?.toLowerCase().includes(q) ||
+            g["sub-category"]?.toLowerCase().includes(q)
         );
         renderGames(filtered);
       }
+
       searchBtn.addEventListener("click", searchGames);
       searchInput.addEventListener("keydown", e => {
         if (e.key === "Enter") searchGames();
