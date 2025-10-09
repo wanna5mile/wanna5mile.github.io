@@ -26,15 +26,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- Create Favorite Cards (ignore page property) ---
+  // --- Create Favorite Cards Only ---
   function createGameCards(data) {
     if (!container) return;
 
-    // Filter all games regardless of page number
-    const favoriteGames = data.filter(
-      (g) => favorites.has(g.title?.trim())
-    );
-
+    // Flatten if JSON is nested by pages
+    const allGames = Array.isArray(data[0]) ? data.flat() : data;
+    const favoriteGames = allGames.filter((g) => favorites.has(g.title));
     container.innerHTML = "";
 
     if (favoriteGames.length === 0) {
@@ -47,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
       card.className = "game-card";
       card.dataset.title = (game.title || "").toLowerCase();
       card.dataset.author = (game.author || "").toLowerCase();
-      card.dataset.filtered = "true"; // still needed for search
+      card.dataset.filtered = "true"; // for search
 
       // --- Image + link fallbacks ---
       let imageSrc = game.image?.trim() || "";
@@ -56,9 +54,8 @@ document.addEventListener("DOMContentLoaded", () => {
         imageSrc === "" ||
         imageSrc.toLowerCase() === "blank" ||
         game.status?.toLowerCase() === "blank"
-      ) {
+      )
         imageSrc = fallbackImage;
-      }
       if (linkSrc === "") linkSrc = fallbackLink;
 
       const img = document.createElement("img");
@@ -93,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
         link.style.cursor = "default";
       }
 
-      // --- Star now at bottom ---
       card.appendChild(link);
       card.appendChild(author);
       card.appendChild(star);
