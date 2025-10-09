@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
   const gamesPerPage = 10;
   const jsonPath = "system/json/assets.json";
+  const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
 
   // --- Fallback paths ---
   const fallbackImage =
@@ -26,10 +27,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // --- Save favorites to localStorage ---
+  function saveFavorites() {
+    localStorage.setItem("favorites", JSON.stringify([...favorites]));
+  }
+
   // --- Helper: Create game cards ---
   function createGameCards(data) {
     if (!container) return;
-    data.forEach((game, i) => {
+
+    // Sort: Favorites first
+    const sortedData = [...data].sort((a, b) => {
+      const aFav = favorites.has(a.title);
+      const bFav = favorites.has(b.title);
+      return aFav === bFav ? 0 : aFav ? -1 : 1;
+    });
+
+    sortedData.forEach((game, i) => {
       const card = document.createElement("div");
       card.className = "game-card";
       card.dataset.title = (game.title || "").toLowerCase();
@@ -40,25 +54,22 @@ document.addEventListener("DOMContentLoaded", () => {
       // --- Image and link fallback logic ---
       let imageSrc = game.image?.trim() || "";
       let linkSrc = game.link?.trim() || "";
-
-      // --- NEW: Apply fallback if image is empty, status is "blank", or image is a placeholder URL ---
       if (
         imageSrc === "" ||
         imageSrc.toLowerCase() === "blank" ||
         game.status?.toLowerCase() === "blank" ||
-        imageSrc === "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/"
+        imageSrc ===
+          "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/"
       ) {
         imageSrc = fallbackImage;
       }
-
       if (linkSrc === "") linkSrc = fallbackLink;
 
-      // --- Create the card HTML ---
+      // --- Create elements ---
       const img = document.createElement("img");
       img.src = imageSrc;
       img.alt = game.title || "Game";
 
-      // --- Handle any broken image fallback ---
       img.addEventListener("error", () => {
         if (!img.dataset.fallbackApplied) {
           img.src = fallbackImage;
@@ -76,14 +87,36 @@ document.addEventListener("DOMContentLoaded", () => {
       const author = document.createElement("p");
       author.textContent = game.author || "Unknown";
 
+      // --- Favorite Star ---
+      const star = document.createElement("span");
+      star.className = "favorite-star";
+      star.textContent = favorites.has(game.title) ? "★" : "☆";
+      star.title = "Toggle favorite";
+
+      star.addEventListener("click", (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (favorites.has(game.title)) {
+          favorites.delete(game.title);
+          star.textContent = "☆";
+        } else {
+          favorites.add(game.title);
+          star.textContent = "★";
+        }
+        saveFavorites();
+        refreshCards();
+      });
+
       // --- Handle "coming soon" games ---
       if (game.status?.toLowerCase() === "soon") {
         card.classList.add("soon");
-        link.removeAttribute("href"); // make non-clickable
+        link.removeAttribute("href");
         link.style.pointerEvents = "none";
         link.style.cursor = "default";
       }
 
+      // --- Assemble card ---
+      card.appendChild(star);
       card.appendChild(link);
       card.appendChild(author);
       container.appendChild(card);
@@ -95,10 +128,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return Array.from(container.querySelectorAll(".game-card"));
   }
   function getFilteredCards() {
-    return getAllCards().filter(c => c.dataset.filtered === "true");
+    return getAllCards().filter((c) => c.dataset.filtered === "true");
   }
   function getPagesWithContent() {
-    const pages = new Set(getFilteredCards().map(c => parseInt(c.dataset.page)));
+    const pages = new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)));
     return [...pages].sort((a, b) => a - b);
   }
 
@@ -111,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentPage < 1) currentPage = maxPage;
     if (currentPage > maxPage) currentPage = 1;
 
-    getAllCards().forEach(card => {
+    getAllCards().forEach((card) => {
       card.style.display =
         parseInt(card.dataset.page) === currentPage &&
         card.dataset.filtered === "true"
@@ -128,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Search/filter ---
   function filterGames(query) {
     const q = query.toLowerCase().trim();
-    getAllCards().forEach(card => {
+    getAllCards().forEach((card) => {
       const matches =
         !q ||
         card.dataset.title.includes(q) ||
@@ -141,6 +174,13 @@ document.addEventListener("DOMContentLoaded", () => {
       currentPage = pagesWithContent[0] || 1;
     }
 
+    renderPage();
+  }
+
+  // --- Refresh cards when favorites change ---
+  function refreshCards() {
+    container.innerHTML = "";
+    createGameCards(gamesData);
     renderPage();
   }
 
@@ -163,7 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!searchInput) return;
     const cycle = () => {
       const visibleCount = getFilteredCards().filter(
-        c => parseInt(c.dataset.page) === currentPage
+        (c) => parseInt(c.dataset.page) === currentPage
       ).length;
 
       fadePlaceholder(searchInput, `${visibleCount} games on this page`, () => {
@@ -188,11 +228,11 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   if (searchInput)
-    searchInput.addEventListener("input", e => filterGames(e.target.value));
+    searchInput.addEventListener("input", (e) => filterGames(e.target.value));
   if (searchBtn)
     searchBtn.addEventListener("click", () => filterGames(searchInput.value));
 
-  // --- Main: Load JSON (waits for load-fire.gif before fade) ---
+  // --- Main: Load JSON ---
   async function loadGames() {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
@@ -211,8 +251,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const allImages = Array.from(container.querySelectorAll(".game-card img"));
       await Promise.allSettled(
         allImages.map(
-          img =>
-            new Promise(resolve => {
+          (img) =>
+            new Promise((resolve) => {
               if (img.complete) return resolve();
               img.addEventListener("load", resolve);
               img.addEventListener("error", resolve);
@@ -220,10 +260,10 @@ document.addEventListener("DOMContentLoaded", () => {
         )
       );
 
-      await new Promise(r => setTimeout(r, 800));
+      await new Promise((r) => setTimeout(r, 800));
 
       if (loaderImage) {
-        await new Promise(resolve => {
+        await new Promise((resolve) => {
           loaderImage.onload = resolve;
           loaderImage.onerror = resolve;
           loaderImage.src = "system/images/GIF/load-fire.gif";
