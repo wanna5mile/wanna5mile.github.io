@@ -74,6 +74,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const author = document.createElement("p");
       author.textContent = game.author || "Unknown";
 
+      // --- ✅ NEW: Handle "coming soon" games ---
+      if (game.status?.toLowerCase() === "soon") {
+        card.classList.add("soon");
+        link.removeAttribute("href"); // make non-clickable
+        link.style.pointerEvents = "none";
+        link.style.cursor = "default";
+      }
+
       card.appendChild(link);
       card.appendChild(author);
       container.appendChild(card);
