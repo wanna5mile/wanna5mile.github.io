@@ -1,16 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
   // --- DOM Elements ---
   const container = document.getElementById("container");
-  const pageIndicator = document.querySelector(".page-indicator");
   const searchInput = document.getElementById("searchInputHeader");
   const searchBtn = document.getElementById("searchBtnHeader");
   const preloader = document.getElementById("preloader");
   const loaderImage = document.getElementById("loaderImage");
+  const pageIndicator = document.querySelector(".page-indicator");
+  if (pageIndicator) pageIndicator.style.display = "none"; // hide it
 
   // --- Config & State ---
   let gamesData = [];
-  let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
-  const gamesPerPage = 10;
   const jsonPath = "system/json/assets.json";
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
 
@@ -27,23 +26,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- Helper: Create favorite game cards ---
+  // --- Create Favorite Cards Only ---
   function createGameCards(data) {
     if (!container) return;
 
     const favoriteGames = data.filter((g) => favorites.has(g.title));
+    container.innerHTML = "";
+
     if (favoriteGames.length === 0) {
       container.innerHTML = "<p>⚠ No favorited games found.</p>";
       return;
     }
 
-    favoriteGames.forEach((game, i) => {
+    favoriteGames.forEach((game) => {
       const card = document.createElement("div");
       card.className = "game-card";
       card.dataset.title = (game.title || "").toLowerCase();
       card.dataset.author = (game.author || "").toLowerCase();
-      card.dataset.page = game.page || Math.floor(i / gamesPerPage) + 1;
-      card.dataset.filtered = "true";
+      card.dataset.filtered = "true"; // still needed for search
 
       // --- Image + link fallbacks ---
       let imageSrc = game.image?.trim() || "";
@@ -88,66 +88,32 @@ document.addEventListener("DOMContentLoaded", () => {
         link.style.cursor = "default";
       }
 
-      card.appendChild(star);
+      // --- Star now at bottom ---
       card.appendChild(link);
       card.appendChild(author);
+      card.appendChild(star);
+
       container.appendChild(card);
     });
   }
 
-  // --- Helpers for filtering/pagination ---
-  function getAllCards() {
-    return Array.from(container.querySelectorAll(".game-card"));
-  }
-  function getFilteredCards() {
-    return getAllCards().filter((c) => c.dataset.filtered === "true");
-  }
-  function getPagesWithContent() {
-    const pages = new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)));
-    return [...pages].sort((a, b) => a - b);
-  }
-
-  // --- Render page ---
-  function renderPage() {
-    const filteredCards = getFilteredCards();
-    const pagesWithContent = getPagesWithContent();
-    const maxPage = Math.max(...pagesWithContent, 1);
-
-    if (currentPage < 1) currentPage = maxPage;
-    if (currentPage > maxPage) currentPage = 1;
-
-    getAllCards().forEach((card) => {
-      card.style.display =
-        parseInt(card.dataset.page) === currentPage &&
-        card.dataset.filtered === "true"
-          ? "block"
-          : "none";
-    });
-
-    if (pageIndicator)
-      pageIndicator.textContent = `Page ${currentPage} of ${maxPage}`;
-
-    sessionStorage.setItem("currentPage", currentPage);
-  }
-
-  // --- Search/filter ---
+  // --- Search/filter (works on all favorites) ---
   function filterGames(query) {
     const q = query.toLowerCase().trim();
-    getAllCards().forEach((card) => {
+    const cards = Array.from(container.querySelectorAll(".game-card"));
+    cards.forEach((card) => {
       const matches =
         !q ||
         card.dataset.title.includes(q) ||
         card.dataset.author.includes(q);
-      card.dataset.filtered = matches ? "true" : "false";
+      card.style.display = matches ? "block" : "none";
     });
-
-    const pagesWithContent = getPagesWithContent();
-    if (!pagesWithContent.includes(currentPage)) {
-      currentPage = pagesWithContent[0] || 1;
-    }
-
-    renderPage();
   }
+
+  if (searchInput)
+    searchInput.addEventListener("input", (e) => filterGames(e.target.value));
+  if (searchBtn)
+    searchBtn.addEventListener("click", () => filterGames(searchInput.value));
 
   // --- Placeholder cycle ---
   function fadePlaceholder(input, text, cb) {
@@ -167,9 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function startPlaceholderCycle() {
     if (!searchInput) return;
     const cycle = () => {
-      const visibleCount = getFilteredCards().filter(
-        (c) => parseInt(c.dataset.page) === currentPage
-      ).length;
+      const visibleCount = Array.from(
+        container.querySelectorAll(".game-card")
+      ).filter((c) => c.style.display !== "none").length;
 
       fadePlaceholder(searchInput, `${visibleCount} favorited games`, () => {
         setTimeout(() => {
@@ -181,21 +147,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     cycle();
   }
-
-  // --- Pagination controls ---
-  window.prevPage = function () {
-    currentPage--;
-    renderPage();
-  };
-  window.nextPage = function () {
-    currentPage++;
-    renderPage();
-  };
-
-  if (searchInput)
-    searchInput.addEventListener("input", (e) => filterGames(e.target.value));
-  if (searchBtn)
-    searchBtn.addEventListener("click", () => filterGames(searchInput.value));
 
   // --- Hide preloader safely ---
   function hidePreloader(success = true) {
@@ -209,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => (preloader.style.display = "none"), 800);
   }
 
-  // --- Main: Load JSON ---
+  // --- Load and Display Favorites ---
   async function loadGames() {
     showLoading("Loading favorites...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
@@ -219,12 +170,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
       gamesData = await res.json();
 
-      container.innerHTML = "";
       createGameCards(gamesData);
-      renderPage();
       startPlaceholderCycle();
 
-      // Wait for images to load or timeout
+      // Wait for images or timeout
       const allImages = Array.from(container.querySelectorAll(".game-card img"));
       await Promise.race([
         Promise.allSettled(
@@ -237,17 +186,16 @@ document.addEventListener("DOMContentLoaded", () => {
               })
           )
         ),
-        new Promise((resolve) => setTimeout(resolve, 3000)), // timeout safety
+        new Promise((resolve) => setTimeout(resolve, 3000)),
       ]);
 
       hidePreloader(true);
     } catch (err) {
-      console.error("Error loading JSON:", err);
+      console.error("Error loading favorites:", err);
       showLoading("⚠ Failed to load favorites.");
       hidePreloader(false);
     }
   }
 
-  // --- Initialize ---
   loadGames();
 });
