@@ -515,3 +515,35 @@ body.light {
   background: #f4f4f4;
   color: #111;
 }
+/* Coming Soon status (updated for clarity + contrast) */
+.soon {
+  position: relative;
+  opacity: 0.55;
+  pointer-events: none;
+  filter: grayscale(100%);
+  transition: opacity 0.3s ease;
+}
+
+.soon::after {
+  content: "COMING SOON";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-family: monospace;
+  font-size: 16px;
+  letter-spacing: 1px;
+  font-weight: bold;
+  text-shadow: 0 0 5px #000;
+  z-index: 5;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.soon img {
+  opacity: 0.5;
+  filter: grayscale(100%);
+}
