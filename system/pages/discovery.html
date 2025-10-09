@@ -21,6 +21,12 @@
     h1 {
       font-size: 2em;
       margin-bottom: 1em;
+      transition: color 0.3s, text-decoration-color 0.3s;
+    }
+    h1:hover {
+      color: #ff3b3b;
+      text-decoration: underline;
+      text-decoration-color: #ff3b3b;
     }
 
     /* Center search bar */
@@ -127,12 +133,6 @@
     <a href="settings.html">Settings</a>
     <a href="support.html">Support</a>
     <a href="info.html">Info</a>
-
-    <div class="pages-anchor">
-      <button class="arrowleft" onclick="prevPage()"><img src="../icons/left.png" alt="Previous Page"></button>
-      <span class="page-indicator">...</span>
-      <button class="arrowright" onclick="nextPage()"><img src="../icons/right.png" alt="Next Page"></button>
-    </div>
   </nav>
 
   <div class="header-controls">
