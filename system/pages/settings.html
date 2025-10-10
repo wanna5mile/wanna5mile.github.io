@@ -3,156 +3,227 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Settings</title>
-  <link rel="stylesheet" href="../system/css/main.css">
-  <meta name="author" content="Bg.uhm by rhap5ody">
-  <meta name="keywords" content="fun, library, github, rhap5ody">
-  <script src="../system/js/settings.js" defer></script>
-  <style>
-    main { padding:20px; max-width:800px; margin:0 auto; }
-    .setting { margin-bottom:40px; }
-    .setting h2 { margin-bottom:10px; }
-    .cloak-buttons button, .save-btn, .return-btn {
-      margin:4px; padding:8px 12px; border:none; border-radius:6px;
-      cursor:pointer; background:#333; color:#fff; transition:background 0.2s ease;
-    }
-    .cloak-buttons button:hover, .save-btn:hover, .return-btn:hover { background:#555; }
-    input[type="color"], input[type="text"] {
-      display:block; margin:6px 0 12px; padding:6px; border-radius:6px;
-      border:1px solid #444; background:#222; color:#fff; width:100%;
-    }
-  </style>
-</head>
-<body>
+  <title>Settings | 10x76 Test 005</title>
+  <link rel="icon" href="../images/10x76.png">
 
-  <!-- Header -->
+  <meta name="author" content="Bg.uhm by rhap5ody">
+  <meta name="keywords" content="settings, fun, library, github, rhap5ody">
+
+  <link rel="stylesheet" href="../css/themes.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/loading-screen.css" />
+  <link rel="stylesheet" href="../css/quotes.css">
+  <link rel="stylesheet" href="../css/commands.css">
+
+  <link rel="stylesheet" href="../css/settings.css">
+
+
+</head>
+<body theme="classic"> 
+  <div class="preloader" id="preloader" aria-live="polite" aria-busy="true">
+    <div class="loader-gif">
+      <img src="../images/GIF/loading.gif" id="loaderImage" alt="Loading animation"/>
+    </div>
+    <div class="counter" id="counter">0%</div>
+    <div class="loading-text">Loading...</div>
+  </div>
+	
   <header>
-    <nav class="nav-links">
-      <a href="home.html">Home</a>
-      <a href="favorite.html">Favorites</a>
-      <a href="discover.html">Discovery</a>
+    <nav aria-label="Main Navigation" class="nav-links">
+      <a href="../../index.html">Home</a>
+      <a href="../../favorites.html">Favorites</a>
+      <a href="discovery.html">Discovery</a>
       <a href="settings.html">Settings</a>
       <a href="support.html">Support</a>
       <a href="info.html">Info</a>
+
+      <div class="pages-anchor" role="group" aria-label="Page Navigation">
+        <button class="arrowleft" onclick="prevPage()" aria-label="Previous Page"><img src="../icons/left.png" alt="Left Arrow"></button>
+        <span class="page-indicator" aria-live="polite">...</span>
+        <button class="arrowright" onclick="nextPage()" aria-label="Next Page"><img src="../icons/right.png" alt="Right Arrow"></button>
+      </div>
     </nav>
 
     <div class="header-controls">
-      <div class="search-box">
-        <input type="text" id="searchInputHeader" placeholder="Search games..." />
-        <button id="searchBtnHeader"><img src="../system/icons/search.png" alt="Search"></button>
+      <div class="search-box" role="search">
+        <input type="text" id="searchInputHeader" placeholder="Search games..." aria-label="Search games library" />
+        <button id="searchBtnHeader" aria-label="Submit Search"><img src="../icons/search.png" alt="Search icon"></button>
       </div>
-      <a href="profile.html"><img src="../system/icons/profile.png" alt="profile" id="pfp"></a>
-      <img src="../system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
+      <a href="profile.html" aria-label="View Profile"><img src="../icons/profile.png" alt="Profile Picture" id="pfp"></a>
+      <button id="dashboardBtn" aria-controls="dashboardMenu" aria-expanded="false" aria-label="Open Dashboard Menu">
+          <img src="../icons/dashboard.png" alt="Dashboard icon" style="width: 100%; height: 100%; object-fit: contain;">
+      </button>
     </div>
   </header>
 
-  <!-- Dashboard Menu -->
-  <div id="dashboardMenu" class="dashboard-menu">
-    <a href="profile.html">Profile</a>
-    <a href="favorite.html">Favorites</a>
-    <a href="settings.html">Settings</a>
-    <a href="support.html">Support</a>
-    <a href="info.html">Info</a>
-    <a href="version-log.html">Version Log</a>
-  </div>
+  <aside id="dashboardMenu" class="dashboard-menu" aria-hidden="true">
+    <a href="music-player.html">Music Player</a>
+    <a href="settings-themes.html">Themes</a>
+    <a href="credits.html">Credits</a>
+    <a href="alt.html">Alternative Links</a>
+  </aside>
 
-  <!-- Main Settings -->
-  <main>
-    <h1 class="page-title">Settings</h1>
+  <main class="settings-page">
+    <h1>General Settings</h1>
 
-    <!-- Cloak Mode -->
-    <section class="setting">
-      <h2>Cloak Mode</h2>
-      <div class="cloak-buttons">
-        <button onclick="setCloak('Google Docs','../system/icons/docs.png')">Google Docs</button>
-        <button onclick="setCloak('Canvas','../system/icons/canvas.png')">Canvas</button>
-        <button onclick="setCloak('Clever','../system/icons/clever.png')">Clever</button>
-        <button onclick="setCloak('New Tab','../system/icons/newtab.png')">New Tab</button>
-        <button onclick="resetCloak()">Reset</button>
-      </div>
-      <input type="text" id="customCloakUrl" placeholder="Paste favicon URL">
-      <input type="text" id="customCloakTitle" placeholder="Enter custom tab title">
-      <button class="save-btn" onclick="saveCustomCloak()">Save Custom Cloak</button>
+    <section class="setting-group">
+        <h2>Tab Cloaking & Security</h2>
+        
+        <form action="javascript:void(0);" onsubmit="setCloakCookie(event);">
+            <div class="form-row">
+                <label for="webname">Website Name:</label>
+                <input type="text" id="webname" name="webname" placeholder="10x76 Library" />
+            </div>
+
+            <div class="form-row">
+                <label for="webicon">Website Icon URL:</label>
+                <input type="url" id="webicon" name="webicon" placeholder="https://www.google.com/favicon.ico" />
+            </div>
+
+            <div class="form-row">
+                <label for="presetCloaks">Or select a preset:</label>
+                <select id="presetCloaks">
+                    <option value="google">Google</option>
+                    <option value="drive">Google Drive</option>
+                    <option value="classroom">Google Classroom</option>
+                    <option value="newtab">New Tab</option>
+                    <option value="docs">Google Docs</option>
+                    <option value="schoology">Schoology</option>
+                </select>
+            </div>
+            
+            <button id="websubmit" class="submit-btn" type="submit">Set Tab Cloak</button>
+        </form>
+        <button onclick="clearCloak();" class="action-btn clear-btn">Clear Current Tab Cloak</button>
+        
+        <div class="setting-checkbox-row">
+            <input type="checkbox" id="tabDisguise" name="tabDisguise">
+            <label for="tabDisguise">Disguise tab when you click off (Focus Blur)</label>
+        </div>
+        <div class="setting-checkbox-row">
+            <input type="checkbox" id="blockClose" name="blockClose">
+            <label for="blockClose">Block tab from being closed (requires custom script)</label>
+        </div>
     </section>
 
-    <!-- Theme Customization -->
-    <section class="setting">
-      <h2>Customize Theme</h2>
-      <label for="bgColor">Background Color:</label>
-      <input type="color" id="bgColor">
-      <label for="marqueeColor">Marquee Text Color:</label>
-      <input type="color" id="marqueeColor">
-      <label for="headerColor">Header Background:</label>
-      <input type="color" id="headerColor">
-      <label for="footerColor">Footer Background:</label>
-      <input type="color" id="footerColor">
-      <button class="save-btn" onclick="saveTheme()">Save Theme</button>
-      <button class="return-btn" onclick="window.location.href='../../index.html'">Return to Page</button>
+    <section class="setting-group">
+        <h2>Theme & Appearance</h2>
+        <div class="theme-buttons-container">
+            <button onclick="setTheme('classic')" class="theme-btn" style="background: var(--header-bg); border-color: var(--accent-color);">Classic (Default)</button>
+            <button onclick="setTheme('dark')" class="theme-btn" style="background-color: #333333; color: #fff;">Dark Mode</button>
+            <button onclick="setTheme('light')" class="theme-btn" style="background-color: #bbbbbb; color: #1a1a1a;">Light Mode</button>
+            <button onclick="customTheme()" class="theme-btn custom-btn">Custom Theme...</button>
+        </div>
+        
+        <div id="customThemeMenu" class="custom-theme-controls" style="display: none;">
+            <label>UI Background: <input type="color" id="uibg" value="#2e2e2e"/></label>
+            <label>Main Background: <input type="color" id="bg" value="#1a1a1a"/></label>
+            <label>Text Color: <input type="color" id="textcolor" value="#ffffff"/></label>
+            <label>Accent Color: <input type="color" id="accentcolor" value="#c77dff"/></label>
+            <button onclick="applyCustomTheme()" class="submit-btn">Apply Custom Colors</button>
+
+            <div class="form-row">
+                <label for="bgimg">Or set Background Image URL:</label>
+                <input type="url" id="bgimg" placeholder="https://i.imgur.com/yourimage.jpg" onkeydown="if(event.key === 'Enter') applyBackgroundImage();"/>
+            </div>
+        </div>
+    </section>
+
+    <section class="setting-group">
+        <h2>Panic Mode & Password</h2>
+        
+        <form action="javascript:void(0);" onsubmit="setPanicMode(event);">
+            <div class="form-row">
+                <label for="panicURL">Panic Redirect URL:</label>
+                <input type="url" id="panicURL" name="panicURL" placeholder="https://google.com" />
+            </div>
+            <button class="submit-btn" type="submit">Set Panic Mode URL</button>
+        </form>
+
+        <form action="javascript:void(0);" onsubmit="setPassword(event);">
+            <div class="form-row">
+                <label for="pass">Access Password:</label>
+                <input type="password" id="pass" name="pass" placeholder="password" />
+            </div>
+            <p class="note">This password will be required to access the site if the URL is copied/shared.</p>
+            <button id="setPass" class="submit-btn" type="submit">Set Password</button>
+            <button id="delPass" onclick="delPassword()" class="action-btn clear-btn">Delete Password</button>
+        </form>
     </section>
   </main>
 
-  <!-- Footer -->
   <footer>
-    <a href="sources.html">Sources</a>
-    <a href="contributors.html">Contribute</a>
+    <a href="sources.html">sources</a>
+    <a href="contributors.html">contribute</a>
     <a href="discord.html">Discord</a>
-    <a href="bugsNfixes.html">Bugs & Fixes</a>
+    <a href="bugsNfixes.html">Bugs & fixes</a>
     <a href="contact.html">Socials</a>
-    <a href="version-log.html">Version V0.7.2</a>
+    <a href="version-log.html">version V0.8</a>
   </footer>
 
+  <script src="../../system/js/quotes.js" defer></script>
+  <script src="../../system/js/searcherror.js" defer></script>
+  <script src="../../system/js/carousel.js" defer></script>
+  <script src="../../system/js/commands.js" defer></script>
+  <script src="../../system/js/paging.js" defer></script>
+  
+  <script src="../js/settings.js" defer></script>
+
   <script>
-    // === Cloak Logic ===
-    function setCloak(title, icon) {
-      localStorage.setItem("cloakTitle", title);
-      localStorage.setItem("cloakIcon", icon);
-      document.title = title;
-      const link = document.querySelector("link[rel~='icon']") || document.createElement("link");
-      link.rel = "icon"; link.href = icon;
-      document.head.appendChild(link);
-    }
-
-    function resetCloak() {
-      localStorage.removeItem("cloakTitle");
-      localStorage.removeItem("cloakIcon");
-      document.title = "Bguhm.GuiHub.io";
-      const link = document.querySelector("link[rel~='icon']");
-      if (link) link.href = "../system/icons/default.png";
-    }
-
-    function saveCustomCloak() {
-      const url = document.getElementById("customCloakUrl").value.trim();
-      const title = document.getElementById("customCloakTitle").value.trim();
-      if (url && title) {
-        localStorage.setItem("cloakTitle", title);
-        localStorage.setItem("cloakIcon", url);
-        setCloak(title, url);
-      }
-    }
-
-    // === Theme Logic (auto-applied globally) ===
-    function saveTheme() {
-      const theme = {
-        bgColor: document.getElementById("bgColor").value,
-        marqueeColor: document.getElementById("marqueeColor").value,
-        headerColor: document.getElementById("headerColor").value,
-        footerColor: document.getElementById("footerColor").value
-      };
-      localStorage.setItem("customTheme", JSON.stringify(theme));
-      localStorage.setItem("theme", "custom");
-      applyTheme(theme);
-    }
-
-    function applyTheme(theme) {
-      if (theme.bgColor) document.body.style.backgroundColor = theme.bgColor;
-      if (theme.headerColor) document.querySelector("header").style.backgroundColor = theme.headerColor;
-      if (theme.footerColor) document.querySelector("footer").style.backgroundColor = theme.footerColor;
-    }
-
+    // --- PFP Image Load ---
     document.addEventListener("DOMContentLoaded", () => {
-      const savedTheme = JSON.parse(localStorage.getItem("customTheme") || "{}");
-      applyTheme(savedTheme);
+      const savedPic = localStorage.getItem("profilePic");
+      const pfp = document.getElementById("pfp");
+      if (savedPic && pfp) {
+        pfp.src = savedPic;
+      }
+      
+      // Dashboard toggle logic (can be moved to a shared JS file)
+      const dashboardBtn = document.getElementById("dashboardBtn");
+      const dashboardMenu = document.getElementById("dashboardMenu");
+      if (dashboardBtn && dashboardMenu) {
+        dashboardMenu.style.display = "none";
+        // Simplified toggle logic:
+        dashboardBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isVisible = dashboardMenu.style.display === "block";
+            dashboardMenu.style.display = isVisible ? "none" : "block";
+            dashboardBtn.setAttribute("aria-expanded", !isVisible);
+        });
+        document.addEventListener("click", (e) => {
+            if (dashboardMenu.style.display === "block" && 
+                !dashboardMenu.contains(e.target) && 
+                e.target !== dashboardBtn) 
+            {
+                dashboardMenu.style.display = "none";
+                dashboardBtn.setAttribute("aria-expanded", "false");
+            }
+        });
+      }
+
+      // Preloader removal (Optional: Only if you want to keep the loading screen)
+      const preloader = document.getElementById('preloader');
+      if (preloader) {
+         // Simulating a fast load on settings page
+         setTimeout(() => {
+             preloader.style.display = 'none';
+         }, 100);
+      }
     });
+
+    // Dummy functions required by the HTML forms (replace these with your logic in settings.js)
+    function setCloakCookie(e) { console.log("Tab cloak set!"); }
+    function clearCloak() { console.log("Tab cloak cleared!"); }
+    function setTheme(name) { console.log("Theme set to: " + name); }
+    function customTheme() {
+      const menu = document.getElementById('customThemeMenu');
+      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    }
+    function applyCustomTheme() { console.log("Custom colors applied!"); }
+    function applyBackgroundImage() { console.log("Background image applied!"); }
+    function setPanicMode(e) { console.log("Panic mode URL set!"); }
+    function setPassword(e) { console.log("Access password set!"); }
+    function delPassword() { console.log("Access password deleted!"); }
   </script>
 </body>
 </html>
