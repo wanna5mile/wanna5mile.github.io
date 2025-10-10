@@ -378,3 +378,32 @@ footer {
   border-radius: 8px;
   image-rendering: pixelated;
 }
+/* ==========================================
+   Quote Scroller
+   ========================================== */
+#quoteWrapper {
+  position: fixed;
+  bottom: 10px; /* stick to bottom, above footer */
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  background: var(--header-bg); /* matches your theme */
+  color: var(--link-color);
+  font-family: monospace;
+  font-size: 0.9rem;
+  padding: 8px 0;
+  z-index: 5000; /* stay above content */
+}
+
+#quoteBox {
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform;
+  user-select: none;
+  transition: color 0.3s ease;
+}
+
+#quoteWrapper:hover #quoteBox {
+  color: var(--accent-color);
+}
