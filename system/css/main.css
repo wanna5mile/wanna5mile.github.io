@@ -210,21 +210,29 @@ header img {
   height: 16px;
 }
 
-/* Mid Container Grid */
+/* ==========================================
+  FIX: Reverting to Grid for Game Containers
+  ==========================================
+*/
 #container, #container-discov {
-  display: flex; /* Changed to flex for better responsive control on wrap */
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
+  /* CHANGE: Using CSS Grid for better, non-stretching column layout */
+  display: grid; 
+  
+  /* Create auto-filling, responsive columns, min 280px wide */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  
   gap: 20px;
   padding: 20px;
   /* Use variable for main content background */
   background-color: var(--main-bg); 
   min-height: calc(100vh - 120px);
   flex-grow: 1; /* Allows container to push footer down */
+  justify-items: center; /* Centers cards within their grid cell */
 }
 #container div, #container-discov div {
-  width: 280px;
+  /* CHANGE: Removed fixed width. Grid will handle sizing up to 1fr. */
+  width: 100%; 
+  max-width: 280px; /* Optional: Keep a max-width if grid cells get very large */
   min-height: 220px;
   /* Use variable for card background */
   background: var(--card-bg); 
@@ -238,8 +246,9 @@ header img {
 }
 /* ... (container img styles) ... */
 #container div img, #container-discov div img {
+  /* CHANGE: Adjusted max-width slightly to ensure images don't overflow the 280px card width */
   width: 100%;
-  max-width: 300px;
+  max-width: 260px; /* Should be slightly less than card width (280px - 2x padding) */
   height: auto;
   display: block;
   margin: 0 auto 10px;
