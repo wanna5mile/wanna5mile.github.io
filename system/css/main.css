@@ -23,25 +23,17 @@ a, a:visited {
 a:focus { outline: none; }
 
 /* ==========================================
-   Header & Navigation (Fixed)
+   Header & Navigation (Static)
    ========================================== */
 header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: var(--header-bg);
   padding: 10px 20px;
+  width: 100%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   z-index: 1000;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-}
-
-/* prevent header overlap with content */
-body {
-  padding-top: 60px;
 }
 
 header a, footer a {
@@ -336,34 +328,5 @@ footer {
   width: 100%;
   font-family: monospace;
   color: var(--link-color);
-}
-
-/* ==========================================
-   Quote Scroller (Fixed Above Content)
-   ========================================== */
-#quoteWrapper {
-  position: fixed;
-  bottom: 10px;
-  left: 0;
-  width: 100%;
-  overflow: hidden;
-  white-space: nowrap;
-  background: var(--header-bg);
-  color: var(--link-color);
-  font-family: monospace;
-  font-size: 0.9rem;
-  padding: 8px 0;
-  z-index: 9999;
-}
-
-#quoteBox {
-  display: inline-block;
-  white-space: nowrap;
-  will-change: transform;
-  user-select: none;
-  transition: color 0.3s ease;
-}
-
-#quoteWrapper:hover #quoteBox {
-  color: var(--accent-color);
-}
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
+}  
