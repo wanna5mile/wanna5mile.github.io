@@ -9,7 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Config & State ---
   let gamesData = [];
-  let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
+  // Paging functions are exposed globally via window, so no conflict here.
+  let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1; 
   const gamesPerPage = 10;
   const jsonPath = "system/json/assets.json";
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
@@ -19,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
   const fallbackLink = "https://theworldpt1.github.io./source/dino/";
 
+  // --- Utility Functions ---
   function showLoading(text) {
     if (container) {
       container.textContent = text;
@@ -30,9 +32,11 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("favorites", JSON.stringify([...favorites]));
   }
 
+  // --- Card Creation and Rendering ---
   function createGameCards(data) {
     if (!container) return;
 
+    // Sort: Favorites first, then alphabetical (or by data order)
     const sortedData = [...data].sort((a, b) => {
       const aFav = favorites.has(a.title);
       const bFav = favorites.has(b.title);
@@ -44,25 +48,24 @@ document.addEventListener("DOMContentLoaded", () => {
       card.className = "game-card";
       card.dataset.title = (game.title || "").toLowerCase();
       card.dataset.author = (game.author || "").toLowerCase();
-      card.dataset.page = game.page || Math.floor(i / gamesPerPage) + 1;
+      // Calculate page based on sorted index
+      card.dataset.page = Math.floor(i / gamesPerPage) + 1; 
       card.dataset.filtered = "true";
 
       let imageSrc = game.image?.trim() || "";
       let linkSrc = game.link?.trim() || "";
-      if (
-        imageSrc === "" ||
-        imageSrc.toLowerCase() === "blank" ||
-        game.status?.toLowerCase() === "blank" ||
-        imageSrc ===
-          "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/"
-      ) {
+      
+      // Fallback logic for image/link
+      if (imageSrc === "" || imageSrc.toLowerCase() === "blank" || game.status?.toLowerCase() === "blank" || imageSrc === "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/") {
         imageSrc = fallbackImage;
       }
       if (linkSrc === "") linkSrc = fallbackLink;
 
+      // Image element setup
       const img = document.createElement("img");
       img.src = imageSrc;
       img.alt = game.title || "Game";
+      img.loading = "lazy"; // Added for performance
       img.addEventListener("error", () => {
         if (!img.dataset.fallbackApplied) {
           img.src = fallbackImage;
@@ -70,22 +73,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
+      // Link wrapper
       const link = document.createElement("a");
       link.href = linkSrc;
       link.target = "_blank";
       link.rel = "noopener";
+      
+      // Content assembly
       link.appendChild(img);
       link.innerHTML += `<h3>${game.title || "Untitled"}</h3>`;
 
       const author = document.createElement("p");
       author.textContent = game.author || "Unknown";
 
-      // --- Favorite Star (moved to bottom) ---
+      // Favorite Star element
       const star = document.createElement("span");
       star.className = "favorite-star";
       star.textContent = favorites.has(game.title) ? "★" : "☆";
       star.title = "Toggle favorite";
 
+      // Favorite click handler
       star.addEventListener("click", (e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -97,9 +104,11 @@ document.addEventListener("DOMContentLoaded", () => {
           star.textContent = "★";
         }
         saveFavorites();
-        refreshCards();
+        // Re-render to show favorite sorting update
+        refreshCards(); 
       });
 
+      // Status handling
       if (game.status?.toLowerCase() === "soon") {
         card.classList.add("soon");
         link.removeAttribute("href");
@@ -107,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
         link.style.cursor = "default";
       }
 
-      // --- Reordered Assembly (star now at bottom) ---
+      // Final Card Assembly
       card.appendChild(link);
       card.appendChild(author);
       card.appendChild(star);
@@ -116,6 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Filtering and Paging Logic ---
   function getAllCards() {
     return Array.from(container.querySelectorAll(".game-card"));
   }
@@ -123,18 +133,20 @@ document.addEventListener("DOMContentLoaded", () => {
     return getAllCards().filter((c) => c.dataset.filtered === "true");
   }
   function getPagesWithContent() {
+    // Collect unique page numbers for currently visible cards
     const pages = new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)));
     return [...pages].sort((a, b) => a - b);
   }
 
   function renderPage() {
-    const filteredCards = getFilteredCards();
     const pagesWithContent = getPagesWithContent();
     const maxPage = Math.max(...pagesWithContent, 1);
 
-    if (currentPage < 1) currentPage = maxPage;
-    if (currentPage > maxPage) currentPage = 1;
-
+    // Keep currentPage within valid bounds
+    if (currentPage < 1) currentPage = 1; 
+    if (currentPage > maxPage) currentPage = maxPage;
+    
+    // Hide/Show cards based on current page and filter status
     getAllCards().forEach((card) => {
       card.style.display =
         parseInt(card.dataset.page) === currentPage &&
@@ -161,7 +173,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const pagesWithContent = getPagesWithContent();
     if (!pagesWithContent.includes(currentPage)) {
-      currentPage = pagesWithContent[0] || 1;
+      // Jump to the first page of results if current page is empty
+      currentPage = pagesWithContent[0] || 1; 
     }
 
     renderPage();
@@ -170,9 +183,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function refreshCards() {
     container.innerHTML = "";
     createGameCards(gamesData);
-    renderPage();
+    // Re-apply filter and render
+    filterGames(searchInput.value); 
   }
-
+  
+  // --- Header/Search Interaction Logic ---
   function fadePlaceholder(input, text, cb) {
     if (!input) return;
     input.classList.add("fade-out");
@@ -205,20 +220,24 @@ document.addEventListener("DOMContentLoaded", () => {
     cycle();
   }
 
+  // --- Global Paging Functions (Needed by your HTML buttons) ---
   window.prevPage = function () {
-    currentPage--;
+    currentPage = Math.max(1, currentPage - 1); // Prevent going below 1
     renderPage();
   };
   window.nextPage = function () {
-    currentPage++;
+    const maxPage = Math.max(...getPagesWithContent(), 1);
+    currentPage = Math.min(maxPage, currentPage + 1); // Prevent going above max
     renderPage();
   };
 
+  // --- Event Listeners ---
   if (searchInput)
     searchInput.addEventListener("input", (e) => filterGames(e.target.value));
   if (searchBtn)
     searchBtn.addEventListener("click", () => filterGames(searchInput.value));
 
+  // --- Initialization ---
   async function loadGames() {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
@@ -233,6 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
       renderPage();
       startPlaceholderCycle();
 
+      // Preloader image load logic (kept intact)
       const allImages = Array.from(container.querySelectorAll(".game-card img"));
       await Promise.allSettled(
         allImages.map(
