@@ -23,7 +23,7 @@ a, a:visited {
 a:focus { outline: none; }
 
 /* ==========================================
-   Header & Navigation (Static)
+   Header & Navigation
    ========================================== */
 header {
   display: flex;
@@ -33,7 +33,6 @@ header {
   padding: 10px 20px;
   width: 100%;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  z-index: 1000;
 }
 
 header a, footer a {
@@ -146,16 +145,14 @@ header img {
 .search-box button {
   padding: 6px;
   border: none;
-  border-radius: 50%;
+  background: none;
   cursor: pointer;
-  background: var(--search-btn-bg);
-  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.2s, filter 0.2s;
 }
-.search-box button:hover { transform: scale(1.1); filter: brightness(1.2); }
+.search-box button:hover { transform: scale(1.05); filter: brightness(1.1); }
 .search-box button img { width: 14px; height: 14px; }
 
 /* ==========================================
@@ -189,14 +186,13 @@ header img {
   transition: transform 0.2s ease;
 }
 
-/* No container shadow hover */
 #container div:hover,
 #container-discov div:hover {
   transform: scale(1.03);
   box-shadow: none;
 }
 
-/* Image hover adds shadow */
+/* Image hover adds small growth & shadow */
 #container div img,
 #container-discov div img {
   width: 60%;
@@ -209,8 +205,8 @@ header img {
 }
 #container div img:hover,
 #container-discov div img:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  transform: scale(1.05);
+  box-shadow: 0 0 6px rgba(0,0,0,0.3);
 }
 
 /* ==========================================
@@ -306,10 +302,9 @@ embed {
   font-family: monospace;
   border: none;
   border-radius: 8px;
-  background: var(--header-bg);
+  background: none;
   color: var(--link-color);
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
   opacity: 0.6;
   transition: opacity 0.3s, color 0.3s;
 }
