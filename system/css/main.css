@@ -39,8 +39,9 @@ header {
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
 }
 
+/* prevent header overlap with content */
 body {
-  padding-top: 60px; /* prevents header overlap */
+  padding-top: 60px;
 }
 
 header a, footer a {
@@ -196,14 +197,14 @@ header img {
   transition: transform 0.2s ease;
 }
 
-/* No shadow on container hover */
+/* No container shadow hover */
 #container div:hover,
 #container-discov div:hover {
   transform: scale(1.03);
   box-shadow: none;
 }
 
-/* Image hover shadow effect */
+/* Image hover adds shadow */
 #container div img,
 #container-discov div img {
   width: 60%;
@@ -221,7 +222,7 @@ header img {
 }
 
 /* ==========================================
-   Card Text & Hover (independent)
+   Card Text (independent hover)
    ========================================== */
 #container div h3,
 #container div p,
@@ -241,7 +242,104 @@ header img {
 }
 
 /* ==========================================
-   Quote Scroller (fixed above content)
+   Status Effects & Overlays
+   ========================================== */
+.soon {
+  opacity: 0.55;
+  pointer-events: none;
+  filter: grayscale(100%);
+}
+.soon::after {
+  content: "COMING SOON";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 0 5px #000;
+}
+
+.ok:hover {
+  border: 2px solid var(--status-ok-border);
+  box-shadow: 0 0 8px var(--status-ok-border);
+}
+.FIX:hover, .soon:hover {
+  border: 2px solid var(--status-fix-border);
+  box-shadow: 0 0 8px var(--status-fix-border);
+}
+
+.FIX img { filter: invert(100%); opacity: 0.7; }
+.soon img { filter: grayscale(100%); opacity: 0.7; }
+
+.FIX::after {
+  content: url('images/status/progress.jpeg');
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.8;
+  width: 48px;
+  height: 48px;
+  pointer-events: none;
+}
+
+/* ==========================================
+   Utility Elements
+   ========================================== */
+embed {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Back to Top */
+#toTopBtn {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-family: monospace;
+  border: none;
+  border-radius: 8px;
+  background: var(--header-bg);
+  color: var(--link-color);
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  opacity: 0.6;
+  transition: opacity 0.3s, color 0.3s;
+}
+#toTopBtn:hover {
+  opacity: 0.8;
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+  background: var(--footer-bg);
+  text-align: center;
+  padding: 30px;
+  width: 100%;
+  font-family: monospace;
+  color: var(--link-color);
+}
+
+/* ==========================================
+   Quote Scroller (Fixed Above Content)
    ========================================== */
 #quoteWrapper {
   position: fixed;
@@ -255,7 +353,7 @@ header img {
   font-family: monospace;
   font-size: 0.9rem;
   padding: 8px 0;
-  z-index: 9999; /* stay above everything */
+  z-index: 9999;
 }
 
 #quoteBox {
