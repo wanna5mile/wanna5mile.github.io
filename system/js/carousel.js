@@ -31,14 +31,15 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("favorites", JSON.stringify([...favorites]));
   }
 
-  // --- Card Creation ---
+  // --- Card Creation (respects JSON page numbers) ---
   function createGameCards(data) {
     if (!container) return;
 
     const sortedData = [...data].sort((a, b) => {
       const aFav = favorites.has(a.title);
       const bFav = favorites.has(b.title);
-      return aFav === bFav ? 0 : aFav ? -1 : 1;
+      if (aFav !== bFav) return bFav - aFav; // Favorites first
+      return (a.page || 1) - (b.page || 1); // Then by JSON page
     });
 
     sortedData.forEach((game, i) => {
@@ -46,9 +47,14 @@ document.addEventListener("DOMContentLoaded", () => {
       card.className = "game-card";
       card.dataset.title = (game.title || "").toLowerCase();
       card.dataset.author = (game.author || "").toLowerCase();
-      card.dataset.page = Math.floor(i / gamesPerPage) + 1;
+
+      // ✅ Use JSON-defined page if available, else fallback
+      card.dataset.page = game.page
+        ? parseInt(game.page)
+        : Math.floor(i / gamesPerPage) + 1;
       card.dataset.filtered = "true";
 
+      // --- Image & Link Setup ---
       let imageSrc = game.image?.trim() || "";
       let linkSrc = game.link?.trim() || "";
 
@@ -56,7 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
         imageSrc === "" ||
         imageSrc.toLowerCase() === "blank" ||
         game.status?.toLowerCase() === "blank" ||
-        imageSrc === "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/"
+        imageSrc ===
+          "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/"
       ) {
         imageSrc = fallbackImage;
       }
@@ -83,6 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const author = document.createElement("p");
       author.textContent = game.author || "Unknown";
 
+      // --- Favorite Star ---
       const star = document.createElement("span");
       star.className = "favorite-star";
       star.textContent = favorites.has(game.title) ? "★" : "☆";
@@ -102,6 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
         refreshCards();
       });
 
+      // --- Status: "soon" disables link ---
       if (game.status?.toLowerCase() === "soon") {
         card.classList.add("soon");
         link.removeAttribute("href");
@@ -109,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
         link.style.cursor = "default";
       }
 
+      // --- Assemble Card ---
       card.appendChild(link);
       card.appendChild(author);
       card.appendChild(star);
@@ -120,9 +130,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function getAllCards() {
     return Array.from(container.querySelectorAll(".game-card"));
   }
+
   function getFilteredCards() {
     return getAllCards().filter((c) => c.dataset.filtered === "true");
   }
+
   function getPagesWithContent() {
     const pages = new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)));
     return [...pages].sort((a, b) => a - b);
@@ -131,7 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderPage() {
     const pagesWithContent = getPagesWithContent();
     const maxPage = Math.max(...pagesWithContent, 1);
-
     currentPage = Math.min(Math.max(1, currentPage), maxPage);
 
     getAllCards().forEach((card) => {
@@ -208,6 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
     currentPage = Math.max(1, currentPage - 1);
     renderPage();
   };
+
   window.nextPage = () => {
     const maxPage = Math.max(...getPagesWithContent(), 1);
     currentPage = Math.min(maxPage, currentPage + 1);
@@ -230,22 +242,22 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
       gamesData = await res.json();
 
-      // Build UI immediately (don’t wait for all images)
+      // --- Build UI immediately ---
       container.innerHTML = "";
       createGameCards(gamesData);
       renderPage();
       startPlaceholderCycle();
 
-      // Switch preloader quickly — don’t block load
+      // --- Switch Preloader Quickly ---
       if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
       if (preloader) {
         setTimeout(() => {
           preloader.classList.add("fade");
           setTimeout(() => (preloader.style.display = "none"), 600);
-        }, 400); // small smooth delay
+        }, 400);
       }
 
-      // Allow image preloading silently in background
+      // --- Preload images silently ---
       const allImages = Array.from(container.querySelectorAll(".game-card img"));
       Promise.allSettled(
         allImages.map(
