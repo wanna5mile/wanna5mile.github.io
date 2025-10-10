@@ -1,25 +1,36 @@
+/* * style.css
+ * All layout, sizing, structure, and font styles.
+ * Uses variables for all colors and backgrounds.
+ */
+
 /* Reset & Global */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
+
 html, body {
-  background-color: #d4d4d4;
+  /* Use variable for background color */
+  background-color: var(--main-bg); 
+  /* Use variable for text color where needed (body default) */
+  color: var(--text-color); 
   cursor: url('cursor.png') 4 4, auto;
   cursor: url('pointer.png'), pointer;
   height: 100%;
+  display: flex; /* Added display:flex and flex-direction:column to ensure footer sticks to bottom */
   flex-direction: column;
 }
 
 /* Remove purple visited state + blue outline */
 a,
 a:visited {
-  color: white;
+  /* Use variable for link color */
+  color: var(--link-color); 
   text-decoration: none;
 }
 a:focus {
-  outline: none; /* kill default blue outline */
+  outline: none;
 }
 
 /* Header */
@@ -27,32 +38,40 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #111;
+  /* Use variable for header background */
+  background-color: var(--header-bg); 
   padding: 10px 20px;
+  position: sticky; /* Consider sticky or fixed if you want it always visible */
+  top: 0;
+  z-index: 1000;
 }
 header a, footer a {
   margin: 0 10px;
-  color: white;
+  /* Use variable for link color */
+  color: var(--link-color); 
   text-decoration: none;
   font-family: monospace;
   font-weight: bold;
   transition: color 0.3s, text-decoration 0.3s;
 }
 header a:hover, footer a:hover {
-  color: #ff4444;
+  /* Use variable for hover color */
+  color: var(--accent-color); 
   text-decoration: underline;
-  text-decoration-color: #ff4444;
+  /* Use variable for hover color */
+  text-decoration-color: var(--accent-color); 
 }
 /* Header icons */
 header img {
   width: 30px;
-  height: 30px; /* force square to prevent oval */
-  object-fit: cover; /* ensures circular crop looks clean */
+  height: 30px; 
+  object-fit: cover;
 }
 
 /* Left nav (anchors) */
 .nav-links {
   display: flex;
+  align-items: center; /* Keep links and pages-anchor aligned */
   gap: 15px;
 }
 .nav-links a {
@@ -60,9 +79,11 @@ header img {
   font-weight: bold;
 }
 .nav-links a:hover {
-  color: #ff4444;
+  /* Use variable for hover color */
+  color: var(--accent-color); 
   text-decoration: underline;
-  text-decoration-color: #ff4444;
+  /* Use variable for hover color */
+  text-decoration-color: var(--accent-color);
 }
 
 /* Right side controls */
@@ -79,7 +100,7 @@ header img {
   border-radius: 50%;
   cursor: pointer;
   transition: transform 0.25s ease;
-  object-fit: cover; /* crop instead of stretch */
+  object-fit: cover;
 }
 #pfp:hover {
   transform: scale(1.1);
@@ -91,7 +112,8 @@ header img {
   cursor: pointer;
   background: none;
   border: none;
-  color: white;
+  /* Use variable for text color */
+  color: var(--link-color); 
   font-size: 20px;
   transition: transform 0.25s ease;
 }
@@ -104,7 +126,8 @@ header img {
   position: fixed;
   top: 60px;
   right: 20px;
-  background: rgba(0, 0, 0, 0.95);
+  /* Use variable for menu background */
+  background: var(--menu-bg); 
   border-radius: 10px;
   display: none;
   flex-direction: column;
@@ -116,16 +139,20 @@ header img {
 .dashboard-menu a {
   padding: 12px 16px;
   font-family: monospace;
-  color: white;
+  /* Use variable for link color */
+  color: var(--link-color); 
   text-decoration: none;
   display: block;
   transition: color 0.3s, text-decoration 0.3s, background 0.3s;
 }
 .dashboard-menu a:hover {
-  color: #ff4444;
+  /* Use variable for hover color */
+  color: var(--accent-color); 
   text-decoration: underline;
-  text-decoration-color: #ff4444;
-  background: rgba(255, 255, 255, 0.1);
+  /* Use variable for hover color */
+  text-decoration-color: var(--accent-color); 
+  /* Using a subtle transparent white for hover background */
+  background: rgba(255, 255, 255, 0.1); 
 }
 
 /* Search box */
@@ -134,39 +161,73 @@ header img {
   align-items: center;
   font-family:monospace;
   gap: 5px;
+  /* Use variable for background */
+  background: var(--input-bg); 
+  border-radius: 25px;
+  padding: 4px 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  transition: box-shadow 0.2s ease-in-out;
+}
+.search-box:focus-within {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 .search-box input {
-  padding: 6px 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  padding: 8px;
+  border: none;
+  outline: none;
+  /* Use transparent background */
+  background: transparent; 
+  /* Use variable for text color */
+  color: var(--input-text); 
+  font-size: 15px;
+  flex: 1;
+  font-family: inherit;
+}
+.search-box input::placeholder {
+  /* Use variable for placeholder color */
+  color: var(--input-placeholder); 
 }
 .search-box button {
-  padding: 6px 10px;
+  padding: 8px;
   border: none;
-  border-radius: 6px;
+  border-radius: 50%;
   cursor: pointer;
-  background: #333;
+  /* Use variable for button background */
+  background: var(--search-btn-bg); 
   color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 .search-box button:hover {
-  background: #555;
+  /* Slightly darken button on hover */
+  filter: brightness(1.2); 
+  transform: scale(1.1);
+}
+.search-box button img {
+  width: 16px;
+  height: 16px;
 }
 
 /* Mid Container Grid */
-#container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+#container, #container-discov {
+  display: flex; /* Changed to flex for better responsive control on wrap */
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
   gap: 20px;
   padding: 20px;
-  background-color: #d3d3d3;
-  justify-items: center;
-  align-items: start;
+  /* Use variable for main content background */
+  background-color: var(--main-bg); 
   min-height: calc(100vh - 120px);
+  flex-grow: 1; /* Allows container to push footer down */
 }
-#container div {
+#container div, #container-discov div {
   width: 280px;
   min-height: 220px;
-  background: #d4d4d4;
+  /* Use variable for card background */
+  background: var(--card-bg); 
   text-align: center;
   border-radius: 15%;
   padding: 10px;
@@ -175,56 +236,29 @@ header img {
   border: 3px solid transparent;
   transition: opacity 0.3s ease;
 }
-#container div img {
-  width: 100px;
+/* ... (container img styles) ... */
+#container div img, #container-discov div img {
+  width: 100%;
+  max-width: 300px;
   height: auto;
   display: block;
   margin: 0 auto 10px;
   border-radius: 15%;
   transition: transform 0.3s ease;
 }
-#container div:hover img { transform: scale(1.05); }
-#container div:hover p { transform: scale(1.1); }
-#container div:hover h3 { transform: scale(1.1); }
+/* Unified hover transforms */
+#container div:hover img, #container-discov div:hover img { transform: scale(1.05); }
+#container div:hover p, #container-discov div:hover p { transform: scale(1.1); }
+#container div:hover h3, #container-discov div:hover h3 { transform: scale(1.1); }
 
-/* BIG Container Grid */
-#container-discov {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 20px;
-  background-color: #d3d3d3;
-}
-#container-discov div {
-  flex: 1 1 280px;
-  width: 280px;
-  margin: 10px;
-  background: #d4d4d4;
-  text-align: center;
-  border-radius: 15%;
-  padding: 10px;
-  position: relative;
-  overflow: hidden;
-  border: 3px solid transparent;
-}
-#container-discov div img {
-  width: 300px;
-  height: auto;
-  display: block;
-  margin: 0 auto 10px;
-  border-radius: 15%;
-  transition: transform 0.3s ease;
-}
-#container-discov div:hover img { transform: scale(1.05); }
-#container-discov div:hover p { transform: scale(1.1); }
-#container-discov div:hover h3 { transform: scale(1.1); }
 
 /* Status Effects */
 .soon {
-  opacity: 0.5;
+  position: relative;
+  opacity: 0.55;
   pointer-events: none;
+  filter: grayscale(100%);
+  transition: opacity 0.3s ease;
 }
 .soon::after {
   content: "COMING SOON";
@@ -232,24 +266,32 @@ header img {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
   color: #fff;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-family: monospace;
+  font-size: 16px;
+  letter-spacing: 1px;
   font-weight: bold;
+  text-shadow: 0 0 5px #000;
+  z-index: 5;
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Hover Borders */
 .ok:hover {
-  border: 3px solid #00ff00;
-  box-shadow: 0 0 10px #00ff00;
+  /* Use variable for OK status border */
+  border: 3px solid var(--status-ok-border); 
+  box-shadow: 0 0 10px var(--status-ok-border);
 }
 .FIX:hover, .soon:hover {
-  border: 3px solid #ff0000;
-  box-shadow: 0 0 10px #ff0000;
+  /* Use variable for FIX/Soon status border */
+  border: 3px solid var(--status-fix-border); 
+  box-shadow: 0 0 10px var(--status-fix-border);
 }
 
-/* Image Filters by Status */
+/* Image Filters by Status (Filters are not colors, keep them here) */
 .FIX img {
   filter: invert(100%);
   opacity: 0.7;
@@ -259,7 +301,7 @@ header img {
   opacity: 0.7;
 }
 
-/* FIX Icon Overlay */
+/* FIX Icon Overlay (Keep this here as it involves positioning and an image) */
 .FIX::after {
   content: url('images/status/progress.jpeg');
   position: absolute;
@@ -295,8 +337,10 @@ embed {
   font-family: monospace;
   border: none;
   border-radius: 8px;
-  background: #000;
-  color: white;
+  /* Use variable for button background */
+  background: var(--header-bg); 
+  /* Use variable for text color */
+  color: var(--link-color); 
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0,0,0,0.5);
   opacity: 0.6;
@@ -304,17 +348,21 @@ embed {
 }
 #toTopBtn:hover {
   opacity: 0.8;
-  color: #ff0000;
+  /* Use variable for hover color */
+  color: var(--accent-color); 
   text-decoration: underline;
-  text-decoration-color: #ff0000;
+  /* Use variable for hover color */
+  text-decoration-color: var(--accent-color); 
 }
 
 /* Footer */
 footer {
   margin-top: auto;
-  background: #555;
+  /* Use variable for footer background */
+  background: var(--footer-bg); 
   text-align: center;
   padding: 40px;
+  width: 100%;
 }
 
 /* Unified Text Styling */
@@ -322,7 +370,8 @@ footer {
 #container div p,
 #container-discov div h3,
 #container-discov div p {
-  color: white;
+  /* Use variable for text color */
+  color: var(--link-color); 
   font-family: monospace;
   text-decoration: none;
   transition: color 0.3s, text-decoration 0.3s;
@@ -331,164 +380,57 @@ footer {
 #container div p:hover,
 #container-discov div h3:hover,
 #container-discov div p:hover {
-  color: #ff4444;
+  /* Use variable for hover color */
+  color: var(--accent-color); 
   text-decoration: underline;
-  text-decoration-color: #ff4444;
+  /* Use variable for hover color */
+  text-decoration-color: var(--accent-color);
 }
-/* Search Box Styling */
-.search-box {
-  display: flex;
-  align-items: center;
-  background: #f0f0f0; /* light background like your cards */
-  border-radius: 25px;
-  padding: 4px 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-  transition: box-shadow 0.2s ease-in-out;
-}
-
-.search-box:focus-within {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-}
-
-.search-box input {
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 15px;
-  flex: 1;
-  padding: 8px;
-  font-family: inherit;
-  color: #333;
-}
-
-.search-box input::placeholder {
-  color: #888;
-}
-
-.search-box button {
-  background: #333; /* matches your header vibe */
-  border: none;
-  border-radius: 50%;
-  padding: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.search-box button img {
-  width: 16px;
-  height: 16px;
-}
-
-.search-box button:hover {
-  background: #555;
-  transform: scale(1.1);
-}
-#searchFeedback {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  text-align: center;
-  margin-top: 20px;
-}
-
-#searchFeedback img {
-  max-width: 250px;
-  border-radius: 10px; /* optional for smoother edges */
-  image-rendering: pixelated; /* keeps retro style if your gif is pixel art */
-}
-/* Page arrows */
-.pages-anchor button {
-  background: transparent;      /* no background */
-  border: none;                 /* remove default button border */
-  padding: 5px;                 /* space around the image */
-  cursor: pointer;              /* pointer cursor */
-  border-radius: 0;             /* sharp edges */
-  display: flex;                /* keep image centered */
-  align-items: center;
-  justify-content: center;
-}
-
-.pages-anchor button img {
-  width: 40px;                  /* adjust size of arrow images */
-  height: 40px;                 /* keeps it square */
-  object-fit: contain;          /* prevent stretching */
-  transition: transform 0.2s ease;
-}
-
-.pages-anchor button:hover img {
-  transform: scale(1.15);       /* zoom on hover */
-}
-/* Keep page controls in a row */
-.pages-anchor {
-  display: flex;
-  align-items: center;
-  gap: 10px;          /* space between arrow + span */
-  margin-left: 20px;  /* push away from nav links */
-}
-
-.pages-anchor .page-indicator {
-  font-weight: bold;
-  font-size: 1rem;
-  color: white;       /* make it visible in dark header */
-  font-family: monospace;
-}
-.pages-anchor .page-indicator {
-  line-height: 1; 
-}
-/* Nav container holds links + page controls neatly */
-.nav-links {
-  display: flex;
-  align-items: center;   /* vertically align links and page controls */
-  gap: 15px;
-}
+/* ... (All other structural styles like page arrows, search feedback, etc. go here) ... */
 
 /* Page controls */
 .pages-anchor {
-  display: inline-flex;  /* keep in row but not act like block */
-  align-items: center;   /* center arrows + span */
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
-  margin-left: 10px;     /* small spacing from links */
+  margin-left: 10px;
 }
-
 .pages-anchor button {
   background: transparent;
   border: none;
-  padding: 0;            /* tighter so buttons don’t expand div */
+  padding: 0;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .pages-anchor button img {
-  width: 28px;           /* smaller so they match link height */
+  width: 28px;
   height: 28px;
   object-fit: contain;
   transition: transform 0.2s ease;
 }
-
 .pages-anchor button:hover img {
   transform: scale(1.2);
 }
-
 .pages-anchor .page-indicator {
   font-weight: bold;
-  font-size: 0.9rem;     /* scale text closer to nav link size */
-  color: white;
+  font-size: 0.9rem;
+  /* Use variable for indicator color */
+  color: var(--link-color); 
   font-family: monospace;
-  line-height: 1;        /* prevents vertical stretching */
+  line-height: 1;
 }
+
+/* Search Feedback & Errors */
 .search-error {
-  display: none;  
-  position: fixed; /* stick to viewport */
-  top: 80px;       /* adjust as needed */
+  display: none;
+  position: fixed;
+  top: 80px;
   left: 50%;
   transform: translateX(-50%);
-  background: #ff4d4d;
+  /* Use variable for accent color for error background */
+  background: var(--accent-color); 
   color: #fff;
   padding: 6px 12px;
   border-radius: 4px;
@@ -498,7 +440,7 @@ footer {
 #searchFeedback {
   display: none;
   position: fixed;
-  top: 80px;       /* adjust so it doesn’t overlap header */
+  top: 80px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
@@ -506,44 +448,6 @@ footer {
 }
 #searchFeedback img {
   max-height: 120px;
-}
-body.dark {
-  background: #1e1e1e;
-  color: #f4f4f4;
-}
-body.light {
-  background: #f4f4f4;
-  color: #111;
-}
-/* Coming Soon status (updated for clarity + contrast) */
-.soon {
-  position: relative;
-  opacity: 0.55;
-  pointer-events: none;
-  filter: grayscale(100%);
-  transition: opacity 0.3s ease;
-}
-
-.soon::after {
-  content: "COMING SOON";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  padding: 12px 20px;
   border-radius: 10px;
-  font-family: monospace;
-  font-size: 16px;
-  letter-spacing: 1px;
-  font-weight: bold;
-  text-shadow: 0 0 5px #000;
-  z-index: 5;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.soon img {
-  opacity: 0.5;
-  filter: grayscale(100%);
+  image-rendering: pixelated;
 }
