@@ -14,32 +14,29 @@ document.addEventListener("DOMContentLoaded", () => {
   const jsonPath = "system/json/assets.json";
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
 
-  // --- Fallback paths ---
+  // --- Fallbacks ---
   const fallbackImage =
     "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
   const fallbackLink = "https://theworldpt1.github.io./source/dino/";
 
-  // --- Utility Functions ---
+  // --- Helpers ---
   function showLoading(text) {
-    if (container) {
-      container.textContent = text;
-      container.style.textAlign = "center";
-    }
+    container.textContent = text;
+    container.style.textAlign = "center";
   }
 
   function saveFavorites() {
     localStorage.setItem("favorites", JSON.stringify([...favorites]));
   }
 
-  // --- Card Creation (respects JSON page numbers) ---
+  // --- Card Creation ---
   function createGameCards(data) {
     if (!container) return;
-
     const sortedData = [...data].sort((a, b) => {
       const aFav = favorites.has(a.title);
       const bFav = favorites.has(b.title);
-      if (aFav !== bFav) return bFav - aFav; // Favorites first
-      return (a.page || 1) - (b.page || 1); // Then by JSON page
+      if (aFav !== bFav) return bFav - aFav;
+      return (a.page || 1) - (b.page || 1);
     });
 
     sortedData.forEach((game, i) => {
@@ -47,27 +44,15 @@ document.addEventListener("DOMContentLoaded", () => {
       card.className = "game-card";
       card.dataset.title = (game.title || "").toLowerCase();
       card.dataset.author = (game.author || "").toLowerCase();
-
-      // ✅ Use JSON-defined page if available, else fallback
-      card.dataset.page = game.page
-        ? parseInt(game.page)
-        : Math.floor(i / gamesPerPage) + 1;
+      card.dataset.page = game.page ? parseInt(game.page) : Math.floor(i / gamesPerPage) + 1;
       card.dataset.filtered = "true";
 
-      // --- Image & Link Setup ---
+      // --- Image + Link ---
       let imageSrc = game.image?.trim() || "";
       let linkSrc = game.link?.trim() || "";
-
-      if (
-        imageSrc === "" ||
-        imageSrc.toLowerCase() === "blank" ||
-        game.status?.toLowerCase() === "blank" ||
-        imageSrc ===
-          "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/"
-      ) {
+      if (!imageSrc || imageSrc === "blank" || game.status?.toLowerCase() === "blank")
         imageSrc = fallbackImage;
-      }
-      if (linkSrc === "") linkSrc = fallbackLink;
+      if (!linkSrc) linkSrc = fallbackLink;
 
       const img = document.createElement("img");
       img.src = imageSrc;
@@ -90,12 +75,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const author = document.createElement("p");
       author.textContent = game.author || "Unknown";
 
-      // --- Favorite Star ---
+      // --- Favorite toggle ---
       const star = document.createElement("span");
       star.className = "favorite-star";
       star.textContent = favorites.has(game.title) ? "★" : "☆";
       star.title = "Toggle favorite";
-
       star.addEventListener("click", (e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -110,15 +94,12 @@ document.addEventListener("DOMContentLoaded", () => {
         refreshCards();
       });
 
-      // --- Status: "soon" disables link ---
       if (game.status?.toLowerCase() === "soon") {
         card.classList.add("soon");
         link.removeAttribute("href");
         link.style.pointerEvents = "none";
-        link.style.cursor = "default";
       }
 
-      // --- Assemble Card ---
       card.appendChild(link);
       card.appendChild(author);
       card.appendChild(star);
@@ -126,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Paging & Filtering ---
+  // --- Page + Filter Logic ---
   function getAllCards() {
     return Array.from(container.querySelectorAll(".game-card"));
   }
@@ -143,7 +124,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderPage() {
     const pagesWithContent = getPagesWithContent();
     const maxPage = Math.max(...pagesWithContent, 1);
-    currentPage = Math.min(Math.max(1, currentPage), maxPage);
+    if (!pagesWithContent.includes(currentPage)) {
+      currentPage = pagesWithContent[0] || 1;
+    }
 
     getAllCards().forEach((card) => {
       card.style.display =
@@ -161,18 +144,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function filterGames(query) {
     const q = query.toLowerCase().trim();
     getAllCards().forEach((card) => {
-      const matches =
-        !q ||
-        card.dataset.title.includes(q) ||
-        card.dataset.author.includes(q);
+      const matches = !q || card.dataset.title.includes(q) || card.dataset.author.includes(q);
       card.dataset.filtered = matches ? "true" : "false";
     });
-
-    const pagesWithContent = getPagesWithContent();
-    if (!pagesWithContent.includes(currentPage)) {
-      currentPage = pagesWithContent[0] || 1;
-    }
-
     renderPage();
   }
 
@@ -182,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
     filterGames(searchInput?.value || "");
   }
 
-  // --- Placeholder Animation ---
+  // --- Placeholder animation ---
   function fadePlaceholder(input, text, cb) {
     if (!input) return;
     input.classList.add("fade-out");
@@ -205,28 +179,37 @@ document.addEventListener("DOMContentLoaded", () => {
       ).length;
       fadePlaceholder(searchInput, `${visibleCount} games on this page`, () => {
         setTimeout(() => {
-          fadePlaceholder(searchInput, "Search games...", () =>
-            setTimeout(cycle, 4000)
-          );
+          fadePlaceholder(searchInput, "Search games...", () => setTimeout(cycle, 4000));
         }, 4000);
       });
     };
     cycle();
   }
 
-  // --- Paging Buttons ---
+  // --- Carousel Page Navigation ---
   window.prevPage = () => {
-    currentPage = Math.max(1, currentPage - 1);
+    const pagesWithContent = getPagesWithContent();
+    if (pagesWithContent.length === 0) return;
+
+    const index = pagesWithContent.indexOf(currentPage);
+    currentPage =
+      index === 0 ? pagesWithContent[pagesWithContent.length - 1] : pagesWithContent[index - 1];
+
     renderPage();
   };
 
   window.nextPage = () => {
-    const maxPage = Math.max(...getPagesWithContent(), 1);
-    currentPage = Math.min(maxPage, currentPage + 1);
+    const pagesWithContent = getPagesWithContent();
+    if (pagesWithContent.length === 0) return;
+
+    const index = pagesWithContent.indexOf(currentPage);
+    currentPage =
+      index === pagesWithContent.length - 1 ? pagesWithContent[0] : pagesWithContent[index + 1];
+
     renderPage();
   };
 
-  // --- Event Listeners ---
+  // --- Events ---
   if (searchInput)
     searchInput.addEventListener("input", (e) => filterGames(e.target.value));
   if (searchBtn)
@@ -236,19 +219,15 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadGames() {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
-
     try {
       const res = await fetch(jsonPath, { cache: "no-store" });
       if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
       gamesData = await res.json();
-
-      // --- Build UI immediately ---
       container.innerHTML = "";
       createGameCards(gamesData);
       renderPage();
       startPlaceholderCycle();
 
-      // --- Switch Preloader Quickly ---
       if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
       if (preloader) {
         setTimeout(() => {
@@ -257,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 400);
       }
 
-      // --- Preload images silently ---
+      // --- Preload silently ---
       const allImages = Array.from(container.querySelectorAll(".game-card img"));
       Promise.allSettled(
         allImages.map(
