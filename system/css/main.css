@@ -23,17 +23,24 @@ a, a:visited {
 a:focus { outline: none; }
 
 /* ==========================================
-   Header & Navigation
+   Header & Navigation (Fixed)
    ========================================== */
 header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: var(--header-bg);
   padding: 10px 20px;
-  position: sticky;
-  top: 0;
   z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+body {
+  padding-top: 60px; /* prevents header overlap */
 }
 
 header a, footer a {
@@ -60,11 +67,6 @@ header img {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-.nav-links a:hover {
-  color: var(--accent-color);
-  text-decoration: underline;
-  text-decoration-color: var(--accent-color);
 }
 
 .header-controls {
@@ -164,20 +166,23 @@ header img {
 .search-box button img { width: 14px; height: 14px; }
 
 /* ==========================================
-   Compact Grid (60% Scale)
+   Grid Layout — 4 per row
    ========================================== */
 #container,
 #container-discov {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 240px));
-  justify-content: center;
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  justify-items: center;
+  gap: 20px;
   padding: 20px;
   background-color: var(--main-bg);
   min-height: calc(100vh - 120px);
   flex-grow: 1;
 }
 
+/* ==========================================
+   Game Cards
+   ========================================== */
 #container div,
 #container-discov div {
   width: 220px;
@@ -188,16 +193,17 @@ header img {
   padding: 8px;
   overflow: hidden;
   border: 2px solid transparent;
-  transition: transform 0.2s ease, box-shadow 0.2s;
+  transition: transform 0.2s ease;
 }
 
+/* No shadow on container hover */
 #container div:hover,
 #container-discov div:hover {
   transform: scale(1.03);
-  box-shadow: 0 0 8px rgba(0,0,0,0.3);
+  box-shadow: none;
 }
 
-/* Game Images (60% Smaller) */
+/* Image hover shadow effect */
 #container div img,
 #container-discov div img {
   width: 60%;
@@ -206,13 +212,16 @@ header img {
   display: block;
   margin: 0 auto 8px;
   border-radius: 12%;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-#container div:hover img,
-#container-discov div:hover img { transform: scale(1.08); }
+#container div img:hover,
+#container-discov div img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
 
 /* ==========================================
-   Card Text & Hover
+   Card Text & Hover (independent)
    ========================================== */
 #container div h3,
 #container div p,
@@ -232,168 +241,21 @@ header img {
 }
 
 /* ==========================================
-   Status Effects & Overlays
-   ========================================== */
-.soon {
-  opacity: 0.55;
-  pointer-events: none;
-  filter: grayscale(100%);
-}
-.soon::after {
-  content: "COMING SOON";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.75);
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-family: monospace;
-  font-size: 14px;
-  font-weight: bold;
-  text-shadow: 0 0 5px #000;
-}
-
-.ok:hover {
-  border: 2px solid var(--status-ok-border);
-  box-shadow: 0 0 8px var(--status-ok-border);
-}
-.FIX:hover, .soon:hover {
-  border: 2px solid var(--status-fix-border);
-  box-shadow: 0 0 8px var(--status-fix-border);
-}
-
-.FIX img { filter: invert(100%); opacity: 0.7; }
-.soon img { filter: grayscale(100%); opacity: 0.7; }
-
-.FIX::after {
-  content: url('images/status/progress.jpeg');
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0.8;
-  width: 48px;
-  height: 48px;
-  pointer-events: none;
-}
-
-/* ==========================================
-   Utility Elements
-   ========================================== */
-embed {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-/* Back to Top */
-#toTopBtn {
-  position: fixed;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: none;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-family: monospace;
-  border: none;
-  border-radius: 8px;
-  background: var(--header-bg);
-  color: var(--link-color);
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-  opacity: 0.6;
-  transition: opacity 0.3s, color 0.3s;
-}
-#toTopBtn:hover {
-  opacity: 0.8;
-  color: var(--accent-color);
-  text-decoration: underline;
-}
-
-/* Footer */
-footer {
-  margin-top: auto;
-  background: var(--footer-bg);
-  text-align: center;
-  padding: 30px;
-  width: 100%;
-  font-family: monospace;
-  color: var(--link-color);
-}
-
-/* ==========================================
-   Pagination & Search Feedback
-   ========================================== */
-.pages-anchor {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: 10px;
-}
-.pages-anchor button {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
-.pages-anchor button img {
-  width: 24px;
-  height: 24px;
-  transition: transform 0.2s ease;
-}
-.pages-anchor button:hover img { transform: scale(1.2); }
-.pages-anchor .page-indicator {
-  font-family: monospace;
-  font-size: 0.85rem;
-  color: var(--link-color);
-}
-
-.search-error,
-#searchFeedback {
-  display: none;
-  position: fixed;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  text-align: center;
-}
-
-.search-error {
-  background: var(--accent-color);
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 13px;
-}
-
-#searchFeedback img {
-  max-height: 100px;
-  border-radius: 8px;
-  image-rendering: pixelated;
-}
-/* ==========================================
-   Quote Scroller
+   Quote Scroller (fixed above content)
    ========================================== */
 #quoteWrapper {
   position: fixed;
-  bottom: 10px; /* stick to bottom, above footer */
+  bottom: 10px;
   left: 0;
   width: 100%;
   overflow: hidden;
   white-space: nowrap;
-  background: var(--header-bg); /* matches your theme */
+  background: var(--header-bg);
   color: var(--link-color);
   font-family: monospace;
   font-size: 0.9rem;
   padding: 8px 0;
-  z-index: 5000; /* stay above content */
+  z-index: 9999; /* stay above everything */
 }
 
 #quoteBox {
