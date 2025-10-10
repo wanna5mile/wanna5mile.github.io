@@ -247,8 +247,8 @@ header img {
 /* Game image styling */
 #container div img,
 #container-discov div img {
-  width: 100%;
-  max-width: 240px;
+  width: 60%;
+  max-width: 144px;
   height: auto;
   display: block;
   margin: 0 auto 10px;
