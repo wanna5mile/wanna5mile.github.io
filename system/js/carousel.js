@@ -9,8 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Config & State ---
   let gamesData = [];
-  // Paging functions are exposed globally via window, so no conflict here.
-  let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1; 
+  let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
   const gamesPerPage = 10;
   const jsonPath = "system/json/assets.json";
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
@@ -32,11 +31,10 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("favorites", JSON.stringify([...favorites]));
   }
 
-  // --- Card Creation and Rendering ---
+  // --- Card Creation ---
   function createGameCards(data) {
     if (!container) return;
 
-    // Sort: Favorites first, then alphabetical (or by data order)
     const sortedData = [...data].sort((a, b) => {
       const aFav = favorites.has(a.title);
       const bFav = favorites.has(b.title);
@@ -48,24 +46,26 @@ document.addEventListener("DOMContentLoaded", () => {
       card.className = "game-card";
       card.dataset.title = (game.title || "").toLowerCase();
       card.dataset.author = (game.author || "").toLowerCase();
-      // Calculate page based on sorted index
-      card.dataset.page = Math.floor(i / gamesPerPage) + 1; 
+      card.dataset.page = Math.floor(i / gamesPerPage) + 1;
       card.dataset.filtered = "true";
 
       let imageSrc = game.image?.trim() || "";
       let linkSrc = game.link?.trim() || "";
-      
-      // Fallback logic for image/link
-      if (imageSrc === "" || imageSrc.toLowerCase() === "blank" || game.status?.toLowerCase() === "blank" || imageSrc === "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/") {
+
+      if (
+        imageSrc === "" ||
+        imageSrc.toLowerCase() === "blank" ||
+        game.status?.toLowerCase() === "blank" ||
+        imageSrc === "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/assets/images/"
+      ) {
         imageSrc = fallbackImage;
       }
       if (linkSrc === "") linkSrc = fallbackLink;
 
-      // Image element setup
       const img = document.createElement("img");
       img.src = imageSrc;
       img.alt = game.title || "Game";
-      img.loading = "lazy"; // Added for performance
+      img.loading = "lazy";
       img.addEventListener("error", () => {
         if (!img.dataset.fallbackApplied) {
           img.src = fallbackImage;
@@ -73,26 +73,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // Link wrapper
       const link = document.createElement("a");
       link.href = linkSrc;
       link.target = "_blank";
       link.rel = "noopener";
-      
-      // Content assembly
       link.appendChild(img);
       link.innerHTML += `<h3>${game.title || "Untitled"}</h3>`;
 
       const author = document.createElement("p");
       author.textContent = game.author || "Unknown";
 
-      // Favorite Star element
       const star = document.createElement("span");
       star.className = "favorite-star";
       star.textContent = favorites.has(game.title) ? "★" : "☆";
       star.title = "Toggle favorite";
 
-      // Favorite click handler
       star.addEventListener("click", (e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -104,11 +99,9 @@ document.addEventListener("DOMContentLoaded", () => {
           star.textContent = "★";
         }
         saveFavorites();
-        // Re-render to show favorite sorting update
-        refreshCards(); 
+        refreshCards();
       });
 
-      // Status handling
       if (game.status?.toLowerCase() === "soon") {
         card.classList.add("soon");
         link.removeAttribute("href");
@@ -116,16 +109,14 @@ document.addEventListener("DOMContentLoaded", () => {
         link.style.cursor = "default";
       }
 
-      // Final Card Assembly
       card.appendChild(link);
       card.appendChild(author);
       card.appendChild(star);
-
       container.appendChild(card);
     });
   }
 
-  // --- Filtering and Paging Logic ---
+  // --- Paging & Filtering ---
   function getAllCards() {
     return Array.from(container.querySelectorAll(".game-card"));
   }
@@ -133,7 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return getAllCards().filter((c) => c.dataset.filtered === "true");
   }
   function getPagesWithContent() {
-    // Collect unique page numbers for currently visible cards
     const pages = new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)));
     return [...pages].sort((a, b) => a - b);
   }
@@ -142,11 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const pagesWithContent = getPagesWithContent();
     const maxPage = Math.max(...pagesWithContent, 1);
 
-    // Keep currentPage within valid bounds
-    if (currentPage < 1) currentPage = 1; 
-    if (currentPage > maxPage) currentPage = maxPage;
-    
-    // Hide/Show cards based on current page and filter status
+    currentPage = Math.min(Math.max(1, currentPage), maxPage);
+
     getAllCards().forEach((card) => {
       card.style.display =
         parseInt(card.dataset.page) === currentPage &&
@@ -157,7 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (pageIndicator)
       pageIndicator.textContent = `Page ${currentPage} of ${maxPage}`;
-
     sessionStorage.setItem("currentPage", currentPage);
   }
 
@@ -173,8 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const pagesWithContent = getPagesWithContent();
     if (!pagesWithContent.includes(currentPage)) {
-      // Jump to the first page of results if current page is empty
-      currentPage = pagesWithContent[0] || 1; 
+      currentPage = pagesWithContent[0] || 1;
     }
 
     renderPage();
@@ -183,11 +168,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function refreshCards() {
     container.innerHTML = "";
     createGameCards(gamesData);
-    // Re-apply filter and render
-    filterGames(searchInput.value); 
+    filterGames(searchInput?.value || "");
   }
-  
-  // --- Header/Search Interaction Logic ---
+
+  // --- Placeholder Animation ---
   function fadePlaceholder(input, text, cb) {
     if (!input) return;
     input.classList.add("fade-out");
@@ -197,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
       input.classList.add("fade-in");
       setTimeout(() => {
         input.classList.remove("fade-in");
-        if (cb) cb();
+        cb && cb();
       }, 400);
     }, 400);
   }
@@ -208,7 +192,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const visibleCount = getFilteredCards().filter(
         (c) => parseInt(c.dataset.page) === currentPage
       ).length;
-
       fadePlaceholder(searchInput, `${visibleCount} games on this page`, () => {
         setTimeout(() => {
           fadePlaceholder(searchInput, "Search games...", () =>
@@ -220,14 +203,14 @@ document.addEventListener("DOMContentLoaded", () => {
     cycle();
   }
 
-  // --- Global Paging Functions (Needed by your HTML buttons) ---
-  window.prevPage = function () {
-    currentPage = Math.max(1, currentPage - 1); // Prevent going below 1
+  // --- Paging Buttons ---
+  window.prevPage = () => {
+    currentPage = Math.max(1, currentPage - 1);
     renderPage();
   };
-  window.nextPage = function () {
+  window.nextPage = () => {
     const maxPage = Math.max(...getPagesWithContent(), 1);
-    currentPage = Math.min(maxPage, currentPage + 1); // Prevent going above max
+    currentPage = Math.min(maxPage, currentPage + 1);
     renderPage();
   };
 
@@ -243,18 +226,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
 
     try {
-      const res = await fetch(jsonPath);
+      const res = await fetch(jsonPath, { cache: "no-store" });
       if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
       gamesData = await res.json();
 
+      // Build UI immediately (don’t wait for all images)
       container.innerHTML = "";
       createGameCards(gamesData);
       renderPage();
       startPlaceholderCycle();
 
-      // Preloader image load logic (kept intact)
+      // Switch preloader quickly — don’t block load
+      if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
+      if (preloader) {
+        setTimeout(() => {
+          preloader.classList.add("fade");
+          setTimeout(() => (preloader.style.display = "none"), 600);
+        }, 400); // small smooth delay
+      }
+
+      // Allow image preloading silently in background
       const allImages = Array.from(container.querySelectorAll(".game-card img"));
-      await Promise.allSettled(
+      Promise.allSettled(
         allImages.map(
           (img) =>
             new Promise((resolve) => {
@@ -264,25 +257,14 @@ document.addEventListener("DOMContentLoaded", () => {
             })
         )
       );
-
-      await new Promise((r) => setTimeout(r, 800));
-
-      if (loaderImage) {
-        await new Promise((resolve) => {
-          loaderImage.onload = resolve;
-          loaderImage.onerror = resolve;
-          loaderImage.src = "system/images/GIF/load-fire.gif";
-        });
-      }
-
-      if (preloader) {
-        preloader.classList.add("fade");
-        setTimeout(() => (preloader.style.display = "none"), 600);
-      }
     } catch (err) {
       console.error("Error loading JSON:", err);
       showLoading("⚠ Failed to load game data.");
       if (loaderImage) loaderImage.src = "system/images/GIF/fail.gif";
+      if (preloader) {
+        preloader.classList.add("fade");
+        setTimeout(() => (preloader.style.display = "none"), 600);
+      }
     }
   }
 
