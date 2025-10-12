@@ -1,83 +1,101 @@
 /* ==========================================
-   Reset & Global
+   Global Reset & Layout
    ========================================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-/* html/body styling moved to theme.css, except structural */
+
 html, body {
+  background-color: var(--main-bg);
+  color: var(--text-color);
   height: 100%;
-  /* flex-direction: column makes sense for a sticky footer layout */
+  display: flex;
   flex-direction: column;
+  cursor: url('cursor.png') 4 4, auto;
 }
 
-/* Remove default link styles (color in theme.css) */
 a, a:visited {
+  color: var(--link-color);
   text-decoration: none;
 }
-a:focus {
-  outline: none;
-}
+a:focus { outline: none; }
 
 /* ==========================================
-   Header
+   Header & Navigation (Static)
    ========================================== */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* background-color and colors moved to theme.css */
+  background-color: var(--header-bg);
   padding: 10px 20px;
-  /* Removed 'width: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.2); z-index: auto;' 
-     to match the simple header in your old CSS. */
+  width: 100%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 1000;
 }
 
-/* Left nav */
+header a, footer a {
+  margin: 0 10px;
+  color: var(--link-color);
+  font-family: monospace;
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s, text-decoration 0.3s;
+}
+header a:hover, footer a:hover {
+  color: var(--accent-color);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-color);
+}
+
+header img {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+}
+
 .nav-links {
   display: flex;
-  gap: 15px;
-  align-items: center; /* Ensures vertical alignment with page controls */
+  align-items: center;
+  gap: 12px;
 }
 
-/* Right controls */
 .header-controls {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* Profile picture */
+/* Profile & Dashboard */
 #pfp {
-  width: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   cursor: pointer;
   transition: transform 0.25s ease;
+  object-fit: cover;
 }
-#pfp:hover {
-  transform: scale(1.1);
-}
+#pfp:hover { transform: scale(1.1); }
 
-/* Dashboard button */
 #dashboardBtn {
-  width: 40px;
-  cursor: pointer;
+  width: 36px;
   background: none;
   border: none;
-  font-size: 20px;
+  color: var(--link-color);
+  font-size: 18px;
+  cursor: pointer;
   transition: transform 0.25s ease;
 }
-#dashboardBtn:hover {
-  transform: scale(1.1);
-}
+#dashboardBtn:hover { transform: scale(1.1); }
 
-/* Dashboard menu */
+/* Dashboard Menu */
 .dashboard-menu {
   position: fixed;
   top: 60px;
   right: 20px;
-  /* background and colors moved to theme.css */
+  background: var(--menu-bg);
   border-radius: 10px;
   display: none;
   flex-direction: column;
@@ -87,149 +105,141 @@ header {
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 .dashboard-menu a {
-  padding: 12px 16px;
+  padding: 10px 16px;
+  color: var(--link-color);
+  font-family: monospace;
+  text-decoration: none;
   display: block;
   transition: color 0.3s, background 0.3s;
 }
+.dashboard-menu a:hover {
+  color: var(--accent-color);
+  background: rgba(255,255,255,0.1);
+}
 
 /* ==========================================
-   Search Box
+   Search Bar
    ========================================== */
 .search-box {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  /* background, colors, shadow, border-radius moved to theme.css */
+  background: var(--input-bg);
+  border-radius: 25px;
   padding: 4px 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  transition: box-shadow 0.2s;
 }
-.search-box:focus-within {
-  /* Box shadow moved to theme.css */
-}
+.search-box:focus-within { box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+
 .search-box input {
+  padding: 6px;
   border: none;
-  outline: none;
   background: transparent;
-  font-size: 15px;
+  color: var(--input-text);
+  font-family: monospace;
+  font-size: 14px;
   flex: 1;
-  padding: 8px;
-  font-family: inherit;
-  /* color moved to theme.css */
 }
+.search-box input::placeholder { color: var(--input-placeholder); }
+
 .search-box button {
-  /* background, color moved to theme.css */
+  padding: 6px;
   border: none;
-  border-radius: 50%; /* Changed to 50% for a button-like look */
-  padding: 8px; /* Tighter padding for a circle button */
+  border-radius: 50%;
   cursor: pointer;
+  background: var(--search-btn-bg);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition: transform 0.2s, filter 0.2s;
 }
-.search-box button:hover {
-  transform: scale(1.1);
-  /* background hover moved to theme.css */
-}
-.search-box button img {
-  width: 16px;
-  height: 16px;
-}
-#searchFeedback {
-  display: none;
-  position: fixed;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  text-align: center;
-}
-#searchFeedback img {
-  max-height: 120px;
-  border-radius: 10px;
-  image-rendering: pixelated;
-}
-.search-error {
-  display: none;
-  position: fixed;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  /* background and color moved to theme.css */
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  z-index: 1000;
-}
+.search-box button:hover { transform: scale(1.1); filter: brightness(1.2); }
+.search-box button img { width: 14px; height: 14px; }
 
 /* ==========================================
-   Grid & Cards
+   Grid Layout — 4 per row
    ========================================== */
-#container {
+#container,
+#container-discov {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
+  justify-items: center;
   gap: 20px;
   padding: 20px;
-  /* background-color moved to theme.css */
-  justify-items: center;
-  align-items: start;
+  background-color: var(--main-bg);
   min-height: calc(100vh - 120px);
-}
-/* Unified styling for both grid containers, matching your old file's structure */
-#container div,
-#container-discov div {
-  width: 280px;
-  min-height: 220px;
-  /* background moved to theme.css */
-  text-align: center;
-  border-radius: 15%;
-  padding: 10px;
-  position: relative;
-  overflow: hidden;
-  border: 3px solid transparent;
-  transition: transform 0.3s ease;
-}
-#container div img,
-#container-discov div img {
-  width: 100px;
-  height: auto;
-  display: block;
-  margin: 0 auto 10px;
-  border-radius: 15%;
-  transition: transform 0.3s ease;
-}
-/* Unified hover transforms */
-#container div:hover img,
-#container-discov div:hover img {
-  transform: scale(1.05);
-}
-/* Added transforms for h3 and p on hover from old CSS */
-#container div:hover h3,
-#container div:hover p,
-#container-discov div:hover h3,
-#container-discov div:hover p {
-  transform: scale(1.1);
-}
-
-/* Discovery Container (Matching the old file's explicit separate definition) */
-#container-discov {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 20px;
-  /* background-color moved to theme.css */
-}
-#container-discov div img {
-  width: 300px; /* Wider image size as per your old CSS */
+  flex-grow: 1;
 }
 
 /* ==========================================
-   Status & Hover Effects (Shared)
+   Game Cards
+   ========================================== */
+#container div,
+#container-discov div {
+  width: 220px;
+  min-height: 190px;
+  background: var(--card-bg);
+  text-align: center;
+  border-radius: 15%;
+  padding: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: transform 0.2s ease;
+}
+
+/* No container shadow hover */
+#container div:hover,
+#container-discov div:hover {
+  transform: scale(1.03);
+  box-shadow: none;
+}
+
+/* Image hover adds shadow */
+#container div img,
+#container-discov div img {
+  width: 60%;
+  max-width: 144px;
+  height: auto;
+  display: block;
+  margin: 0 auto 8px;
+  border-radius: 12%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+#container div img:hover,
+#container-discov div img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+
+/* ==========================================
+   Card Text (independent hover)
+   ========================================== */
+#container div h3,
+#container div p,
+#container-discov div h3,
+#container-discov div p {
+  color: var(--link-color);
+  font-family: monospace;
+  font-size: 0.9rem;
+  transition: color 0.3s, text-decoration 0.3s;
+}
+#container div h3:hover,
+#container div p:hover,
+#container-discov div h3:hover,
+#container-discov div p:hover {
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+/* ==========================================
+   Status Effects & Overlays
    ========================================== */
 .soon {
-  opacity: 0.5;
+  opacity: 0.55;
   pointer-events: none;
+  filter: grayscale(100%);
 }
 .soon::after {
   content: "COMING SOON";
@@ -237,27 +247,28 @@ header {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.75);
   color: #fff;
-  padding: 10px;
+  padding: 10px 16px;
   border-radius: 8px;
+  font-family: monospace;
+  font-size: 14px;
   font-weight: bold;
+  text-shadow: 0 0 5px #000;
 }
 
-/* Hover Borders (Colors moved to theme.css, but kept here for structure) */
-.ok:hover,
+.ok:hover {
+  border: 2px solid var(--status-ok-border);
+  box-shadow: 0 0 8px var(--status-ok-border);
+}
 .FIX:hover, .soon:hover {
-  /* Border and box-shadow moved to theme.css */
+  border: 2px solid var(--status-fix-border);
+  box-shadow: 0 0 8px var(--status-fix-border);
 }
 
-.FIX img {
-  filter: invert(100%);
-  opacity: 0.7;
-}
-.soon img {
-  filter: grayscale(100%);
-  opacity: 0.7;
-}
+.FIX img { filter: invert(100%); opacity: 0.7; }
+.soon img { filter: grayscale(100%); opacity: 0.7; }
+
 .FIX::after {
   content: url('images/status/progress.jpeg');
   position: absolute;
@@ -265,100 +276,13 @@ header {
   left: 50%;
   transform: translate(-50%, -50%);
   opacity: 0.8;
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   pointer-events: none;
 }
-/* Unified Text Styling for Cards (Kept here for grouping with card hover effects) */
-#container div h3,
-#container div p,
-#container-discov div h3,
-#container-discov div p {
-  font-family: monospace;
-  text-decoration: none;
-  transition: color 0.3s, text-decoration 0.3s;
-  /* color moved to theme.css */
-}
-#container div h3:hover,
-#container div p:hover,
-#container-discov div h3:hover,
-#container-discov div p:hover {
-  text-decoration: underline;
-  /* color and text-decoration-color moved to theme.css */
-}
 
 /* ==========================================
-   Page Arrows
-   ========================================== */
-.pages-anchor {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.pages-anchor button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-.pages-anchor button img {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  transition: transform 0.2s ease;
-}
-.pages-anchor button:hover img {
-  transform: scale(1.05);
-}
-.pages-anchor .page-indicator {
-  font-weight: bold;
-  font-size: 0.9rem;
-  font-family: monospace;
-  line-height: 1;
-  /* color moved to theme.css */
-}
-
-/* ==========================================
-   Footer
-   ========================================== */
-footer {
-  margin-top: auto;
-  /* background and color moved to theme.css */
-  text-align: center;
-  padding: 40px;
-  font-family: monospace;
-}
-
-/* ==========================================
-   Back to Top Button
-   ========================================== */
-#toTopBtn {
-  position: fixed;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: none;
-  padding: 12px 20px;
-  font-size: 16px;
-  font-family: monospace;
-  border: none;
-  border-radius: 8px;
-  /* background and color moved to theme.css */
-  cursor: pointer;
-  opacity: 0.6;
-  transition: color 0.3s, text-decoration 0.3s, opacity 0.3s;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5); /* Added from old CSS */
-}
-#toTopBtn:hover {
-  opacity: 0.8;
-  /* color and text-decoration moved to theme.css */
-}
-
-/* ==========================================
-   Embed
+   Utility Elements
    ========================================== */
 embed {
   display: block;
@@ -369,3 +293,40 @@ embed {
   top: 0;
   left: 0;
 }
+
+/* Back to Top */
+#toTopBtn {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-family: monospace;
+  border: none;
+  border-radius: 8px;
+  background: var(--header-bg);
+  color: var(--link-color);
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  opacity: 0.6;
+  transition: opacity 0.3s, color 0.3s;
+}
+#toTopBtn:hover {
+  opacity: 0.8;
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+  background: var(--footer-bg);
+  text-align: center;
+  padding: 30px;
+  width: 100%;
+  font-family: monospace;
+  color: var(--link-color);
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
+}  
