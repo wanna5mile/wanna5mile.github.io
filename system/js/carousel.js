@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const author = document.createElement("p");
       // GAME AUTHOR HERE
-      author.textContent = game.author || "";
+      author.textContent = game.author || " ";
 
       // --- Favorite toggle ---
       const star = document.createElement("span");
