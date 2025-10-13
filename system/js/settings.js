@@ -1,7 +1,6 @@
 /**
  * system/js/settings.js
  * Unified logic for handling Settings (Theme, Cloak, Panic, Password)
- * Works globally across all pages, and adds specific interactivity on settings.html.
  */
 
 // ===============================
@@ -26,7 +25,6 @@ function showToast(message, timeout = 2200) {
     pointerEvents: "none",
   });
   document.body.appendChild(t);
-  // allow styles to flush
   requestAnimationFrame(() => (t.style.opacity = "1"));
   setTimeout(() => {
     t.style.opacity = "0";
@@ -35,7 +33,7 @@ function showToast(message, timeout = 2200) {
 }
 
 // ===============================
-// I. GLOBAL INITIALIZATION
+// GLOBAL INITIALIZATION
 // ===============================
 function setFavicon(url) {
   let link = document.querySelector("link[rel~='icon']");
@@ -44,13 +42,9 @@ function setFavicon(url) {
     link.rel = "icon";
     document.head.appendChild(link);
   }
-  // preserve absolute URLs; allow relative paths too
   link.href = url && url.startsWith("http") ? url : (url ? `system/${url}` : "");
 }
 
-/**
- * Apply custom theme variables from localStorage to :root
- */
 function applyCustomVarsFromStorage() {
   const root = document.documentElement;
   const uibg = localStorage.getItem("customTheme_uibg");
@@ -63,67 +57,43 @@ function applyCustomVarsFromStorage() {
   if (bg) root.style.setProperty("--custom-bg", bg);
   if (text) root.style.setProperty("--custom-text-color", text);
   if (accent) root.style.setProperty("--custom-accent-color", accent);
-  if (bgimg) root.style.setProperty("--custom-bg-image", `url(${bgimg})`);
-  if (!bgimg) root.style.setProperty("--custom-bg-image", "none");
+  root.style.setProperty("--custom-bg-image", bgimg ? `url(${bgimg})` : "none");
 }
 
-/**
- * Applies saved theme across the entire site on initial load.
- */
+// Apply saved theme on page load
 (function applyGlobalTheme() {
   const savedTheme = localStorage.getItem("selectedTheme") || "classic";
   document.body.setAttribute("theme", savedTheme);
-
-  if (savedTheme === "custom") {
-    applyCustomVarsFromStorage();
-  }
+  if (savedTheme === "custom") applyCustomVarsFromStorage();
 })();
 
-/**
- * Applies saved tab cloak (title + icon) globally.
- */
+// Apply saved tab cloak
 (function applyGlobalCloak() {
   const savedTitle = localStorage.getItem("cloakTitle");
   const savedIcon = localStorage.getItem("cloakIcon");
-
   if (savedTitle) document.title = savedTitle;
   if (savedIcon) setFavicon(savedIcon);
 })();
 
-/**
- * Listens for cross-tab theme updates and custom variable updates.
- */
+// Listen for cross-tab updates
 window.addEventListener("storage", (e) => {
   if (e.key === "selectedTheme") {
     document.body.setAttribute("theme", e.newValue);
     if (e.newValue === "custom") applyCustomVarsFromStorage();
   }
-
-  // if any customTheme key changes, re-apply vars so other tabs update live
-  if (e.key && e.key.startsWith("customTheme")) {
-    applyCustomVarsFromStorage();
-    // if the theme isn't currently set to custom in this tab, make sure variables are applied anyway
-    if (localStorage.getItem("selectedTheme") === "custom") {
-      document.body.setAttribute("theme", "custom");
-    }
-  }
-
-  // cloak updates
-  if (e.key === "cloakTitle") {
-    document.title = e.newValue || document.title;
-  }
-  if (e.key === "cloakIcon") {
-    if (e.newValue) setFavicon(e.newValue);
-  }
+  if (e.key && e.key.startsWith("customTheme")) applyCustomVarsFromStorage();
+  if (e.key === "cloakTitle") document.title = e.newValue || document.title;
+  if (e.key === "cloakIcon") if (e.newValue) setFavicon(e.newValue);
 });
 
 // ===============================
-// II. SETTINGS PAGE LOGIC
+// SETTINGS PAGE LOGIC
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
-  if (!document.querySelector(".settings-page")) return;
+  const settingsPage = document.querySelector(".settings-page");
+  if (!settingsPage) return;
 
-  // Cached DOM elements
+  // Cached DOM
   const webnameInput = document.getElementById("webname");
   const webiconInput = document.getElementById("webicon");
   const presetCloaksSelect = document.getElementById("presetCloaks");
@@ -131,21 +101,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const panicInput = document.getElementById("panicURL");
   const passInput = document.getElementById("pass");
 
-  // Inputs for custom colors
   const uiBgInput = document.getElementById("uibg");
   const bgInput = document.getElementById("bg");
   const textColorInput = document.getElementById("textcolor");
   const accentInput = document.getElementById("accentcolor");
   const bgImgInput = document.getElementById("bgimg");
 
-  // -------------------------------
-  // A. Initialize Settings Form with saved values
-  // -------------------------------
+  // Initialize saved values
   webnameInput.value = localStorage.getItem("cloakTitle") || "";
   webiconInput.value = localStorage.getItem("cloakIcon") || "";
   panicInput.value = localStorage.getItem("panicURL") || "";
 
-  // Populate custom theme inputs from storage so they reflect current saved theme
   if (uiBgInput) uiBgInput.value = localStorage.getItem("customTheme_uibg") || uiBgInput.value;
   if (bgInput) bgInput.value = localStorage.getItem("customTheme_bg") || bgInput.value;
   if (textColorInput) textColorInput.value = localStorage.getItem("customTheme_text") || textColorInput.value;
@@ -153,18 +119,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (bgImgInput) bgImgInput.value = localStorage.getItem("customTheme_bgimg") || "";
 
   // -------------------------------
-  // B. THEME FUNCTIONS
+  // THEME FUNCTIONS
   // -------------------------------
   window.setTheme = function (name) {
     document.body.setAttribute("theme", name);
     localStorage.setItem("selectedTheme", name);
-    console.log(`Theme set to: ${name}`);
-    if (name !== "custom") {
-      if (customMenu) customMenu.style.display = "none";
-    } else {
-      // ensure custom vars are applied when switching to custom
-      applyCustomVarsFromStorage();
-    }
+    if (name !== "custom" && customMenu) customMenu.style.display = "none";
+    else if (name === "custom") applyCustomVarsFromStorage();
   };
 
   window.customTheme = function () {
@@ -174,56 +135,26 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   window.applyCustomTheme = function () {
-    const uibg = uiBgInput ? uiBgInput.value : null;
-    const bg = bgInput ? bgInput.value : null;
-    const textcolor = textColorInput ? textColorInput.value : null;
-    const accentcolor = accentInput ? accentInput.value : null;
-
-    const root = document.documentElement;
-    if (uibg) {
-      root.style.setProperty("--custom-uibg", uibg);
-      localStorage.setItem("customTheme_uibg", uibg);
-    }
-    if (bg) {
-      root.style.setProperty("--custom-bg", bg);
-      localStorage.setItem("customTheme_bg", bg);
-    }
-    if (textcolor) {
-      root.style.setProperty("--custom-text-color", textcolor);
-      localStorage.setItem("customTheme_text", textcolor);
-    }
-    if (accentcolor) {
-      root.style.setProperty("--custom-accent-color", accentcolor);
-      localStorage.setItem("customTheme_accent", accentcolor);
-    }
-
-    // Ensure the theme is flagged as 'custom' globally
+    if (uiBgInput) localStorage.setItem("customTheme_uibg", uiBgInput.value);
+    if (bgInput) localStorage.setItem("customTheme_bg", bgInput.value);
+    if (textColorInput) localStorage.setItem("customTheme_text", textColorInput.value);
+    if (accentInput) localStorage.setItem("customTheme_accent", accentInput.value);
+    applyCustomVarsFromStorage();
     setTheme("custom");
-
-    // Show non-blocking confirmation
     showToast("Custom theme applied!");
-    console.log("Custom theme applied and saved.");
   };
 
   window.applyBackgroundImage = function () {
-    const bgImgUrl = bgImgInput ? bgImgInput.value.trim() : "";
-    const root = document.documentElement;
-
-    if (bgImgUrl) {
-      root.style.setProperty("--custom-bg-image", `url(${bgImgUrl})`);
-      localStorage.setItem("customTheme_bgimg", bgImgUrl);
-      setTheme("custom");
+    if (bgImgInput && bgImgInput.value.trim()) {
+      localStorage.setItem("customTheme_bgimg", bgImgInput.value.trim());
       showToast("Background image applied!");
-      console.log(`Custom background image set: ${bgImgUrl}`);
-    } else {
-      root.style.setProperty("--custom-bg-image", "none");
-      localStorage.removeItem("customTheme_bgimg");
-      showToast("Background image removed.");
-    }
+    } else localStorage.removeItem("customTheme_bgimg");
+    applyCustomVarsFromStorage();
+    setTheme("custom");
   };
 
   // -------------------------------
-  // C. CLOAK FUNCTIONS
+  // CLOAK FUNCTIONS
   // -------------------------------
   const CLOAK_PRESETS = {
     google: { title: "Google", icon: "icons/google.png" },
@@ -246,14 +177,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.setCloakCookie = function (e) {
     if (e) e.preventDefault();
-    const title = webnameInput.value.trim() || document.title;
-    const icon = webiconInput.value.trim() || (document.querySelector("link[rel~='icon']") || {}).href || "";
-
-    localStorage.setItem("cloakTitle", title);
-    localStorage.setItem("cloakIcon", icon);
-
-    document.title = title;
-    setFavicon(icon);
+    localStorage.setItem("cloakTitle", webnameInput.value.trim());
+    localStorage.setItem("cloakIcon", webiconInput.value.trim());
+    document.title = webnameInput.value || document.title;
+    setFavicon(webiconInput.value);
     alert("Tab Cloak Set Successfully!");
   };
 
@@ -268,23 +195,22 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // -------------------------------
-  // D. PANIC MODE
+  // PANIC MODE
   // -------------------------------
   window.setPanicMode = function (e) {
     if (e) e.preventDefault();
-    const url = panicInput.value.trim();
-    localStorage.setItem("panicURL", url);
-    alert(`Panic Mode URL set to: ${url}`);
+    localStorage.setItem("panicURL", panicInput.value.trim());
+    alert(`Panic Mode URL set to: ${panicInput.value.trim()}`);
   };
 
   // -------------------------------
-  // E. PASSWORD FUNCTIONS
+  // PASSWORD
   // -------------------------------
   window.setPassword = function (e) {
     if (e) e.preventDefault();
-    const password = passInput.value.trim();
-    if (!password) return alert("Please enter a password.");
-    localStorage.setItem("accessPassword", password);
+    const pw = passInput.value.trim();
+    if (!pw) return alert("Please enter a password.");
+    localStorage.setItem("accessPassword", pw);
     alert("Access Password Set!");
   };
 
@@ -296,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ===============================
-// III. OPTIONAL: GLOBAL PANIC SHORTCUT
+// GLOBAL PANIC ESCAPE
 // ===============================
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
