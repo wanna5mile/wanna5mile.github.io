@@ -72,37 +72,45 @@ header img {
   gap: 8px;
 }
 
-/* --- Page Controls (Restored from old CSS) --- */
+/* ==========================================
+   Page Controls (Restored to Old Look)
+   ========================================== */
 .pages-anchor {
-  display: inline-flex;
-  align-items: center;
+  display: inline-flex;       /* keep in row but not block */
+  align-items: center;        /* center arrows + number */
   gap: 8px;
   margin-left: 10px;
 }
+
 .pages-anchor button {
-  background: transparent;
-  border: none;
-  padding: 0;
+  background: transparent;    /* no background */
+  border: none;               /* remove default border */
+  border-radius: 0;           /* sharp edges */
+  padding: 0;                 /* no extra spacing */
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .pages-anchor button img {
-  width: 28px;
+  width: 28px;                /* match old arrow size */
   height: 28px;
   object-fit: contain;
   transition: transform 0.2s ease;
 }
+
 .pages-anchor button:hover img {
-  transform: scale(1.1);
+  transform: scale(1.2);      /* same zoom on hover */
 }
+
 .pages-anchor .page-indicator {
   font-weight: bold;
-  font-size: 0.9rem;
-  color: var(--link-color);
+  font-size: 0.9rem;          /* match old link scale */
+  color: var(--link-color);   /* same text color */
   font-family: monospace;
   line-height: 1;
+  user-select: none;
 }
 
 /* ==========================================
