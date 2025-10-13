@@ -71,6 +71,12 @@ select:focus {
   background-color: rgba(255, 255, 255, 0.05);
 }
 
+#searchBtnHeader:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: var(--accent-color); /* optional: keep the hover border color */
+}
+
 /* ==========================================
    BUTTONS (unified style)
    ========================================== */
