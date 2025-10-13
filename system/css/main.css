@@ -278,12 +278,12 @@ header img {
   display: block;
   margin: 0 auto 8px;
   border-radius: 12%;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease;
 }
+
 #container div img:hover,
 #container-discov div img:hover {
-  transform: scale(1.05); /* was 1.1 — reduced for gentler zoom */
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  transform: scale(1.05); /* smooth zoom only, no shadow */
 }
 
 /* ==========================================
