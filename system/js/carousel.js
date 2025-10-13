@@ -73,7 +73,8 @@ document.addEventListener("DOMContentLoaded", () => {
       link.innerHTML += `<h3>${game.title || "Untitled"}</h3>`;
 
       const author = document.createElement("p");
-      author.textContent = game.author || "Unknown";
+      // GAME AUTHOR HERE
+      author.textContent = game.author || "";
 
       // --- Favorite toggle ---
       const star = document.createElement("span");
