@@ -228,3 +228,26 @@ button:active,
     font-size: 1rem;
   }
 }
+/*
+======= RETURN BUTTON ========
+*/
+.return-container {
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
+}
+
+.return-btn {
+  background: var(--accent-color, #6c5ce7);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.return-btn:hover {
+  background: var(--header-bg, #555);
+  transform: scale(1.05);
+}
