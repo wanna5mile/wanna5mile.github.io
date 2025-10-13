@@ -1,96 +1,117 @@
 /*
  * themes.css
  * Defines all color/background variables for different themes.
+ * Cleaned, standardized, and with proper fallbacks.
  */
 
-/* * DEFAULT/FALLBACK THEME (Based on your current colors) 
- * This applies if no [theme=...] attribute is set on the <body>.
- */
+/* ==========================================
+   BASE FALLBACK (always active)
+   ========================================== */
+:root {
+  /* Main Backgrounds */
+  --main-bg: #d4d4d4;
+  --card-bg: #d4d4d4;
+
+  /* UI Backgrounds (Header/Footer/Menu) */
+  --header-bg: #111;
+  --footer-bg: #555;
+  --menu-bg: rgba(0, 0, 0, 0.95);
+
+  /* Text & Links */
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+
+  /* Inputs / Search */
+  --input-bg: #f0f0f0;
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: #333;
+
+  /* Status Borders */
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+}
+
+/* ==========================================
+   DEFAULT (no [theme] attr)
+   ========================================== */
 body {
-    /* Main Backgrounds */
-    --main-bg: #d4d4d4;
-    --card-bg: #d4d4d4;
-
-    /* UI Backgrounds (Header/Footer/Menu) */
-    --header-bg: #111;
-    --footer-bg: #555;
-    --menu-bg: rgba(0, 0, 0, 0.95);
-
-    /* Text & Links */
-    --text-color: #000;          /* Black text on light backgrounds */
-    --link-color: #fff;
-    --accent-color: #ff4444;     /* Red/Hover color */
-
-    /* Search/Input */
-    --input-bg: #f0f0f0;
-    --input-border: #ccc;
-    --input-text: #333;
-    --input-placeholder: #888;
-    --search-btn-bg: #333;
-    
-    /* Status Colors */
-    --status-ok-border: #00ff00;
-    --status-fix-border: #ff0000;
+  /* Inherit defaults from :root */
 }
 
-/* * LIGHT MODE THEME 
- * A clean, slightly toned down light theme.
- */
+/* ==========================================
+   LIGHT THEME
+   ========================================== */
 body[theme="light"] {
-    --main-bg: #f4f4f4;
-    --card-bg: #fff;
-    --header-bg: #e0e0e0;
-    --footer-bg: #ccc;
-    --menu-bg: rgba(255, 255, 255, 0.95);
+  --main-bg: #f4f4f4;
+  --card-bg: #fff;
 
-    --text-color: #111;
-    --link-color: #111;
-    --accent-color: #ff4444;
+  --header-bg: #e0e0e0;
+  --footer-bg: #ccc;
+  --menu-bg: rgba(255, 255, 255, 0.95);
 
-    --input-bg: #eee;
-    --input-border: #aaa;
-    --input-text: #111;
-    --input-placeholder: #666;
-    --search-btn-bg: #444;
+  --text-color: #111;
+  --link-color: #222;
+  --accent-color: #e53935;
+
+  --input-bg: #eee;
+  --input-border: #aaa;
+  --input-text: #111;
+  --input-placeholder: #666;
+  --search-btn-bg: #555;
+
+  --status-ok-border: #00c853;
+  --status-fix-border: #d32f2f;
 }
 
-/* * DARK MODE THEME 
- * A common, easy-to-read dark theme.
- */
+/* ==========================================
+   DARK THEME
+   ========================================== */
 body[theme="dark"] {
-    --main-bg: #1e1e1e;
-    --card-bg: #2b2b2b;
-    --header-bg: #0d0d0d;
-    --footer-bg: #222;
-    --menu-bg: rgba(0, 0, 0, 0.9);
+  --main-bg: #1e1e1e;
+  --card-bg: #2b2b2b;
 
-    --text-color: #f4f4f4;
-    --link-color: #f4f4f4;
-    --accent-color: #00bcd4; /* Use a cool color for dark theme contrast */
+  --header-bg: #0d0d0d;
+  --footer-bg: #222;
+  --menu-bg: rgba(0, 0, 0, 0.9);
 
-    --input-bg: #333;
-    --input-border: #555;
-    --input-text: #f4f4f4;
-    --input-placeholder: #999;
-    --search-btn-bg: #1e1e1e;
+  --text-color: #f4f4f4;
+  --link-color: #f4f4f4;
+  --accent-color: #00bcd4;
+
+  --input-bg: #333;
+  --input-border: #555;
+  --input-text: #f4f4f4;
+  --input-placeholder: #999;
+  --search-btn-bg: #1e1e1e;
+
+  --status-ok-border: #00ff88;
+  --status-fix-border: #ff5555;
 }
 
-/* * YOUR ORIGINAL THEME (for clean selection in settings) 
- */
+/* ==========================================
+   CLASSIC THEME (your original look)
+   ========================================== */
 body[theme="classic"] {
-    --main-bg: #d4d4d4;
-    --card-bg: #d4d4d4;
-    --header-bg: #111;
-    --footer-bg: #555;
-    --menu-bg: rgba(0, 0, 0, 0.95);
-    --text-color: #000;
-    --link-color: #fff;
-    --accent-color: #ff4444;
-    --input-bg: #f0f0f0;
-    --input-border: #ccc;
-    --input-text: #333;
-    --input-placeholder: #888;
-    --search-btn-bg: #333;
-    --status-ok-border: #00ff00;
-    --status-fix-border: #ff0000;
+  --main-bg: #d4d4d4;
+  --card-bg: #d4d4d4;
+
+  --header-bg: #111;
+  --footer-bg: #555;
+  --menu-bg: rgba(0, 0, 0, 0.95);
+
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+
+  --input-bg: #f0f0f0;
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: #333;
+
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
 }
