@@ -1,0 +1,230 @@
+/* ==========================================
+   SETTINGS PAGE
+   Themed + interactive styling
+   ========================================== */
+
+.settings-page {
+  padding: 2rem;
+  background-color: var(--main-bg);
+  color: var(--text-color);
+  font-family: system-ui, sans-serif;
+}
+
+.settings-page h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--accent-color);
+  padding-bottom: 0.5rem;
+}
+
+.setting-group {
+  background-color: var(--card-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.setting-group:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+.setting-group h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: var(--accent-color);
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.form-row label {
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+input[type="text"],
+input[type="url"],
+input[type="password"],
+select {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  border-radius: 10px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--accent-color);
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ==========================================
+   BUTTONS (unified style)
+   ========================================== */
+
+button,
+.submit-btn,
+.action-btn,
+.theme-btn {
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  border: 2px solid var(--accent-color);
+  background-color: var(--search-btn-bg);
+  color: var(--link-color);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-top: 0.4rem;
+  margin-right: 0.4rem;
+}
+
+button:hover,
+.submit-btn:hover,
+.action-btn:hover,
+.theme-btn:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+button:active,
+.submit-btn:active,
+.action-btn:active,
+.theme-btn:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+/* “Clear” or secondary buttons */
+.clear-btn {
+  background-color: transparent;
+  color: var(--accent-color);
+  border: 2px solid var(--accent-color);
+}
+
+.clear-btn:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+/* ==========================================
+   THEME BUTTONS GRID
+   ========================================== */
+.theme-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.theme-btn {
+  flex: 1 1 180px;
+  text-align: center;
+  background-color: var(--card-bg);
+  border: 2px solid var(--accent-color);
+  color: var(--text-color);
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.theme-btn:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+  box-shadow: 0 0 8px var(--accent-color);
+}
+
+.custom-btn {
+  background-color: transparent;
+  color: var(--accent-color);
+}
+
+.custom-btn:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+/* ==========================================
+   CUSTOM THEME MENU
+   ========================================== */
+.custom-theme-controls {
+  margin-top: 1rem;
+  border-top: 1px solid var(--input-border);
+  padding-top: 1rem;
+}
+
+.custom-theme-controls label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.custom-theme-controls input[type="color"] {
+  width: 40px;
+  height: 30px;
+  border: none;
+  cursor: pointer;
+  background: none;
+}
+
+/* ==========================================
+   CHECKBOXES
+   ========================================== */
+.setting-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.setting-checkbox-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-color);
+}
+
+/* ==========================================
+   NOTES / TEXT
+   ========================================== */
+.note {
+  font-size: 0.85rem;
+  color: var(--input-placeholder);
+  margin: 0.3rem 0 0.8rem 0;
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+@media (max-width: 768px) {
+  .settings-page {
+    padding: 1rem;
+  }
+
+  .setting-group {
+    padding: 1rem;
+  }
+
+  .theme-buttons-container {
+    flex-direction: column;
+  }
+
+  button,
+  input,
+  select {
+    font-size: 1rem;
+  }
+}
