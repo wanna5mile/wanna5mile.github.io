@@ -219,6 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadGames() {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
+
     try {
       const res = await fetch(jsonPath, { cache: "no-store" });
       if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
@@ -228,17 +229,9 @@ document.addEventListener("DOMContentLoaded", () => {
       renderPage();
       startPlaceholderCycle();
 
-      if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
-      if (preloader) {
-        setTimeout(() => {
-          preloader.classList.add("fade");
-          setTimeout(() => (preloader.style.display = "none"), 600);
-        }, 400);
-      }
-
-      // --- Preload silently ---
+      // Wait until all images load (or fail) before hiding preloader
       const allImages = Array.from(container.querySelectorAll(".game-card img"));
-      Promise.allSettled(
+      await Promise.allSettled(
         allImages.map(
           (img) =>
             new Promise((resolve) => {
@@ -248,6 +241,15 @@ document.addEventListener("DOMContentLoaded", () => {
             })
         )
       );
+
+      if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
+      if (preloader) {
+        setTimeout(() => {
+          preloader.classList.add("fade");
+          setTimeout(() => (preloader.style.display = "none"), 600);
+        }, 400);
+      }
+
     } catch (err) {
       console.error("Error loading JSON:", err);
       showLoading("⚠ Failed to load game data.");
