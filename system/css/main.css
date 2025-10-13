@@ -16,6 +16,9 @@ html, body {
   cursor: url('cursor.png') 4 4, auto;
 }
 
+/* ==========================================
+   Links
+   ========================================== */
 a, a:visited {
   color: var(--link-color);
   text-decoration: none;
@@ -23,7 +26,7 @@ a, a:visited {
 a:focus { outline: none; }
 
 /* ==========================================
-   Header & Navigation (Static)
+   Header & Navigation
    ========================================== */
 header {
   display: flex;
@@ -56,6 +59,7 @@ header img {
   object-fit: cover;
 }
 
+/* Nav + Pages controls */
 .nav-links {
   display: flex;
   align-items: center;
@@ -68,7 +72,42 @@ header img {
   gap: 8px;
 }
 
-/* Profile & Dashboard */
+/* --- Page Controls (Restored from old CSS) --- */
+.pages-anchor {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 10px;
+}
+.pages-anchor button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pages-anchor button img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+.pages-anchor button:hover img {
+  transform: scale(1.1);
+}
+.pages-anchor .page-indicator {
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: var(--link-color);
+  font-family: monospace;
+  line-height: 1;
+}
+
+/* ==========================================
+   Profile & Dashboard
+   ========================================== */
 #pfp {
   width: 32px;
   height: 32px;
@@ -158,13 +197,41 @@ header img {
 .search-box button:hover { transform: scale(1.1); filter: brightness(1.2); }
 .search-box button img { width: 14px; height: 14px; }
 
+/* Search feedback + error (Restored) */
+.search-error {
+  display: none;
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4d4d;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 1000;
+}
+#searchFeedback {
+  display: none;
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  text-align: center;
+}
+#searchFeedback img {
+  max-height: 120px;
+  border-radius: 8px;
+}
+
 /* ==========================================
-   Grid Layout — 4 per row
+   Grid Layout
    ========================================== */
 #container,
 #container-discov {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   justify-items: center;
   gap: 20px;
   padding: 20px;
@@ -189,14 +256,12 @@ header img {
   transition: transform 0.2s ease;
 }
 
-/* No container shadow hover */
 #container div:hover,
 #container-discov div:hover {
   transform: scale(1.03);
-  box-shadow: none;
 }
 
-/* Image hover adds shadow */
+/* Image hover scale reduced (~75% less than before) */
 #container div img,
 #container-discov div img {
   width: 60%;
@@ -209,12 +274,12 @@ header img {
 }
 #container div img:hover,
 #container-discov div img:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  transform: scale(1.05); /* was 1.1 — reduced for gentler zoom */
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
 
 /* ==========================================
-   Card Text (independent hover)
+   Card Text
    ========================================== */
 #container div h3,
 #container div p,
@@ -234,7 +299,7 @@ header img {
 }
 
 /* ==========================================
-   Status Effects & Overlays
+   Status Effects
    ========================================== */
 .soon {
   opacity: 0.55;
@@ -256,7 +321,6 @@ header img {
   font-weight: bold;
   text-shadow: 0 0 5px #000;
 }
-
 .ok:hover {
   border: 2px solid var(--status-ok-border);
   box-shadow: 0 0 8px var(--status-ok-border);
@@ -265,10 +329,8 @@ header img {
   border: 2px solid var(--status-fix-border);
   box-shadow: 0 0 8px var(--status-fix-border);
 }
-
 .FIX img { filter: invert(100%); opacity: 0.7; }
 .soon img { filter: grayscale(100%); opacity: 0.7; }
-
 .FIX::after {
   content: url('images/status/progress.jpeg');
   position: absolute;
@@ -329,4 +391,4 @@ footer {
   font-family: monospace;
   color: var(--link-color);
   box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
-}  
+}
