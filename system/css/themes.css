@@ -115,3 +115,28 @@ body[theme="classic"] {
   --status-ok-border: #00ff00;
   --status-fix-border: #ff0000;
 }
+
+/* ==========================================
+   CLASSIC THEME (your original look)
+   ========================================== */
+body[theme="slackerish"] {
+  --main-bg: #131112;
+  --card-bg: #131112;
+
+  --header-bg: #342A21;
+  --footer-bg: #342A21;
+  --menu-bg: rgba(0, 0, 0, 0.95);
+
+  --text-color: #fff;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+
+  --input-bg: #f0f0f0;
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: #333;
+
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+}
