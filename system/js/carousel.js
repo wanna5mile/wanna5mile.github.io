@@ -12,8 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
   const jsonPath = "system/json/assets.json";
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
-
-  // --- Fallbacks ---
   const fallbackImage =
     "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
   const fallbackLink = "https://theworldpt1.github.io./source/dino/";
@@ -26,6 +24,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function saveFavorites() {
     localStorage.setItem("favorites", JSON.stringify([...favorites]));
+  }
+
+  // 🔔 Shoelace alert helper
+  function showSlowLoadAlert() {
+    // Prevent duplicates
+    if (document.querySelector(".slow-load-alert")) return;
+
+    const alert = document.createElement("sl-alert");
+    alert.className = "slow-load-alert";
+    alert.variant = "warning";
+    alert.closable = true;
+    alert.duration = 7000;
+    alert.innerHTML = `
+      <sl-icon slot="icon" name="clock"></sl-icon>
+      <strong>Still loading?</strong>
+      <br />If the screen stays here too long, try refreshing the page.
+    `;
+    document.body.appendChild(alert);
+    alert.toast();
   }
 
   // --- Card Creation ---
@@ -99,7 +116,6 @@ document.addEventListener("DOMContentLoaded", () => {
         link.removeAttribute("href");
         link.style.pointerEvents = "none";
       } else if (status === "featured" || status === "fixed") {
-        // Add overlay badge image
         const overlay = document.createElement("img");
         overlay.className = `status-overlay ${status}`;
         overlay.src = `system/images/${status}.png`;
@@ -115,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Page + Filter Logic ---
+  // --- Page Logic ---
   function getAllCards() {
     return Array.from(container.querySelectorAll(".game-card"));
   }
@@ -194,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cycle();
   }
 
-  // --- Carousel Page Navigation ---
+  // --- Navigation ---
   window.prevPage = () => {
     const pagesWithContent = getPagesWithContent();
     if (pagesWithContent.length === 0) return;
@@ -220,6 +236,11 @@ document.addEventListener("DOMContentLoaded", () => {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
 
+    // ⚠️ Timeout check — if preloader still showing after 10s, show alert
+    setTimeout(() => {
+      if (preloader && preloader.style.display !== "none") showSlowLoadAlert();
+    }, 10000);
+
     try {
       const res = await fetch(jsonPath, { cache: "no-store" });
       if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
@@ -230,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
       renderPage();
       startPlaceholderCycle();
 
-      // --- Wait for all images before hiding preloader ---
+      // Wait for images
       const allImages = Array.from(container.querySelectorAll(".game-card img"));
       const imagePromises = allImages.map(
         (img) =>
@@ -245,35 +266,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
       await Promise.allSettled(imagePromises);
 
-      setTimeout(() => {
+      // ✅ Hide preloader (with recheck safety)
+      const hidePreloader = () => {
         if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
-        if (preloader) {
+        if (preloader && preloader.style.display !== "none") {
           preloader.classList.add("fade");
           setTimeout(() => (preloader.style.display = "none"), 600);
         }
-      }, 400);
+      };
+
+      setTimeout(hidePreloader, 400);
+
+      // Safety recheck — make sure it’s hidden after 3s
+      setTimeout(() => {
+        if (preloader && preloader.style.display !== "none") hidePreloader();
+      }, 3000);
 
     } catch (err) {
       console.error("Error loading JSON:", err);
       showLoading("⚠ Failed to load game data.");
 
-      // 🔥💥☠️ Sequential error animation logic:
       if (loaderImage) {
         loaderImage.src = "system/images/GIF/crash.gif";
-
         loaderImage.addEventListener(
           "load",
           () => {
-            const crashDuration = 2800; // adjust to match crash.gif duration
             setTimeout(() => {
               loaderImage.src = "system/images/GIF/ded.gif";
-            }, crashDuration);
+            }, 2800);
           },
           { once: true }
         );
       }
 
-      // Keep preloader visible so ded.gif loops
       if (preloader) {
         preloader.classList.remove("fade");
         preloader.style.display = "flex";
