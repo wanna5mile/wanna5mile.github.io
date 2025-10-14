@@ -92,10 +92,20 @@ document.addEventListener("DOMContentLoaded", () => {
         refreshCards();
       });
 
-      if (game.status?.toLowerCase() === "soon") {
+      // --- Handle special statuses ---
+      const status = game.status?.toLowerCase();
+      if (status === "soon") {
         card.classList.add("soon");
         link.removeAttribute("href");
         link.style.pointerEvents = "none";
+      } else if (status === "featured" || status === "fixed") {
+        // Add overlay badge image
+        const overlay = document.createElement("img");
+        overlay.className = `status-overlay ${status}`;
+        overlay.src = `system/images/${status}.png`;
+        overlay.alt = status;
+        overlay.loading = "lazy";
+        card.appendChild(overlay);
       }
 
       card.appendChild(link);
@@ -251,11 +261,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (loaderImage) {
         loaderImage.src = "system/images/GIF/crash.gif";
 
-        // When crash.gif finishes (simulate with duration)
         loaderImage.addEventListener(
           "load",
           () => {
-            const crashDuration = 2800; // adjust to match crash.gif length (ms)
+            const crashDuration = 2800; // adjust to match crash.gif duration
             setTimeout(() => {
               loaderImage.src = "system/images/GIF/ded.gif";
             }, crashDuration);
@@ -264,7 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
 
-      // Keep preloader visible (no fade) so ded.gif loops visibly
+      // Keep preloader visible so ded.gif loops
       if (preloader) {
         preloader.classList.remove("fade");
         preloader.style.display = "flex";
