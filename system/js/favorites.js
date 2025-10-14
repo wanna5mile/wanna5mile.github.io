@@ -23,12 +23,24 @@ document.addEventListener("DOMContentLoaded", () => {
     if (container) {
       container.textContent = text;
       container.style.textAlign = "center";
+      container.style.display = "flex";
+      container.style.justifyContent = "center";
+      container.style.alignItems = "center";
+      container.style.minHeight = "60vh";
+      container.style.flexDirection = "column";
     }
   }
 
   // --- Create Favorite Cards Only ---
   function createGameCards(data) {
     if (!container) return;
+
+    // Reset layout styles for normal view
+    container.style.display = "";
+    container.style.justifyContent = "";
+    container.style.alignItems = "";
+    container.style.flexDirection = "";
+    container.style.textAlign = "";
 
     // Flatten if JSON is nested by pages
     const allGames = Array.isArray(data[0]) ? data.flat() : data;
@@ -37,6 +49,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (favoriteGames.length === 0) {
       container.innerHTML = "<p>⚠ No favorited games found.</p>";
+      container.style.display = "flex";
+      container.style.justifyContent = "center";
+      container.style.alignItems = "center";
+      container.style.textAlign = "center";
+      container.style.minHeight = "60vh";
       return;
     }
 
@@ -102,13 +119,26 @@ document.addEventListener("DOMContentLoaded", () => {
   function filterGames(query) {
     const q = query.toLowerCase().trim();
     const cards = Array.from(container.querySelectorAll(".game-card"));
+    let visibleCount = 0;
+
     cards.forEach((card) => {
       const matches =
         !q ||
         card.dataset.title.includes(q) ||
         card.dataset.author.includes(q);
       card.style.display = matches ? "block" : "none";
+      if (matches) visibleCount++;
     });
+
+    // If no matches found, show centered message
+    if (visibleCount === 0) {
+      container.innerHTML = "<p>⚠ No games found.</p>";
+      container.style.display = "flex";
+      container.style.justifyContent = "center";
+      container.style.alignItems = "center";
+      container.style.textAlign = "center";
+      container.style.minHeight = "60vh";
+    }
   }
 
   if (searchInput)
