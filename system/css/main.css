@@ -286,6 +286,28 @@ header img {
   transform: scale(1.05); /* smooth zoom only, no shadow */
 }
 
+.game-card {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.status-overlay {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 80px; /* adjust size as you want */
+  height: auto;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.status-overlay.fixed {
+  top: 5px;
+  right: 5px;
+  left: auto;
+}
+
 /* ==========================================
    Card Text
    ========================================== */
