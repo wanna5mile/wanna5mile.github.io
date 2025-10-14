@@ -8,16 +8,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const loaderImage = document.getElementById("loaderImage");
 
   // --- Config & State ---
-  let gamesData = [];
-  let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
+  const totalPages = 10; // fallback for static total pages
   const gamesPerPage = 10;
   const jsonPath = "system/json/assets.json";
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
-
-  // --- Fallbacks ---
   const fallbackImage =
     "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
   const fallbackLink = "https://theworldpt1.github.io./source/dino/";
+  let gamesData = [];
+  let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
 
   // --- Helpers ---
   function showLoading(text) {
@@ -32,6 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Card Creation ---
   function createGameCards(data) {
     if (!container) return;
+    container.innerHTML = "";
+
     const sortedData = [...data].sort((a, b) => {
       const aFav = favorites.has(a.title);
       const bFav = favorites.has(b.title);
@@ -41,11 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     sortedData.forEach((game, i) => {
       const card = document.createElement("div");
-      card.className = "game-card";
+      card.className = `game-card page-${Math.floor(i / gamesPerPage) + 1}`;
       card.dataset.title = (game.title || "").toLowerCase();
       card.dataset.author = (game.author || "").toLowerCase();
-      card.dataset.page = game.page ? parseInt(game.page) : Math.floor(i / gamesPerPage) + 1;
-      card.dataset.filtered = "true";
 
       // --- Image + Link ---
       let imageSrc = game.image?.trim() || "";
@@ -73,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
       link.innerHTML += `<h3>${game.title || "Untitled"}</h3>`;
 
       const author = document.createElement("p");
-      // GAME AUTHOR HERE
       author.textContent = game.author || " ";
 
       // --- Favorite toggle ---
@@ -92,7 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
           star.textContent = "★";
         }
         saveFavorites();
-        refreshCards();
+        createGameCards(gamesData);
+        showPage(currentPage);
       });
 
       if (game.status?.toLowerCase() === "soon") {
@@ -108,109 +107,57 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Page + Filter Logic ---
-  function getAllCards() {
-    return Array.from(container.querySelectorAll(".game-card"));
-  }
+  // --- Page Logic (from old version) ---
+  function showPage(pageNum) {
+    const allItems = document.querySelectorAll('[class*="page-"]');
+    let foundVisible = false;
 
-  function getFilteredCards() {
-    return getAllCards().filter((c) => c.dataset.filtered === "true");
-  }
+    allItems.forEach((item) => {
+      if (item.classList.contains(`page-${pageNum}`)) {
+        item.style.display = "block";
+        foundVisible = true;
+      } else {
+        item.style.display = "none";
+      }
+    });
 
-  function getPagesWithContent() {
-    const pages = new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)));
-    return [...pages].sort((a, b) => a - b);
-  }
-
-  function renderPage() {
-    const pagesWithContent = getPagesWithContent();
-    const maxPage = Math.max(...pagesWithContent, 1);
-    if (!pagesWithContent.includes(currentPage)) {
-      currentPage = pagesWithContent[0] || 1;
+    if (!foundVisible) {
+      container.innerHTML = `<p style="text-align:center;">No games found.</p>`;
     }
 
-    getAllCards().forEach((card) => {
-      card.style.display =
-        parseInt(card.dataset.page) === currentPage &&
-        card.dataset.filtered === "true"
-          ? "block"
-          : "none";
-    });
-
     if (pageIndicator)
-      pageIndicator.textContent = `Page ${currentPage} of ${maxPage}`;
-    sessionStorage.setItem("currentPage", currentPage);
+      pageIndicator.textContent = `Page ${pageNum}`;
+
+    sessionStorage.setItem("currentPage", pageNum);
   }
 
+  window.nextPage = function () {
+    currentPage = currentPage >= totalPages ? 1 : currentPage + 1;
+    showPage(currentPage);
+  };
+
+  window.prevPage = function () {
+    currentPage = currentPage <= 1 ? totalPages : currentPage - 1;
+    showPage(currentPage);
+  };
+
+  // --- Search Filter ---
   function filterGames(query) {
     const q = query.toLowerCase().trim();
-    getAllCards().forEach((card) => {
-      const matches = !q || card.dataset.title.includes(q) || card.dataset.author.includes(q);
-      card.dataset.filtered = matches ? "true" : "false";
+    const cards = document.querySelectorAll(".game-card");
+    cards.forEach((card) => {
+      const match =
+        !q ||
+        card.dataset.title.includes(q) ||
+        card.dataset.author.includes(q);
+      card.style.display = match ? "block" : "none";
     });
-    renderPage();
+
+    if (![...cards].some((c) => c.style.display === "block")) {
+      container.innerHTML = `<p style="text-align:center;">No games found.</p>`;
+    }
   }
 
-  function refreshCards() {
-    container.innerHTML = "";
-    createGameCards(gamesData);
-    filterGames(searchInput?.value || "");
-  }
-
-  // --- Placeholder animation ---
-  function fadePlaceholder(input, text, cb) {
-    if (!input) return;
-    input.classList.add("fade-out");
-    setTimeout(() => {
-      input.placeholder = text;
-      input.classList.remove("fade-out");
-      input.classList.add("fade-in");
-      setTimeout(() => {
-        input.classList.remove("fade-in");
-        cb && cb();
-      }, 400);
-    }, 400);
-  }
-
-  function startPlaceholderCycle() {
-    if (!searchInput) return;
-    const cycle = () => {
-      const visibleCount = getFilteredCards().filter(
-        (c) => parseInt(c.dataset.page) === currentPage
-      ).length;
-      fadePlaceholder(searchInput, `${visibleCount} games on this page`, () => {
-        setTimeout(() => {
-          fadePlaceholder(searchInput, "Search games...", () => setTimeout(cycle, 4000));
-        }, 4000);
-      });
-    };
-    cycle();
-  }
-
-  // --- Carousel Page Navigation ---
-  window.prevPage = () => {
-    const pagesWithContent = getPagesWithContent();
-    if (pagesWithContent.length === 0) return;
-
-    const index = pagesWithContent.indexOf(currentPage);
-    currentPage =
-      index === 0 ? pagesWithContent[pagesWithContent.length - 1] : pagesWithContent[index - 1];
-
-    renderPage();
-  };
-
-  window.nextPage = () => {
-    const pagesWithContent = getPagesWithContent();
-    if (pagesWithContent.length === 0) return;
-
-    const index = pagesWithContent.indexOf(currentPage);
-    currentPage =
-      index === pagesWithContent.length - 1 ? pagesWithContent[0] : pagesWithContent[index + 1];
-
-    renderPage();
-  };
-
-  // --- Events ---
   if (searchInput)
     searchInput.addEventListener("input", (e) => filterGames(e.target.value));
   if (searchBtn)
@@ -227,10 +174,9 @@ document.addEventListener("DOMContentLoaded", () => {
       gamesData = await res.json();
       container.innerHTML = "";
       createGameCards(gamesData);
-      renderPage();
-      startPlaceholderCycle();
+      showPage(currentPage);
 
-      // Wait until all images load (or fail) before hiding preloader
+      // Wait for images before hiding preloader
       const allImages = Array.from(container.querySelectorAll(".game-card img"));
       await Promise.allSettled(
         allImages.map(
