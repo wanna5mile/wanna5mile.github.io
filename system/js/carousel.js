@@ -107,23 +107,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Page Logic (from old version) ---
+  // --- Page Logic (old version restored) ---
   function showPage(pageNum) {
     const allItems = document.querySelectorAll('[class*="page-"]');
-    let foundVisible = false;
-
     allItems.forEach((item) => {
       if (item.classList.contains(`page-${pageNum}`)) {
         item.style.display = "block";
-        foundVisible = true;
       } else {
         item.style.display = "none";
       }
     });
-
-    if (!foundVisible) {
-      container.innerHTML = `<p style="text-align:center;">No games found.</p>`;
-    }
 
     if (pageIndicator)
       pageIndicator.textContent = `Page ${pageNum}`;
@@ -201,9 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
         )
       );
 
-      // Smooth hide preloader once everything is ready
       hidePreloader("system/images/GIF/load-fire.gif");
-
     } catch (err) {
       console.error("Error loading JSON:", err);
       showLoading("⚠ Failed to load game data.");
@@ -211,8 +202,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ✅ Wait until the full window is loaded (not just DOM)
-  window.addEventListener("load", () => {
-    loadGames();
-  });
+  // ✅ Wait until the full window (not just DOM) is loaded
+  window.addEventListener("load", loadGames);
 });
