@@ -192,7 +192,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const index = pagesWithContent.indexOf(currentPage);
     currentPage =
       index === 0 ? pagesWithContent[pagesWithContent.length - 1] : pagesWithContent[index - 1];
-
     renderPage();
   };
 
@@ -203,7 +202,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const index = pagesWithContent.indexOf(currentPage);
     currentPage =
       index === pagesWithContent.length - 1 ? pagesWithContent[0] : pagesWithContent[index + 1];
-
     renderPage();
   };
 
@@ -235,10 +233,8 @@ document.addEventListener("DOMContentLoaded", () => {
           })
       );
 
-      // Hide preloader once all images are done
       await Promise.allSettled(imagePromises);
 
-      // Small delay for smoother UX
       setTimeout(() => {
         if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
         if (preloader) {
@@ -250,10 +246,28 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error("Error loading JSON:", err);
       showLoading("⚠ Failed to load game data.");
-      if (loaderImage) loaderImage.src = "system/images/GIF/fail.gif";
+
+      // 🔥💥☠️ Sequential error animation logic:
+      if (loaderImage) {
+        loaderImage.src = "system/images/GIF/crash.gif";
+
+        // When crash.gif finishes (simulate with duration)
+        loaderImage.addEventListener(
+          "load",
+          () => {
+            const crashDuration = 2800; // adjust to match crash.gif length (ms)
+            setTimeout(() => {
+              loaderImage.src = "system/images/GIF/ded.gif";
+            }, crashDuration);
+          },
+          { once: true }
+        );
+      }
+
+      // Keep preloader visible (no fade) so ded.gif loops visibly
       if (preloader) {
-        preloader.classList.add("fade");
-        setTimeout(() => (preloader.style.display = "none"), 600);
+        preloader.classList.remove("fade");
+        preloader.style.display = "flex";
       }
     }
   }
