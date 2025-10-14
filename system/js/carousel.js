@@ -8,13 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const loaderImage = document.getElementById("loaderImage");
 
   // --- Config & State ---
-  const totalPages = 10; // fallback for static total pages
-  const gamesPerPage = 10;
   const jsonPath = "system/json/assets.json";
+  const gamesPerPage = 10;
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
   const fallbackImage =
     "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
   const fallbackLink = "https://theworldpt1.github.io./source/dino/";
+
   let gamesData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
 
@@ -28,10 +28,9 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("favorites", JSON.stringify([...favorites]));
   }
 
-  // --- Card Creation ---
+  // --- Card Creation (yesterday logic restored) ---
   function createGameCards(data) {
     if (!container) return;
-    container.innerHTML = "";
 
     const sortedData = [...data].sort((a, b) => {
       const aFav = favorites.has(a.title);
@@ -42,9 +41,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     sortedData.forEach((game, i) => {
       const card = document.createElement("div");
-      card.className = `game-card page-${Math.floor(i / gamesPerPage) + 1}`;
+      card.className = "game-card";
       card.dataset.title = (game.title || "").toLowerCase();
       card.dataset.author = (game.author || "").toLowerCase();
+      card.dataset.page = game.page ? parseInt(game.page) : Math.floor(i / gamesPerPage) + 1;
+      card.dataset.filtered = "true";
 
       // --- Image + Link ---
       let imageSrc = game.image?.trim() || "";
@@ -90,8 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
           star.textContent = "★";
         }
         saveFavorites();
-        createGameCards(gamesData);
-        showPage(currentPage);
+        refreshCards();
       });
 
       if (game.status?.toLowerCase() === "soon") {
@@ -107,48 +107,64 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Page Logic (old version restored) ---
-  function showPage(pageNum) {
-    const allItems = document.querySelectorAll('[class*="page-"]');
-    allItems.forEach((item) => {
-      if (item.classList.contains(`page-${pageNum}`)) {
-        item.style.display = "block";
-      } else {
-        item.style.display = "none";
-      }
+  // --- Page Logic (yesterday logic restored) ---
+  function getAllCards() {
+    return Array.from(container.querySelectorAll(".game-card"));
+  }
+
+  function getFilteredCards() {
+    return getAllCards().filter((c) => c.dataset.filtered === "true");
+  }
+
+  function getPagesWithContent() {
+    const pages = new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)));
+    return [...pages].sort((a, b) => a - b);
+  }
+
+  function renderPage() {
+    const pagesWithContent = getPagesWithContent();
+    const maxPage = Math.max(...pagesWithContent, 1);
+    if (!pagesWithContent.includes(currentPage)) {
+      currentPage = pagesWithContent[0] || 1;
+    }
+
+    getAllCards().forEach((card) => {
+      card.style.display =
+        parseInt(card.dataset.page) === currentPage &&
+        card.dataset.filtered === "true"
+          ? "block"
+          : "none";
     });
 
     if (pageIndicator)
-      pageIndicator.textContent = `Page ${pageNum}`;
-
-    sessionStorage.setItem("currentPage", pageNum);
+      pageIndicator.textContent = `Page ${currentPage} of ${maxPage}`;
+    sessionStorage.setItem("currentPage", currentPage);
   }
 
-  window.nextPage = function () {
-    currentPage = currentPage >= totalPages ? 1 : currentPage + 1;
-    showPage(currentPage);
+  window.prevPage = () => {
+    const pages = getPagesWithContent();
+    if (!pages.length) return;
+    const i = pages.indexOf(currentPage);
+    currentPage = i === 0 ? pages[pages.length - 1] : pages[i - 1];
+    renderPage();
   };
 
-  window.prevPage = function () {
-    currentPage = currentPage <= 1 ? totalPages : currentPage - 1;
-    showPage(currentPage);
+  window.nextPage = () => {
+    const pages = getPagesWithContent();
+    if (!pages.length) return;
+    const i = pages.indexOf(currentPage);
+    currentPage = i === pages.length - 1 ? pages[0] : pages[i + 1];
+    renderPage();
   };
 
-  // --- Search Filter ---
+  // --- Filtering ---
   function filterGames(query) {
     const q = query.toLowerCase().trim();
-    const cards = document.querySelectorAll(".game-card");
-    cards.forEach((card) => {
-      const match =
-        !q ||
-        card.dataset.title.includes(q) ||
-        card.dataset.author.includes(q);
-      card.style.display = match ? "block" : "none";
+    getAllCards().forEach((card) => {
+      const matches = !q || card.dataset.title.includes(q) || card.dataset.author.includes(q);
+      card.dataset.filtered = matches ? "true" : "false";
     });
-
-    if (![...cards].some((c) => c.style.display === "block")) {
-      container.innerHTML = `<p style="text-align:center;">No games found.</p>`;
-    }
+    renderPage();
   }
 
   if (searchInput)
@@ -156,7 +172,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (searchBtn)
     searchBtn.addEventListener("click", () => filterGames(searchInput.value));
 
-  // --- Centralized Preloader Logic ---
+  function refreshCards() {
+    container.innerHTML = "";
+    createGameCards(gamesData);
+    filterGames(searchInput?.value || "");
+  }
+
+  // --- Preloader Logic (new fix kept) ---
   function hidePreloader(finalGif) {
     if (loaderImage) loaderImage.src = finalGif;
     if (preloader) {
@@ -179,12 +201,12 @@ document.addEventListener("DOMContentLoaded", () => {
       gamesData = await res.json();
       container.innerHTML = "";
       createGameCards(gamesData);
-      showPage(currentPage);
+      renderPage();
 
-      // Wait for all images to finish (even cached ones)
-      const allImages = Array.from(container.querySelectorAll(".game-card img"));
+      // Wait for all images to load before hiding preloader
+      const imgs = Array.from(container.querySelectorAll(".game-card img"));
       await Promise.allSettled(
-        allImages.map(
+        imgs.map(
           (img) =>
             new Promise((resolve) => {
               if (img.complete) return resolve();
@@ -202,6 +224,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ✅ Wait until the full window (not just DOM) is loaded
   window.addEventListener("load", loadGames);
 });
