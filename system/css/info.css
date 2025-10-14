@@ -1,0 +1,100 @@
+/* ====== INFO PAGE STYLING ====== */
+
+/* Center main content */
+main#main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+/* Title styling */
+main#main h1 {
+  font-size: 3rem;
+  color: #fff;
+  font-weight: 800;
+  position: relative;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: color 0.3s ease;
+}
+
+main#main h1:hover {
+  color: #ff2e2e;
+}
+
+main#main h1::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
+  width: 60%;
+  height: 3px;
+  background-color: #ff2e2e;
+  transition: transform 0.3s ease;
+}
+
+main#main h1:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* Quote styling (fade-ready, no fade-out yet) */
+#randomquote {
+  font-size: 1.2rem;
+  color: #ccc;
+  margin: 1rem 0 2rem;
+  opacity: 0;
+  animation: fadeInQuote 1s ease forwards;
+}
+
+@keyframes fadeInQuote {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Image row layout */
+.samerow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.img-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.img-container img {
+  width: 80px;
+  height: auto;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.2));
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.img-container:hover img {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 10px rgba(255, 46, 46, 0.8));
+}
+
+/* Make sure main stays centered across screen sizes */
+@media (max-width: 768px) {
+  main#main {
+    padding: 1rem;
+  }
+  main#main h1 {
+    font-size: 2.2rem;
+  }
+  .samerow {
+    gap: 1rem;
+  }
+}
