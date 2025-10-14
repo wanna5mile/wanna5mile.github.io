@@ -163,6 +163,17 @@ document.addEventListener("DOMContentLoaded", () => {
   if (searchBtn)
     searchBtn.addEventListener("click", () => filterGames(searchInput.value));
 
+  // --- Centralized Preloader Logic ---
+  function hidePreloader(finalGif) {
+    if (loaderImage) loaderImage.src = finalGif;
+    if (preloader) {
+      setTimeout(() => {
+        preloader.classList.add("fade");
+        setTimeout(() => (preloader.style.display = "none"), 600);
+      }, 500);
+    }
+  }
+
   // --- Initialization ---
   async function loadGames() {
     showLoading("Loading assets...");
@@ -171,12 +182,13 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch(jsonPath, { cache: "no-store" });
       if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
+
       gamesData = await res.json();
       container.innerHTML = "";
       createGameCards(gamesData);
       showPage(currentPage);
 
-      // Wait for images before hiding preloader
+      // Wait for all images to finish (even cached ones)
       const allImages = Array.from(container.querySelectorAll(".game-card img"));
       await Promise.allSettled(
         allImages.map(
@@ -189,24 +201,18 @@ document.addEventListener("DOMContentLoaded", () => {
         )
       );
 
-      if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
-      if (preloader) {
-        setTimeout(() => {
-          preloader.classList.add("fade");
-          setTimeout(() => (preloader.style.display = "none"), 600);
-        }, 400);
-      }
+      // Smooth hide preloader once everything is ready
+      hidePreloader("system/images/GIF/load-fire.gif");
 
     } catch (err) {
       console.error("Error loading JSON:", err);
       showLoading("⚠ Failed to load game data.");
-      if (loaderImage) loaderImage.src = "system/images/GIF/fail.gif";
-      if (preloader) {
-        preloader.classList.add("fade");
-        setTimeout(() => (preloader.style.display = "none"), 600);
-      }
+      hidePreloader("system/images/GIF/fail.gif");
     }
   }
 
-  loadGames();
+  // ✅ Wait until the full window is loaded (not just DOM)
+  window.addEventListener("load", () => {
+    loadGames();
+  });
 });
