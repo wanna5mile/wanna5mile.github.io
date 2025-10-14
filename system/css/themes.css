@@ -20,11 +20,11 @@
   /* Text & Links */
   --text-color: #000;
   --link-color: #fff;
-  --accent-color: #ff4444;
+  --accent-color: #222;
 
   /* Inputs / Search */
   --input-bg: #f0f0f0;
-  --input-border: #ccc;
+  --input-border: transparent;
   --input-text: #333;
   --input-placeholder: #888;
   --search-btn-bg: #333;
