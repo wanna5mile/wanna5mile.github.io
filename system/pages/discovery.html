@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Discovery | 10x76</title>
-  <link rel="icon" href="../images/10x76.png" />
+  <title>WannaSmile | Discovery</title>
+  <link rel="icon" href="../images/favicons/v1.png" />
   <link rel="stylesheet" href="../css/main.css" />
   <link rel="stylesheet" href="../css/themes.css" />
 
@@ -142,10 +142,10 @@
 </header>
 
 <main>
-  <h1>Discover Games</h1>
+  <h1>Discover ϱames</h1>
 
   <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Search games..." />
+    <input type="text" id="searchInput" placeholder="Search ϱames..." />
     <button id="searchBtn">
       <img src="../icons/search.png" alt="Search" />
     </button>
@@ -157,7 +157,7 @@
     <button data-category="Other">Other</button>
   </div>
 
-  <div id="discoveryContainer">Loading games...</div>
+  <div id="discoveryContainer">Loading ϱames...</div>
 </main>
 
 <footer>
@@ -194,14 +194,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     games = await res.json();
   } catch (err) {
     console.error(err);
-    container.innerHTML = "<p>⚠ Failed to load game data.</p>";
+    container.innerHTML = "<p>⚠ Failed to load ϱame data.</p>";
     return;
   }
 
   function renderGames(list) {
     container.innerHTML = "";
     if (!list.length) {
-      container.innerHTML = "<p>No games found.</p>";
+      container.innerHTML = "<p>No ϱames found.</p>";
       return;
     }
     const grid = document.createElement("div");
