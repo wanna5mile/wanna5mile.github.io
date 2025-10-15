@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
   const fallbackImage =
     "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
-  const fallbackLink = "https://theworldpt1.github.io./source/dino/";
+  const fallbackLink = "https://theworldpt1.github.io/source/dino/";
 
   // --- Helpers ---
   function showLoading(text) {
@@ -26,9 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("favorites", JSON.stringify([...favorites]));
   }
 
-  // 🔔 Shoelace alert helper
+  // --- Shoelace alert helper ---
   function showSlowLoadAlert() {
-    // Prevent duplicates
     if (document.querySelector(".slow-load-alert")) return;
 
     const alert = document.createElement("sl-alert");
@@ -48,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Card Creation ---
   function createGameCards(data) {
     if (!container) return;
+
     const sortedData = [...data].sort((a, b) => {
       const aFav = favorites.has(a.title);
       const bFav = favorites.has(b.title);
@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
         refreshCards();
       });
 
-      // --- Handle special statuses ---
+      // --- Status Overlays ---
       const status = game.status?.toLowerCase();
       if (status === "soon") {
         card.classList.add("soon");
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Page Logic ---
+  // --- Page Handling ---
   function getAllCards() {
     return Array.from(container.querySelectorAll(".game-card"));
   }
@@ -148,23 +148,23 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderPage() {
     const pagesWithContent = getPagesWithContent();
     const maxPage = Math.max(...pagesWithContent, 1);
+
     if (!pagesWithContent.includes(currentPage)) {
       currentPage = pagesWithContent[0] || 1;
     }
 
     getAllCards().forEach((card) => {
       card.style.display =
-        parseInt(card.dataset.page) === currentPage &&
-        card.dataset.filtered === "true"
+        parseInt(card.dataset.page) === currentPage && card.dataset.filtered === "true"
           ? "block"
           : "none";
     });
 
-    if (pageIndicator)
-      pageIndicator.textContent = `Page ${currentPage} of ${maxPage}`;
+    if (pageIndicator) pageIndicator.textContent = `Page ${currentPage} of ${maxPage}`;
     sessionStorage.setItem("currentPage", currentPage);
   }
 
+  // --- Filtering ---
   function filterGames(query) {
     const q = query.toLowerCase().trim();
     getAllCards().forEach((card) => {
@@ -174,6 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPage();
   }
 
+  // --- Refresh Cards ---
   function refreshCards() {
     container.innerHTML = "";
     createGameCards(gamesData);
@@ -213,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Navigation ---
   window.prevPage = () => {
     const pagesWithContent = getPagesWithContent();
-    if (pagesWithContent.length === 0) return;
+    if (!pagesWithContent.length) return;
 
     const index = pagesWithContent.indexOf(currentPage);
     currentPage =
@@ -223,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.nextPage = () => {
     const pagesWithContent = getPagesWithContent();
-    if (pagesWithContent.length === 0) return;
+    if (!pagesWithContent.length) return;
 
     const index = pagesWithContent.indexOf(currentPage);
     currentPage =
@@ -236,10 +237,14 @@ document.addEventListener("DOMContentLoaded", () => {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
 
-    // ⚠️ Timeout check — show alert if slow
+    // ✅ Automatically hide preloader after 6 seconds
     setTimeout(() => {
-      if (preloader && preloader.style.display !== "none") showSlowLoadAlert();
-    }, 10000);
+      if (preloader) {
+        if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
+        preloader.classList.add("fade");
+        setTimeout(() => (preloader.style.display = "none"), 600);
+      }
+    }, 6000);
 
     try {
       const res = await fetch(jsonPath, { cache: "no-store" });
@@ -250,61 +255,19 @@ document.addEventListener("DOMContentLoaded", () => {
       createGameCards(gamesData);
       renderPage();
       startPlaceholderCycle();
-
-      // Wait for all images
-      const allImages = Array.from(container.querySelectorAll(".game-card img"));
-      const imagePromises = allImages.map(
-        (img) =>
-          new Promise((resolve) => {
-            if (img.complete) resolve();
-            else {
-              img.addEventListener("load", resolve, { once: true });
-              img.addEventListener("error", resolve, { once: true });
-            }
-          })
-      );
-      await Promise.allSettled(imagePromises);
-
-      // ✅ Hide preloader helper
-      const hidePreloader = () => {
-        if (!preloader) return;
-        if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
-        preloader.classList.add("fade");
-        setTimeout(() => (preloader.style.display = "none"), 600);
-      };
-
-      // Initial hide attempt
-      setTimeout(hidePreloader, 400);
-
-      // ✅ Continuous check — ensure it fully disappears
-      const ensurePreloaderHidden = () => {
-        if (!preloader) return;
-        if (getComputedStyle(preloader).display !== "none") {
-          hidePreloader();
-          setTimeout(ensurePreloaderHidden, 1000);
-        }
-      };
-      setTimeout(ensurePreloaderHidden, 2000);
-
     } catch (err) {
       console.error("Error loading JSON:", err);
       showLoading("⚠ Failed to load game data.");
-
-      if (loaderImage) {
-        loaderImage.src = "system/images/GIF/crash.gif";
-        loaderImage.addEventListener(
-          "load",
-          () => setTimeout(() => (loaderImage.src = "system/images/GIF/ded.gif"), 2800),
-          { once: true }
-        );
-      }
-
-      if (preloader) {
-        preloader.classList.remove("fade");
-        preloader.style.display = "flex";
-      }
+      if (loaderImage) loaderImage.src = "system/images/GIF/crash.gif";
     }
   }
 
+  // --- Events ---
+  if (searchInput && searchBtn) {
+    searchBtn.addEventListener("click", () => filterGames(searchInput.value));
+    searchInput.addEventListener("input", () => filterGames(searchInput.value));
+  }
+
+  // --- Run ---
   loadGames();
 });
