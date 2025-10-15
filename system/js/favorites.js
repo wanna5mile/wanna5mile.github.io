@@ -9,14 +9,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (pageIndicator) pageIndicator.style.display = "none"; // hide it
 
   // --- Config & State ---
-  let gamesData = [];
+  let assetsData = [];
   const jsonPath = "system/json/assets.json";
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
 
   // --- Fallback paths ---
   const fallbackImage =
     "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
-  const fallbackLink = "https://theworldpt1.github.io./source/dino/";
+  const fallbackLink = "https://theworldpt1.github.io/source/dino/";
 
   // --- Helper: Show loading message ---
   function showLoading(text) {
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Create Favorite Cards Only ---
-  function createGameCards(data) {
+  function createAssetCards(data) {
     if (!container) return;
 
     // Reset layout styles for normal view
@@ -43,12 +43,12 @@ document.addEventListener("DOMContentLoaded", () => {
     container.style.textAlign = "";
 
     // Flatten if JSON is nested by pages
-    const allGames = Array.isArray(data[0]) ? data.flat() : data;
-    const favoriteGames = allGames.filter((g) => favorites.has(g.title));
+    const allAssets = Array.isArray(data[0]) ? data.flat() : data;
+    const favoriteAssets = allAssets.filter((a) => favorites.has(a.title));
     container.innerHTML = "";
 
-    if (favoriteGames.length === 0) {
-      container.innerHTML = "<p>⚠ No favorited games found.</p>";
+    if (favoriteAssets.length === 0) {
+      container.innerHTML = "<p>⚠ No favorited assets found.</p>";
       container.style.display = "flex";
       container.style.justifyContent = "center";
       container.style.alignItems = "center";
@@ -57,27 +57,27 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    favoriteGames.forEach((game) => {
+    favoriteAssets.forEach((asset) => {
       const card = document.createElement("div");
-      card.className = "game-card";
-      card.dataset.title = (game.title || "").toLowerCase();
-      card.dataset.author = (game.author || "").toLowerCase();
+      card.className = "asset-card";
+      card.dataset.title = (asset.title || "").toLowerCase();
+      card.dataset.author = (asset.author || "").toLowerCase();
       card.dataset.filtered = "true"; // for search
 
       // --- Image + link fallbacks ---
-      let imageSrc = game.image?.trim() || "";
-      let linkSrc = game.link?.trim() || "";
+      let imageSrc = asset.image?.trim() || "";
+      let linkSrc = asset.link?.trim() || "";
       if (
         imageSrc === "" ||
         imageSrc.toLowerCase() === "blank" ||
-        game.status?.toLowerCase() === "blank"
+        asset.status?.toLowerCase() === "blank"
       )
         imageSrc = fallbackImage;
       if (linkSrc === "") linkSrc = fallbackLink;
 
       const img = document.createElement("img");
       img.src = imageSrc;
-      img.alt = game.title || "Game";
+      img.alt = asset.title || "Asset";
       img.addEventListener("error", () => {
         if (!img.dataset.fallbackApplied) {
           img.src = fallbackImage;
@@ -90,17 +90,17 @@ document.addEventListener("DOMContentLoaded", () => {
       link.target = "_blank";
       link.rel = "noopener";
       link.appendChild(img);
-      link.innerHTML += `<h3>${game.title || "Untitled"}</h3>`;
+      link.innerHTML += `<h3>${asset.title || "Untitled"}</h3>`;
 
       const author = document.createElement("p");
-      author.textContent = game.author || "Unknown";
+      author.textContent = asset.author || "Unknown";
 
       const star = document.createElement("span");
       star.className = "favorite-star";
       star.textContent = "★";
       star.title = "Favorited";
 
-      if (game.status?.toLowerCase() === "soon") {
+      if (asset.status?.toLowerCase() === "soon") {
         card.classList.add("soon");
         link.removeAttribute("href");
         link.style.pointerEvents = "none";
@@ -116,23 +116,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Search/filter (works on all favorites) ---
-  function filterGames(query) {
+  function filterAssets(query) {
     const q = query.toLowerCase().trim();
-    const cards = Array.from(container.querySelectorAll(".game-card"));
+    const cards = Array.from(container.querySelectorAll(".asset-card"));
     let visibleCount = 0;
 
     cards.forEach((card) => {
       const matches =
-        !q ||
-        card.dataset.title.includes(q) ||
-        card.dataset.author.includes(q);
+        !q || card.dataset.title.includes(q) || card.dataset.author.includes(q);
       card.style.display = matches ? "block" : "none";
       if (matches) visibleCount++;
     });
 
     // If no matches found, show centered message
     if (visibleCount === 0) {
-      container.innerHTML = "<p>⚠ No games found.</p>";
+      container.innerHTML = "<p>⚠ No assets found.</p>";
       container.style.display = "flex";
       container.style.justifyContent = "center";
       container.style.alignItems = "center";
@@ -142,9 +140,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (searchInput)
-    searchInput.addEventListener("input", (e) => filterGames(e.target.value));
+    searchInput.addEventListener("input", (e) => filterAssets(e.target.value));
   if (searchBtn)
-    searchBtn.addEventListener("click", () => filterGames(searchInput.value));
+    searchBtn.addEventListener("click", () => filterAssets(searchInput.value));
 
   // --- Placeholder cycle ---
   function fadePlaceholder(input, text, cb) {
@@ -165,10 +163,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!searchInput) return;
     const cycle = () => {
       const visibleCount = Array.from(
-        container.querySelectorAll(".game-card")
+        container.querySelectorAll(".asset-card")
       ).filter((c) => c.style.display !== "none").length;
 
-      fadePlaceholder(searchInput, `${visibleCount} favorited games`, () => {
+      fadePlaceholder(searchInput, `${visibleCount} favorited assets`, () => {
         setTimeout(() => {
           fadePlaceholder(searchInput, "Search favorites...", () =>
             setTimeout(cycle, 4000)
@@ -192,20 +190,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Load and Display Favorites ---
-  async function loadGames() {
+  async function loadAssets() {
     showLoading("Loading favorites...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
 
     try {
       const res = await fetch(jsonPath);
       if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
-      gamesData = await res.json();
+      assetsData = await res.json();
 
-      createGameCards(gamesData);
+      createAssetCards(assetsData);
       startPlaceholderCycle();
 
       // Wait for images or timeout
-      const allImages = Array.from(container.querySelectorAll(".game-card img"));
+      const allImages = Array.from(container.querySelectorAll(".asset-card img"));
       await Promise.race([
         Promise.allSettled(
           allImages.map(
@@ -228,5 +226,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  loadGames();
+  loadAssets();
 });
