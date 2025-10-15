@@ -8,183 +8,120 @@
   <link rel="stylesheet" href="../css/main.css" />
   <link rel="stylesheet" href="../css/themes.css" />
 
-<style>
-  /* Match main.css structure and variables */
+  <style>
+    body {
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      margin: 0;
+    }
+    main {
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 1em;
+      transition: color 0.3s, text-decoration-color 0.3s;
+    }
+    h1:hover {
+      color: #ff3b3b;
+      text-decoration: underline;
+      text-decoration-color: #ff3b3b;
+    }
 
-  body {
-    background-color: var(--main-bg);
-    color: var(--text-color);
-    font-family: monospace;
-    text-align: center;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-  }
+    /* Center search bar */
+    .search-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0 auto 1.5rem;
+      max-width: 400px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 0.4rem 0.6rem;
+    }
+    .search-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+    }
+    .search-box button {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .search-box img {
+      width: 22px;
+      height: 22px;
+      filter: invert(1);
+    }
 
-  main {
-    padding: 2rem;
-    flex-grow: 1;
-  }
+    /* Category buttons */
+    .category-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .category-buttons button {
+      background: #222;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6em 1.2em;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .category-buttons button:hover {
+      background: #444;
+      transform: scale(1.05);
+    }
 
-  h1 {
-    font-size: 2em;
-    margin-bottom: 1em;
-    color: var(--link-color);
-    font-family: monospace;
-    transition: color 0.3s, text-decoration 0.3s;
-  }
-  h1:hover {
-    color: var(--accent-color);
-    text-decoration: underline;
-    text-decoration-color: var(--accent-color);
-  }
-
-  /* Search box aligned with main.css */
-  .search-box {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: var(--input-bg);
-    border-radius: 25px;
-    padding: 4px 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-    transition: box-shadow 0.2s;
-  }
-  .search-box:focus-within {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  }
-  .search-box input {
-    padding: 6px;
-    border: none;
-    background: transparent;
-    color: var(--input-text);
-    font-family: monospace;
-    font-size: 14px;
-    flex: 1;
-  }
-  .search-box input::placeholder {
-    color: var(--input-placeholder);
-  }
-  .search-box button {
-    padding: 6px;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    background: var(--search-btn-bg);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s, filter 0.2s;
-  }
-  .search-box button:hover {
-    transform: scale(1.1);
-    filter: brightness(1.2);
-  }
-  .search-box button img {
-    width: 14px;
-    height: 14px;
-  }
-
-  /* Category buttons (simplified but matches tone) */
-  .category-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin: 1.5rem 0 2rem;
-    flex-wrap: wrap;
-  }
-  .category-buttons button {
-    background: var(--header-bg);
-    color: var(--link-color);
-    border: none;
-    border-radius: 8px;
-    padding: 0.6em 1.2em;
-    cursor: pointer;
-    font-family: monospace;
-    font-size: 1rem;
-    transition: background 0.3s, transform 0.2s, color 0.3s;
-  }
-  .category-buttons button:hover {
-    background: var(--footer-bg);
-    color: var(--accent-color);
-    transform: scale(1.05);
-  }
-
-  /* Assets grid matches container-discov */
-  .assets-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    justify-items: center;
-    gap: 20px;
-    padding: 20px;
-    background-color: var(--main-bg);
-    min-height: calc(100vh - 220px);
-  }
-
-  .asset-card {
-    width: 220px;
-    min-height: 190px;
-    background: var(--card-bg);
-    text-align: center;
-    border-radius: 15%;
-    padding: 8px;
-    overflow: hidden;
-    border: 2px solid transparent;
-    transition: transform 0.2s ease;
-  }
-  .asset-card:hover {
-    transform: scale(1.03);
-  }
-  .asset-card img {
-    width: 60%;
-    max-width: 144px;
-    height: auto;
-    display: block;
-    margin: 0 auto 8px;
-    border-radius: 12%;
-    transition: transform 0.3s ease;
-  }
-  .asset-card img:hover {
-    transform: scale(1.05);
-  }
-
-  .asset-card h4,
-  .asset-card p {
-    color: var(--link-color);
-    font-family: monospace;
-    font-size: 0.9rem;
-    transition: color 0.3s, text-decoration 0.3s;
-    margin: 0.2em 0;
-  }
-  .asset-card h4:hover,
-  .asset-card p:hover {
-    color: var(--accent-color);
-    text-decoration: underline;
-  }
-
-  /* Match status styles */
-  .soon {
-    opacity: 0.55;
-    pointer-events: none;
-    filter: grayscale(100%);
-  }
-  .soon::after {
-    content: "COMING SOON";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.75);
-    color: #fff;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-family: monospace;
-    font-size: 14px;
-    font-weight: bold;
-    text-shadow: 0 0 5px #000;
-  }
-</style>
+    /* assets grid */
+    .assets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 1em;
+    }
+    .asset-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 0.5em;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .asset-card:hover {
+      transform: scale(1.04);
+      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+    .asset-card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #111;
+    }
+    .asset-card h4 {
+      margin: 0.4em 0 0.2em;
+      font-size: 1em;
+    }
+    .asset-card p {
+      margin: 0;
+      font-size: 0.85em;
+      color: #bbb;
+    }
+    .soon {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
 
