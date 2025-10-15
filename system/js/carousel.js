@@ -236,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
 
-    // ⚠️ Timeout check — if preloader still showing after 10s, show alert
+    // ⚠️ Timeout check — show alert if slow
     setTimeout(() => {
       if (preloader && preloader.style.display !== "none") showSlowLoadAlert();
     }, 10000);
@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
       renderPage();
       startPlaceholderCycle();
 
-      // Wait for images
+      // Wait for all images
       const allImages = Array.from(container.querySelectorAll(".game-card img"));
       const imagePromises = allImages.map(
         (img) =>
@@ -263,24 +263,28 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           })
       );
-
       await Promise.allSettled(imagePromises);
 
-      // ✅ Hide preloader (with recheck safety)
+      // ✅ Hide preloader helper
       const hidePreloader = () => {
+        if (!preloader) return;
         if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
-        if (preloader && preloader.style.display !== "none") {
-          preloader.classList.add("fade");
-          setTimeout(() => (preloader.style.display = "none"), 600);
-        }
+        preloader.classList.add("fade");
+        setTimeout(() => (preloader.style.display = "none"), 600);
       };
 
+      // Initial hide attempt
       setTimeout(hidePreloader, 400);
 
-      // Safety recheck — make sure it’s hidden after 3s
-      setTimeout(() => {
-        if (preloader && preloader.style.display !== "none") hidePreloader();
-      }, 3000);
+      // ✅ Continuous check — ensure it fully disappears
+      const ensurePreloaderHidden = () => {
+        if (!preloader) return;
+        if (getComputedStyle(preloader).display !== "none") {
+          hidePreloader();
+          setTimeout(ensurePreloaderHidden, 1000);
+        }
+      };
+      setTimeout(ensurePreloaderHidden, 2000);
 
     } catch (err) {
       console.error("Error loading JSON:", err);
@@ -290,11 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
         loaderImage.src = "system/images/GIF/crash.gif";
         loaderImage.addEventListener(
           "load",
-          () => {
-            setTimeout(() => {
-              loaderImage.src = "system/images/GIF/ded.gif";
-            }, 2800);
-          },
+          () => setTimeout(() => (loaderImage.src = "system/images/GIF/ded.gif"), 2800),
           { once: true }
         );
       }
