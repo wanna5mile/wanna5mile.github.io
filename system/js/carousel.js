@@ -44,10 +44,19 @@ document.addEventListener("DOMContentLoaded", () => {
     alert.toast();
   }
 
+  // --- Preloader Controller ---
+  function hidePreloader() {
+    if (!preloader) return;
+    if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
+    preloader.classList.add("fade");
+    setTimeout(() => (preloader.style.display = "none"), 600);
+  }
+
   // --- Card Creation ---
   function createGameCards(data) {
     if (!container) return;
 
+    const imagePromises = [];
     const sortedData = [...data].sort((a, b) => {
       const aFav = favorites.has(a.title);
       const bFav = favorites.has(b.title);
@@ -80,6 +89,13 @@ document.addEventListener("DOMContentLoaded", () => {
           img.dataset.fallbackApplied = "true";
         }
       });
+
+      // Track when each image finishes loading or errors
+      const imgPromise = new Promise((resolve) => {
+        img.addEventListener("load", resolve, { once: true });
+        img.addEventListener("error", resolve, { once: true });
+      });
+      imagePromises.push(imgPromise);
 
       const link = document.createElement("a");
       link.href = linkSrc;
@@ -122,6 +138,13 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay.alt = status;
         overlay.loading = "lazy";
         card.appendChild(overlay);
+
+        // Track overlay load
+        const overlayPromise = new Promise((resolve) => {
+          overlay.addEventListener("load", resolve, { once: true });
+          overlay.addEventListener("error", resolve, { once: true });
+        });
+        imagePromises.push(overlayPromise);
       }
 
       card.appendChild(link);
@@ -129,6 +152,9 @@ document.addEventListener("DOMContentLoaded", () => {
       card.appendChild(star);
       container.appendChild(card);
     });
+
+    // Return a promise that resolves when all images are done
+    return Promise.all(imagePromises);
   }
 
   // --- Page Handling ---
@@ -177,8 +203,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Refresh Cards ---
   function refreshCards() {
     container.innerHTML = "";
-    createGameCards(gamesData);
-    filterGames(searchInput?.value || "");
+    createGameCards(gamesData).then(() => {
+      renderPage();
+      startPlaceholderCycle();
+    });
   }
 
   // --- Placeholder Animation ---
@@ -237,24 +265,18 @@ document.addEventListener("DOMContentLoaded", () => {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
 
-    // ✅ Automatically hide preloader after 6 seconds
-    setTimeout(() => {
-      if (preloader) {
-        if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
-        preloader.classList.add("fade");
-        setTimeout(() => (preloader.style.display = "none"), 600);
-      }
-    }, 6000);
-
     try {
       const res = await fetch(jsonPath, { cache: "no-store" });
       if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
       gamesData = await res.json();
 
       container.innerHTML = "";
-      createGameCards(gamesData);
+
+      // Wait until all images (including overlays) are loaded before hiding preloader
+      await createGameCards(gamesData);
       renderPage();
       startPlaceholderCycle();
+      hidePreloader();
     } catch (err) {
       console.error("Error loading JSON:", err);
       showLoading("⚠ Failed to load game data.");
