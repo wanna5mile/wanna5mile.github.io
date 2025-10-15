@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const loaderImage = document.getElementById("loaderImage");
 
   // --- Config & State ---
-  let gamesData = [];
+  let assetsData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
   const jsonPath = "system/json/assets.json";
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Card Creation ---
-  function createGameCards(data) {
+  function createAssetCards(data) {
     if (!container) return;
 
     const imagePromises = [];
@@ -64,24 +64,24 @@ document.addEventListener("DOMContentLoaded", () => {
       return (a.page || 1) - (b.page || 1);
     });
 
-    sortedData.forEach((game) => {
+    sortedData.forEach((asset) => {
       const card = document.createElement("div");
-      card.className = "game-card";
-      card.dataset.title = (game.title || "").toLowerCase();
-      card.dataset.author = (game.author || "").toLowerCase();
-      card.dataset.page = game.page ? parseInt(game.page) : 1;
+      card.className = "asset-card";
+      card.dataset.title = (asset.title || "").toLowerCase();
+      card.dataset.author = (asset.author || "").toLowerCase();
+      card.dataset.page = asset.page ? parseInt(asset.page) : 1;
       card.dataset.filtered = "true";
 
       // --- Image + Link ---
-      let imageSrc = game.image?.trim() || "";
-      let linkSrc = game.link?.trim() || "";
-      if (!imageSrc || imageSrc === "blank" || game.status?.toLowerCase() === "blank")
+      let imageSrc = asset.image?.trim() || "";
+      let linkSrc = asset.link?.trim() || "";
+      if (!imageSrc || imageSrc === "blank" || asset.status?.toLowerCase() === "blank")
         imageSrc = fallbackImage;
       if (!linkSrc) linkSrc = fallbackLink;
 
       const img = document.createElement("img");
       img.src = imageSrc;
-      img.alt = game.title || "Game";
+      img.alt = asset.title || "Asset";
       img.loading = "lazy";
       img.addEventListener("error", () => {
         if (!img.dataset.fallbackApplied) {
@@ -102,23 +102,23 @@ document.addEventListener("DOMContentLoaded", () => {
       link.target = "_blank";
       link.rel = "noopener";
       link.appendChild(img);
-      link.innerHTML += `<h3>${game.title || "Untitled"}</h3>`;
+      link.innerHTML += `<h3>${asset.title || "Untitled"}</h3>`;
 
       const author = document.createElement("p");
-      author.textContent = game.author || " ";
+      author.textContent = asset.author || " ";
 
       const star = document.createElement("span");
       star.className = "favorite-star";
-      star.textContent = favorites.has(game.title) ? "★" : "☆";
+      star.textContent = favorites.has(asset.title) ? "★" : "☆";
       star.title = "Toggle favorite";
       star.addEventListener("click", (e) => {
         e.stopPropagation();
         e.preventDefault();
-        if (favorites.has(game.title)) {
-          favorites.delete(game.title);
+        if (favorites.has(asset.title)) {
+          favorites.delete(asset.title);
           star.textContent = "☆";
         } else {
-          favorites.add(game.title);
+          favorites.add(asset.title);
           star.textContent = "★";
         }
         saveFavorites();
@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       // --- Status Overlays ---
-      const status = game.status?.toLowerCase();
+      const status = asset.status?.toLowerCase();
       if (status === "soon") {
         card.classList.add("soon");
         link.removeAttribute("href");
@@ -159,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Page Handling ---
   function getAllCards() {
-    return Array.from(container.querySelectorAll(".game-card"));
+    return Array.from(container.querySelectorAll(".asset-card"));
   }
 
   function getFilteredCards() {
@@ -191,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Filtering ---
-  function filterGames(query) {
+  function filterAssets(query) {
     const q = query.toLowerCase().trim();
     getAllCards().forEach((card) => {
       const matches = !q || card.dataset.title.includes(q) || card.dataset.author.includes(q);
@@ -203,7 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Refresh Cards ---
   function refreshCards() {
     container.innerHTML = "";
-    createGameCards(gamesData).then(() => {
+    createAssetCards(assetsData).then(() => {
       renderPage();
       startPlaceholderCycle();
     });
@@ -230,9 +230,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const visibleCount = getFilteredCards().filter(
         (c) => parseInt(c.dataset.page) === currentPage
       ).length;
-      fadePlaceholder(searchInput, `${visibleCount} games on this page`, () => {
+      fadePlaceholder(searchInput, `${visibleCount} assets on this page`, () => {
         setTimeout(() => {
-          fadePlaceholder(searchInput, "Search games...", () => setTimeout(cycle, 4000));
+          fadePlaceholder(searchInput, "Search assets...", () => setTimeout(cycle, 4000));
         }, 4000);
       });
     };
@@ -261,35 +261,35 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // --- Initialization ---
-  async function loadGames() {
+  async function loadAssets() {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
 
     try {
       const res = await fetch(jsonPath, { cache: "no-store" });
       if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
-      gamesData = await res.json();
+      assetsData = await res.json();
 
       container.innerHTML = "";
 
       // Wait until all images (including overlays) are loaded before hiding preloader
-      await createGameCards(gamesData);
+      await createAssetCards(assetsData);
       renderPage();
       startPlaceholderCycle();
       hidePreloader();
     } catch (err) {
       console.error("Error loading JSON:", err);
-      showLoading("⚠ Failed to load game data.");
+      showLoading("⚠ Failed to load asset data.");
       if (loaderImage) loaderImage.src = "system/images/GIF/crash.gif";
     }
   }
 
   // --- Events ---
   if (searchInput && searchBtn) {
-    searchBtn.addEventListener("click", () => filterGames(searchInput.value));
-    searchInput.addEventListener("input", () => filterGames(searchInput.value));
+    searchBtn.addEventListener("click", () => filterAssets(searchInput.value));
+    searchInput.addEventListener("input", () => filterAssets(searchInput.value));
   }
 
   // --- Run ---
-  loadGames();
+  loadAssets();
 });
