@@ -17,19 +17,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const fallbackLink = "https://wanna5mile.github.io/source/dino/";
 
   // --- Helpers ---
-  function showLoading(text) {
+  const showLoading = (text) => {
     container.textContent = text;
     container.style.textAlign = "center";
-  }
+  };
 
-  function saveFavorites() {
+  const saveFavorites = () => {
     localStorage.setItem("favorites", JSON.stringify([...favorites]));
-  }
+  };
 
-  // --- Improved Preloader (Old System Style) ---
-  function hidePreloader() {
+  // --- Strong Preloader Hide ---
+  function hidePreloader(force = false) {
     if (!preloader) return;
+    if (preloader.dataset.hidden === "true" && !force) return;
+
+    preloader.dataset.hidden = "true";
     preloader.classList.add("fade");
+    preloader.style.transition = "opacity 0.5s ease";
+
     setTimeout(() => {
       preloader.style.opacity = "0";
       preloader.style.pointerEvents = "none";
@@ -37,19 +42,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 500);
   }
 
-  // --- Card Creation ---
+  // --- Card Builder ---
   function createAssetCards(data) {
-    if (!container) return;
+    if (!container) return Promise.resolve();
+    container.innerHTML = "";
 
     const imagePromises = [];
-    const sortedData = [...data].sort((a, b) => {
+    const sorted = [...data].sort((a, b) => {
       const aFav = favorites.has(a.title);
       const bFav = favorites.has(b.title);
       if (aFav !== bFav) return bFav - aFav;
       return (a.page || 1) - (b.page || 1);
     });
 
-    sortedData.forEach((asset) => {
+    for (const asset of sorted) {
       const card = document.createElement("div");
       card.className = "asset-card";
       card.dataset.title = (asset.title || "").toLowerCase();
@@ -57,12 +63,10 @@ document.addEventListener("DOMContentLoaded", () => {
       card.dataset.page = asset.page ? parseInt(asset.page) : 1;
       card.dataset.filtered = "true";
 
-      // --- Image + Link ---
+      // Image
       let imageSrc = asset.image?.trim() || "";
-      let linkSrc = asset.link?.trim() || "";
       if (!imageSrc || imageSrc === "blank" || asset.status?.toLowerCase() === "blank")
         imageSrc = fallbackImage;
-      if (!linkSrc) linkSrc = fallbackLink;
 
       const img = document.createElement("img");
       img.src = imageSrc;
@@ -74,42 +78,39 @@ document.addEventListener("DOMContentLoaded", () => {
           img.dataset.fallbackApplied = "true";
         }
       });
+      imagePromises.push(
+        new Promise((resolve) => {
+          img.addEventListener("load", resolve, { once: true });
+          img.addEventListener("error", resolve, { once: true });
+        })
+      );
 
-      const imgPromise = new Promise((resolve) => {
-        img.addEventListener("load", resolve, { once: true });
-        img.addEventListener("error", resolve, { once: true });
-      });
-      imagePromises.push(imgPromise);
-
+      // Link
       const link = document.createElement("a");
-      link.href = linkSrc;
+      link.href = asset.link?.trim() || fallbackLink;
       link.target = "_blank";
       link.rel = "noopener";
       link.appendChild(img);
       link.innerHTML += `<h3>${asset.title || "Untitled"}</h3>`;
 
+      // Author
       const author = document.createElement("p");
       author.textContent = asset.author || " ";
 
+      // Favorite
       const star = document.createElement("span");
       star.className = "favorite-star";
       star.textContent = favorites.has(asset.title) ? "★" : "☆";
-      star.title = "Toggle favorite";
       star.addEventListener("click", (e) => {
-        e.stopPropagation();
         e.preventDefault();
-        if (favorites.has(asset.title)) {
-          favorites.delete(asset.title);
-          star.textContent = "☆";
-        } else {
-          favorites.add(asset.title);
-          star.textContent = "★";
-        }
+        e.stopPropagation();
+        if (favorites.has(asset.title)) favorites.delete(asset.title);
+        else favorites.add(asset.title);
         saveFavorites();
         refreshCards();
       });
 
-      // --- Status Overlays ---
+      // Status overlay
       const status = asset.status?.toLowerCase();
       if (status === "soon") {
         card.classList.add("soon");
@@ -122,44 +123,31 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay.alt = status;
         overlay.loading = "lazy";
         card.appendChild(overlay);
-
-        const overlayPromise = new Promise((resolve) => {
-          overlay.addEventListener("load", resolve, { once: true });
-          overlay.addEventListener("error", resolve, { once: true });
-        });
-        imagePromises.push(overlayPromise);
+        imagePromises.push(
+          new Promise((resolve) => {
+            overlay.addEventListener("load", resolve, { once: true });
+            overlay.addEventListener("error", resolve, { once: true });
+          })
+        );
       }
 
-      card.appendChild(link);
-      card.appendChild(author);
-      card.appendChild(star);
+      card.append(link, author, star);
       container.appendChild(card);
-    });
+    }
 
     return Promise.all(imagePromises);
   }
 
-  // --- Page Handling ---
-  function getAllCards() {
-    return Array.from(container.querySelectorAll(".asset-card"));
-  }
-
-  function getFilteredCards() {
-    return getAllCards().filter((c) => c.dataset.filtered === "true");
-  }
-
-  function getPagesWithContent() {
-    const pages = new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)));
-    return [...pages].sort((a, b) => a - b);
-  }
+  // --- Page + Filter Logic ---
+  const getAllCards = () => Array.from(container.querySelectorAll(".asset-card"));
+  const getFilteredCards = () => getAllCards().filter((c) => c.dataset.filtered === "true");
+  const getPages = () =>
+    [...new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)))].sort((a, b) => a - b);
 
   function renderPage() {
-    const pagesWithContent = getPagesWithContent();
-    const maxPage = Math.max(...pagesWithContent, 1);
-
-    if (!pagesWithContent.includes(currentPage)) {
-      currentPage = pagesWithContent[0] || 1;
-    }
+    const pages = getPages();
+    const maxPage = Math.max(...pages, 1);
+    if (!pages.includes(currentPage)) currentPage = pages[0] || 1;
 
     getAllCards().forEach((card) => {
       card.style.display =
@@ -172,17 +160,16 @@ document.addEventListener("DOMContentLoaded", () => {
     sessionStorage.setItem("currentPage", currentPage);
   }
 
-  // --- Filtering ---
   function filterAssets(query) {
     const q = query.toLowerCase().trim();
     getAllCards().forEach((card) => {
-      const matches = !q || card.dataset.title.includes(q) || card.dataset.author.includes(q);
-      card.dataset.filtered = matches ? "true" : "false";
+      const match =
+        !q || card.dataset.title.includes(q) || card.dataset.author.includes(q);
+      card.dataset.filtered = match ? "true" : "false";
     });
     renderPage();
   }
 
-  // --- Refresh Cards ---
   function refreshCards() {
     container.innerHTML = "";
     createAssetCards(assetsData).then(() => {
@@ -191,9 +178,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Placeholder Animation ---
+  // --- Placeholder animation ---
   function fadePlaceholder(input, text, cb) {
-    if (!input) return;
     input.classList.add("fade-out");
     setTimeout(() => {
       input.placeholder = text;
@@ -208,65 +194,68 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startPlaceholderCycle() {
     if (!searchInput) return;
-    const cycle = () => {
-      const visibleCount = getFilteredCards().filter(
+    const loop = () => {
+      const visible = getFilteredCards().filter(
         (c) => parseInt(c.dataset.page) === currentPage
       ).length;
-      fadePlaceholder(searchInput, `${visibleCount} assets on this page`, () => {
+      fadePlaceholder(searchInput, `${visible} assets on this page`, () => {
         setTimeout(() => {
-          fadePlaceholder(searchInput, "Search assets...", () => setTimeout(cycle, 4000));
+          fadePlaceholder(searchInput, "Search assets...", () =>
+            setTimeout(loop, 4000)
+          );
         }, 4000);
       });
     };
-    cycle();
+    loop();
   }
 
-  // --- Navigation (from old JS logic, now dynamic) ---
+  // --- Nav buttons ---
   window.prevPage = () => {
-    const pagesWithContent = getPagesWithContent();
-    if (!pagesWithContent.length) return;
-
-    const index = pagesWithContent.indexOf(currentPage);
-    currentPage =
-      index === 0 ? pagesWithContent[pagesWithContent.length - 1] : pagesWithContent[index - 1];
+    const pages = getPages();
+    if (!pages.length) return;
+    const idx = pages.indexOf(currentPage);
+    currentPage = idx === 0 ? pages.at(-1) : pages[idx - 1];
     renderPage();
   };
-
   window.nextPage = () => {
-    const pagesWithContent = getPagesWithContent();
-    if (!pagesWithContent.length) return;
-
-    const index = pagesWithContent.indexOf(currentPage);
-    currentPage =
-      index === pagesWithContent.length - 1 ? pagesWithContent[0] : pagesWithContent[index + 1];
+    const pages = getPages();
+    if (!pages.length) return;
+    const idx = pages.indexOf(currentPage);
+    currentPage = idx === pages.length - 1 ? pages[0] : pages[idx + 1];
     renderPage();
   };
 
-  // --- Initialization ---
-  async function loadAssets() {
+  // --- Load Assets with Retry + Double-Hide ---
+  async function loadAssets(retry = false) {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
 
     try {
       const res = await fetch(jsonPath, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
+      if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
       assetsData = await res.json();
 
-      container.innerHTML = "";
       await createAssetCards(assetsData);
-
       renderPage();
       startPlaceholderCycle();
 
-      // old-style smooth preloader removal after full load
       hidePreloader();
+      setTimeout(() => hidePreloader(true), 1500); // second safety hide
     } catch (err) {
       console.error("Error loading JSON:", err);
-      showLoading("⚠ Failed to load asset data.");
-      if (loaderImage) loaderImage.src = "system/images/GIF/crash.gif";
-      setTimeout(hidePreloader, 1000);
+      if (!retry) {
+        console.warn("Retrying JSON load...");
+        setTimeout(() => loadAssets(true), 1000);
+      } else {
+        showLoading("⚠ Failed to load asset data.");
+        if (loaderImage) loaderImage.src = "system/images/GIF/crash.gif";
+        hidePreloader(true);
+      }
     }
   }
+
+  // --- Hard timeout fallback ---
+  setTimeout(() => hidePreloader(true), 8000);
 
   // --- Events ---
   if (searchInput && searchBtn) {
