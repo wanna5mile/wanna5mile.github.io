@@ -8,13 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const loaderImage = document.getElementById("loaderImage");
 
   // --- Config & State ---
-  let assetsData = [];
-  let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
   const jsonPath = "system/json/assets.json";
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
   const fallbackImage =
     "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png";
   const fallbackLink = "https://wanna5mile.github.io/source/dino/";
+  let assetsData = [];
+  let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
 
   // --- Helpers ---
   const showLoading = (text) => {
@@ -22,19 +22,15 @@ document.addEventListener("DOMContentLoaded", () => {
     container.style.textAlign = "center";
   };
 
-  const saveFavorites = () => {
+  const saveFavorites = () =>
     localStorage.setItem("favorites", JSON.stringify([...favorites]));
-  };
 
-  // --- Strong Preloader Hide ---
+  // --- Preloader Hide ---
   function hidePreloader(force = false) {
-    if (!preloader) return;
-    if (preloader.dataset.hidden === "true" && !force) return;
-
+    if (!preloader || (preloader.dataset.hidden === "true" && !force)) return;
     preloader.dataset.hidden = "true";
     preloader.classList.add("fade");
     preloader.style.transition = "opacity 0.5s ease";
-
     setTimeout(() => {
       preloader.style.opacity = "0";
       preloader.style.pointerEvents = "none";
@@ -48,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     container.innerHTML = "";
 
     const imagePromises = [];
+
     const sorted = [...data].sort((a, b) => {
       const aFav = favorites.has(a.title);
       const bFav = favorites.has(b.title);
@@ -63,7 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
       card.dataset.page = asset.page ? parseInt(asset.page) : 1;
       card.dataset.filtered = "true";
 
-      // Image
       let imageSrc = asset.image?.trim() || "";
       if (!imageSrc || imageSrc === "blank" || asset.status?.toLowerCase() === "blank")
         imageSrc = fallbackImage;
@@ -78,14 +74,13 @@ document.addEventListener("DOMContentLoaded", () => {
           img.dataset.fallbackApplied = "true";
         }
       });
-      imagePromises.push(
-        new Promise((resolve) => {
-          img.addEventListener("load", resolve, { once: true });
-          img.addEventListener("error", resolve, { once: true });
-        })
-      );
 
-      // Link
+      const imgPromise = new Promise((resolve) => {
+        img.addEventListener("load", resolve, { once: true });
+        img.addEventListener("error", resolve, { once: true });
+      });
+      imagePromises.push({ promise: imgPromise, page: card.dataset.page });
+
       const link = document.createElement("a");
       link.href = asset.link?.trim() || fallbackLink;
       link.target = "_blank";
@@ -93,11 +88,9 @@ document.addEventListener("DOMContentLoaded", () => {
       link.appendChild(img);
       link.innerHTML += `<h3>${asset.title || "Untitled"}</h3>`;
 
-      // Author
       const author = document.createElement("p");
       author.textContent = asset.author || " ";
 
-      // Favorite
       const star = document.createElement("span");
       star.className = "favorite-star";
       star.textContent = favorites.has(asset.title) ? "★" : "☆";
@@ -110,7 +103,6 @@ document.addEventListener("DOMContentLoaded", () => {
         refreshCards();
       });
 
-      // Status overlay
       const status = asset.status?.toLowerCase();
       if (status === "soon") {
         card.classList.add("soon");
@@ -123,22 +115,21 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay.alt = status;
         overlay.loading = "lazy";
         card.appendChild(overlay);
-        imagePromises.push(
-          new Promise((resolve) => {
-            overlay.addEventListener("load", resolve, { once: true });
-            overlay.addEventListener("error", resolve, { once: true });
-          })
-        );
+        const overlayPromise = new Promise((resolve) => {
+          overlay.addEventListener("load", resolve, { once: true });
+          overlay.addEventListener("error", resolve, { once: true });
+        });
+        imagePromises.push({ promise: overlayPromise, page: card.dataset.page });
       }
 
       card.append(link, author, star);
       container.appendChild(card);
     }
 
-    return Promise.all(imagePromises);
+    return imagePromises;
   }
 
-  // --- Page + Filter Logic ---
+  // --- Paging / Filtering ---
   const getAllCards = () => Array.from(container.querySelectorAll(".asset-card"));
   const getFilteredCards = () => getAllCards().filter((c) => c.dataset.filtered === "true");
   const getPages = () =>
@@ -172,10 +163,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function refreshCards() {
     container.innerHTML = "";
-    createAssetCards(assetsData).then(() => {
-      renderPage();
-      startPlaceholderCycle();
-    });
+    const imgData = createAssetCards(assetsData);
+    renderPage();
+    startPlaceholderCycle();
+    return imgData;
   }
 
   // --- Placeholder animation ---
@@ -217,6 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
     currentPage = idx === 0 ? pages.at(-1) : pages[idx - 1];
     renderPage();
   };
+
   window.nextPage = () => {
     const pages = getPages();
     if (!pages.length) return;
@@ -225,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPage();
   };
 
-  // --- Load Assets with Retry + Double-Hide ---
+  // --- Load & Prioritize First Page ---
   async function loadAssets(retry = false) {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
@@ -235,12 +227,21 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
       assetsData = await res.json();
 
-      await createAssetCards(assetsData);
+      const imagePromises = createAssetCards(assetsData);
       renderPage();
       startPlaceholderCycle();
 
-      hidePreloader();
-      setTimeout(() => hidePreloader(true), 1500); // second safety hide
+      // Wait only for first page’s images
+      const firstPageImages = imagePromises
+        .filter((p) => parseInt(p.page) === 1)
+        .map((p) => p.promise);
+      await Promise.all(firstPageImages);
+
+      hidePreloader(); // once page 1 is ready
+      setTimeout(() => hidePreloader(true), 1500);
+
+      // Continue loading all other pages in background
+      Promise.all(imagePromises.map((p) => p.promise)).catch(() => {});
     } catch (err) {
       console.error("Error loading JSON:", err);
       if (!retry) {
@@ -254,7 +255,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- Hard timeout fallback ---
+  // --- Hard fallback ---
   setTimeout(() => hidePreloader(true), 8000);
 
   // --- Events ---
