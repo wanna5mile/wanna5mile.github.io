@@ -10,8 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Config & State ---
   const jsonPath = "system/json/assets.json";
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
-  const fallbackImage =
-    "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png";
+  const fallbackImage = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png";
   const fallbackLink = "https://wanna5mile.github.io/source/dino/";
   let assetsData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
@@ -21,12 +20,24 @@ document.addEventListener("DOMContentLoaded", () => {
     container.textContent = text;
     container.style.textAlign = "center";
   };
-
   const saveFavorites = () =>
     localStorage.setItem("favorites", JSON.stringify([...favorites]));
 
-  // --- Preloader Hide ---
-  function hidePreloader(force = false) {
+  // --- Preloader Cycle + Hide ---
+  async function cyclePreloaderGifs() {
+    if (!loaderImage) return;
+    const gifs = [
+      "system/images/GIF/loading.gif",
+      "system/images/GIF/almost.gif",
+      "system/images/GIF/done.gif",
+    ];
+    for (let i = 0; i < gifs.length; i++) {
+      loaderImage.src = gifs[i];
+      await new Promise((r) => setTimeout(r, 1200)); // wait per GIF
+    }
+  }
+
+  async function hidePreloader(force = false) {
     if (!preloader || (preloader.dataset.hidden === "true" && !force)) return;
     preloader.dataset.hidden = "true";
     preloader.classList.add("fade");
@@ -132,8 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Paging / Filtering ---
   const getAllCards = () => Array.from(container.querySelectorAll(".asset-card"));
   const getFilteredCards = () => getAllCards().filter((c) => c.dataset.filtered === "true");
-  const getPages = () =>
-    [...new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)))].sort((a, b) => a - b);
+  const getPages = () => [...new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)))].sort((a, b) => a - b);
 
   function renderPage() {
     const pages = getPages();
@@ -154,8 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function filterAssets(query) {
     const q = query.toLowerCase().trim();
     getAllCards().forEach((card) => {
-      const match =
-        !q || card.dataset.title.includes(q) || card.dataset.author.includes(q);
+      const match = !q || card.dataset.title.includes(q) || card.dataset.author.includes(q);
       card.dataset.filtered = match ? "true" : "false";
     });
     renderPage();
@@ -208,7 +217,6 @@ document.addEventListener("DOMContentLoaded", () => {
     currentPage = idx === 0 ? pages.at(-1) : pages[idx - 1];
     renderPage();
   };
-
   window.nextPage = () => {
     const pages = getPages();
     if (!pages.length) return;
@@ -217,7 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPage();
   };
 
-  // --- Load & Prioritize First Page ---
+  // --- Load & Wait for Page 1 ---
   async function loadAssets(retry = false) {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
@@ -231,21 +239,22 @@ document.addEventListener("DOMContentLoaded", () => {
       renderPage();
       startPlaceholderCycle();
 
-      // Wait only for first page’s images
+      // Wait for all images of page 1 to fully load
       const firstPageImages = imagePromises
         .filter((p) => parseInt(p.page) === 1)
         .map((p) => p.promise);
+
       await Promise.all(firstPageImages);
 
-      hidePreloader(); // once page 1 is ready
-      setTimeout(() => hidePreloader(true), 1500);
+      // Cycle through GIFs before hiding
+      await cyclePreloaderGifs();
+      hidePreloader();
 
-      // Continue loading all other pages in background
+      // Continue loading rest in background
       Promise.all(imagePromises.map((p) => p.promise)).catch(() => {});
     } catch (err) {
       console.error("Error loading JSON:", err);
       if (!retry) {
-        console.warn("Retrying JSON load...");
         setTimeout(() => loadAssets(true), 1000);
       } else {
         showLoading("⚠ Failed to load asset data.");
@@ -256,7 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Hard fallback ---
-  setTimeout(() => hidePreloader(true), 8000);
+  setTimeout(() => hidePreloader(true), 10000);
 
   // --- Events ---
   if (searchInput && searchBtn) {
