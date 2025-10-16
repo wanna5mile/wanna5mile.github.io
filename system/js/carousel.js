@@ -13,8 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const jsonPath = "system/json/assets.json";
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
   const fallbackImage =
-    "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
-  const fallbackLink = "https://theworldpt1.github.io/source/dino/";
+    "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png";
+  const fallbackLink = "https://wanna5mile.github.io/source/dino/";
 
   // --- Helpers ---
   function showLoading(text) {
