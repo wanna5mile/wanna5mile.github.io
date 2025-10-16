@@ -5,54 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WannaSmile | Discovery</title>
   <link rel="icon" href="../images/favicons/v1.png" />
-  <link rel="stylesheet" href="../css/main.css" />
-  <link rel="stylesheet" href="../css/themes.css" />
+  <link rel="stylesheet" href="../system/css/main.css" />
+  <link rel="stylesheet" href="../system/css/themes.css" />
 
   <style>
     body {
-      color: #fff;
-      font-family: 'Segoe UI', sans-serif;
       text-align: center;
-      margin: 0;
     }
+
     main {
       padding: 2rem;
     }
+
     h1 {
       font-size: 2em;
       margin-bottom: 1em;
+      font-family: monospace;
       transition: color 0.3s, text-decoration-color 0.3s;
     }
     h1:hover {
-      color: #ff0000;
+      color: var(--accent-color);
       text-decoration: underline;
-      text-decoration-color: #ff0000;
+      text-decoration-color: var(--accent-color);
     }
 
-    /* Center search bar */
+    /* --- Search bar override (centered) --- */
     .search-box {
-      display: flex;
       justify-content: center;
-      align-items: center;
-      gap: 0.5rem;
       margin: 0 auto 1.5rem;
       max-width: 400px;
-      background: rgba(255,255,255,0.05);
+      background: rgba(255, 255, 255, 0.05);
       border-radius: 10px;
       padding: 0.4rem 0.6rem;
     }
     .search-box input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: #fff;
       font-size: 1rem;
-      outline: none;
-    }
-    .search-box button {
-      background: none;
-      border: none;
-      cursor: pointer;
     }
     .search-box img {
       width: 22px;
@@ -60,7 +47,7 @@
       filter: invert(1);
     }
 
-    /* Category buttons */
+    /* --- Category buttons --- */
     .category-buttons {
       display: flex;
       justify-content: center;
@@ -75,6 +62,7 @@
       border-radius: 8px;
       padding: 0.6em 1.2em;
       cursor: pointer;
+      font-family: monospace;
       font-size: 1rem;
       transition: background 0.3s, transform 0.2s;
     }
@@ -83,7 +71,7 @@
       transform: scale(1.05);
     }
 
-    /* assets grid */
+    /* --- Discovery grid + cards --- */
     .assets-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -91,7 +79,7 @@
       margin-top: 1em;
     }
     .asset-card {
-      background: rgba(255,255,255,0.05);
+      background: rgba(255, 255, 255, 0.05);
       border-radius: 10px;
       padding: 0.5em;
       text-align: center;
@@ -99,7 +87,7 @@
     }
     .asset-card:hover {
       transform: scale(1.04);
-      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     }
     .asset-card img {
       width: 100%;
@@ -110,7 +98,7 @@
     }
     .asset-card h4 {
       margin: 0.4em 0 0.2em;
-      font-size: 1em;
+      font-family: monospace;
     }
     .asset-card p {
       margin: 0;
@@ -121,8 +109,9 @@
       opacity: 0.6;
       pointer-events: none;
     }
-    .nav-links:hover{
-      color: #ff0000;
+
+    .nav-links a:hover {
+      color: var(--accent-color);
     }
   </style>
 </head>
@@ -139,8 +128,8 @@
   </nav>
 
   <div class="header-controls">
-    <a href="profile.html"><img src="../icons/profile.png" alt="profile" id="pfp"></a>
-    <img src="../icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
+    <a href="profile.html"><img src="../system/icons/profile.png" alt="profile" id="pfp"></a>
+    <img src="../system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
   </div>
 </header>
 
@@ -150,31 +139,31 @@
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="Search ϱames..." />
     <button id="searchBtn">
-      <img src="../icons/search.png" alt="Search" />
+      <img src="../system/icons/search.png" alt="Search" />
     </button>
   </div>
 
-<div class="category-buttons">
-  <button data-category="Action">Action</button>
-  <button data-category="Adventure">Adventure</button>
-  <button data-category="Arcade">Arcade</button>
-  <button data-category="Puzzle">Puzzle</button>
-  <button data-category="Racing">Racing</button>
-  <button data-category="Sports">Sports</button>
-  <button data-category="Shooting">ƨʜooting</button>
-  <button data-category="Multiplayer">Multiplayer</button>
-  <button data-category="Horror">Horror</button>
-  <button data-category="Strategy">Strategy</button>
-  <button data-category="Simulation">Simulation</button>
-  <button data-category="Idle">Idle</button>
-  <button data-category="Rhythm">Rhythm</button>
-  <button data-category="Platformer">Platformer</button>
-  <button data-category="Fighting">Fighting</button>
-  <button data-category="Tower Defense">Tower Defense</button>
-  <button data-category="Sandbox">Sandbox</button>
-  <button data-category="Educational">Educational</button>
-  <button data-category="Other">Other</button>
-</div>
+  <div class="category-buttons">
+    <button data-category="Action">Action</button>
+    <button data-category="Adventure">Adventure</button>
+    <button data-category="Arcade">Arcade</button>
+    <button data-category="Puzzle">Puzzle</button>
+    <button data-category="Racing">Racing</button>
+    <button data-category="Sports">Sports</button>
+    <button data-category="Shooting">ƨʜooting</button>
+    <button data-category="Multiplayer">Multiplayer</button>
+    <button data-category="Horror">Horror</button>
+    <button data-category="Strategy">Strategy</button>
+    <button data-category="Simulation">Simulation</button>
+    <button data-category="Idle">Idle</button>
+    <button data-category="Rhythm">Rhythm</button>
+    <button data-category="Platformer">Platformer</button>
+    <button data-category="Fighting">Fighting</button>
+    <button data-category="Tower Defense">Tower Defense</button>
+    <button data-category="Sandbox">Sandbox</button>
+    <button data-category="Educational">Educational</button>
+    <button data-category="Other">Other</button>
+  </div>
 
   <div id="discoveryContainer">Loading ϱames...</div>
 </main>
@@ -324,5 +313,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 </script>
+
 </body>
 </html>
