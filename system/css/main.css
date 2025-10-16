@@ -232,10 +232,17 @@ header img {
   max-height: 120px;
   border-radius: 8px;
 }
+/* Remove focus borders from search input */
+.search-box input:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
 
 /* ==========================================
    Grid Layout
    ========================================== */
+
 #container,
 #container-discov {
   display: grid;
