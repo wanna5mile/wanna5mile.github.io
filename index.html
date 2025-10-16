@@ -35,7 +35,7 @@
     .update-buttons button:hover { filter: brightness(1.2); }
     @keyframes popup-bounce {0%{transform:scale(0.9);opacity:0;}60%{transform:scale(1.05);opacity:1;}100%{transform:scale(1);}}
     
-    /* Search Bar Transitions (consider moving to main.css) */
+    /* Search Bar Transitions */
     #searchInputHeader { transition: opacity 0.5s ease; }
     #searchInputHeader.fade-out { opacity:0; }
     #searchInputHeader.fade-in { opacity:1; }
@@ -104,7 +104,11 @@
     <a href="system/pages/alt.html">Alternative Links</a>
   </aside>
 
-  <div id="quoteWrapper" role="status"><p id="quoteBox"></p></div>
+  <!-- ✅ Old quote system restored -->
+  <div id="quoteWrapper">
+    <p id="quoteBox"></p>
+  </div>
+  <!-- ✅ End quote system -->
 
   <div id="updatePopup" class="update-popup" role="dialog" aria-modal="true" aria-labelledby="updatePopupTitle">
     <div class="update-popup-content">
@@ -146,7 +150,9 @@
   </footer>
 
 <!-- scripts -->
+  <!-- ✅ Restored old quote script -->
   <script src="system/js/quotes.js" defer></script>
+
   <script src="system/js/searcherror.js" defer></script>
   <script src="system/js/carousel.js" defer></script>
   <script src="system/js/commands.js" defer></script>
@@ -154,7 +160,7 @@
   <script src="/system/js/settings.js" defer></script>
 
   <script>
-    // --- Update Popup to pause vid when closed ---
+    // --- Update Popup + Dashboard + ToTop ---
     document.addEventListener("DOMContentLoaded", () => {
       const popup = document.getElementById("updatePopup");
       const video = document.getElementById("updateVideo");
@@ -169,7 +175,6 @@
       const currentVersion = "v0.8";
       const storedVersion = localStorage.getItem("dismissedUpdateVersion");
 
-      // Show popup logic
       if (storedVersion !== currentVersion && !sessionStorage.getItem("updatePopupClosed")) {
         setTimeout(() => popup.classList.add("show"), 1500);
       }
@@ -192,15 +197,10 @@
         closePopup();
       });
 
-      viewUpdateBtn.addEventListener("click", () => {
-        window.open("system/pages/updates.html", "_blank");
-      });
+      viewUpdateBtn.addEventListener("click", () => window.open("system/pages/updates.html", "_blank"));
+      viewInfoBtn.addEventListener("click", () => window.open("system/pages/update-info.html", "_blank"));
 
-      viewInfoBtn.addEventListener("click", () => {
-        window.open("system/pages/update-info.html", "_blank");
-      });
-
-      // --- Dashboard Toggle ---
+      // Dashboard toggle
       if (dashboardBtn && dashboardMenu) {
         dashboardMenu.style.display = "none";
         dashboardMenu.style.opacity = 0;
@@ -223,32 +223,21 @@
         };
 
         dashboardBtn.addEventListener("click", toggleDashboard);
-
-        // Click outside → close
         document.addEventListener("click", (e) => {
-          if (dashboardMenu.style.display === "block" && 
-              !dashboardMenu.contains(e.target) && 
-              e.target !== dashboardBtn) 
-          {
-            toggleDashboard(e);
-          }
+          if (dashboardMenu.style.display === "block" && !dashboardMenu.contains(e.target) && e.target !== dashboardBtn) toggleDashboard(e);
         });
       }
 
-      // --- Scroll-to-Top ---
       const toTopBtn = document.getElementById("toTopBtn");
       window.onscroll = () => {
         toTopBtn.style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 200) ? "block" : "none";
       };
-      const scrollToTop = () => { window.scrollTo({ top: 0, behavior: "smooth" }); };
+      const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
       toTopBtn.onclick = scrollToTop;
       toTopBtn.addEventListener("dblclick", scrollToTop);
 
-      // --- PFP Image Load ---
       const savedPic = localStorage.getItem("profilePic");
-      if (savedPic) {
-        pfp.src = savedPic;
-      }
+      if (savedPic) pfp.src = savedPic;
     });
   </script>
 </body>
