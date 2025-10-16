@@ -26,30 +26,15 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("favorites", JSON.stringify([...favorites]));
   }
 
-  // --- Shoelace alert helper ---
-  function showSlowLoadAlert() {
-    if (document.querySelector(".slow-load-alert")) return;
-
-    const alert = document.createElement("sl-alert");
-    alert.className = "slow-load-alert";
-    alert.variant = "warning";
-    alert.closable = true;
-    alert.duration = 7000;
-    alert.innerHTML = `
-      <sl-icon slot="icon" name="clock"></sl-icon>
-      <strong>Still loading?</strong>
-      <br />If the screen stays here too long, try refreshing the page.
-    `;
-    document.body.appendChild(alert);
-    alert.toast();
-  }
-
-  // --- Preloader Controller ---
+  // --- Improved Preloader (Old System Style) ---
   function hidePreloader() {
     if (!preloader) return;
-    if (loaderImage) loaderImage.src = "system/images/GIF/load-fire.gif";
     preloader.classList.add("fade");
-    setTimeout(() => (preloader.style.display = "none"), 600);
+    setTimeout(() => {
+      preloader.style.opacity = "0";
+      preloader.style.pointerEvents = "none";
+      preloader.style.display = "none";
+    }, 500);
   }
 
   // --- Card Creation ---
@@ -90,7 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // Track when each image finishes loading or errors
       const imgPromise = new Promise((resolve) => {
         img.addEventListener("load", resolve, { once: true });
         img.addEventListener("error", resolve, { once: true });
@@ -139,7 +123,6 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay.loading = "lazy";
         card.appendChild(overlay);
 
-        // Track overlay load
         const overlayPromise = new Promise((resolve) => {
           overlay.addEventListener("load", resolve, { once: true });
           overlay.addEventListener("error", resolve, { once: true });
@@ -153,7 +136,6 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(card);
     });
 
-    // Return a promise that resolves when all images are done
     return Promise.all(imagePromises);
   }
 
@@ -239,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cycle();
   }
 
-  // --- Navigation ---
+  // --- Navigation (from old JS logic, now dynamic) ---
   window.prevPage = () => {
     const pagesWithContent = getPagesWithContent();
     if (!pagesWithContent.length) return;
@@ -271,16 +253,18 @@ document.addEventListener("DOMContentLoaded", () => {
       assetsData = await res.json();
 
       container.innerHTML = "";
-
-      // Wait until all images (including overlays) are loaded before hiding preloader
       await createAssetCards(assetsData);
+
       renderPage();
       startPlaceholderCycle();
+
+      // old-style smooth preloader removal after full load
       hidePreloader();
     } catch (err) {
       console.error("Error loading JSON:", err);
       showLoading("⚠ Failed to load asset data.");
       if (loaderImage) loaderImage.src = "system/images/GIF/crash.gif";
+      setTimeout(hidePreloader, 1000);
     }
   }
 
