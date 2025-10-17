@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
   const fallbackImage = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png";
   const fallbackLink = "https://wanna5mile.github.io/source/dino/";
+  const gifBase = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/";
   let assetsData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
 
@@ -38,15 +39,22 @@ document.addEventListener("DOMContentLoaded", () => {
     progressBarFill.style.width = `${percent}%`;
   }
 
-  async function cyclePreloaderGifs() {
+  async function cyclePreloaderGifs(success = true) {
     if (!loaderImage) return;
-    const gifs = [
-      "system/images/GIF/loading.gif",
-      "system/images/GIF/load-fire.gif"
-    ];
-    for (let i = 0; i < gifs.length; i++) {
-      loaderImage.src = gifs[i];
-      await new Promise((r) => setTimeout(r, 1200));
+    const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    if (success) {
+      const gifs = [`${gifBase}loading.gif`, `${gifBase}load-fire.gif`];
+      for (const gif of gifs) {
+        loaderImage.src = gif;
+        await delay(1200);
+      }
+    } else {
+      const gifs = [`${gifBase}loading.gif`, `${gifBase}crash.gif`, `${gifBase}ded.gif`];
+      for (const gif of gifs) {
+        loaderImage.src = gif;
+        await delay(1300);
+      }
     }
   }
 
@@ -241,7 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Load & Wait for All Assets ---
   async function loadAssets(retry = false) {
     showLoading("Loading assets...");
-    if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
+    if (loaderImage) loaderImage.src = `${gifBase}loading.gif`;
     updateProgress(0);
 
     try {
@@ -256,7 +264,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const total = imagePromises.length;
       let loaded = 0;
 
-      // progress tracking
       imagePromises.forEach(({ promise }) => {
         promise.then(() => {
           loaded++;
@@ -265,12 +272,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
 
-      // wait for all to complete
       await Promise.all(imagePromises.map((p) => p.promise));
 
-      // finish progress and hide loader
       updateProgress(100);
-      await cyclePreloaderGifs();
+      await cyclePreloaderGifs(true);
       hidePreloader();
 
     } catch (err) {
@@ -279,7 +284,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => loadAssets(true), 1000);
       } else {
         showLoading("⚠ Failed to load asset data.");
-        if (loaderImage) loaderImage.src = "system/images/GIF/crash.gif";
+        await cyclePreloaderGifs(false);
         hidePreloader(true);
       }
     }
