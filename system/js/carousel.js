@@ -7,6 +7,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const preloader = document.getElementById("preloader");
   const loaderImage = document.getElementById("loaderImage");
 
+  // --- Add visual progress ---
+  const progressText = document.createElement("div");
+  const progressBar = document.createElement("div");
+  const progressBarFill = document.createElement("div");
+  progressText.className = "load-progress-text";
+  progressBar.className = "load-progress-bar";
+  progressBarFill.className = "load-progress-fill";
+  progressBar.appendChild(progressBarFill);
+  preloader.append(progressText, progressBar);
+
   // --- Config & State ---
   const jsonPath = "system/json/assets.json";
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
@@ -20,10 +30,14 @@ document.addEventListener("DOMContentLoaded", () => {
     container.textContent = text;
     container.style.textAlign = "center";
   };
-  const saveFavorites = () =>
-    localStorage.setItem("favorites", JSON.stringify([...favorites]));
+  const saveFavorites = () => localStorage.setItem("favorites", JSON.stringify([...favorites]));
 
-  // --- Preloader Cycle + Hide ---
+  // --- Preloader Visual Logic ---
+  function updateProgress(percent) {
+    progressText.textContent = `Loading ${percent}%`;
+    progressBarFill.style.width = `${percent}%`;
+  }
+
   async function cyclePreloaderGifs() {
     if (!loaderImage) return;
     const gifs = [
@@ -32,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
     for (let i = 0; i < gifs.length; i++) {
       loaderImage.src = gifs[i];
-      await new Promise((r) => setTimeout(r, 1200)); // wait per GIF
+      await new Promise((r) => setTimeout(r, 1200));
     }
   }
 
@@ -208,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loop();
   }
 
-  // --- Nav buttons ---
+  // --- Navigation ---
   window.prevPage = () => {
     const pages = getPages();
     if (!pages.length) return;
@@ -224,10 +238,11 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPage();
   };
 
-  // --- Load & Wait for Page 1 ---
+  // --- Load & Wait for All Assets ---
   async function loadAssets(retry = false) {
     showLoading("Loading assets...");
     if (loaderImage) loaderImage.src = "system/images/GIF/loading.gif";
+    updateProgress(0);
 
     try {
       const res = await fetch(jsonPath, { cache: "no-store" });
@@ -238,19 +253,26 @@ document.addEventListener("DOMContentLoaded", () => {
       renderPage();
       startPlaceholderCycle();
 
-      // Wait for all images of page 1 to fully load
-      const firstPageImages = imagePromises
-        .filter((p) => parseInt(p.page) === 1)
-        .map((p) => p.promise);
+      const total = imagePromises.length;
+      let loaded = 0;
 
-      await Promise.all(firstPageImages);
+      // progress tracking
+      imagePromises.forEach(({ promise }) => {
+        promise.then(() => {
+          loaded++;
+          const percent = Math.round((loaded / total) * 100);
+          updateProgress(percent);
+        });
+      });
 
-      // Cycle through GIFs before hiding
+      // wait for all to complete
+      await Promise.all(imagePromises.map((p) => p.promise));
+
+      // finish progress and hide loader
+      updateProgress(100);
       await cyclePreloaderGifs();
       hidePreloader();
 
-      // Continue loading rest in background
-      Promise.all(imagePromises.map((p) => p.promise)).catch(() => {});
     } catch (err) {
       console.error("Error loading JSON:", err);
       if (!retry) {
@@ -264,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Hard fallback ---
-  setTimeout(() => hidePreloader(true), 10000);
+  setTimeout(() => hidePreloader(true), 20000);
 
   // --- Events ---
   if (searchInput && searchBtn) {
