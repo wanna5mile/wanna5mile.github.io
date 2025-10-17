@@ -28,8 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!loaderImage) return;
     const gifs = [
       "system/images/GIF/loading.gif",
-      "system/images/GIF/almost.gif",
-      "system/images/GIF/done.gif",
+      "system/images/GIF/load-fire.gif"
     ];
     for (let i = 0; i < gifs.length; i++) {
       loaderImage.src = gifs[i];
