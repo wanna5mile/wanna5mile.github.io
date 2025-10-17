@@ -429,3 +429,29 @@ footer {
   color: var(--link-color);
   box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
 }
+
+/*=========================
+Preloader progress visuals 
+============================*/
+.load-progress-text {
+  font-family: monospace;
+  color: white;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.load-progress-bar {
+  width: 80%;
+  height: 8px;
+  margin: 10px auto;
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.load-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #00ffff, #ff00ff);
+  transition: width 0.3s ease;
+}
