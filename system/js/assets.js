@@ -22,7 +22,7 @@ function createAssetCards(data) {
     const img = document.createElement("img");
     img.src = imageSrc;
     img.alt = asset.title || "Asset";
-    img.loading = "lazy";
+    img.loading = "eager";
     img.addEventListener("error", () => {
       if (!img.dataset.fallbackApplied) {
         img.src = config.fallbackImage;
@@ -63,7 +63,7 @@ function createAssetCards(data) {
       overlay.className = `status-overlay ${status}`;
       overlay.src = `system/images/${status}.png`;
       overlay.alt = status;
-      overlay.loading = "lazy";
+      overlay.loading = "eager";
       card.appendChild(overlay);
       const overlayPromise = new Promise((resolve) => {
         overlay.addEventListener("load", resolve, { once: true });
