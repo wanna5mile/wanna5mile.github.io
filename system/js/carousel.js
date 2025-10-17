@@ -20,23 +20,36 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Config & State ---
   const jsonPath = "system/json/assets.json";
   const favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
-  const fallbackImage = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png";
+  const fallbackImage =
+    "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png";
   const fallbackLink = "https://wanna5mile.github.io./source/dino/";
-  const gifBase = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/";
+  const gifBase =
+    "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/";
   let assetsData = [];
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
+  let currentPercent = 0;
 
   // --- Helpers ---
   const showLoading = (text) => {
     container.textContent = text;
     container.style.textAlign = "center";
   };
-  const saveFavorites = () => localStorage.setItem("favorites", JSON.stringify([...favorites]));
+  const saveFavorites = () =>
+    localStorage.setItem("favorites", JSON.stringify([...favorites]));
 
   // --- Preloader Visual Logic ---
   function updateProgress(percent) {
+    currentPercent = percent;
     progressText.textContent = `Loading ${percent}%`;
     progressBarFill.style.width = `${percent}%`;
+
+    // ✅ Hide only when counter reaches 100%
+    if (percent >= 100) {
+      setTimeout(async () => {
+        await cyclePreloaderGifs(true);
+        hidePreloader();
+      }, 200);
+    }
   }
 
   async function cyclePreloaderGifs(success = true) {
@@ -76,7 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
     container.innerHTML = "";
 
     const imagePromises = [];
-
     const sorted = [...data].sort((a, b) => {
       const aFav = favorites.has(a.title);
       const bFav = favorites.has(b.title);
@@ -164,7 +176,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Paging / Filtering ---
   const getAllCards = () => Array.from(container.querySelectorAll(".asset-card"));
   const getFilteredCards = () => getAllCards().filter((c) => c.dataset.filtered === "true");
-  const getPages = () => [...new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)))].sort((a, b) => a - b);
+  const getPages = () =>
+    [...new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)))].sort(
+      (a, b) => a - b
+    );
 
   function renderPage() {
     const pages = getPages();
@@ -274,10 +289,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       await Promise.all(imagePromises.map((p) => p.promise));
 
-      updateProgress(100);
-      await cyclePreloaderGifs(true);
-      hidePreloader();
-
     } catch (err) {
       console.error("Error loading JSON:", err);
       if (!retry) {
@@ -289,9 +300,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   }
-
-  // --- Hard fallback ---
-  setTimeout(() => hidePreloader(true), 20000);
 
   // --- Events ---
   if (searchInput && searchBtn) {
