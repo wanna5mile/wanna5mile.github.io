@@ -4,16 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WannaSmile | Discovery</title>
-  <link rel="icon" href="../../system/images/favicons/logoo.png" />
+  <link rel="icon" href="../system/images/favicons/logoo.png" />
 
   <!-- Meta -->
   <meta name="author" content="WannaSmile by Rhap5ody" />
   <meta name="keywords" content="games, discovery, fun, smile" />
 
   <!-- Styles -->
-  <link rel="stylesheet" href="../../system/css/themes.css" />
-  <link rel="stylesheet" href="../../system/css/main.css" />
-  <link rel="stylesheet" href="../../system/css/loading-screen.css" />
+  <link rel="stylesheet" href="../system/css/themes.css" />
+  <link rel="stylesheet" href="../system/css/main.css" />
+  <link rel="stylesheet" href="../system/css/loading-screen.css" />
 
   <style>
     main {
@@ -35,7 +35,6 @@
       text-decoration-color: #ff3b3b;
     }
 
-    /* --- Search --- */
     .search-box {
       display: flex;
       justify-content: center;
@@ -69,7 +68,6 @@
       filter: invert(1);
     }
 
-    /* --- Categories --- */
     .category-buttons {
       display: flex;
       justify-content: center;
@@ -94,7 +92,6 @@
       transform: translateY(-3px);
     }
 
-    /* --- Grid --- */
     .assets-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -152,33 +149,30 @@
 </head>
 
 <body theme="classic">
-  <!-- ✅ Preloader (same as index) -->
-  <div id="preloader" class="preloader">
+  <!-- ✅ Static Preloader (now purely visual, no JS logic) -->
+  <div id="preloader" class="preloader" style="display: none;">
     <div class="loader-gif">
-      <img id="loaderImage" src="../../system/images/GIF/loading.gif" alt="Loading..." />
+      <img id="loaderImage" src="../system/images/GIF/loading.gif" alt="Loading..." />
     </div>
-    <div class="load-progress-bar"><div id="progressBar" class="load-progress-fill"></div></div>
-    <div id="progressText" class="load-progress-text">0%</div>
-    <div id="loaderText" class="loading-text">Loading...</div>
   </div>
 
   <header>
     <nav class="nav-links">
-      <a href="../../index.html">Home</a>
-      <a href="../../favorites.html">Favorites</a>
+      <a href="../index.html">Home</a>
+      <a href="../favorites.html">Favorites</a>
       <a href="discovery.html" class="active">Discovery</a>
       <a href="settings.html">Settings</a>
       <a href="support.html">Support</a>
-      <a href="../../info.html">Info</a>
+      <a href="../info.html">Info</a>
     </nav>
 
     <div class="header-controls">
       <div class="search-box" role="search">
         <input id="searchInput" type="text" placeholder="Search ϱames..." />
-        <button id="searchBtn"><img src="../../system/icons/search.png" alt="Search" /></button>
+        <button id="searchBtn"><img src="../system/icons/search.png" alt="Search" /></button>
       </div>
       <a href="profile.html"><img id="pfp" src="../../system/icons/profile.png" alt="Profile" /></a>
-      <button id="dashboardBtn"><img src="../../system/icons/dashboard.png" alt="Dashboard" /></button>
+      <button id="dashboardBtn"><img src="../system/icons/dashboard.png" alt="Dashboard" /></button>
     </div>
   </header>
 
@@ -226,16 +220,14 @@
     <a href="alt.html">Alternative Links</a>
   </div>
 
-  <!-- ✅ Same scripts setup as index -->
+  <!-- ✅ JS without preloader logic -->
   <script src="../../system/js/elements.js" defer></script>
-  <script src="../../system/js/preloader.js" defer></script>
-  <script src="../../system/js/loader.js" defer></script>
   <script src="../../system/js/assets.js" defer></script>
   <script src="../../system/js/favorites.js" defer></script>
   <script src="../../system/js/placeholders.js" defer></script>
   <script src="../../system/js/main.js" defer></script>
 
-  <!-- ✅ Discovery-specific logic -->
+  <!-- Discovery page logic -->
   <script>
   document.addEventListener("DOMContentLoaded", async () => {
     const container = document.getElementById("discoveryContainer");
@@ -305,7 +297,6 @@
 
     renderAssets(assets);
 
-    // Filter by category
     buttons.forEach(btn => {
       btn.addEventListener("click", () => {
         const cat = btn.dataset.category.toLowerCase();
@@ -314,7 +305,6 @@
       });
     });
 
-    // Search
     function searchAssets() {
       const q = searchInput.value.toLowerCase().trim();
       const filtered = assets.filter(
@@ -326,11 +316,9 @@
     searchBtn.addEventListener("click", searchAssets);
     searchInput.addEventListener("keydown", e => { if (e.key === "Enter") searchAssets(); });
 
-    // Profile picture
     const savedPic = localStorage.getItem("profilePic");
     if (savedPic) document.getElementById("pfp").src = savedPic;
 
-    // Dashboard menu
     const dashboardBtn = document.getElementById("dashboardBtn");
     const dashboardMenu = document.getElementById("dashboardMenu");
 
