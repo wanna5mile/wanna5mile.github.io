@@ -1,4 +1,4 @@
-// ✅ loader.js
+// ✅ loader.js (cleaned and simplified)
 async function loadAssets(retry = false) {
   // --- Safety checks: wait until dependencies are ready ---
   if (!window.dom || !dom.preloader) {
@@ -14,14 +14,14 @@ async function loadAssets(retry = false) {
   }
 
   // --- Main loader logic ---
-  const { loaderImage, preloader, progressText, container } = dom || {};
+  const { loaderImage, preloader, progressText, progressBar } = dom || {};
   if (!preloader) {
     console.warn("Preloader not found in DOM.");
     return;
   }
 
+  // Set initial loading state
   showLoading("Loading assets...");
-
   if (loaderImage) loaderImage.src = `${config.gifBase}loading.gif`;
   updateProgress(0);
 
@@ -47,16 +47,16 @@ async function loadAssets(retry = false) {
       });
     }
 
-    // Wait for all images to load
+    // Wait for all images to fully load
     await Promise.all(imagePromises.map((p) => p.promise));
 
     // Ensure 100% is displayed
     updateProgress(100);
 
-    // Short delay for smooth animation
+    // Short delay for smoother animation
     await new Promise((r) => setTimeout(r, 400));
 
-    // Cycle final preloader gifs and hide
+    // Transition out
     await cyclePreloaderGifs(true);
     hidePreloader(true);
 
