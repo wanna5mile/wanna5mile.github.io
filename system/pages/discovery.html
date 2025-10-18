@@ -4,21 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WannaSmile | Discovery</title>
-  <link rel="icon" href="/images/favicons/v1.png" />
-  <link rel="stylesheet" href="/system/css/main.css" />
-  <link rel="stylesheet" href="/system/css/themes.css" />
+  <link rel="icon" href="../../system/images/favicons/logoo.png" />
+
+  <!-- Meta -->
+  <meta name="author" content="WannaSmile by Rhap5ody" />
+  <meta name="keywords" content="games, discovery, fun, smile" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../../system/css/themes.css" />
+  <link rel="stylesheet" href="../../system/css/main.css" />
+  <link rel="stylesheet" href="../../system/css/loading-screen.css" />
 
   <style>
-    body {
-      color: #fff;
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      margin: 0;
-      background: var(--bg-color, #0d0d0d);
-    }
-
     main {
       padding: 2rem;
+      text-align: center;
+      color: #fff;
+      background: var(--bg-color, #0d0d0d);
     }
 
     h1 {
@@ -33,7 +35,7 @@
       text-decoration-color: #ff3b3b;
     }
 
-    /* --- Search bar --- */
+    /* --- Search --- */
     .search-box {
       display: flex;
       justify-content: center;
@@ -67,7 +69,7 @@
       filter: invert(1);
     }
 
-    /* --- Category Buttons --- */
+    /* --- Categories --- */
     .category-buttons {
       display: flex;
       justify-content: center;
@@ -92,38 +94,27 @@
       transform: translateY(-3px);
     }
 
-    /* --- Assets Grid --- */
+    /* --- Grid --- */
     .assets-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 1.25rem;
-      margin-top: 1em;
       justify-items: center;
     }
 
-    /* --- Asset Card --- */
     .asset-card {
       background: rgba(255, 255, 255, 0.05);
       border-radius: 12px;
       padding: 0.7em;
       text-align: center;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
       width: 100%;
       max-width: 220px;
-      overflow: hidden;
-      will-change: transform;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
 
     .asset-card:hover {
       transform: translateY(-6px) scale(1.03);
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-      z-index: 2;
-    }
-
-    .asset-card a {
-      text-decoration: none;
-      color: inherit;
-      display: block;
     }
 
     .asset-card img {
@@ -132,10 +123,7 @@
       object-fit: cover;
       border-radius: 10px;
       background: #111;
-      display: block;
       transition: transform 0.3s ease, filter 0.3s ease;
-      image-rendering: auto;
-      -webkit-transform: translateZ(0);
     }
 
     .asset-card:hover img {
@@ -146,7 +134,6 @@
     .asset-card h4 {
       margin: 0.5em 0 0.2em;
       font-size: 1em;
-      font-weight: 600;
     }
 
     .asset-card p {
@@ -155,223 +142,223 @@
       color: #bbb;
     }
 
-    /* --- Soon cards --- */
-    .soon {
-      opacity: 0.6;
-      pointer-events: none;
-    }
+    .soon { opacity: 0.6; pointer-events: none; }
 
-    /* --- Responsive tweaks --- */
     @media (max-width: 600px) {
-      .asset-card {
-        max-width: 160px;
-      }
-      .asset-card img {
-        height: 110px;
-      }
+      .asset-card { max-width: 160px; }
+      .asset-card img { height: 110px; }
     }
   </style>
 </head>
-<body>
 
-<header>
-  <nav class="nav-links">
-    <a href="../index.html">Home</a>
-    <a href="../favorites.html">Favorites</a>
-    <a href="discovery.html" class="active">Discovery</a>
-    <a href="settings.html">Settings</a>
-    <a href="support.html">Support</a>
-    <a href="../info.html">Info</a>
-  </nav>
-
-  <div class="header-controls">
-    <a href="profile.html"><img src="../system/icons/profile.png" alt="profile" id="pfp"></a>
-    <img src="../system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
-  </div>
-</header>
-
-<main>
-  <h1>Discover ϱames</h1>
-
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Search ϱames..." />
-    <button id="searchBtn">
-      <img src="../system/icons/search.png" alt="Search" />
-    </button>
+<body theme="classic">
+  <!-- ✅ Preloader (same as index) -->
+  <div id="preloader" class="preloader">
+    <div class="loader-gif">
+      <img id="loaderImage" src="../../system/images/GIF/loading.gif" alt="Loading..." />
+    </div>
+    <div class="load-progress-bar"><div id="progressBar" class="load-progress-fill"></div></div>
+    <div id="progressText" class="load-progress-text">0%</div>
+    <div id="loaderText" class="loading-text">Loading...</div>
   </div>
 
-  <div class="category-buttons">
-    <button data-category="Action">Action</button>
-    <button data-category="Adventure">Adventure</button>
-    <button data-category="Arcade">Arcade</button>
-    <button data-category="Puzzle">Puzzle</button>
-    <button data-category="Racing">Racing</button>
-    <button data-category="Sports">Sports</button>
-    <button data-category="Shooting">ƨʜooting</button>
-    <button data-category="Multiplayer">Multiplayer</button>
-    <button data-category="Horror">Horror</button>
-    <button data-category="Strategy">Strategy</button>
-    <button data-category="Simulation">Simulation</button>
-    <button data-category="Idle">Idle</button>
-    <button data-category="Rhythm">Rhythm</button>
-    <button data-category="Platformer">Platformer</button>
-    <button data-category="Fighting">Fighting</button>
-    <button data-category="Tower Defense">Tower Defense</button>
-    <button data-category="Sandbox">Sandbox</button>
-    <button data-category="Educational">Educational</button>
-    <button data-category="Other">Other</button>
+  <header>
+    <nav class="nav-links">
+      <a href="../../index.html">Home</a>
+      <a href="../../favorites.html">Favorites</a>
+      <a href="discovery.html" class="active">Discovery</a>
+      <a href="settings.html">Settings</a>
+      <a href="support.html">Support</a>
+      <a href="../../info.html">Info</a>
+    </nav>
+
+    <div class="header-controls">
+      <div class="search-box" role="search">
+        <input id="searchInput" type="text" placeholder="Search ϱames..." />
+        <button id="searchBtn"><img src="../../system/icons/search.png" alt="Search" /></button>
+      </div>
+      <a href="profile.html"><img id="pfp" src="../../system/icons/profile.png" alt="Profile" /></a>
+      <button id="dashboardBtn"><img src="../../system/icons/dashboard.png" alt="Dashboard" /></button>
+    </div>
+  </header>
+
+  <main>
+    <h1>Discover ϱames</h1>
+
+    <div class="category-buttons">
+      <button data-category="Action">Action</button>
+      <button data-category="Adventure">Adventure</button>
+      <button data-category="Arcade">Arcade</button>
+      <button data-category="Puzzle">Puzzle</button>
+      <button data-category="Racing">Racing</button>
+      <button data-category="Sports">Sports</button>
+      <button data-category="Shooting">ƨʜooting</button>
+      <button data-category="Multiplayer">Multiplayer</button>
+      <button data-category="Horror">Horror</button>
+      <button data-category="Strategy">Strategy</button>
+      <button data-category="Simulation">Simulation</button>
+      <button data-category="Idle">Idle</button>
+      <button data-category="Rhythm">Rhythm</button>
+      <button data-category="Platformer">Platformer</button>
+      <button data-category="Fighting">Fighting</button>
+      <button data-category="Tower Defense">Tower Defense</button>
+      <button data-category="Sandbox">Sandbox</button>
+      <button data-category="Educational">Educational</button>
+      <button data-category="Other">Other</button>
+    </div>
+
+    <div id="discoveryContainer">Loading ϱames...</div>
+  </main>
+
+  <footer>
+    <a href="sources.html">Sources</a>
+    <a href="contributors.html">Contribute</a>
+    <a href="discord.html">Discord</a>
+    <a href="bugsNfixes.html">Bugs & Fixes</a>
+    <a href="contact.html">Socials</a>
+    <a href="version-log.html">Version V0.8</a>
+  </footer>
+
+  <div id="dashboardMenu" class="dashboard-menu">
+    <a href="music-player.html">Music Player</a>
+    <a href="settings-themes.html">Themes</a>
+    <a href="credits.html">Credits</a>
+    <a href="alt.html">Alternative Links</a>
   </div>
 
-  <div id="discoveryContainer">Loading ϱames...</div>
-</main>
+  <!-- ✅ Same scripts setup as index -->
+  <script src="../../system/js/elements.js" defer></script>
+  <script src="../../system/js/preloader.js" defer></script>
+  <script src="../../system/js/loader.js" defer></script>
+  <script src="../../system/js/assets.js" defer></script>
+  <script src="../../system/js/favorites.js" defer></script>
+  <script src="../../system/js/placeholders.js" defer></script>
+  <script src="../../system/js/main.js" defer></script>
 
-<footer>
-  <a href="sources.html">sources</a>
-  <a href="contributors.html">contribute</a>
-  <a href="discord.html">Discord</a>
-  <a href="bugsNfixes.html">Bugs & fixes</a>
-  <a href="contact.html">Socials</a>
-  <a href="version-log.html">version V0.8</a>
-</footer>
+  <!-- ✅ Discovery-specific logic -->
+  <script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    const container = document.getElementById("discoveryContainer");
+    const searchInput = document.getElementById("searchInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const buttons = document.querySelectorAll(".category-buttons button");
 
-<div id="dashboardMenu" class="dashboard-menu">
-  <a href="music-player.html">Music Player</a>
-  <a href="settings-themes.html">Themes</a>
-  <a href="credits.html">Credits</a>
-  <a href="alt.html">Alternative Links</a>
-</div>
+    const jsonPath = "../../system/json/assets.json";
+    const fallbackImage = "../../system/images/404_blank.png";
+    const fallbackLink = "https://vvannasmile.github.io/source/dino/";
+    let assets = [];
 
-<script>
-document.addEventListener("DOMContentLoaded", async () => {
-  const container = document.getElementById("discoveryContainer");
-  const searchInput = document.getElementById("searchInput");
-  const searchBtn = document.getElementById("searchBtn");
-  const buttons = document.querySelectorAll(".category-buttons button");
-
-  const jsonPath = "../json/assets.json";
-  const fallbackImage = "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
-  const fallbackLink = "https://theworldpt1.github.io/source/dino/";
-  let assets = [];
-
-  try {
-    const res = await fetch(jsonPath);
-    if (!res.ok) throw new Error("Failed to load JSON");
-    assets = await res.json();
-  } catch (err) {
-    console.error(err);
-    container.innerHTML = "<p>⚠ Failed to load ϱame data.</p>";
-    return;
-  }
-
-  function renderassets(list) {
-    container.innerHTML = "";
-    if (!list.length) {
-      container.innerHTML = "<p>No ϱames found.</p>";
+    try {
+      const res = await fetch(jsonPath);
+      if (!res.ok) throw new Error("Failed to load JSON");
+      assets = await res.json();
+    } catch (err) {
+      console.error(err);
+      container.innerHTML = "<p>⚠ Failed to load ϱame data.</p>";
       return;
     }
-    const grid = document.createElement("div");
-    grid.className = "assets-grid";
 
-    list.forEach(asset => {
-      let imgSrc = asset.image?.trim() || "";
-      let linkSrc = asset.link?.trim() || "";
-      if (!imgSrc || imgSrc.toLowerCase() === "blank" || asset.status?.toLowerCase() === "blank")
-        imgSrc = fallbackImage;
-      if (!linkSrc) linkSrc = fallbackLink;
+    function renderAssets(list) {
+      container.innerHTML = "";
+      if (!list.length) {
+        container.innerHTML = "<p>No ϱames found.</p>";
+        return;
+      }
 
-      const card = document.createElement("div");
-      card.className = "asset-card";
-      if (asset.status?.toLowerCase() === "soon") card.classList.add("soon");
+      const grid = document.createElement("div");
+      grid.className = "assets-grid";
 
-      const link = document.createElement("a");
-      link.href = linkSrc;
-      link.target = "_blank";
-      link.rel = "noopener";
+      list.forEach(asset => {
+        let imgSrc = asset.image?.trim() || "";
+        let linkSrc = asset.link?.trim() || "";
+        if (!imgSrc || imgSrc === "blank") imgSrc = fallbackImage;
+        if (!linkSrc) linkSrc = fallbackLink;
 
-      const img = document.createElement("img");
-      img.src = imgSrc;
-      img.alt = asset.title || "asset";
-      img.loading = "lazy";
-      img.decoding = "async";
-      img.onerror = () => { img.src = fallbackImage; };
+        const card = document.createElement("div");
+        card.className = "asset-card";
+        if (asset.status?.toLowerCase() === "soon") card.classList.add("soon");
 
-      const title = document.createElement("h4");
-      title.textContent = asset.title || "Untitled";
+        const link = document.createElement("a");
+        link.href = linkSrc;
+        link.target = "_blank";
+        link.rel = "noopener";
 
-      const author = document.createElement("p");
-      author.textContent = asset.author || "Unknown";
+        const img = document.createElement("img");
+        img.src = imgSrc;
+        img.alt = asset.title || "asset";
+        img.loading = "lazy";
+        img.onerror = () => img.src = fallbackImage;
 
-      link.appendChild(img);
-      link.appendChild(title);
-      link.appendChild(author);
-      card.appendChild(link);
-      grid.appendChild(card);
-    });
+        const title = document.createElement("h4");
+        title.textContent = asset.title || "Untitled";
 
-    container.appendChild(grid);
-  }
+        const author = document.createElement("p");
+        author.textContent = asset.author || "Unknown";
 
-  renderassets(assets);
+        link.append(img, title, author);
+        card.append(link);
+        grid.append(card);
+      });
 
-  // --- Filter by category ---
-  buttons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const cat = btn.dataset.category.toLowerCase();
-      const filtered = assets.filter(g => g.category?.toLowerCase() === cat);
-      renderassets(filtered);
-    });
-  });
-
-  // --- Search filter ---
-  function searchassets() {
-    const q = searchInput.value.toLowerCase().trim();
-    const filtered = assets.filter(
-      g =>
-        g.title?.toLowerCase().includes(q) ||
-        g["sub-category"]?.toLowerCase().includes(q)
-    );
-    renderassets(filtered);
-  }
-
-  searchBtn.addEventListener("click", searchassets);
-  searchInput.addEventListener("keydown", e => {
-    if (e.key === "Enter") searchassets();
-  });
-
-  // --- Profile pic from storage ---
-  const savedPic = localStorage.getItem("profilePic");
-  if (savedPic) document.getElementById("pfp").src = savedPic;
-
-  // --- Dashboard toggle ---
-  const dashboardBtn = document.getElementById("dashboardBtn");
-  const dashboardMenu = document.getElementById("dashboardMenu");
-
-  dashboardMenu.style.display = "none";
-  dashboardMenu.style.opacity = 0;
-  dashboardMenu.style.transition = "opacity 0.3s ease";
-
-  dashboardBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const isVisible = dashboardMenu.style.display === "block";
-    if (isVisible) {
-      dashboardMenu.style.opacity = 0;
-      setTimeout(() => (dashboardMenu.style.display = "none"), 300);
-    } else {
-      dashboardMenu.style.display = "block";
-      setTimeout(() => (dashboardMenu.style.opacity = 1), 10);
+      container.append(grid);
     }
-  });
 
-  document.addEventListener("click", (e) => {
-    if (!dashboardMenu.contains(e.target) && e.target !== dashboardBtn) {
-      if (dashboardMenu.style.display === "block") {
+    renderAssets(assets);
+
+    // Filter by category
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const cat = btn.dataset.category.toLowerCase();
+        const filtered = assets.filter(g => g.category?.toLowerCase() === cat);
+        renderAssets(filtered);
+      });
+    });
+
+    // Search
+    function searchAssets() {
+      const q = searchInput.value.toLowerCase().trim();
+      const filtered = assets.filter(
+        g => g.title?.toLowerCase().includes(q) || g["sub-category"]?.toLowerCase().includes(q)
+      );
+      renderAssets(filtered);
+    }
+
+    searchBtn.addEventListener("click", searchAssets);
+    searchInput.addEventListener("keydown", e => { if (e.key === "Enter") searchAssets(); });
+
+    // Profile picture
+    const savedPic = localStorage.getItem("profilePic");
+    if (savedPic) document.getElementById("pfp").src = savedPic;
+
+    // Dashboard menu
+    const dashboardBtn = document.getElementById("dashboardBtn");
+    const dashboardMenu = document.getElementById("dashboardMenu");
+
+    dashboardMenu.style.display = "none";
+    dashboardMenu.style.opacity = 0;
+    dashboardMenu.style.transition = "opacity 0.3s ease";
+
+    dashboardBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isVisible = dashboardMenu.style.display === "block";
+      if (isVisible) {
         dashboardMenu.style.opacity = 0;
         setTimeout(() => (dashboardMenu.style.display = "none"), 300);
+      } else {
+        dashboardMenu.style.display = "block";
+        setTimeout(() => (dashboardMenu.style.opacity = 1), 10);
       }
-    }
-  });
-});
-</script>
+    });
 
+    document.addEventListener("click", (e) => {
+      if (!dashboardMenu.contains(e.target) && e.target !== dashboardBtn) {
+        if (dashboardMenu.style.display === "block") {
+          dashboardMenu.style.opacity = 0;
+          setTimeout(() => (dashboardMenu.style.display = "none"), 300);
+        }
+      }
+    });
+  });
+  </script>
 </body>
 </html>
