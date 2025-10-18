@@ -1,6 +1,19 @@
-// --- main-loader.js ---
+// ✅ loader.js
 async function loadAssets(retry = false) {
-  // Defensive lookup for DOM elements
+  // --- Safety checks: wait until dependencies are ready ---
+  if (!window.dom || !dom.preloader) {
+    console.warn("DOM or preloader not ready, retrying...");
+    setTimeout(() => loadAssets(retry), 200);
+    return;
+  }
+
+  if (typeof updateProgress !== "function" || typeof hidePreloader !== "function") {
+    console.warn("Preloader functions not ready, retrying...");
+    setTimeout(() => loadAssets(retry), 200);
+    return;
+  }
+
+  // --- Main loader logic ---
   const { loaderImage, preloader, progressText, container } = dom || {};
   if (!preloader) {
     console.warn("Preloader not found in DOM.");
@@ -18,7 +31,7 @@ async function loadAssets(retry = false) {
 
     window.assetsData = await res.json();
 
-    // Create cards and collect promises
+    // Create cards and collect image load promises
     const imagePromises = createAssetCards(assetsData);
     renderPage();
     startPlaceholderCycle();
@@ -37,15 +50,16 @@ async function loadAssets(retry = false) {
     // Wait for all images to load
     await Promise.all(imagePromises.map((p) => p.promise));
 
-    // Make sure progress reaches 100%
+    // Ensure 100% is displayed
     updateProgress(100);
 
-    // Delay slightly to ensure animation completes
+    // Short delay for smooth animation
     await new Promise((r) => setTimeout(r, 400));
 
-    // Transition preloader out
+    // Cycle final preloader gifs and hide
     await cyclePreloaderGifs(true);
     hidePreloader(true);
+
   } catch (err) {
     console.error("Error loading JSON:", err);
     if (!retry) {
@@ -58,13 +72,13 @@ async function loadAssets(retry = false) {
   }
 }
 
+// --- Helper functions ---
 function showLoading(text) {
   const { loaderText } = dom || {};
   if (loaderText) loaderText.textContent = text;
   else console.warn("Loader text element missing");
 }
 
-// --- helper: safe progress ---
 function updateProgress(percent) {
   const { progressText, progressBar } = dom || {};
   if (progressText) progressText.textContent = `${percent}%`;
