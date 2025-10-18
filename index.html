@@ -1,84 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WannaSmile</title>
-  <link rel="icon" href="system/images/favicons/logoo.png">
+  <link rel="icon" href="system/images/favicons/logoo.png" />
 
-  <meta name="author" content="WannaSmile by Rhap5ody">
-  <meta name="keywords" content="github, repository, source, library">
+  <meta name="author" content="WannaSmile by Rhap5ody" />
+  <meta name="keywords" content="github, repository, source, library" />
 
-  <link rel="stylesheet" href="system/css/themes.css">
-  <link rel="stylesheet" href="system/css/main.css"> 
+  <!-- Styles -->
+  <link rel="stylesheet" href="system/css/themes.css" />
+  <link rel="stylesheet" href="system/css/main.css" />
   <link rel="stylesheet" href="system/css/loading-screen.css" />
-  <link rel="stylesheet" href="system/css/quotes.css">
-  <link rel="stylesheet" href="system/css/commands.css">
+  <link rel="stylesheet" href="system/css/quotes.css" />
+  <link rel="stylesheet" href="system/css/commands.css" />
 
+  <!-- Discord Widget -->
   <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3" async defer>
     new Crate({
-        server: '1273329263923302430',
-        channel: '1329289920845713471'
+      server: '1273329263923302430',
+      channel: '1329289920845713471'
     })
   </script>
-  
-  <style>
-    /* Update Popup and Animation Styles */
-    .update-popup { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
-    .update-popup.show { opacity: 1; pointer-events: all; }
-    .update-popup-content { background: var(--card-bg, #1e1e1e); border-radius: 14px; box-shadow: 0 0 20px rgba(0,0,0,0.6); width: 90%; max-width: 480px; text-align: center; padding: 20px; color: var(--text-color, #fff); animation: popup-bounce 0.6s ease; }
-    .update-popup-content h2 { margin-top:0; color: var(--accent-color, #fff); }
-    .update-popup-content p { font-size:0.95em; margin:10px 0 20px; }
-    .update-video { margin-bottom:15px; border-radius:10px; overflow:hidden; }
-    .update-buttons { display:flex; gap:8px; flex-wrap:wrap; justify-content:space-between; }
-    .update-buttons button { flex:1; min-width:100px; background:var(--accent-color, #2e2e2e); color:#fff; border:none; border-radius:8px; padding:8px; font-size:0.9em; cursor:pointer; transition:all 0.2s ease; }
-    .update-buttons button:hover { filter: brightness(1.2); }
-    @keyframes popup-bounce {0%{transform:scale(0.9);opacity:0;}60%{transform:scale(1.05);opacity:1;}100%{transform:scale(1);}}
-    
-    /* Search Bar Transitions */
-    #searchInputHeader { transition: opacity 0.5s ease; }
-    #searchInputHeader.fade-out { opacity:0; }
-    #searchInputHeader.fade-in { opacity:1; }
-    
-    /* Video Wrapper & Tooltip */
-    .update-video-wrapper { position: relative; border-radius: 10px; overflow: hidden; }
-    .video-tooltip { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 0.8em; opacity:0; transition: opacity 0.3s ease; pointer-events:none; }
-    .update-video-wrapper:hover .video-tooltip { opacity:1; }
-  </style>
 
-  <!-- LINK FOR DISC AND OTHER SHIT To MAKE IT LOOK OFFICIAL ASF MFKA!-->
+  <!-- Meta Tags for social embeds -->
   <meta property="og:title" content="WannaSmile" />
-  <meta property="og:description" content="Welcome to wannasmile! a library full of content! enjoy it in your free time." />
+  <meta property="og:description" content="Welcome to WannaSmile — a library full of content! Enjoy it in your free time." />
   <meta property="og:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
   <meta property="og:url" content="https://vvannasmile.github.io/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="WannaSmile.github.io" />
-  <!--Twitter-->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:site" content="@yourtwitterhandle">
-  <meta name="twitter:title" content="Your Website's Catchy Title Here">
-  <meta name="twitter:description" content="A brief, engaging description of what your website is about.">
-  <meta name="twitter:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg">
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="WannaSmile" />
+  <meta name="twitter:description" content="A fun, content-filled library to make you smile." />
+  <meta name="twitter:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
+
+  <!-- Inline custom styles -->
+  <style>
+    .update-popup {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(6px);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    .update-popup.show { opacity: 1; pointer-events: all; }
+    .update-popup-content {
+      background: var(--card-bg, #1e1e1e);
+      border-radius: 14px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      width: 90%;
+      max-width: 480px;
+      text-align: center;
+      padding: 20px;
+      color: var(--text-color, #fff);
+      animation: popup-bounce 0.6s ease;
+    }
+    .update-popup-content h2 {
+      margin-top: 0;
+      color: var(--accent-color, #fff);
+    }
+    .update-popup-content p {
+      font-size: 0.95em;
+      margin: 10px 0 20px;
+    }
+    .update-video-wrapper {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+    .video-tooltip {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.8em;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .update-video-wrapper:hover .video-tooltip { opacity: 1; }
+    .update-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .update-buttons button {
+      flex: 1;
+      min-width: 100px;
+      background: var(--accent-color, #2e2e2e);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .update-buttons button:hover { filter: brightness(1.2); }
+    @keyframes popup-bounce {
+      0% { transform: scale(0.9); opacity: 0; }
+      60% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+  </style>
 </head>
 
-<body theme="classic"> 
-  <!-- ✅ Clean Preloader (only one working progress bar + percent) -->
-  <div class="preloader" id="preloader" aria-live="polite" aria-busy="true">
+<body theme="classic">
+  <!-- ✅ Single preloader with one progress bar -->
+  <div id="preloader" class="preloader" aria-live="polite" aria-busy="true">
     <div class="loader-gif">
-      <img src="system/images/GIF/loading.gif" id="loaderImage" alt="Loading animation"/>
+      <img id="loaderImage" src="system/images/GIF/loading.gif" alt="Loading animation" />
     </div>
 
-    <div class="progress-container">
-      <div id="progressBar" class="progress-bar"></div>
+    <div class="load-progress-bar">
+      <div id="progressBar" class="load-progress-fill"></div>
     </div>
 
-    <div id="progressText" class="progress-text">0%</div>
-    <div class="loading-text">Loading...</div>
+    <div id="progressText" class="load-progress-text">0%</div>
+    <div id="loaderText" class="loading-text">Loading...</div>
   </div>
-  <!-- ✅ End Preloader -->
+  <!-- ✅ End preloader -->
 
   <header>
-    <nav aria-label="Main Navigation" class="nav-links">
+    <nav class="nav-links" aria-label="Main Navigation">
       <a href="index.html">Home</a>
       <a href="favorites.html">Favorites</a>
       <a href="system/pages/discovery.html">Discovery</a>
@@ -87,20 +145,28 @@
       <a href="info.html">Info</a>
 
       <div class="pages-anchor" role="group" aria-label="Page Navigation">
-        <button class="arrowleft" onclick="prevPage()" aria-label="Previous Page"><img src="system/icons/left.png" alt="Left Arrow"></button>
+        <button class="arrowleft" onclick="prevPage()" aria-label="Previous Page">
+          <img src="system/icons/left.png" alt="Previous page" />
+        </button>
         <span class="page-indicator" aria-live="polite">...</span>
-        <button class="arrowright" onclick="nextPage()" aria-label="Next Page"><img src="system/icons/right.png" alt="Right Arrow"></button>
+        <button class="arrowright" onclick="nextPage()" aria-label="Next Page">
+          <img src="system/icons/right.png" alt="Next page" />
+        </button>
       </div>
     </nav>
 
     <div class="header-controls">
       <div class="search-box" role="search">
-        <input type="text" id="searchInputHeader" placeholder="Search ϱames..." aria-label="Search ϱames library" />
-        <button id="searchBtnHeader" aria-label="Submit Search"><img src="system/icons/search.png" alt="Search icon"></button>
+        <input id="searchInputHeader" type="text" placeholder="Search ϱames..." aria-label="Search games library" />
+        <button id="searchBtnHeader" aria-label="Submit Search">
+          <img src="system/icons/search.png" alt="Search" />
+        </button>
       </div>
-      <a href="system/pages/profile.html" aria-label="View Profile"><img src="system/icons/profile.png" alt="Profile Picture" id="pfp"></a>
+      <a href="system/pages/profile.html" aria-label="View Profile">
+        <img id="pfp" src="system/icons/profile.png" alt="Profile" />
+      </a>
       <button id="dashboardBtn" aria-controls="dashboardMenu" aria-expanded="false" aria-label="Open Dashboard Menu">
-        <img src="system/icons/dashboard.png" alt="Dashboard icon" style="width: 100%; height: 100%; object-fit: contain;">
+        <img src="system/icons/dashboard.png" alt="Dashboard" style="width:100%;height:100%;object-fit:contain;" />
       </button>
     </div>
   </header>
@@ -112,25 +178,27 @@
     <a href="system/pages/alt.html">Alternative Links</a>
   </aside>
 
-  <!-- ✅ Old quote system restored -->
+  <!-- ✅ Quote system -->
   <div id="quoteWrapper">
     <p id="quoteBox"></p>
   </div>
-  <!-- ✅ End quote system -->
 
+  <!-- ✅ Update popup -->
   <div id="updatePopup" class="update-popup" role="dialog" aria-modal="true" aria-labelledby="updatePopupTitle">
     <div class="update-popup-content">
       <h2 id="updatePopupTitle">🎉 Version 0.8 Update!</h2>
-      <p>New ϱames, smoother loading, and visual tweaks across the library!</p>
+      <p>New games, smoother loading, and visual tweaks across the library!</p>
       <div class="update-video-wrapper">
-        <div class="update-video">
-          <iframe id="updateVideo" width="100%" height="200" 
-            src="" 
-            title="v0.8 Update Trailer" frameborder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-            allowfullscreen>
-          </iframe>
-        </div>
+        <iframe
+          id="updateVideo"
+          width="100%"
+          height="200"
+          src=""
+          title="v0.8 Update Trailer"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
         <div class="video-tooltip">Press F or double click for full screen</div>
       </div>
       <div class="update-buttons">
@@ -143,7 +211,7 @@
   </div>
 
   <main>
-    <div id="container">loading assets...</div>
+    <div id="container">Loading assets...</div>
   </main>
 
   <button id="toTopBtn" aria-label="Scroll back to top">⬆ Top</button>
@@ -157,7 +225,7 @@
     <a href="system/pages/version-log.html">Version V0.8</a>
   </footer>
 
-  <!-- scripts -->
+  <!-- Scripts -->
   <script src="system/js/elements.js" defer></script>
   <script src="system/js/preloader.js" defer></script>
   <script src="system/js/assets.js" defer></script>
@@ -169,8 +237,7 @@
   <script src="system/js/quotes.js" defer></script>
   <script src="system/js/searcherror.js" defer></script>
   <script src="system/js/commands.js" defer></script>
-  <script src="/system/js/settings.js" defer></script>
-  <script src="/system/js/index.js" defer></script>
-
+  <script src="system/js/settings.js" defer></script>
+  <script src="system/js/index.js" defer></script>
 </body>
 </html>
