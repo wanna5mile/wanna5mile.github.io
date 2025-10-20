@@ -1,30 +1,38 @@
 <style>
   body {
     margin: 0;
-    background: #000; /* optional: black background for contrast */
+    background: #000;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    user-select: none; /* prevent text/image selection */
   }
 
-  .upper, .down {
+  .upper,
+  .down {
     display: flex;
     justify-content: center;
-    gap: 0; /* no spacing between images */
+    gap: 0;
   }
 
-  .upper img, .down img {
+  .upper img,
+  .down img {
     image-rendering: pixelated;
     width: 150px;
     display: block;
+    pointer-events: none; /* ignore mouse events */
+    user-select: none; /* prevent selection */
+    -webkit-user-drag: none; /* prevent drag ghost */
+    outline: none; /* remove blue outline */
+  }
+
+  .upper img:focus,
+  .down img:focus {
+    outline: none;
   }
 
   .upper img {
     transform: rotateX(180deg);
-  }
-
-  .upper {
-    margin-top: 0;
   }
 
   .down {
@@ -43,10 +51,17 @@
   <img src="fire-gif-test.gif" />
   <img src="fire-gif-test.gif" />
   <img src="fire-gif-test.gif" />
-
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
 </div>
 
 <div class="down">
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
   <img src="fire-gif-test.gif" />
   <img src="fire-gif-test.gif" />
   <img src="fire-gif-test.gif" />
