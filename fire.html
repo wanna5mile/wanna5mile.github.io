@@ -23,6 +23,7 @@
     opacity: 0;
   }
 
+  /* === Typing animation === */
   .typing {
     display: inline-block;
     border-right: 3px solid purple;
@@ -40,6 +41,24 @@
     50% { border-color: transparent; }
   }
 
+  /* === After typing: pulse + sway === */
+  .finished {
+    border-right: none; /* remove typing cursor */
+    animation: pulse 1.2s ease-in-out infinite, sway 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  @keyframes sway {
+    0%, 100% { transform: translateX(-50%) rotate(0deg); }
+    25% { transform: translateX(-50%) rotate(1deg); }
+    75% { transform: translateX(-50%) rotate(-1deg); }
+  }
+
+  /* === Fades === */
   .fade-in {
     animation: fadeIn 1s forwards;
   }
@@ -112,9 +131,9 @@
 
 <main>
   <h1 id="mainText" class="typing">Hello!</h1>
-  <p id="next1">Welcome to the fire...</p>
-  <p id="next2">Let's make something cool.</p>
-  <p id="next3">🔥</p>
+  <p id="next1">wazzap!</p>
+  <p id="next2">test1</p>
+  <p id="next3">bye</p>
 </main>
 
 <div class="down">
@@ -132,44 +151,49 @@
 </div>
 
 <script>
-  // Sequence control
   const h1 = document.getElementById("mainText");
   const p1 = document.getElementById("next1");
   const p2 = document.getElementById("next2");
   const p3 = document.getElementById("next3");
 
-  // Step 1: type Hello!
+  // Step 1: Show h1 and start typing
   setTimeout(() => {
     h1.style.opacity = 1;
   }, 100);
 
+  // Step 1.5: Stop typing cursor and add pulse + sway
+  setTimeout(() => {
+    h1.classList.remove("typing");
+    h1.classList.add("finished");
+  }, 2100);
+
   // Step 2: fade out Hello! and show first paragraph
   setTimeout(() => {
     h1.classList.add("fade-out");
-  }, 2500);
+  }, 3000);
 
   setTimeout(() => {
     h1.style.display = "none";
     p1.classList.add("fade-in");
-  }, 3500);
+  }, 4000);
 
   // Step 3: fade to second
   setTimeout(() => {
     p1.classList.replace("fade-in", "fade-out");
-  }, 5500);
+  }, 6000);
 
   setTimeout(() => {
     p1.style.display = "none";
     p2.classList.add("fade-in");
-  }, 6500);
+  }, 7000);
 
   // Step 4: fade to third
   setTimeout(() => {
     p2.classList.replace("fade-in", "fade-out");
-  }, 8500);
+  }, 9000);
 
   setTimeout(() => {
     p2.style.display = "none";
     p3.classList.add("fade-in");
-  }, 9500);
+  }, 10000);
 </script>
