@@ -1,4 +1,12 @@
 <style>
+  body {
+    margin: 0;
+    background: #000; /* optional: black background for contrast */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
   .upper, .down {
     display: flex;
     justify-content: center;
@@ -8,10 +16,22 @@
   .upper img, .down img {
     image-rendering: pixelated;
     width: 150px;
+    display: block;
   }
 
   .upper img {
     transform: rotateX(180deg);
+  }
+
+  .upper {
+    margin-top: 0;
+  }
+
+  .down {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
   }
 </style>
 
@@ -21,9 +41,14 @@
   <img src="fire-gif-test.gif" />
   <img src="fire-gif-test.gif" />
   <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
+
 </div>
 
 <div class="down">
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
   <img src="fire-gif-test.gif" />
   <img src="fire-gif-test.gif" />
   <img src="fire-gif-test.gif" />
