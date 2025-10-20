@@ -1,246 +1,281 @@
-<style>
-  body {
-    margin: 0;
-    background: #000;
-    height: 100vh;
-    overflow: hidden;
-    user-select: none;
-    animation: bgBeat 2s ease-in-out infinite;
-  }
-
-  @keyframes bgBeat {
-    0%, 100% { background-color: #000; }
-    50% { background-color: #1a001a; }
-  }
-
-  main {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: purple;
-    font-family: sans-serif;
-    text-align: center;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 3rem;
-    opacity: 0;
-    border-right: 3px solid purple;
-    white-space: nowrap;
-    overflow: hidden;
-    animation: blink 0.6s step-end infinite alternate;
-  }
-
-  @keyframes blink {
-    50% { border-color: transparent; }
-  }
-
-  .finished {
-    animation: pulse 1.2s ease-in-out infinite, sway 3s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.08); }
-  }
-
-  @keyframes sway {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(1deg); }
-    75% { transform: rotate(-1deg); }
-  }
-
-  /* === Fire scrolling rows === */
-  .upper, .down {
-    position: fixed;
-    /* Use 100% width since the children will handle the doubling */
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
-  }
-
-  .upper {
-    top: 0;
-    transform-origin: center;
-  }
-
-  .down {
-    bottom: 0;
-  }
-
-  /* The container for the two moving tracks */
-  .fire-container {
-    display: flex;
-    gap: 0;
-    width: 200%; /* Must be double the width of one track */
-    /* This animation is the key to the seamless loop */
-    animation: moveFire 5s linear infinite;
-  }
-
-  /* Each track holds one full set of images */
-  .fire-track {
-    display: flex;
-    gap: 0;
-    width: 50%; /* Each track is half the container's width */
-    flex-shrink: 0; /* Prevents shrinking */
-  }
-
-  @keyframes moveFire {
-    /* Starts at 0, moves left by half its width, then instantly snaps back to 0 */
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-
-  .upper img,
-  .down img {
-    image-rendering: pixelated;
-    width: 150px;
-    pointer-events: none;
-    user-select: none;
-    -webkit-user-drag: none;
-    display: block;
-  }
-
-  .upper img {
-    transform: rotateX(180deg);
-  }
-
-  /* === Perfect image === */
-  .perfect {
-    position: fixed;
-    bottom: 30px;
-    left: 60px;
-  }
-
-  .perfect img {
-    width: 240px;
-    filter: drop-shadow(0 0 10px purple);
-    transition: transform 0.3s ease;
-  }
-
-  .perfect img:hover {
-    transform: scale(1.1);
-  }
-</style>
-
-<div class="upper">
-  <div class="fire-container">
-    <div class="fire-track">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    </div>
-    <div class="fire-track">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    </div>
-  </div>
-</div>
-
-<div class="down">
-  <div class="fire-container">
-    <div class="fire-track">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    </div>
-    <div class="fire-track">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    </div>
-  </div>
-</div>
-
-<main>
-  <h1 id="mainText"></h1>
-</main>
-
-<div class="perfect">
-  <img src="perfect.png" alt="perfect" />
-</div>
-
-<script>
-  const h1 = document.getElementById("mainText");
-
-  // Fade in and pulse
-  setTimeout(() => {
-    h1.style.opacity = 1;
-    h1.classList.add("finished");
-  }, 100);
-
-  let textContent = "";
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key.length === 1) {
-      textContent += e.key;
-    } else if (e.key === "Backspace") {
-      textContent = textContent.slice(0, -1);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parallax Fire Background</title>
+  <style>
+    /* --------------------------------------------------------------------
+     * GLOBAL & BASE STYLES
+     * -------------------------------------------------------------------- */
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+      
+      /* === Parallax Background Setup === */
+      background-color: #000;
+      background-image: url('movingbg.png'); /* 1. The new background image */
+      background-repeat: repeat-x; /* 2. Tile horizontally for looping */
+      background-size: auto 100%; /* 3. Scale height to fill viewport */
+      background-position: 0 0; /* 4. Start position */
+      
+      /* 5. Apply two animations: bgBeat for color and parallaxMove for scrolling */
+      animation: bgBeat 2s ease-in-out infinite, parallaxMove 30s linear infinite;
     }
-    h1.textContent = textContent;
-  });
-</script>
+
+    /* Background color pulsating effect */
+    @keyframes bgBeat {
+      0%, 100% { background-color: #000; }
+      50% { background-color: #1a001a; }
+    }
+    
+    /* === NEW: Parallax Movement Animation === */
+    @keyframes parallaxMove {
+      /* Moves the background image 50% of its width to the left for a seamless loop */
+      0% { background-position: 0 0; }
+      100% { background-position: -50% 0; }
+    }
+
+    /* --------------------------------------------------------------------
+     * CENTER CONTENT (h1) STYLES
+     * -------------------------------------------------------------------- */
+    main {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: purple;
+      font-family: sans-serif;
+      text-align: center;
+      z-index: 10; /* Ensure text is above fire */
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 3rem;
+      opacity: 0;
+      border-right: 3px solid purple;
+      white-space: nowrap;
+      overflow: hidden;
+      animation: blink 0.6s step-end infinite alternate;
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    .finished {
+      animation: pulse 1.2s ease-in-out infinite, sway 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    @keyframes sway {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(1deg); }
+      75% { transform: rotate(-1deg); }
+    }
+
+    /* --------------------------------------------------------------------
+     * FIRE SCROLLING ROWS (Seamless Loop Logic)
+     * -------------------------------------------------------------------- */
+    .upper, .down {
+      position: fixed;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .upper {
+      top: 0;
+    }
+
+    .down {
+      bottom: 0;
+    }
+
+    /* The container for the two moving tracks (this element is animated) */
+    .fire-container {
+      display: flex;
+      gap: 0;
+      width: 200%; /* Double the width to hold two tracks */
+      animation: moveFire 5s linear infinite;
+    }
+
+    /* Each track holds one full set of images */
+    .fire-track {
+      display: flex;
+      gap: 0;
+      width: 50%; /* Each track is half the container's width */
+      flex-shrink: 0; /* Prevents the tracks from shrinking */
+    }
+
+    @keyframes moveFire {
+      /* Moves by exactly the width of one track (50% of the container) */
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .upper img,
+    .down img {
+      image-rendering: pixelated;
+      width: 150px;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      display: block;
+    }
+
+    .upper img {
+      transform: rotateX(180deg);
+    }
+
+    /* --------------------------------------------------------------------
+     * PERFECT IMAGE STYLES
+     * -------------------------------------------------------------------- */
+    .perfect {
+      position: fixed;
+      bottom: 30px;
+      left: 60px;
+      z-index: 10;
+    }
+
+    .perfect img {
+      width: 240px;
+      filter: drop-shadow(0 0 10px purple);
+      transition: transform 0.3s ease;
+    }
+
+    .perfect img:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="upper">
+    <div class="fire-container">
+      <div class="fire-track">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      </div>
+      <div class="fire-track">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      </div>
+    </div>
+  </div>
+
+  <div class="down">
+    <div class="fire-container">
+      <div class="fire-track">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      </div>
+      <div class="fire-track">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+        <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <h1 id="mainText"></h1>
+  </main>
+
+  <div class="perfect">
+    <img src="perfect.png" alt="perfect" />
+  </div>
+
+  <script>
+    const h1 = document.getElementById("mainText");
+
+    // Fade in and pulse
+    setTimeout(() => {
+      h1.style.opacity = 1;
+      h1.classList.add("finished");
+    }, 100);
+
+    let textContent = "";
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key.length === 1) {
+        textContent += e.key;
+      } else if (e.key === "Backspace") {
+        textContent = textContent.slice(0, -1);
+      }
+      h1.textContent = textContent;
+    });
+  </script>
+</body>
+</html>
