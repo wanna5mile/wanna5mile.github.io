@@ -2,10 +2,24 @@
   body {
     margin: 0;
     background: #000;
-    display: flex;
-    flex-direction: column;
     min-height: 100vh;
-    user-select: none; /* prevent text/image selection */
+    user-select: none;
+    overflow: hidden; /* prevents scrollbars if gifs overflow */
+  }
+
+  main {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  main h1 {
+    color: purple;
+    font-family: sans-serif;
+    font-size: 3rem;
+    margin: 0;
   }
 
   .upper,
@@ -20,10 +34,10 @@
     image-rendering: pixelated;
     width: 150px;
     display: block;
-    pointer-events: none; /* ignore mouse events */
-    user-select: none; /* prevent selection */
-    -webkit-user-drag: none; /* prevent drag ghost */
-    outline: none; /* remove blue outline */
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    outline: none;
   }
 
   .upper img:focus,
@@ -33,6 +47,13 @@
 
   .upper img {
     transform: rotateX(180deg);
+  }
+
+  .upper {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .down {
@@ -56,6 +77,10 @@
   <img src="fire-gif-test.gif" />
   <img src="fire-gif-test.gif" />
 </div>
+
+<main>
+  <h1>Hello!</h1>
+</main>
 
 <div class="down">
   <img src="fire-gif-test.gif" />
