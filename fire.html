@@ -5,6 +5,12 @@
     min-height: 100vh;
     user-select: none;
     overflow: hidden;
+    animation: bgBeat 2s ease-in-out infinite;
+  }
+
+  @keyframes bgBeat {
+    0%, 100% { background-color: #000; }
+    50% { background-color: #1a001a; }
   }
 
   main {
@@ -21,6 +27,7 @@
     margin: 0;
     font-size: 3rem;
     opacity: 0;
+    transform-origin: center;
   }
 
   /* === Typing animation === */
@@ -41,9 +48,9 @@
     50% { border-color: transparent; }
   }
 
-  /* === After typing: pulse + sway === */
+  /* === After typing === */
   .finished {
-    border-right: none; /* remove typing cursor */
+    border-right: none;
     animation: pulse 1.2s ease-in-out infinite, sway 3s ease-in-out infinite;
   }
 
@@ -60,7 +67,7 @@
 
   /* === Fades === */
   .fade-in {
-    animation: fadeIn 1s forwards;
+    animation: fadeIn 1s forwards, swing 3s ease-in-out infinite;
   }
 
   .fade-out {
@@ -77,16 +84,21 @@
     to { opacity: 0; }
   }
 
+  /* === Swing === */
+  @keyframes swing {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(1deg); }
+    75% { transform: rotate(-1deg); }
+  }
+
   /* --- Fire rows --- */
-  .upper,
-  .down {
+  .upper, .down {
     display: flex;
     justify-content: center;
     gap: 0;
   }
 
-  .upper img,
-  .down img {
+  .upper img, .down img {
     image-rendering: pixelated;
     width: 150px;
     display: block;
@@ -161,8 +173,10 @@
     h1.style.opacity = 1;
   }, 100);
 
-  // Step 1.5: Stop typing cursor and add pulse + sway
+  // Step 1.5: Lock width to prevent push, stop typing, add pulse/sway
   setTimeout(() => {
+    const rect = h1.getBoundingClientRect();
+    h1.style.width = rect.width + "px"; // lock current width
     h1.classList.remove("typing");
     h1.classList.add("finished");
   }, 2100);
