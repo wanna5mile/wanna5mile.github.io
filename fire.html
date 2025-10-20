@@ -55,12 +55,10 @@
   /* === Fire scrolling rows === */
   .upper, .down {
     position: fixed;
-    left: 50%;
-    width: 200%;
+    /* Use 100% width since the children will handle the doubling */
+    width: 100%;
     display: flex;
-    gap: 0;
     justify-content: center;
-    transform: translateX(-50%);
     overflow: hidden;
   }
 
@@ -73,13 +71,25 @@
     bottom: 0;
   }
 
-  .fire-track {
+  /* The container for the two moving tracks */
+  .fire-container {
     display: flex;
     gap: 0;
+    width: 200%; /* Must be double the width of one track */
+    /* This animation is the key to the seamless loop */
     animation: moveFire 5s linear infinite;
   }
 
+  /* Each track holds one full set of images */
+  .fire-track {
+    display: flex;
+    gap: 0;
+    width: 50%; /* Each track is half the container's width */
+    flex-shrink: 0; /* Prevents shrinking */
+  }
+
   @keyframes moveFire {
+    /* Starts at 0, moves left by half its width, then instantly snaps back to 0 */
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
   }
@@ -116,56 +126,96 @@
   }
 </style>
 
-<!-- 🔥 TOP FIRE -->
 <div class="upper">
-  <div class="fire-track">
-    <!-- Repeat twice for seamless loop -->
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+  <div class="fire-container">
+    <div class="fire-track">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    </div>
+    <div class="fire-track">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    </div>
   </div>
 </div>
 
-<!-- 🔥 BOTTOM FIRE -->
 <div class="down">
-  <div class="fire-track">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
-    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+  <div class="fire-container">
+    <div class="fire-track">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    </div>
+    <div class="fire-track">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+      <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    </div>
   </div>
 </div>
 
-<!-- Center text -->
 <main>
   <h1 id="mainText"></h1>
 </main>
