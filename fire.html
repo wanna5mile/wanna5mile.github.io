@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parallax Fire Background</title>
+  <title>Diagonal Parallax Fire Background</title>
   <style>
     /* --------------------------------------------------------------------
      * GLOBAL & BASE STYLES
@@ -14,28 +14,36 @@
       overflow: hidden;
       user-select: none;
       
-      /* === Parallax Background Setup === */
+      /* === Diagonal Parallax Background Setup === */
       background-color: #000;
-      background-image: url('movingbg.png'); /* 1. The new background image */
-      background-repeat: repeat-x; /* 2. Tile horizontally for looping */
-      background-size: auto 100%; /* 3. Scale height to fill viewport */
-      background-position: 0 0; /* 4. Start position */
+      background-image: url('movingbg.png');
+      /* NEW: Tile in both directions for seamless diagonal movement */
+      background-repeat: repeat; 
+      /* NEW: Set size to ensure tiling. Adjust this if your image is small. */
+      background-size: 200px 200px; 
+      background-position: 0 0; 
       
-      /* 5. Apply two animations: bgBeat for color and parallaxMove for scrolling */
+      /* Apply two animations: bgBeat for color flash and parallaxMove for scrolling */
       animation: bgBeat 2s ease-in-out infinite, parallaxMove 30s linear infinite;
     }
 
-    /* Background color pulsating effect */
+    /* === UPDATED: Background color pulsating effect (white/yellow/purple flash) === */
     @keyframes bgBeat {
       0%, 100% { background-color: #000; }
-      50% { background-color: #1a001a; }
+      
+      /* Subtle, quick flash of white-yellow-purple */
+      10% { background-color: rgba(255, 255, 255, 0.1); } /* Light white/transparent */
+      20% { background-color: rgba(255, 255, 0, 0.05); }  /* Very light yellow */
+      30% { background-color: #1a001a; } /* Your original dark purple */
+      50% { background-color: #000; }
     }
     
-    /* === NEW: Parallax Movement Animation === */
+    /* === UPDATED: Diagonal Parallax Movement Animation === */
     @keyframes parallaxMove {
-      /* Moves the background image 50% of its width to the left for a seamless loop */
-      0% { background-position: 0 0; }
-      100% { background-position: -50% 0; }
+      /* Moves the background image diagonally up-left. 
+         Moving by 100% of the image size guarantees a seamless loop. */
+      0% { background-position: 0% 0%; }
+      100% { background-position: 100% 100%; } /* Moves 100% right and 100% down */
     }
 
     /* --------------------------------------------------------------------
@@ -117,7 +125,7 @@
     }
 
     @keyframes moveFire {
-      /* Moves by exactly the width of one track (50% of the container) */
+      /* Fire still scrolls horizontally and fast (5s) */
       0% { transform: translateX(0); }
       100% { transform: translateX(-50%); }
     }
