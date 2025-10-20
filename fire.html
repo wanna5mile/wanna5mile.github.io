@@ -40,7 +40,6 @@
     50% { border-color: transparent; }
   }
 
-  /* === Pulse + sway === */
   .finished {
     animation: pulse 1.2s ease-in-out infinite, sway 3s ease-in-out infinite;
   }
@@ -56,41 +55,37 @@
     75% { transform: rotate(-1deg); }
   }
 
-  /* --- Fire rows --- */
-  .fire-row {
+  /* === Fire scrolling rows === */
+  .upper, .down {
     position: fixed;
     left: 0;
     width: 200%;
     display: flex;
     gap: 0;
-    animation: slideFire 10s linear infinite;
+    animation: scrollFire 8s linear infinite;
   }
 
-  @keyframes slideFire {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+  .upper {
+    top: 0;
+    transform: rotateX(180deg);
   }
 
-  .fire-row img {
+  .down {
+    bottom: 0;
+  }
+
+  @keyframes scrollFire {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .upper img, .down img {
     image-rendering: pixelated;
     width: 150px;
     display: block;
     pointer-events: none;
     user-select: none;
     -webkit-user-drag: none;
-    outline: none;
-  }
-
-  .upper {
-    top: 0;
-  }
-
-  .upper img {
-    transform: rotateX(180deg);
-  }
-
-  .down {
-    bottom: 0;
   }
 
   /* === Perfect image (smooth, not pixelated) === */
@@ -113,15 +108,15 @@
   }
 </style>
 
-<!-- === Fire layers (duplicated for seamless loop) === -->
-<div class="fire-row upper">
-  <div class="fire-strip">
+<div class="upper">
+  <!-- Duplicate sequence twice for seamless loop -->
+  <div class="row">
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
   </div>
-  <div class="fire-strip">
+  <div class="row">
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
@@ -133,14 +128,15 @@
   <h1 id="mainText"></h1>
 </main>
 
-<div class="fire-row down">
-  <div class="fire-strip">
+<div class="down">
+  <!-- Duplicate sequence twice for seamless loop -->
+  <div class="row">
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
   </div>
-  <div class="fire-strip">
+  <div class="row">
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
     <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
@@ -161,7 +157,6 @@
     h1.classList.add("finished");
   }, 100);
 
-  // Live typing (centered dynamically)
   let textContent = "";
 
   document.addEventListener("keydown", (e) => {
@@ -171,13 +166,5 @@
       textContent = textContent.slice(0, -1);
     }
     h1.textContent = textContent;
-    centerText();
   });
-
-  function centerText() {
-    const main = document.querySelector("main");
-    main.style.width = "100%";
-    main.style.display = "flex";
-    main.style.justifyContent = "center";
-  }
 </script>
