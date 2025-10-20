@@ -2,9 +2,9 @@
   body {
     margin: 0;
     background: #000;
-    min-height: 100vh;
-    user-select: none;
+    height: 100vh;
     overflow: hidden;
+    user-select: none;
     animation: bgBeat 2s ease-in-out infinite;
   }
 
@@ -21,9 +21,6 @@
     color: purple;
     font-family: sans-serif;
     text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
 
   h1 {
@@ -58,37 +55,50 @@
   /* === Fire scrolling rows === */
   .upper, .down {
     position: fixed;
-    left: 0;
+    left: 50%;
     width: 200%;
     display: flex;
     gap: 0;
-    animation: scrollFire 8s linear infinite;
+    justify-content: center;
+    transform: translateX(-50%);
+    overflow: hidden;
   }
 
   .upper {
     top: 0;
-    transform: rotateX(180deg);
+    transform-origin: center;
   }
 
   .down {
     bottom: 0;
   }
 
-  @keyframes scrollFire {
+  .fire-track {
+    display: flex;
+    gap: 0;
+    animation: moveFire 5s linear infinite;
+  }
+
+  @keyframes moveFire {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
   }
 
-  .upper img, .down img {
+  .upper img,
+  .down img {
     image-rendering: pixelated;
     width: 150px;
-    display: block;
     pointer-events: none;
     user-select: none;
     -webkit-user-drag: none;
+    display: block;
   }
 
-  /* === Perfect image (smooth, not pixelated) === */
+  .upper img {
+    transform: rotateX(180deg);
+  }
+
+  /* === Perfect image === */
   .perfect {
     position: fixed;
     bottom: 30px;
@@ -97,8 +107,6 @@
 
   .perfect img {
     width: 240px;
-    height: auto;
-    image-rendering: auto;
     filter: drop-shadow(0 0 10px purple);
     transition: transform 0.3s ease;
   }
@@ -108,41 +116,39 @@
   }
 </style>
 
+<!-- 🔥 TOP FIRE -->
 <div class="upper">
-  <!-- Duplicate sequence twice for seamless loop -->
-  <div class="row">
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-  </div>
-  <div class="row">
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
+  <div class="fire-track">
+    <!-- Repeat twice for seamless loop -->
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
   </div>
 </div>
 
+<!-- 🔥 BOTTOM FIRE -->
+<div class="down">
+  <div class="fire-track">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+    <img src="fire-gif-test.gif"><img src="fire-gif-test.gif">
+  </div>
+</div>
+
+<!-- Center text -->
 <main>
   <h1 id="mainText"></h1>
 </main>
-
-<div class="down">
-  <!-- Duplicate sequence twice for seamless loop -->
-  <div class="row">
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-  </div>
-  <div class="row">
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-    <img src="fire-gif-test.gif" /><img src="fire-gif-test.gif" />
-  </div>
-</div>
 
 <div class="perfect">
   <img src="perfect.png" alt="perfect" />
@@ -151,7 +157,7 @@
 <script>
   const h1 = document.getElementById("mainText");
 
-  // Fade in the h1 for typing
+  // Fade in and pulse
   setTimeout(() => {
     h1.style.opacity = 1;
     h1.classList.add("finished");
