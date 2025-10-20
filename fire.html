@@ -1,22 +1,32 @@
 <style>
-  .upper, .down img{
-    image-rendering: pixelated;
-    display: inline-block;
-  }
-  .upper img{
-    transform: rotateX(180deg);
+  .upper, .down {
+    display: flex;
+    justify-content: center;
+    gap: 0; /* no spacing between images */
   }
 
+  .upper img, .down img {
+    image-rendering: pixelated;
+    width: 150px;
+  }
+
+  .upper img {
+    transform: rotateX(180deg);
+  }
 </style>
-<div class="upper"><img src="fire-gif-test.gif" style="width:150px;"/>
-<img src="fire-gif-test.gif" style="width:150px;"/>
-<img src="fire-gif-test.gif" style="width:150px;"/>
-<img src="fire-gif-test.gif" style="width:150px;"/>
-<img src="fire-gif-test.gif" style="width:150px;"/>
+
+<div class="upper">
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
 </div>
-<div class="down"><img src="fire-gif-test.gif" style="width:150px;"/>
-<img src="fire-gif-test.gif" style="width:150px;"/>
-<img src="fire-gif-test.gif" style="width:150px;"/>
-<img src="fire-gif-test.gif" style="width:150px;"/>
-<img src="fire-gif-test.gif" style="width:150px;"/>
+
+<div class="down">
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
+  <img src="fire-gif-test.gif" />
 </div>
