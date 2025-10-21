@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
   // === 1. Configuration ===
-  const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbxwN_9QpFrhGPyeJCsM2ubsDXHtLzuesQFE6CFRV2yXThOzEjx6tINeSeBlf8N5j-zbcA/exec";
+  const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec";
 
   // === 2. Initialize DOM ===
   initElements(); // must define window.dom (container, preloader, etc.)
@@ -19,7 +19,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     const res = await fetch(APPS_SCRIPT_API_URL, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
 
-    const assetData = await res.json();
+    let assetData;
+    try {
+      assetData = await res.json();
+    } catch (jsonErr) {
+      const text = await res.text();
+      throw new Error("Invalid JSON returned by Apps Script:\n" + text);
+    }
+
+    if (!Array.isArray(assetData)) {
+      console.warn("⚠️ Unexpected data structure from Apps Script:", assetData);
+    }
 
     // === 4. Render Asset Cards ===
     const imagePromises = createAssetCards(assetData);
@@ -29,7 +39,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   } catch (err) {
     console.error("Error fetching or rendering asset data:", err);
-    container.innerHTML = `<p style='color:red;'>⚠️ Failed to load assets. Please try again later.<br>${err.message}</p>`;
+    container.innerHTML = `
+      <p style='color:red; text-align:center; margin-top:2em;'>
+        ⚠️ Failed to load assets.<br>
+        ${err.message}
+      </p>`;
   } finally {
     // === 6. Hide Preloader ===
     preloader.style.display = "none";
