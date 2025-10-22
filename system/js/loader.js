@@ -1,61 +1,76 @@
-// ✅ loader.js — synced with assets.js Google Sheets API version
+// ✅ loader.js — Unified + Optimized Google Sheets Loader
 async function loadAssets(retry = false) {
-  // --- Wait until DOM and preloader ready ---
+  // --- Ensure DOM and preloader exist before starting ---
   if (!window.dom || !dom.preloader) {
     console.warn("DOM or preloader not ready, retrying...");
     return setTimeout(() => loadAssets(retry), 200);
   }
 
-  const { loaderImage, preloader, progressText, progressBar } = dom || {};
+  const { loaderImage, preloader } = dom || {};
   if (!preloader) {
     console.warn("Preloader not found in DOM.");
     return;
   }
 
-  // --- Initialize loading state ---
+  // --- Initialize UI ---
   showLoading("Loading assets...");
   if (loaderImage) loaderImage.src = `${config.gifBase}loading.gif`;
   updateProgress(0);
 
   try {
-    // === Fetch Data from Google Apps Script ===
-    const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec";
-    const res = await fetch(APPS_SCRIPT_API_URL, { cache: "no-store" });
-    if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+    // --- Fetch from Google Sheets Web App ---
+    const SHEET_URL =
+      "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec";
 
-    let assetData;
-    try {
-      assetData = await res.json();
-    } catch (jsonErr) {
-      const text = await res.text();
-      throw new Error("Invalid JSON returned by Apps Script:\n" + text);
+    const res = await fetch(SHEET_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
+
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error("Invalid data format from Sheets");
+
+    const total = data.length;
+    let loaded = 0;
+    const allData = [];
+
+    // --- Stage through each record for smoother progress ---
+    for (const entry of data) {
+      allData.push(entry);
+      loaded++;
+      const percent = 10 + Math.floor((loaded / total) * 70);
+      updateProgress(percent);
+      if (loaded % 15 === 0)
+        await new Promise((r) => requestAnimationFrame(r));
     }
 
-    // --- Create cards + preload images ---
-    const imagePromises = createAssetCards(assetData);
-    const total = imagePromises.length;
-    let loaded = 0;
+    // --- Stop early if we reached “BTD5 page 1” ---
+    const stopIndex = allData.findIndex(
+      (item) =>
+        item.title?.toLowerCase().includes("btd5") &&
+        String(item.page) === "1"
+    );
+    const finalData =
+      stopIndex !== -1 ? allData.slice(0, stopIndex + 1) : allData;
 
-    // --- Update progress as each image resolves ---
+    // --- Create asset cards + preload images ---
+    const imagePromises = createAssetCards(finalData);
+    const imgTotal = imagePromises.length;
+    let imgLoaded = 0;
+
     for (const { promise } of imagePromises) {
       promise.then(() => {
-        loaded++;
-        const percent = Math.round((loaded / total) * 100);
+        imgLoaded++;
+        const percent = 80 + Math.round((imgLoaded / imgTotal) * 20);
         updateProgress(percent);
       });
     }
 
-    // --- Wait for all images and overlays ---
-    await Promise.allSettled(imagePromises.map(p => p.promise));
+    // --- Wait for all images and smooth transition ---
+    await Promise.allSettled(imagePromises.map((p) => p.promise));
     updateProgress(100);
-
-    // --- Small delay for smooth transition ---
     await delay(400);
 
-    // --- Hide loader + finalize ---
     if (typeof refreshCards === "function") refreshCards();
     hidePreloader(true);
-
   } catch (err) {
     console.error("Error loading assets:", err);
 
@@ -64,8 +79,8 @@ async function loadAssets(retry = false) {
       return setTimeout(() => loadAssets(true), 1000);
     }
 
-    // --- Handle fatal failure ---
     showLoading("⚠ Failed to load asset data.");
+    await cyclePreloaderGifs(false);
     hidePreloader(true);
   }
 }
