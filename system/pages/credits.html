@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Credits & Contributions</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: white;
+      font-family: monospace;
+      overflow: hidden;
+    }
+
+    .credits-container {
+      position: relative;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .credits {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: scrollUp 25s linear infinite;
+    }
+
+    /* Universal styling for h1–h6 and p1–p6 */
+    h1, h2, h3, h4, h5, h6,
+    p1, p2, p3, p4, p5, p6 {
+      display: block;         /* force custom p1–p6 tags to act like block elements */
+      margin: 1rem 0;
+      font-family: monospace;
+      font-weight: normal;
+      color: white;
+      text-align: center;
+    }
+
+    /* Different font sizes for hierarchy */
+    h1, p1 { font-size: 2rem; }
+    h2, p2 { font-size: 1.8rem; }
+    h3, p3 { font-size: 1.6rem; }
+    h4, p4 { font-size: 1.4rem; }
+    h5, p5 { font-size: 1.2rem; }
+    h6, p6 { font-size: 1rem; }
+
+    @keyframes scrollUp {
+      0% { transform: translateY(100%); }
+      100% { transform: translateY(-100%); }
+    }
+  </style>
+</head>
+<body>
+  <div class="credits-container">
+    <div class="credits">
+      <h1>Credits & Contributors</h1>
+      <h3>WilardzySenpai</h3>
+      <p>The original template for the loading screen.</p>
+      <h3>skys the limit</h3>
+      <p>asset library and main insperation</p>
+      <h3>genizy</h3>
+      <p>webports and txt templates</p>
+      <h3>tw31122007</h3>
+      <p>asset links and information</p>
+      <h3>kaizhelam</h3>
+      <p>music player template</p>
+      <h3>Ubg83</h3>
+      <p>blumgi assets</p>
+      <h3>rhap5ody</h3>
+      <p>main web designer and API intergrator</p>
+      <h3>RGP</h3>
+      <p>contributor of v0.1 through v0.3</p>
+    </div>
+  </div>
+</body>
+</html>
