@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
   // === 1. Configuration ===
-  const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec";
+  const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbzoPHsJICVHOx8ABqkXpTvawgxCHOjR20eLe_UKFs07zrClT_0DiyVxRV72AL-abE2VnA/exec";
 
   // === 2. Initialize DOM ===
   initElements(); // must define window.dom (container, preloader, etc.)
@@ -31,6 +31,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.warn("⚠️ Unexpected data structure from Apps Script:", assetData);
     }
 
+    // Ensure all fields exist to avoid errors
+    assetData.forEach(asset => {
+      for (const key in asset) asset[key] = asset[key] || "";
+    });
+
     // === 4. Render Asset Cards ===
     const imagePromises = createAssetCards(assetData);
 
@@ -54,7 +59,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
-// === 7. Your Original Card Builder Function (Unchanged) ===
+// === 7. Asset Card Builder ===
 function createAssetCards(data) {
   const { container } = dom;
   if (!container) return Promise.resolve();
@@ -92,7 +97,7 @@ function createAssetCards(data) {
       }
     });
 
-    const imgPromise = new Promise((resolve) => {
+    const imgPromise = new Promise(resolve => {
       img.addEventListener("load", resolve, { once: true });
       img.addEventListener("error", resolve, { once: true });
     });
@@ -111,7 +116,7 @@ function createAssetCards(data) {
     const star = document.createElement("span");
     star.className = "favorite-star";
     star.textContent = favorites.has(asset.title) ? "★" : "☆";
-    star.addEventListener("click", (e) => {
+    star.addEventListener("click", e => {
       e.preventDefault();
       e.stopPropagation();
       if (favorites.has(asset.title)) favorites.delete(asset.title);
@@ -133,7 +138,7 @@ function createAssetCards(data) {
       overlay.loading = "eager";
       card.appendChild(overlay);
 
-      const overlayPromise = new Promise((resolve) => {
+      const overlayPromise = new Promise(resolve => {
         overlay.addEventListener("load", resolve, { once: true });
         overlay.addEventListener("error", resolve, { once: true });
       });
