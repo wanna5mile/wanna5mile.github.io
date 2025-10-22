@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* ==========================================================
-   1️⃣ ELEMENT INITIALIZATION
+   ELEMENT INITIALIZATION
    ========================================================== */
 function initElements() {
   const getEl = (sel) => document.getElementById(sel) || document.querySelector(sel);
@@ -44,18 +44,18 @@ function initElements() {
   window.config = {
     fallbackImage:
       "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
-    fallbackLink: "https://wanna5mile.github.io/source/dino/",
+    fallbackLink: "https://wanna5mile.github.io./source/dino/",
     gifBase:
       "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
     sheetUrl:
       "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
   };
 
-  console.log("✅ Elements initialized:", dom);
+  console.log("Elements initialized:", dom);
 }
 
 /* ==========================================================
-   2️⃣ FAVORITES SYSTEM
+   FAVORITES SYSTEM
    ========================================================== */
 function initFavorites() {
   try {
@@ -69,7 +69,7 @@ function initFavorites() {
     try {
       localStorage.setItem("favorites", JSON.stringify([...window.favorites]));
     } catch (e) {
-      console.error("❌ Failed to save favorites:", e);
+      console.error("Failed to save favorites:", e);
     }
   };
 
@@ -84,11 +84,11 @@ function initFavorites() {
     return imagePromises;
   };
 
-  console.log("✅ Favorites initialized:", [...window.favorites]);
+  console.log("Favorites initialized:", [...window.favorites]);
 }
 
 /* ==========================================================
-   3️⃣ PRELOADER
+   PRELOADER
    ========================================================== */
 function initPreloader() {
   const { preloader } = dom;
@@ -136,11 +136,11 @@ function initPreloader() {
     setTimeout(() => (preloader.style.display = "none"), 500);
   };
 
-  console.log("✅ Preloader ready");
+  console.log("Preloader ready");
 }
 
 /* ==========================================================
-   4️⃣ ASSET LOADER (Google Sheets)
+   ASSET LOADER (Google Sheets)
    ========================================================== */
 async function loadAssets(retry = false) {
   if (!window.dom || !dom.preloader) {
@@ -193,7 +193,7 @@ async function loadAssets(retry = false) {
     if (typeof renderPage === "function") renderPage();
     if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
 
-    console.log("✅ Assets loaded successfully");
+    console.log("Assets loaded successfully");
   } catch (err) {
     console.error("Error loading assets:", err);
 
@@ -218,7 +218,7 @@ function showLoading(text) {
 }
 
 /* ==========================================================
-   5️⃣ CREATE ASSET CARDS — Hardened for numeric/null titles
+   CREATE ASSET CARDS — Hardened for numeric/null titles
    ========================================================== */
 function createAssetCards(data) {
   const { container } = dom;
@@ -322,7 +322,7 @@ function createAssetCards(data) {
 }
 
 /* ==========================================================
-   6️⃣ PAGING
+   PAGING
    ========================================================== */
 function initPaging() {
   const { container, pageIndicator, searchInput, searchBtn } = dom;
@@ -397,7 +397,7 @@ function initPaging() {
 }
 
 /* ==========================================================
-   7️⃣ PLACEHOLDERS
+   PLACEHOLDERS
    ========================================================== */
 function initPlaceholders() {
   const { searchInput } = dom;
