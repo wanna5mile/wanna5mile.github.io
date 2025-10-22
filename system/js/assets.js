@@ -1,21 +1,24 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  // === 1. Configuration ===
-  const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbzoPHsJICVHOx8ABqkXpTvawgxCHOjR20eLe_UKFs07zrClT_0DiyVxRV72AL-abE2VnA/exec";
+// ==========================================================
+// ASSETS.JS | Updated from unified all.js
+// ==========================================================
 
-  // === 2. Initialize DOM ===
-  initElements(); // must define window.dom (container, preloader, etc.)
-  const { container, preloader } = window.dom;
+document.addEventListener("DOMContentLoaded", async () => {
+  const APPS_SCRIPT_API_URL =
+    "https://script.google.com/macros/s/AKfycbzoPHsJICVHOx8ABqkXpTvawgxCHOjR20eLe_UKFs07zrClT_0DiyVxRV72AL-abE2VnA/exec";
+
+  // Initialize elements
+  if (typeof initElements === "function") initElements();
+  const { container, preloader } = window.dom || {};
 
   if (!container || !preloader) {
-    console.error("❌ Missing container or preloader in DOM initialization.");
+    console.error("❌ Missing container or preloader during initialization.");
     return;
   }
 
-  // Show loader while fetching
   preloader.style.display = "block";
+  updateProgress?.(5);
 
   try {
-    // === 3. Fetch Data from Google Sheets via Apps Script ===
     const res = await fetch(APPS_SCRIPT_API_URL, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
 
@@ -28,71 +31,82 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (!Array.isArray(assetData)) {
-      console.warn("⚠️ Unexpected data structure from Apps Script:", assetData);
+      console.warn("⚠️ Unexpected data structure:", assetData);
     }
 
-    // Ensure all fields exist to avoid errors
+    // Sanitize data
     assetData.forEach(asset => {
-      for (const key in asset) asset[key] = asset[key] || "";
+      for (const key in asset) asset[key] = String(asset[key] || "").trim();
     });
 
-    // === 4. Render Asset Cards ===
+    // Store globally
+    window.assetsData = assetData;
+
+    // Render asset cards
     const imagePromises = createAssetCards(assetData);
 
-    // === 5. Wait for all images and overlays to finish loading ===
+    // Wait for all image loads
     await Promise.allSettled(imagePromises.map(p => p.promise));
 
+    updateProgress?.(100);
   } catch (err) {
-    console.error("Error fetching or rendering asset data:", err);
+    console.error("Error fetching/rendering asset data:", err);
     container.innerHTML = `
       <p style='color:red; text-align:center; margin-top:2em;'>
-        ⚠️ Failed to load assets.<br>
-        ${err.message}
+        ⚠️ Failed to load assets.<br>${err.message}
       </p>`;
   } finally {
-    // === 6. Hide Preloader ===
     preloader.style.display = "none";
-
-    // Optionally re-run your filters/favorites logic
     if (typeof refreshCards === "function") refreshCards();
   }
 });
 
 
-// === 7. Asset Card Builder ===
+// ==========================================================
+// CREATE ASSET CARDS — Hardened for numeric/null titles
+// ==========================================================
 function createAssetCards(data) {
-  const { container } = dom;
+  const { container } = window.dom || {};
   if (!container) return Promise.resolve();
 
   container.innerHTML = "";
   const imagePromises = [];
 
   const sorted = [...data].sort((a, b) => {
-    const aFav = favorites.has(a.title);
-    const bFav = favorites.has(b.title);
+    const aTitle = String(a.title || "").trim();
+    const bTitle = String(b.title || "").trim();
+    const aFav = favorites?.has(aTitle);
+    const bFav = favorites?.has(bTitle);
     if (aFav !== bFav) return bFav - aFav;
     return (a.page || 1) - (b.page || 1);
   });
 
   for (const asset of sorted) {
+    const safeTitle = String(asset.title || "").trim();
+    const safeAuthor = String(asset.author || "").trim();
+    const safeStatus = String(asset.status || "").toLowerCase();
+    const safeImage = String(asset.image || "").trim();
+    const safeLink = String(asset.link || "").trim();
+
     const card = document.createElement("div");
     card.className = "asset-card";
-    card.dataset.title = (asset.title || "").toLowerCase();
-    card.dataset.author = (asset.author || "").toLowerCase();
+    card.dataset.title = safeTitle.toLowerCase();
+    card.dataset.author = safeAuthor.toLowerCase();
     card.dataset.page = asset.page ? parseInt(asset.page) : 1;
     card.dataset.filtered = "true";
 
-    let imageSrc = asset.image?.trim() || "";
-    if (!imageSrc || imageSrc === "blank" || asset.status?.toLowerCase() === "blank")
-      imageSrc = config.fallbackImage;
+    let imageSrc = safeImage;
+    if (!imageSrc || imageSrc === "blank" || safeStatus === "blank") {
+      imageSrc = config?.fallbackImage;
+    }
 
     const img = document.createElement("img");
     img.src = imageSrc;
-    img.alt = asset.title || "Asset";
+    img.alt = safeTitle || "Asset";
     img.loading = "eager";
     img.addEventListener("error", () => {
       if (!img.dataset.fallbackApplied) {
-        img.src = config.fallbackImage;
+        img.src = config?.fallbackImage;
         img.dataset.fallbackApplied = "true";
       }
     });
@@ -104,45 +118,47 @@ function createAssetCards(data) {
     imagePromises.push({ promise: imgPromise, page: card.dataset.page });
 
     const link = document.createElement("a");
-    link.href = asset.link?.trim() || config.fallbackLink;
+    link.href = safeLink || config?.fallbackLink;
     link.target = "_blank";
     link.rel = "noopener";
     link.appendChild(img);
-    link.innerHTML += `<h3>${asset.title || "Untitled"}</h3>`;
+    link.innerHTML += `<h3>${safeTitle || "Untitled"}</h3>`;
 
     const author = document.createElement("p");
-    author.textContent = asset.author || " ";
+    author.textContent = safeAuthor || " ";
 
     const star = document.createElement("span");
     star.className = "favorite-star";
-    star.textContent = favorites.has(asset.title) ? "★" : "☆";
+    star.textContent = favorites?.has(safeTitle) ? "★" : "☆";
     star.addEventListener("click", e => {
       e.preventDefault();
       e.stopPropagation();
-      if (favorites.has(asset.title)) favorites.delete(asset.title);
-      else favorites.add(asset.title);
-      saveFavorites();
-      refreshCards();
+      if (favorites?.has(safeTitle)) favorites.delete(safeTitle);
+      else favorites?.add(safeTitle);
+      saveFavorites?.();
+      refreshCards?.();
     });
 
-    const status = asset.status?.toLowerCase();
-    if (status === "soon") {
+    // Status overlays
+    if (safeStatus === "soon") {
       card.classList.add("soon");
       link.removeAttribute("href");
       link.style.pointerEvents = "none";
-    } else if (status === "featured" || status === "fixed") {
+    } else if (safeStatus === "featured" || safeStatus === "fixed") {
       const overlay = document.createElement("img");
-      overlay.className = `status-overlay ${status}`;
-      overlay.src = `system/images/${status}.png`;
-      overlay.alt = status;
+      overlay.className = `status-overlay ${safeStatus}`;
+      overlay.src = `system/images/${safeStatus}.png`;
+      overlay.alt = safeStatus;
       overlay.loading = "eager";
       card.appendChild(overlay);
 
-      const overlayPromise = new Promise(resolve => {
-        overlay.addEventListener("load", resolve, { once: true });
-        overlay.addEventListener("error", resolve, { once: true });
+      imagePromises.push({
+        promise: new Promise(resolve => {
+          overlay.addEventListener("load", resolve, { once: true });
+          overlay.addEventListener("error", resolve, { once: true });
+        }),
+        page: card.dataset.page,
       });
-      imagePromises.push({ promise: overlayPromise, page: card.dataset.page });
     }
 
     card.append(link, author, star);
