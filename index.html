@@ -120,7 +120,7 @@
 </head>
 
 <body theme="classic">
-  <!-- ✅ Single preloader with one progress bar -->
+  <!-- Single preloader with one progress bar -->
   <div id="preloader" class="preloader" aria-live="polite" aria-busy="true">
     <div class="loader-gif">
       <img id="loaderImage" src="system/images/GIF/loading.gif" alt="Loading animation" />
@@ -133,7 +133,7 @@
     <div id="progressText" class="load-progress-text">0%</div>
     <div id="loaderText" class="loading-text">Loading...</div>
   </div>
-  <!-- ✅ End preloader -->
+  <!-- End preloader -->
 
   <header>
     <nav class="nav-links" aria-label="Main Navigation">
@@ -183,12 +183,12 @@
     <a href="system/pages/alt.html">Alternative Links</a>
   </aside>
 
-  <!-- ✅ Quote system -->
+  <!-- Quote system -->
   <div id="quoteWrapper">
     <p id="quoteBox"></p>
   </div>
 
-  <!-- ✅ Update popup -->
+  <!-- Update popup -->
   <div id="updatePopup" class="update-popup" role="dialog" aria-modal="true" aria-labelledby="updatePopupTitle">
     <div class="update-popup-content">
       <h2 id="updatePopupTitle">🎉 Version 0.8 Update!</h2>
@@ -230,19 +230,32 @@
     <a href="system/pages/version-log.html">Version V0.8</a>
   </footer>
 
-  <!-- Scripts -->
-  <script src="system/js/elements.js" defer></script>
-  <script src="system/js/preloader.js" defer></script>
-  <script src="system/js/assets.js" defer></script>
-  <script src="system/js/favorites.js" defer></script>
-  <script src="system/js/paging.js" defer></script>
-  <script src="system/js/placeholders.js" defer></script>
-  <script src="system/js/loader.js" defer></script>
-  <script src="system/js/main.js" defer></script>
-  <script src="system/js/quotes.js" defer></script>
-  <script src="system/js/searcherror.js" defer></script>
-  <script src="system/js/commands.js" defer></script>
-  <script src="system/js/settings.js" defer></script>
-  <script src="system/js/index.js" defer></script>
+  <!-- Scripts (ordered for dependency safety) -->
+  <script src="system/js/elements.js"></script>
+  <script src="system/js/preloader.js"></script>
+  <script src="system/js/favorites.js"></script>
+  <script src="system/js/paging.js"></script>
+  <script src="system/js/placeholders.js"></script>
+  <script src="system/js/settings.js"></script>
+  <script src="system/js/commands.js"></script>
+  <script src="system/js/main.js"></script>
+  <script src="system/js/quotes.js"></script>
+  <script src="system/js/searcherror.js"></script>
+  <script src="system/js/index.js"></script>
+  <script src="system/js/assets.js"></script>
+  <script src="system/js/loader.js"></script>
+
+  <script>
+    // Ensure everything is defined before loader runs
+    window.addEventListener("DOMContentLoaded", () => {
+      const waitForGlobals = setInterval(() => {
+        if (window.dom && typeof createAssetCards === "function" && typeof hidePreloader === "function") {
+          clearInterval(waitForGlobals);
+          loadAssets(); // <-- start loader safely
+        }
+      }, 150);
+    });
+  </script>
+
 </body>
 </html>
