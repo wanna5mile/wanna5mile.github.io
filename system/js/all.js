@@ -1,438 +1,536 @@
 /* ==========================================================
    WannaSmile | Unified JS Loader & UI Logic
-   Final Hardened Version — Safe for numeric titles like "2048"
+   Optimized & Hardened Version
    ========================================================== */
 
-// --- DOM READY ---
-document.addEventListener("DOMContentLoaded", async () => {
-  initElements();
-  initFavorites();
-  initPreloader();
-  initPaging();
-  initPlaceholders();
+(() => {
+  "use strict";
 
-  try {
-    await loadAssets();
-  } catch (err) {
-    console.error("Startup error:", err);
-    await cyclePreloaderGifs(false);
-    updateProgress(100);
-    hidePreloader(true);
-  }
-});
+  /* ---------------------------
+     Utilities
+     --------------------------- */
+  const clamp = (v, a = 0, b = 100) => Math.min(b, Math.max(a, v));
+  const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+  const safeStr = (v) => (v === null || v === undefined ? "" : String(v));
+  const rafAsync = () => new Promise((r) => requestAnimationFrame(r));
 
-/* ==========================================================
-   ELEMENT INITIALIZATION
-   ========================================================== */
-function initElements() {
-  const getEl = (sel) => document.getElementById(sel) || document.querySelector(sel);
+  /* ---------------------------
+     DOM & Config Initialization
+     --------------------------- */
+  function initElements() {
+    const getEl = (sel) =>
+      document.getElementById(sel) || document.querySelector(sel);
 
-  window.dom = {
-    container: getEl("container"),
-    preloader: getEl("preloader"),
-    loaderImage: getEl("loaderImage"),
-    pageIndicator: getEl(".page-indicator"),
-    searchInput: getEl("searchInputHeader"),
-    searchBtn: getEl("searchBtnHeader"),
-  };
+    // Expose a single dom object
+    window.dom = {
+      container: getEl("container"),
+      preloader: getEl("preloader"),
+      loaderImage: getEl("loaderImage"),
+      pageIndicator: getEl(".page-indicator"),
+      searchInput: getEl("searchInputHeader"),
+      searchBtn: getEl("searchBtnHeader"),
+    };
 
-  if (!dom.container) {
-    console.warn("⚠ Elements not ready, retrying...");
-    return setTimeout(initElements, 200);
-  }
+    if (!dom.container) {
+      console.warn("⚠ Elements not ready, retrying...");
+      return setTimeout(initElements, 200);
+    }
 
-  window.config = {
-    fallbackImage:
-      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
-    fallbackLink: "https://wanna5mile.github.io./source/dino/",
-    gifBase:
-      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
-    sheetUrl:
-      "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
-  };
+    window.config = {
+      fallbackImage:
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
+      fallbackLink: "https://wanna5mile.github.io./source/dino/",
+      gifBase:
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
+      sheetUrl:
+        "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
+    };
 
-  console.log("Elements initialized:", dom);
-}
-
-/* ==========================================================
-   FAVORITES SYSTEM
-   ========================================================== */
-function initFavorites() {
-  try {
-    const stored = JSON.parse(localStorage.getItem("favorites") || "[]");
-    window.favorites = new Set(Array.isArray(stored) ? stored : []);
-  } catch {
-    window.favorites = new Set();
+    console.log("Elements initialized:", dom);
   }
 
-  window.saveFavorites = () => {
+  /* ---------------------------
+     Favorites System
+     --------------------------- */
+  function initFavorites() {
     try {
-      localStorage.setItem("favorites", JSON.stringify([...window.favorites]));
+      const stored = JSON.parse(localStorage.getItem("favorites") || "[]");
+      // store normalized (lowercase) titles
+      window.favorites = new Set(
+        Array.isArray(stored) ? stored.map((s) => safeStr(s).toLowerCase()) : []
+      );
     } catch (e) {
-      console.error("Failed to save favorites:", e);
-    }
-  };
-
-  window.refreshCards = () => {
-    if (!window.assetsData || typeof createAssetCards !== "function") {
-      console.warn("⚠ Cannot refresh cards — assets not ready.");
-      return;
-    }
-    const imagePromises = createAssetCards(window.assetsData);
-    if (typeof renderPage === "function") renderPage();
-    if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
-    return imagePromises;
-  };
-
-  console.log("Favorites initialized:", [...window.favorites]);
-}
-
-/* ==========================================================
-   PRELOADER
-   ========================================================== */
-function initPreloader() {
-  const { preloader } = dom;
-  if (!preloader) return;
-
-  preloader.innerHTML = "";
-
-  const progressText = document.createElement("div");
-  const progressBar = document.createElement("div");
-  const progressFill = document.createElement("div");
-
-  progressText.className = "load-progress-text";
-  progressBar.className = "load-progress-bar";
-  progressFill.className = "load-progress-fill";
-  progressBar.append(progressFill);
-  preloader.append(progressText, progressBar);
-
-  window.updateProgress = (percent) => {
-    const clamped = Math.min(100, Math.max(0, percent));
-    progressText.textContent = `Loading ${Math.floor(clamped)}%`;
-    progressFill.style.width = `${clamped}%`;
-  };
-
-  window.cyclePreloaderGifs = async (success = true) => {
-    const { loaderImage } = dom;
-    if (!loaderImage) return;
-    const delay = (ms) => new Promise((r) => setTimeout(r, ms));
-
-    const gifs = success
-      ? [`${config.gifBase}loading.gif`, `${config.gifBase}load-fire.gif`]
-      : [`${config.gifBase}loading.gif`, `${config.gifBase}crash.gif`, `${config.gifBase}ded.gif`];
-
-    for (const gif of gifs) {
-      loaderImage.src = gif;
-      await delay(success ? 1000 : 1300);
-    }
-  };
-
-  window.hidePreloader = (force = false) => {
-    if (!preloader || preloader.dataset.hidden === "true") return;
-    preloader.dataset.hidden = "true";
-    preloader.style.transition = "opacity 0.5s ease";
-    preloader.style.opacity = "0";
-    preloader.style.pointerEvents = "none";
-    setTimeout(() => (preloader.style.display = "none"), 500);
-  };
-
-  console.log("Preloader ready");
-}
-
-/* ==========================================================
-   ASSET LOADER (Google Sheets)
-   ========================================================== */
-async function loadAssets(retry = false) {
-  if (!window.dom || !dom.preloader) {
-    console.warn("DOM/preloader not ready, retrying...");
-    return setTimeout(() => loadAssets(retry), 200);
-  }
-
-  showLoading("Loading assets...");
-  updateProgress(5);
-
-  try {
-    const res = await fetch(config.sheetUrl, { cache: "no-store" });
-    if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
-
-    const rawData = await res.json();
-    if (!Array.isArray(rawData)) throw new Error("Invalid data from Sheets");
-
-    const data = rawData.filter(
-      (item) => item && Object.values(item).some((v) => v && String(v).trim() !== "")
-    );
-    window.assetsData = data;
-
-    const total = data.length;
-    let loaded = 0;
-
-    const stagedData = [];
-    for (const entry of data) {
-      stagedData.push(entry);
-      loaded++;
-      updateProgress(10 + Math.floor((loaded / total) * 60));
-      if (loaded % 20 === 0) await new Promise((r) => requestAnimationFrame(r));
+      console.warn("Failed reading favorites:", e);
+      window.favorites = new Set();
     }
 
-    const imagePromises = createAssetCards(stagedData);
-    const imgTotal = imagePromises.length;
-    let imgLoaded = 0;
-
-    for (const { promise } of imagePromises) {
-      promise.then(() => {
-        imgLoaded++;
-        updateProgress(75 + Math.floor((imgLoaded / imgTotal) * 25));
-      });
-    }
-
-    await Promise.allSettled(imagePromises.map((p) => p.promise));
-    updateProgress(100);
-    await new Promise((r) => setTimeout(r, 400));
-
-    hidePreloader(true);
-    if (typeof renderPage === "function") renderPage();
-    if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
-
-    console.log("Assets loaded successfully");
-  } catch (err) {
-    console.error("Error loading assets:", err);
-
-    if (!retry) {
-      console.warn("Retrying asset load...");
-      return setTimeout(() => loadAssets(true), 1000);
-    }
-
-    showLoading("⚠ Failed to load assets.");
-    await cyclePreloaderGifs(false);
-    hidePreloader(true);
-  }
-}
-
-function showLoading(text) {
-  const { preloader } = dom;
-  if (!preloader) return;
-  const textEl =
-    preloader.querySelector(".load-progress-text") || preloader.appendChild(document.createElement("div"));
-  textEl.className = "load-progress-text";
-  textEl.textContent = text;
-}
-
-/* ==========================================================
-   CREATE ASSET CARDS — Hardened for numeric/null titles
-   ========================================================== */
-function createAssetCards(data) {
-  const { container } = dom;
-  if (!container) return Promise.resolve();
-
-  container.innerHTML = "";
-  const imagePromises = [];
-
-  const sorted = [...data].sort((a, b) => {
-    const aTitle = String(a.title || "").trim();
-    const bTitle = String(b.title || "").trim();
-    const aFav = favorites.has(aTitle);
-    const bFav = favorites.has(bTitle);
-    if (aFav !== bFav) return bFav - aFav;
-    return (a.page || 1) - (b.page || 1);
-  });
-
-  for (const asset of sorted) {
-    const safeTitle = String(asset.title || "").trim();
-    const safeAuthor = String(asset.author || "").trim();
-    const safeStatus = String(asset.status || "").toLowerCase();
-    const safeImage = String(asset.image || "").trim();
-    const safeLink = String(asset.link || "").trim();
-
-    const card = document.createElement("div");
-    card.className = "asset-card";
-    card.dataset.title = safeTitle.toLowerCase();
-    card.dataset.author = safeAuthor.toLowerCase();
-    card.dataset.page = asset.page ? parseInt(asset.page) : 1;
-    card.dataset.filtered = "true";
-
-    let imageSrc = safeImage;
-    if (!imageSrc || imageSrc === "blank" || safeStatus === "blank") {
-      imageSrc = config.fallbackImage;
-    }
-
-    const img = document.createElement("img");
-    img.src = imageSrc;
-    img.alt = safeTitle || "Asset";
-    img.loading = "eager";
-    img.addEventListener("error", () => {
-      if (!img.dataset.fallbackApplied) {
-        img.src = config.fallbackImage;
-        img.dataset.fallbackApplied = "true";
+    window.saveFavorites = () => {
+      try {
+        localStorage.setItem("favorites", JSON.stringify([...window.favorites]));
+      } catch (e) {
+        console.error("Failed to save favorites:", e);
       }
+    };
+
+    // refreshCards should return the image promises so callers can await
+    window.refreshCards = () => {
+      if (!window.assetsData || typeof createAssetCards !== "function") {
+        console.warn("⚠ Cannot refresh cards — assets not ready.");
+        return [];
+      }
+      const imagePromises = createAssetCards(window.assetsData);
+      if (typeof renderPage === "function") renderPage();
+      if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
+      return imagePromises;
+    };
+
+    console.log("Favorites initialized:", [...window.favorites]);
+  }
+
+  /* ---------------------------
+     Preloader UI
+     --------------------------- */
+  function initPreloader() {
+    const { preloader } = dom || {};
+    if (!preloader) return;
+
+    preloader.innerHTML = "";
+
+    const progressText = document.createElement("div");
+    const progressBar = document.createElement("div");
+    const progressFill = document.createElement("div");
+
+    progressText.className = "load-progress-text";
+    progressBar.className = "load-progress-bar";
+    progressFill.className = "load-progress-fill";
+    progressBar.append(progressFill);
+    preloader.append(progressText, progressBar);
+
+    // throttled-ish updateProgress
+    let lastProgress = -1;
+    window.updateProgress = (percent) => {
+      const clamped = clamp(Math.floor(percent), 0, 100);
+      if (clamped === lastProgress) return;
+      lastProgress = clamped;
+      progressText.textContent = `Loading ${clamped}%`;
+      progressFill.style.width = `${clamped}%`;
+    };
+
+    window.cyclePreloaderGifs = async (success = true) => {
+      const { loaderImage } = dom;
+      if (!loaderImage) return;
+      const gifs = success
+        ? [`${config.gifBase}loading.gif`, `${config.gifBase}load-fire.gif`]
+        : [
+            `${config.gifBase}loading.gif`,
+            `${config.gifBase}crash.gif`,
+            `${config.gifBase}ded.gif`,
+          ];
+
+      // sequentially show gifs with delays; allow micro-yield to UI
+      for (const gif of gifs) {
+        loaderImage.src = gif;
+        await delay(success ? 900 : 1200);
+        await rafAsync();
+      }
+    };
+
+    window.hidePreloader = (force = false) => {
+      if (!preloader || preloader.dataset.hidden === "true") return;
+      preloader.dataset.hidden = "true";
+      preloader.style.transition = "opacity 0.45s ease";
+      preloader.style.opacity = "0";
+      preloader.style.pointerEvents = "none";
+      setTimeout(() => {
+        preloader.style.display = "none";
+      }, 500);
+    };
+
+    console.log("Preloader ready");
+  }
+
+  /* ---------------------------
+     Asset Loader (Google Sheets)
+     --------------------------- */
+  async function loadAssets(retry = false) {
+    if (!window.dom || !dom.preloader) {
+      console.warn("DOM/preloader not ready, retrying...");
+      return setTimeout(() => loadAssets(retry), 200);
+    }
+
+    showLoading("Loading assets...");
+    updateProgress(5);
+
+    try {
+      const res = await fetch(config.sheetUrl, { cache: "no-store" });
+      if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
+      const raw = await res.json();
+      if (!Array.isArray(raw)) throw new Error("Invalid data from Sheets");
+
+      // filter out empty rows robustly
+      const data = raw.filter((item) =>
+        item && Object.values(item).some((v) => safeStr(v).trim() !== "")
+      );
+
+      window.assetsData = data;
+
+      // staged progress rendering for UX
+      const total = data.length || 1;
+      let staged = [];
+      for (let i = 0; i < data.length; i++) {
+        staged.push(data[i]);
+        if (i % 20 === 0) await rafAsync();
+        updateProgress(10 + Math.floor(((i + 1) / total) * 60));
+      }
+
+      // create cards and track image load promises
+      const imagePromises = createAssetCards(staged || []);
+      const imgTotal = imagePromises.length || 1;
+      let imgLoaded = 0;
+
+      imagePromises.forEach(({ promise }) => {
+        promise
+          .then(() => {
+            imgLoaded++;
+            updateProgress(75 + Math.floor((imgLoaded / imgTotal) * 25));
+          })
+          .catch(() => {
+            imgLoaded++;
+            updateProgress(75 + Math.floor((imgLoaded / imgTotal) * 25));
+          });
+      });
+
+      await Promise.allSettled(imagePromises.map((p) => p.promise));
+      updateProgress(100);
+      await delay(350);
+
+      hidePreloader(true);
+      if (typeof renderPage === "function") renderPage();
+      if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
+
+      console.log("Assets loaded successfully");
+    } catch (err) {
+      console.error("Error loading assets:", err);
+      if (!retry) {
+        console.warn("Retrying asset load...");
+        return setTimeout(() => loadAssets(true), 1000);
+      }
+      showLoading("⚠ Failed to load assets.");
+      await cyclePreloaderGifs(false);
+      hidePreloader(true);
+    }
+  }
+
+  function showLoading(text) {
+    const { preloader } = dom || {};
+    if (!preloader) return;
+    let textEl = preloader.querySelector(".load-progress-text");
+    if (!textEl) {
+      textEl = document.createElement("div");
+      textEl.className = "load-progress-text";
+      preloader.appendChild(textEl);
+    }
+    textEl.textContent = text;
+  }
+
+  /* ---------------------------
+     Create Asset Cards
+     --------------------------- */
+  function createAssetCards(data) {
+    const { container } = dom || {};
+    if (!container) return [];
+
+    container.innerHTML = "";
+    const imagePromises = [];
+    const frag = document.createDocumentFragment();
+
+    // normalize favorites lookup (we already store lowercase)
+    const isFav = (title) => window.favorites.has(safeStr(title).toLowerCase());
+
+    const sorted = [...(data || [])].sort((a, b) => {
+      const aTitle = safeStr(a.title).trim();
+      const bTitle = safeStr(b.title).trim();
+      const aFav = isFav(aTitle);
+      const bFav = isFav(bTitle);
+      if (aFav !== bFav) return bFav - aFav; // favorites first
+      // page fallback and numeric-aware title compare
+      const aPage = Number(a.page) || 1;
+      const bPage = Number(b.page) || 1;
+      if (aPage !== bPage) return aPage - bPage;
+      return aTitle.localeCompare(bTitle, undefined, { numeric: true, sensitivity: "base" });
     });
 
-    const imgPromise = new Promise((resolve) => {
-      img.addEventListener("load", resolve, { once: true });
-      img.addEventListener("error", resolve, { once: true });
-    });
-    imagePromises.push({ promise: imgPromise, page: card.dataset.page });
+    for (const asset of sorted) {
+      const safeTitle = safeStr(asset.title).trim();
+      const safeAuthor = safeStr(asset.author).trim();
+      const safeStatus = safeStr(asset.status).toLowerCase();
+      const safeImage = safeStr(asset.image).trim();
+      const safeLink = safeStr(asset.link).trim();
+      const pageNum = Number(asset.page) || 1;
 
-    const link = document.createElement("a");
-    link.href = safeLink || config.fallbackLink;
-    link.target = "_blank";
-    link.rel = "noopener";
-    link.appendChild(img);
-    link.innerHTML += `<h3>${safeTitle || "Untitled"}</h3>`;
+      const card = document.createElement("div");
+      card.className = "asset-card";
+      card.dataset.title = safeTitle.toLowerCase();
+      card.dataset.author = safeAuthor.toLowerCase();
+      card.dataset.page = String(pageNum);
+      card.dataset.filtered = "true";
 
-    const author = document.createElement("p");
-    author.textContent = safeAuthor || " ";
+      // image element
+      const img = document.createElement("img");
+      img.alt = safeTitle || "Asset";
+      img.loading = "eager";
+      let imageSrc = safeImage;
+      if (!imageSrc || imageSrc === "blank" || safeStatus === "blank") {
+        imageSrc = config.fallbackImage;
+      }
+      // attach load/error listeners via Image object to avoid layout thrash
+      const imgLoadPromise = new Promise((resolve) => {
+        const tmp = new Image();
+        tmp.decoding = "async";
+        tmp.onload = () => {
+          img.src = imageSrc;
+          resolve();
+        };
+        tmp.onerror = () => {
+          img.src = config.fallbackImage;
+          resolve();
+        };
+        tmp.src = imageSrc;
+      });
 
-    const star = document.createElement("span");
-    star.className = "favorite-star";
-    star.textContent = favorites.has(safeTitle) ? "★" : "☆";
-    star.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (favorites.has(safeTitle)) favorites.delete(safeTitle);
-      else favorites.add(safeTitle);
-      saveFavorites();
-      refreshCards();
-    });
+      imagePromises.push({ promise: imgLoadPromise, page: pageNum });
 
-    if (safeStatus === "soon") {
-      card.classList.add("soon");
-      link.removeAttribute("href");
-      link.style.pointerEvents = "none";
-    } else if (safeStatus === "featured" || safeStatus === "fixed") {
-      const overlay = document.createElement("img");
-      overlay.className = `status-overlay ${safeStatus}`;
-      overlay.src = `system/images/${safeStatus}.png`;
-      overlay.alt = safeStatus;
-      overlay.loading = "eager";
-      card.appendChild(overlay);
-      imagePromises.push({
-        promise: new Promise((r) => {
+      // link wrapper
+      const link = document.createElement("a");
+      link.href = safeStatus === "soon" ? "javascript:void(0)" : safeLink || config.fallbackLink;
+      if (safeStatus !== "soon") {
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+      } else {
+        link.style.pointerEvents = "none";
+        link.setAttribute("aria-disabled", "true");
+      }
+      link.appendChild(img);
+
+      // title
+      const titleEl = document.createElement("h3");
+      titleEl.textContent = safeTitle || "Untitled";
+      link.appendChild(titleEl);
+
+      // author
+      const author = document.createElement("p");
+      author.textContent = safeAuthor || " ";
+
+      // favorite star
+      const star = document.createElement("button");
+      star.className = "favorite-star";
+      star.type = "button";
+      star.setAttribute("aria-label", isFav(safeTitle) ? "Unfavorite" : "Favorite");
+      star.textContent = isFav(safeTitle) ? "★" : "☆";
+
+      // handle star click
+      star.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const key = safeTitle.toLowerCase();
+        if (window.favorites.has(key)) window.favorites.delete(key);
+        else window.favorites.add(key);
+        saveFavorites();
+        // update star UI and re-render cards (refreshCards will rebuild)
+        star.textContent = window.favorites.has(key) ? "★" : "☆";
+        if (typeof window.refreshCards === "function") window.refreshCards();
+      });
+
+      // status overlay for featured/fixed
+      if (safeStatus === "featured" || safeStatus === "fixed") {
+        const overlay = document.createElement("img");
+        overlay.className = `status-overlay ${safeStatus}`;
+        overlay.alt = safeStatus;
+        overlay.loading = "eager";
+        // set src relative to site; if missing, ignore
+        overlay.src = `system/images/${safeStatus}.png`;
+        // ensure overlay load is awaited
+        const overlayPromise = new Promise((r) => {
           overlay.addEventListener("load", r, { once: true });
           overlay.addEventListener("error", r, { once: true });
-        }),
-        page: card.dataset.page,
-      });
+        });
+        imagePromises.push({ promise: overlayPromise, page: pageNum });
+        card.appendChild(overlay);
+      }
+
+      card.append(link, author, star);
+      frag.appendChild(card);
     }
 
-    card.append(link, author, star);
-    container.appendChild(card);
+    container.appendChild(frag);
+    return imagePromises;
   }
 
-  return imagePromises;
-}
+  /* ---------------------------
+     Paging & Filtering
+     --------------------------- */
+  function initPaging() {
+    const { container, pageIndicator, searchInput, searchBtn } = dom || {};
+    if (!container) return;
 
-/* ==========================================================
-   PAGING
-   ========================================================== */
-function initPaging() {
-  const { container, pageIndicator, searchInput, searchBtn } = dom;
+    window.getAllCards = () => Array.from(container.querySelectorAll(".asset-card"));
+    window.getFilteredCards = () => getAllCards().filter((c) => c.dataset.filtered === "true");
+    window.getPages = () =>
+      [...new Set(getFilteredCards().map((c) => parseInt(c.dataset.page, 10)))]
+        .filter((n) => !Number.isNaN(n))
+        .sort((a, b) => a - b);
 
-  window.getAllCards = () => Array.from(container.querySelectorAll(".asset-card"));
-  window.getFilteredCards = () =>
-    getAllCards().filter((c) => c.dataset.filtered === "true");
-  window.getPages = () =>
-    [...new Set(getFilteredCards().map((c) => parseInt(c.dataset.page)))]
-      .filter((n) => !isNaN(n))
-      .sort((a, b) => a - b);
+    window.renderPage = () => {
+      const pages = getPages();
+      const maxPage = pages.length ? Math.max(...pages) : 1;
+      if (!pages.includes(window.currentPage)) window.currentPage = pages[0] || 1;
 
-  window.renderPage = () => {
-    const pages = getPages();
-    const maxPage = Math.max(...pages, 1);
-    if (!pages.includes(window.currentPage)) window.currentPage = pages[0] || 1;
-
-    getAllCards().forEach((card) => {
-      const visible =
-        parseInt(card.dataset.page) === window.currentPage &&
-        card.dataset.filtered === "true";
-      card.style.display = visible ? "block" : "none";
-    });
-
-    if (pageIndicator)
-      pageIndicator.textContent = `Page ${window.currentPage} of ${maxPage}`;
-    sessionStorage.setItem("currentPage", window.currentPage);
-  };
-
-  window.filterAssets = (query) => {
-    const q = String(query || "").toLowerCase().trim();
-    getAllCards().forEach((card) => {
-      const match =
-        !q ||
-        card.dataset.title.includes(q) ||
-        card.dataset.author.includes(q);
-      card.dataset.filtered = match ? "true" : "false";
-    });
-    renderPage();
-  };
-
-  window.prevPage = () => {
-    const pages = getPages();
-    if (!pages.length) return;
-    const idx = pages.indexOf(window.currentPage);
-    window.currentPage = idx === 0 ? pages.at(-1) : pages[idx - 1];
-    renderPage();
-  };
-
-  window.nextPage = () => {
-    const pages = getPages();
-    if (!pages.length) return;
-    const idx = pages.indexOf(window.currentPage);
-    window.currentPage = idx === pages.length - 1 ? pages[0] : pages[idx + 1];
-    renderPage();
-  };
-
-  if (searchInput && searchBtn) {
-    searchBtn.addEventListener("click", () => filterAssets(searchInput.value));
-    searchInput.addEventListener("input", () => filterAssets(searchInput.value));
-  }
-
-  window.currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
-
-  const observer = new MutationObserver(() => {
-    clearTimeout(window._pagingDebounce);
-    window._pagingDebounce = setTimeout(renderPage, 150);
-  });
-  observer.observe(container, { childList: true });
-
-  renderPage();
-}
-
-/* ==========================================================
-   PLACEHOLDERS
-   ========================================================== */
-function initPlaceholders() {
-  const { searchInput } = dom;
-  if (!searchInput) return;
-
-  const FADE_DURATION = 400;
-  const HOLD_DURATION = 4000;
-
-  window.fadePlaceholder = (input, text, cb) => {
-    input.classList.add("fade-out");
-    setTimeout(() => {
-      input.placeholder = text;
-      input.classList.remove("fade-out");
-      input.classList.add("fade-in");
-      setTimeout(() => {
-        input.classList.remove("fade-in");
-        if (cb) cb();
-      }, FADE_DURATION);
-    }, FADE_DURATION);
-  };
-
-  window.startPlaceholderCycle = () => {
-    const loop = () => {
-      const visible = getFilteredCards().filter(
-        (c) => parseInt(c.dataset.page) === window.currentPage
-      ).length;
-
-      fadePlaceholder(searchInput, `${visible} assets on this page`, () => {
-        setTimeout(() => {
-          fadePlaceholder(searchInput, "Search assets...", () =>
-            setTimeout(loop, HOLD_DURATION)
-          );
-        }, HOLD_DURATION);
+      getAllCards().forEach((card) => {
+        const visible = parseInt(card.dataset.page, 10) === window.currentPage && card.dataset.filtered === "true";
+        card.style.display = visible ? "" : "none";
       });
+
+      if (pageIndicator) pageIndicator.textContent = `Page ${window.currentPage} of ${maxPage}`;
+      try {
+        sessionStorage.setItem("currentPage", String(window.currentPage));
+      } catch (e) {
+        // ignore sessionStorage errors
+      }
     };
-    loop();
-  };
-}
+
+    // debounce helper
+    const debounce = (fn, ms = 150) => {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
+    };
+
+    window.filterAssets = (query) => {
+      const q = safeStr(query).toLowerCase().trim();
+      getAllCards().forEach((card) => {
+        const match =
+          !q ||
+          card.dataset.title.includes(q) ||
+          card.dataset.author.includes(q);
+        card.dataset.filtered = match ? "true" : "false";
+      });
+      renderPage();
+    };
+
+    window.prevPage = () => {
+      const pages = getPages();
+      if (!pages.length) return;
+      const idx = pages.indexOf(window.currentPage);
+      window.currentPage = idx <= 0 ? pages.at(-1) : pages[idx - 1];
+      renderPage();
+    };
+
+    window.nextPage = () => {
+      const pages = getPages();
+      if (!pages.length) return;
+      const idx = pages.indexOf(window.currentPage);
+      window.currentPage = idx === pages.length - 1 ? pages[0] : pages[idx + 1];
+      renderPage();
+    };
+
+    if (searchInput && searchBtn) {
+      searchBtn.addEventListener("click", () => filterAssets(searchInput.value));
+      searchInput.addEventListener("input", debounce(() => filterAssets(searchInput.value), 200));
+    }
+
+    window.currentPage = Number(sessionStorage.getItem("currentPage")) || 1;
+
+    // observe container children and re-render page when changed
+    const observer = new MutationObserver(
+      debounce(() => {
+        if (typeof renderPage === "function") renderPage();
+      }, 120)
+    );
+    observer.observe(container, { childList: true });
+
+    // initial render
+    renderPage();
+  }
+
+  /* ---------------------------
+     Placeholder cycling
+     --------------------------- */
+  function initPlaceholders() {
+    const { searchInput } = dom || {};
+    if (!searchInput) return;
+
+    const FADE_DURATION = 400;
+    const HOLD_DURATION = 4000;
+
+    window.fadePlaceholder = (input, text, cb) => {
+      input.classList.add("fade-out");
+      setTimeout(() => {
+        input.placeholder = text;
+        input.classList.remove("fade-out");
+        input.classList.add("fade-in");
+        setTimeout(() => {
+          input.classList.remove("fade-in");
+          if (typeof cb === "function") cb();
+        }, FADE_DURATION);
+      }, FADE_DURATION);
+    };
+
+    window.startPlaceholderCycle = () => {
+      // prevent multiple cycles
+      if (window._placeholderRunning) return;
+      window._placeholderRunning = true;
+
+      const loop = async () => {
+        try {
+          const visible = getFilteredCards().filter(
+            (c) => parseInt(c.dataset.page, 10) === window.currentPage
+          ).length;
+          await new Promise((r) => {
+            fadePlaceholder(searchInput, `${visible} assets on this page`, () => r());
+          });
+          await delay(HOLD_DURATION);
+          await new Promise((r) => {
+            fadePlaceholder(searchInput, "Search assets...", () => r());
+          });
+          await delay(HOLD_DURATION);
+          if (window._placeholderRunning) loop();
+        } catch (e) {
+          window._placeholderRunning = false;
+        }
+      };
+
+      loop();
+    };
+
+    // allow stopping the cycle
+    window.stopPlaceholderCycle = () => {
+      window._placeholderRunning = false;
+    };
+  }
+
+  /* ---------------------------
+     DOMContentLoaded bootstrap
+     --------------------------- */
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      initElements();
+      initFavorites();
+      initPreloader();
+      initPaging();
+      initPlaceholders();
+
+      try {
+        await loadAssets();
+      } catch (err) {
+        console.error("Startup error:", err);
+        await cyclePreloaderGifs(false);
+        updateProgress(100);
+        hidePreloader(true);
+      }
+    } catch (err) {
+      console.error("Fatal initialization error:", err);
+    }
+  });
+})();
