@@ -1,13 +1,8 @@
-// ✅ loader.js — unified and duplicate-free
+// ✅ loader.js — synced with assets.js Google Sheets API version
 async function loadAssets(retry = false) {
-  // --- Wait until DOM + preloader ready ---
+  // --- Wait until DOM and preloader ready ---
   if (!window.dom || !dom.preloader) {
     console.warn("DOM or preloader not ready, retrying...");
-    return setTimeout(() => loadAssets(retry), 200);
-  }
-
-  if (typeof updateProgress !== "function" || typeof hidePreloader !== "function") {
-    console.warn("Preloader functions not ready, retrying...");
     return setTimeout(() => loadAssets(retry), 200);
   }
 
@@ -23,21 +18,25 @@ async function loadAssets(retry = false) {
   updateProgress(0);
 
   try {
-    // --- Fetch JSON ---
-    const res = await fetch(config.jsonPath, { cache: "no-store" });
+    // === Fetch Data from Google Apps Script ===
+    const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec";
+    const res = await fetch(APPS_SCRIPT_API_URL, { cache: "no-store" });
     if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
 
-    window.assetsData = await res.json();
+    let assetData;
+    try {
+      assetData = await res.json();
+    } catch (jsonErr) {
+      const text = await res.text();
+      throw new Error("Invalid JSON returned by Apps Script:\n" + text);
+    }
 
     // --- Create cards + preload images ---
-    const imagePromises = createAssetCards(assetsData);
-    renderPage();
-    startPlaceholderCycle();
-
+    const imagePromises = createAssetCards(assetData);
     const total = imagePromises.length;
     let loaded = 0;
 
-    // --- Update progress as images load ---
+    // --- Update progress as each image resolves ---
     for (const { promise } of imagePromises) {
       promise.then(() => {
         loaded++;
@@ -46,21 +45,19 @@ async function loadAssets(retry = false) {
       });
     }
 
-    // --- Wait for all images to load ---
-    await Promise.all(imagePromises.map((p) => p.promise));
-
-    // --- Ensure completion ---
+    // --- Wait for all images and overlays ---
+    await Promise.allSettled(imagePromises.map(p => p.promise));
     updateProgress(100);
 
-    // --- Smooth animation delay ---
+    // --- Small delay for smooth transition ---
     await delay(400);
 
-    // --- Transition to loaded state ---
-    await cyclePreloaderGifs(true);
+    // --- Hide loader + finalize ---
+    if (typeof refreshCards === "function") refreshCards();
     hidePreloader(true);
 
   } catch (err) {
-    console.error("Error loading JSON:", err);
+    console.error("Error loading assets:", err);
 
     if (!retry) {
       console.warn("Retrying asset load...");
@@ -69,7 +66,6 @@ async function loadAssets(retry = false) {
 
     // --- Handle fatal failure ---
     showLoading("⚠ Failed to load asset data.");
-    await cyclePreloaderGifs(false);
     hidePreloader(true);
   }
 }
@@ -85,7 +81,7 @@ function updateProgress(percent) {
   if (progressText) progressText.textContent = `${percent}%`;
   if (progressBar) {
     progressBar.style.width = `${percent}%`;
-    progressBar.setAttribute("aria-valuenow", percent); // accessibility
+    progressBar.setAttribute("aria-valuenow", percent);
   }
 }
 
