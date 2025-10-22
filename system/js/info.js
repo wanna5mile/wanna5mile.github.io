@@ -1,41 +1,67 @@
+// ---- info.js ----
+// Loads random quotes from system/json/info.json and rotates them smoothly.
+
 document.addEventListener("DOMContentLoaded", () => {
   const quoteBox = document.getElementById("randomquote");
-  const jsonPath = "system/json/info.json"; // adjust if needed
+  const jsonPath = "system/json/info.json"; // Adjust path if needed
+  const changeInterval = 8000; // 8 seconds per quote
   let quotes = [];
-  const changeInterval = 8000; // 8 seconds between quotes
+  let quoteTimer = null;
 
-  // Load quotes from JSON
+  // --- Utility: Smooth fade transition ---
+  function fadeReplaceText(element, newText, duration = 500) {
+    if (!element) return;
+    element.style.transition = `opacity ${duration / 1000}s ease`;
+    element.style.opacity = 0;
+
+    setTimeout(() => {
+      element.textContent = newText;
+      element.style.opacity = 1;
+    }, duration);
+  }
+
+  // --- Load quotes from JSON ---
   async function loadQuotes() {
     try {
-      const res = await fetch(jsonPath);
-      if (!res.ok) throw new Error(`Failed to fetch quotes: ${res.status}`);
-      quotes = await res.json();
+      const res = await fetch(jsonPath, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
 
-      if (!Array.isArray(quotes) || quotes.length === 0) {
+      if (Array.isArray(data) && data.length > 0) {
+        quotes = data;
+      } else {
         quotes = ["No quotes available."];
       }
-
-      startQuotes();
     } catch (err) {
       console.error("Error loading quotes:", err);
       quotes = ["⚠ Failed to load quotes."];
+    } finally {
       startQuotes();
     }
   }
 
-  // Pick and display a random quote
-  function setRandomQuote() {
-    if (quotes.length === 0) return;
-    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-    quoteBox.textContent = randomQuote;
+  // --- Random quote selection ---
+  function getRandomQuote() {
+    if (quotes.length === 0) return "…";
+    return quotes[Math.floor(Math.random() * quotes.length)];
   }
 
-  // Initialize and schedule quote changes
+  // --- Display and cycle quotes ---
+  function showRandomQuote() {
+    fadeReplaceText(quoteBox, getRandomQuote());
+  }
+
   function startQuotes() {
-    setRandomQuote();
-    setInterval(setRandomQuote, changeInterval);
+    if (!quoteBox) {
+      console.warn("Quote element not found: #randomquote");
+      return;
+    }
+    if (quoteTimer) clearInterval(quoteTimer);
+
+    showRandomQuote();
+    quoteTimer = setInterval(showRandomQuote, changeInterval);
   }
 
-  // Start process
+  // --- Start process ---
   loadQuotes();
 });
