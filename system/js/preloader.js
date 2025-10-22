@@ -1,99 +1,50 @@
 function initPreloader() {
-  const { preloader, loaderImage } = dom;
-  if (!preloader) {
-    console.warn("⚠ Preloader element not found.");
-    return;
-  }
+  const { preloader } = dom;
+  if (!preloader) return;
 
-  // Prevent duplicates
-  if (preloader.dataset.initialized === "true") return;
-  preloader.dataset.initialized = "true";
-
-  // --- Elements ---
+  // Build DOM
   const progressText = document.createElement("div");
   const progressBar = document.createElement("div");
-  const progressBarFill = document.createElement("div");
-
+  const progressFill = document.createElement("div");
   progressText.className = "load-progress-text";
   progressBar.className = "load-progress-bar";
-  progressBarFill.className = "load-progress-fill";
-  progressBar.appendChild(progressBarFill);
+  progressFill.className = "load-progress-fill";
+  progressBar.append(progressFill);
   preloader.append(progressText, progressBar);
 
-  // --- State ---
-  const state = { currentPercent: 0 };
-  const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+  // State
+  window.preloaderState = { percent: 0 };
 
-  // --- Progress updater ---
+  // --- Update function ---
   window.updateProgress = (percent) => {
-    if (typeof percent !== "number" || !isFinite(percent)) return;
-    state.currentPercent = Math.min(Math.max(percent, 0), 100);
-    progressText.textContent = `Loading ${state.currentPercent}%`;
-    progressBarFill.style.width = `${state.currentPercent}%`;
-
-    if (state.currentPercent >= 100) {
-      setTimeout(async () => {
-        await cyclePreloaderGifs(true);
-        hidePreloader();
-      }, 300);
-    }
+    preloaderState.percent = Math.min(100, Math.max(0, percent));
+    progressText.textContent = `Loading ${Math.floor(preloaderState.percent)}%`;
+    progressFill.style.width = `${preloaderState.percent}%`;
   };
 
-  // --- Cycle GIFs during load / error ---
+  // --- GIF cycling ---
   window.cyclePreloaderGifs = async (success = true) => {
+    const { loaderImage } = dom;
     if (!loaderImage) return;
+
+    const delay = (ms) => new Promise((r) => setTimeout(r, ms));
     const gifs = success
-      ? [
-          `${config.gifBase}loading.gif`,
-          `${config.gifBase}load-fire.gif`,
-        ]
-      : [
-          `${config.gifBase}loading.gif`,
-          `${config.gifBase}crash.gif`,
-          `${config.gifBase}ded.gif`,
-        ];
+      ? [`${config.gifBase}loading.gif`, `${config.gifBase}load-fire.gif`]
+      : [`${config.gifBase}loading.gif`, `${config.gifBase}crash.gif`, `${config.gifBase}ded.gif`];
 
     for (const gif of gifs) {
       loaderImage.src = gif;
-      await delay(success ? 1200 : 1300);
+      await delay(900);
     }
   };
 
-  // --- Hide preloader (on success or skip) ---
+  // --- Hide preloader ---
   window.hidePreloader = (force = false) => {
-    if (!preloader || (preloader.dataset.hidden === "true" && !force)) return;
+    if (!preloader || preloader.dataset.hidden === "true") return;
     preloader.dataset.hidden = "true";
-
     preloader.style.transition = "opacity 0.5s ease";
     preloader.style.opacity = "0";
     preloader.style.pointerEvents = "none";
-
-    setTimeout(() => {
-      preloader.style.display = "none";
-    }, 500);
-  };
-
-  // --- Link Sheets loading progress ---
-  // Called automatically from loadAssets() that uses Sheets API
-  window.bindSheetsProgress = (promise) => {
-    let progress = 0;
-    const update = (val) => updateProgress(Math.round(val));
-
-    promise.then(
-      () => update(100),
-      () => cyclePreloaderGifs(false)
-    );
-
-    // Optional: simulate smooth progress while data loads
-    const interval = setInterval(() => {
-      if (progress < 90) {
-        progress += Math.random() * 5;
-        update(progress);
-      } else if (preloader.dataset.hidden === "true") {
-        clearInterval(interval);
-      }
-    }, 150);
-
-    promise.finally(() => clearInterval(interval));
+    setTimeout(() => (preloader.style.display = "none"), 500);
   };
 }
