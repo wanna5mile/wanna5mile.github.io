@@ -2,20 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Credits & Contributions</title>
+
   <style>
-    body {
+    /* === Global Reset === */
+    * {
       margin: 0;
-      background: #000;
-      color: white;
-      font-family: monospace;
-      overflow: hidden;
+      padding: 0;
+      box-sizing: border-box;
     }
 
+    body {
+      background: #000;
+      color: #fff;
+      font-family: "JetBrains Mono", monospace;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* === Credits Container === */
     .credits-container {
       position: relative;
-      height: 100vh;
       width: 100%;
+      height: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -26,61 +40,114 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      animation: scrollUp 45s linear infinite;
-    }
-
-    /* Universal styling for h1–h6 and p1–p6 */
-    h1, h2, h3, h4, h5, h6,
-    p1, p2, p3, p4, p5, p6 {
-      display: block;         /* force custom p1–p6 tags to act like block elements */
-      margin: 1rem 0;
-      font-family: monospace;
-      font-weight: normal;
-      color: white;
       text-align: center;
+      animation: scrollUp 45s linear infinite;
+      will-change: transform;
     }
-
-    /* Different font sizes for hierarchy */
-    h1, p1 { font-size: 2rem; }
-    h2, p2 { font-size: 1.8rem; }
-    h3, p3 { font-size: 1.6rem; }
-    h4, p4 { font-size: 1.4rem; }
-    h5, p5 { font-size: 1.2rem; }
-    h6, p6 { font-size: 1rem; }
 
     @keyframes scrollUp {
       0% { transform: translateY(100%); }
       100% { transform: translateY(-100%); }
     }
+
+    /* === Text Hierarchy === */
+    h1, h2, h3, h4, h5, h6,
+    p1, p2, p3, p4, p5, p6 {
+      display: block;
+      margin: 0.8rem 0;
+      color: #fff;
+      text-shadow: 0 0 6px rgba(255,255,255,0.2);
+    }
+
+    h1, p1 { font-size: 2rem; }
+    h2, p2 { font-size: 1.7rem; }
+    h3, p3 { font-size: 1.4rem; }
+    h4, p4 { font-size: 1.2rem; }
+    h5, p5 { font-size: 1rem; }
+    h6, p6 { font-size: 0.9rem; color: #ccc; }
+
+    /* === Return Button === */
+    .return-btn {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #00b4ff, #0078ff);
+      color: #fff;
+      font-weight: bold;
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 10px rgba(0, 180, 255, 0.4);
+    }
+
+    .return-btn:hover {
+      transform: translateX(-50%) scale(1.05);
+      box-shadow: 0 0 20px rgba(0, 180, 255, 0.8);
+      filter: brightness(1.2);
+    }
+
+    .return-btn:active {
+      transform: translateX(-50%) scale(0.98);
+    }
+
+    /* === Fade Gradient at Top/Bottom === */
+    .fade-overlay {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .fade-top {
+      top: 0;
+      background: linear-gradient(to bottom, #000 0%, transparent 100%);
+    }
+    .fade-bottom {
+      bottom: 0;
+      background: linear-gradient(to top, #000 0%, transparent 100%);
+    }
   </style>
 </head>
 <body>
+
   <div class="credits-container">
+    <div class="fade-overlay fade-top"></div>
     <div class="credits">
       <h1>Credits & Contributors</h1>
+
       <h3>WilardzySenpai</h3>
       <p>The original template for the loading screen.</p>
+
       <h3>skys the limit</h3>
-      <p>asset library and main insperation</p>
+      <p>Asset library and main inspiration.</p>
+
       <h3>genizy</h3>
-      <p>webports and txt templates</p>
+      <p>Webports and text templates.</p>
+
       <h3>tw31122007</h3>
-      <p>asset links and information</p>
+      <p>Asset links and information.</p>
+
       <h3>kaizhelam</h3>
-      <p>music player template</p>
+      <p>Music player template.</p>
+
       <h3>Ubg83</h3>
-      <p>blumgi assets</p>
+      <p>Blumgi assets.</p>
+
       <h3>rhap5ody</h3>
-      <p>main web designer and API intergrator</p>
+      <p>Main web designer and API integrator.</p>
+
       <h3>RGP</h3>
-      <p>contributor of v0.1 through v0.3</p>
+      <p>Contributor of v0.1 through v0.3.</p>
     </div>
+    <div class="fade-overlay fade-bottom"></div>
   </div>
-  
+
   <!-- Return Button -->
-  <div class="container">
-    <a href="../index.html" class="return-btn">Return to Main Page</a>
-  </div>
+  <a href="../index.html" class="return-btn">⮌ Return to Main Page</a>
 
 </body>
 </html>
