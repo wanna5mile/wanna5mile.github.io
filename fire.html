@@ -163,6 +163,25 @@
     .perfect img:hover {
       transform: scale(1.1);
     }
+    /* --------------------------------------------------------------------
+     * STAT IMAGE STYLES
+     * -------------------------------------------------------------------- */
+    .stat {
+      position: fixed;
+      bottom: 30px;
+      right: 60px;
+      z-index: 10;
+    }
+
+    .stat img {
+      width: 240px;
+      filter: drop-shadow(0 0 10px purple);
+      transition: transform 0.3s ease;
+    }
+
+    .stat img:hover {
+      transform: scale(1.1);
+    }
   </style>
 </head>
 <body>
@@ -264,7 +283,11 @@
   <div class="perfect">
     <img src="perfect.png" alt="perfect" />
   </div>
-
+  
+  <div class="stat">
+    <img src="Untitled216_20251020180827.png" alt="stat" />
+  </div>
+  
   <script>
     const h1 = document.getElementById("mainText");
 
