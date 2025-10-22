@@ -220,6 +220,39 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast("Password cleared!");
   };
 });
+// ============================================================
+// SORT MODE TOGGLE (Sheet Order / Alphabetical)
+// ============================================================
+document.addEventListener("DOMContentLoaded", () => {
+  const sheetOrderBtn = document.getElementById("sheetOrderBtn");
+  const alphabeticalBtn = document.getElementById("alphabeticalBtn");
+
+  if (!sheetOrderBtn || !alphabeticalBtn) return;
+
+  const savedMode = localStorage.getItem("sortMode") || "sheet";
+  updateSortModeButtons(savedMode);
+
+  sheetOrderBtn.addEventListener("click", () => {
+    setSortMode("sheet");
+  });
+
+  alphabeticalBtn.addEventListener("click", () => {
+    setSortMode("alphabetical");
+  });
+
+  function setSortMode(mode) {
+    localStorage.setItem("sortMode", mode);
+    updateSortModeButtons(mode);
+    showToast(`Sort mode set to: ${mode === "sheet" ? "Sheet Order" : "Alphabetical"}`);
+    // Notify other pages (like discovery/favorites)
+    document.dispatchEvent(new CustomEvent("sortModeChanged", { detail: mode }));
+  }
+
+  function updateSortModeButtons(mode) {
+    sheetOrderBtn.classList.toggle("active", mode === "sheet");
+    alphabeticalBtn.classList.toggle("active", mode === "alphabetical");
+  }
+});
 
 // ============================================================
 // GLOBAL PANIC ESCAPE (Esc key)
