@@ -1,29 +1,35 @@
-// ---- main.js ----
-// Safely initializes app components after DOM is ready.
-
 document.addEventListener("DOMContentLoaded", async () => {
+  initElements();
+  initFavorites();
+  initPreloader();
+  initPaging();
+  initPlaceholders();
+
   try {
-    // --- 1. Initialize core DOM + config ---
-    if (typeof initElements === "function") initElements();
-    else console.warn("⚠ initElements() missing");
-
-    // --- 2. Initialize UI / state modules ---
-    if (typeof initFavorites === "function") initFavorites();
-    if (typeof initPreloader === "function") initPreloader();
-    if (typeof initPaging === "function") initPaging();
-    if (typeof initPlaceholders === "function") initPlaceholders();
-
-    // --- 3. Load main assets ---
-    if (typeof loadAssets === "function") {
-      await loadAssets();
-    } else {
-      console.warn("⚠ loadAssets() missing");
-    }
-
-    console.log("✅ Main initialization complete");
+    await startLoadingProcess();
   } catch (err) {
-    console.error("❌ App initialization failed:", err);
-    const preloader = document.getElementById("preloader");
-    if (preloader) preloader.textContent = "⚠ Failed to initialize app.";
+    console.error("Fatal load error:", err);
+    if (typeof updateProgress === "function") updateProgress(100);
   }
 });
+
+// Unified sequence
+async function startLoadingProcess() {
+  updateProgress(5);
+
+  // Fetch all assets from Sheets (or JSON fallback)
+  const assets = await loadAssets();
+  updateProgress(60);
+
+  // Wait until all assets/cards are rendered into DOM
+  await new Promise((resolve) => requestAnimationFrame(resolve));
+  updateProgress(90);
+
+  // Now everything is ready: finish loader
+  await cyclePreloaderGifs(true);
+  updateProgress(100);
+  hidePreloader();
+
+  // Finally: show the first page (e.g. BTD5 or page 1)
+  goToPage("btd5", 1);
+}
