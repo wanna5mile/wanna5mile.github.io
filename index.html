@@ -231,7 +231,31 @@
   </footer>
 
   <!-- Scripts (ordered for dependency safety) -->
-<script src="system/js/all.js" defer></script>
+  <script src="system/js/elements.js"></script>
+  <script src="system/js/preloader.js"></script>
+  <script src="system/js/favorites.js"></script>
+  <script src="system/js/paging.js"></script>
+  <script src="system/js/placeholders.js"></script>
+  <script src="system/js/settings.js"></script>
+  <script src="system/js/commands.js"></script>
+  <script src="system/js/main.js"></script>
+  <script src="system/js/quotes.js"></script>
+  <script src="system/js/searcherror.js"></script>
+  <script src="system/js/index.js"></script>
+  <script src="system/js/assets.js"></script>
+  <script src="system/js/loader.js"></script>
+
+  <script>
+    // Ensure everything is defined before loader runs
+    window.addEventListener("DOMContentLoaded", () => {
+      const waitForGlobals = setInterval(() => {
+        if (window.dom && typeof createAssetCards === "function" && typeof hidePreloader === "function") {
+          clearInterval(waitForGlobals);
+          loadAssets(); // <-- start loader safely
+        }
+      }, 150);
+    });
+  </script>
 
 </body>
 </html>
