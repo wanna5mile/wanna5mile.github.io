@@ -1,4 +1,4 @@
-// ✅ loader.js — Unified + Optimized Google Sheets Loader
+// ✅ loader.js — Final Unified Google Sheets Loader (safe, smooth, complete)
 async function loadAssets(retry = false) {
   // --- Ensure DOM and preloader exist before starting ---
   if (!window.dom || !dom.preloader) {
@@ -12,7 +12,7 @@ async function loadAssets(retry = false) {
     return;
   }
 
-  // --- Initialize UI ---
+  // --- Initialize preloader UI ---
   showLoading("Loading assets...");
   if (loaderImage) loaderImage.src = `${config.gifBase}loading.gif`;
   updateProgress(0);
@@ -25,34 +25,37 @@ async function loadAssets(retry = false) {
     const res = await fetch(SHEET_URL, { cache: "no-store" });
     if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
 
-    const data = await res.json();
-    if (!Array.isArray(data)) throw new Error("Invalid data format from Sheets");
+    // --- Parse data safely ---
+    let rawData;
+    try {
+      rawData = await res.json();
+    } catch (jsonErr) {
+      const text = await res.text();
+      throw new Error("Invalid JSON returned by Sheets:\n" + text);
+    }
+
+    if (!Array.isArray(rawData)) throw new Error("Invalid data format from Sheets");
+
+    // --- Filter out only completely blank rows, keep partial ones ---
+    const data = rawData.filter(
+      (item) => item && Object.values(item).some((v) => v && String(v).trim() !== "")
+    );
 
     const total = data.length;
     let loaded = 0;
-    const allData = [];
+    const stagedData = [];
 
-    // --- Stage through each record for smoother progress ---
+    // --- Smooth staged loading for progress feedback ---
     for (const entry of data) {
-      allData.push(entry);
+      stagedData.push(entry);
       loaded++;
       const percent = 10 + Math.floor((loaded / total) * 70);
       updateProgress(percent);
-      if (loaded % 15 === 0)
-        await new Promise((r) => requestAnimationFrame(r));
+      if (loaded % 15 === 0) await new Promise((r) => requestAnimationFrame(r));
     }
 
-    // --- Stop early if we reached “BTD5 page 1” ---
-    const stopIndex = allData.findIndex(
-      (item) =>
-        item.title?.toLowerCase().includes("btd5") &&
-        String(item.page) === "1"
-    );
-    const finalData =
-      stopIndex !== -1 ? allData.slice(0, stopIndex + 1) : allData;
-
-    // --- Create asset cards + preload images ---
-    const imagePromises = createAssetCards(finalData);
+    // --- Generate asset cards and preload their images ---
+    const imagePromises = createAssetCards(stagedData);
     const imgTotal = imagePromises.length;
     let imgLoaded = 0;
 
@@ -64,13 +67,17 @@ async function loadAssets(retry = false) {
       });
     }
 
-    // --- Wait for all images and smooth transition ---
+    // --- Wait for all image preloads ---
     await Promise.allSettled(imagePromises.map((p) => p.promise));
     updateProgress(100);
+
+    // --- Smooth fade-out delay ---
     await delay(400);
 
+    // --- Finalize UI and display assets ---
     if (typeof refreshCards === "function") refreshCards();
     hidePreloader(true);
+
   } catch (err) {
     console.error("Error loading assets:", err);
 
@@ -85,7 +92,9 @@ async function loadAssets(retry = false) {
   }
 }
 
-// --- Helpers ---
+/* -----------------------------
+ * Helpers
+ * ----------------------------- */
 function showLoading(text) {
   const { loaderText } = dom || {};
   if (loaderText) loaderText.textContent = text;
