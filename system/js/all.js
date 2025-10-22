@@ -1,6 +1,6 @@
 /* ==========================================================
    WannaSmile | Unified JS Loader & UI Logic
-   Optimized & Hardened Version
+   Optimized & Hardened Version (with Sort Mode + Star Fix)
    ========================================================== */
 
 (() => {
@@ -15,13 +15,26 @@
   const rafAsync = () => new Promise((r) => requestAnimationFrame(r));
 
   /* ---------------------------
+     Sort Mode
+     --------------------------- */
+  function getSortMode() {
+    return localStorage.getItem("sortMode") || "sheet";
+  }
+
+  document.addEventListener("sortModeChanged", (e) => {
+    console.log("🔁 Sort mode changed:", e.detail);
+    if (window.assetsData && typeof window.refreshCards === "function") {
+      window.refreshCards();
+    }
+  });
+
+  /* ---------------------------
      DOM & Config Initialization
      --------------------------- */
   function initElements() {
     const getEl = (sel) =>
       document.getElementById(sel) || document.querySelector(sel);
 
-    // Expose a single dom object
     window.dom = {
       container: getEl("container"),
       preloader: getEl("preloader"),
@@ -55,7 +68,6 @@
   function initFavorites() {
     try {
       const stored = JSON.parse(localStorage.getItem("favorites") || "[]");
-      // store normalized (lowercase) titles
       window.favorites = new Set(
         Array.isArray(stored) ? stored.map((s) => safeStr(s).toLowerCase()) : []
       );
@@ -72,7 +84,6 @@
       }
     };
 
-    // refreshCards should return the image promises so callers can await
     window.refreshCards = () => {
       if (!window.assetsData || typeof createAssetCards !== "function") {
         console.warn("⚠ Cannot refresh cards — assets not ready.");
@@ -106,7 +117,6 @@
     progressBar.append(progressFill);
     preloader.append(progressText, progressBar);
 
-    // throttled-ish updateProgress
     let lastProgress = -1;
     window.updateProgress = (percent) => {
       const clamped = clamp(Math.floor(percent), 0, 100);
@@ -127,7 +137,6 @@
             `${config.gifBase}ded.gif`,
           ];
 
-      // sequentially show gifs with delays; allow micro-yield to UI
       for (const gif of gifs) {
         loaderImage.src = gif;
         await delay(success ? 900 : 1200);
@@ -141,9 +150,7 @@
       preloader.style.transition = "opacity 0.45s ease";
       preloader.style.opacity = "0";
       preloader.style.pointerEvents = "none";
-      setTimeout(() => {
-        preloader.style.display = "none";
-      }, 500);
+      setTimeout(() => (preloader.style.display = "none"), 500);
     };
 
     console.log("Preloader ready");
@@ -167,14 +174,12 @@
       const raw = await res.json();
       if (!Array.isArray(raw)) throw new Error("Invalid data from Sheets");
 
-      // filter out empty rows robustly
       const data = raw.filter((item) =>
         item && Object.values(item).some((v) => safeStr(v).trim() !== "")
       );
 
       window.assetsData = data;
 
-      // staged progress rendering for UX
       const total = data.length || 1;
       let staged = [];
       for (let i = 0; i < data.length; i++) {
@@ -183,7 +188,6 @@
         updateProgress(10 + Math.floor(((i + 1) / total) * 60));
       }
 
-      // create cards and track image load promises
       const imagePromises = createAssetCards(staged || []);
       const imgTotal = imagePromises.length || 1;
       let imgLoaded = 0;
@@ -243,21 +247,30 @@
     container.innerHTML = "";
     const imagePromises = [];
     const frag = document.createDocumentFragment();
-
-    // normalize favorites lookup (we already store lowercase)
     const isFav = (title) => window.favorites.has(safeStr(title).toLowerCase());
+    const sortMode = getSortMode();
 
     const sorted = [...(data || [])].sort((a, b) => {
       const aTitle = safeStr(a.title).trim();
       const bTitle = safeStr(b.title).trim();
       const aFav = isFav(aTitle);
       const bFav = isFav(bTitle);
-      if (aFav !== bFav) return bFav - aFav; // favorites first
-      // page fallback and numeric-aware title compare
-      const aPage = Number(a.page) || 1;
-      const bPage = Number(b.page) || 1;
-      if (aPage !== bPage) return aPage - bPage;
-      return aTitle.localeCompare(bTitle, undefined, { numeric: true, sensitivity: "base" });
+      if (aFav !== bFav) return bFav - aFav; // favorites always first
+
+      if (sortMode === "alphabetical") {
+        return aTitle.localeCompare(bTitle, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        });
+      } else {
+        const aPage = Number(a.page) || 1;
+        const bPage = Number(b.page) || 1;
+        if (aPage !== bPage) return aPage - bPage;
+        return aTitle.localeCompare(bTitle, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        });
+      }
     });
 
     for (const asset of sorted) {
@@ -275,15 +288,13 @@
       card.dataset.page = String(pageNum);
       card.dataset.filtered = "true";
 
-      // image element
       const img = document.createElement("img");
       img.alt = safeTitle || "Asset";
       img.loading = "eager";
       let imageSrc = safeImage;
-      if (!imageSrc || imageSrc === "blank" || safeStatus === "blank") {
+      if (!imageSrc || imageSrc === "blank" || safeStatus === "blank")
         imageSrc = config.fallbackImage;
-      }
-      // attach load/error listeners via Image object to avoid layout thrash
+
       const imgLoadPromise = new Promise((resolve) => {
         const tmp = new Image();
         tmp.decoding = "async";
@@ -300,9 +311,9 @@
 
       imagePromises.push({ promise: imgLoadPromise, page: pageNum });
 
-      // link wrapper
       const link = document.createElement("a");
-      link.href = safeStatus === "soon" ? "javascript:void(0)" : safeLink || config.fallbackLink;
+      link.href =
+        safeStatus === "soon" ? "javascript:void(0)" : safeLink || config.fallbackLink;
       if (safeStatus !== "soon") {
         link.target = "_blank";
         link.rel = "noopener noreferrer";
@@ -312,23 +323,24 @@
       }
       link.appendChild(img);
 
-      // title
       const titleEl = document.createElement("h3");
       titleEl.textContent = safeTitle || "Untitled";
       link.appendChild(titleEl);
 
-      // author
       const author = document.createElement("p");
       author.textContent = safeAuthor || " ";
 
-      // favorite star
       const star = document.createElement("button");
       star.className = "favorite-star";
       star.type = "button";
       star.setAttribute("aria-label", isFav(safeTitle) ? "Unfavorite" : "Favorite");
       star.textContent = isFav(safeTitle) ? "★" : "☆";
+      // ✨ REMOVE background & border
+      star.style.background = "transparent";
+      star.style.border = "none";
+      star.style.outline = "none";
+      star.style.cursor = "pointer";
 
-      // handle star click
       star.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -336,20 +348,16 @@
         if (window.favorites.has(key)) window.favorites.delete(key);
         else window.favorites.add(key);
         saveFavorites();
-        // update star UI and re-render cards (refreshCards will rebuild)
         star.textContent = window.favorites.has(key) ? "★" : "☆";
         if (typeof window.refreshCards === "function") window.refreshCards();
       });
 
-      // status overlay for featured/fixed
       if (safeStatus === "featured" || safeStatus === "fixed") {
         const overlay = document.createElement("img");
         overlay.className = `status-overlay ${safeStatus}`;
         overlay.alt = safeStatus;
         overlay.loading = "eager";
-        // set src relative to site; if missing, ignore
         overlay.src = `system/images/${safeStatus}.png`;
-        // ensure overlay load is awaited
         const overlayPromise = new Promise((r) => {
           overlay.addEventListener("load", r, { once: true });
           overlay.addEventListener("error", r, { once: true });
@@ -374,7 +382,8 @@
     if (!container) return;
 
     window.getAllCards = () => Array.from(container.querySelectorAll(".asset-card"));
-    window.getFilteredCards = () => getAllCards().filter((c) => c.dataset.filtered === "true");
+    window.getFilteredCards = () =>
+      getAllCards().filter((c) => c.dataset.filtered === "true");
     window.getPages = () =>
       [...new Set(getFilteredCards().map((c) => parseInt(c.dataset.page, 10)))]
         .filter((n) => !Number.isNaN(n))
@@ -383,22 +392,23 @@
     window.renderPage = () => {
       const pages = getPages();
       const maxPage = pages.length ? Math.max(...pages) : 1;
-      if (!pages.includes(window.currentPage)) window.currentPage = pages[0] || 1;
+      if (!pages.includes(window.currentPage))
+        window.currentPage = pages[0] || 1;
 
       getAllCards().forEach((card) => {
-        const visible = parseInt(card.dataset.page, 10) === window.currentPage && card.dataset.filtered === "true";
+        const visible =
+          parseInt(card.dataset.page, 10) === window.currentPage &&
+          card.dataset.filtered === "true";
         card.style.display = visible ? "" : "none";
       });
 
-      if (pageIndicator) pageIndicator.textContent = `Page ${window.currentPage} of ${maxPage}`;
+      if (pageIndicator)
+        pageIndicator.textContent = `Page ${window.currentPage} of ${maxPage}`;
       try {
         sessionStorage.setItem("currentPage", String(window.currentPage));
-      } catch (e) {
-        // ignore sessionStorage errors
-      }
+      } catch {}
     };
 
-    // debounce helper
     const debounce = (fn, ms = 150) => {
       let t;
       return (...args) => {
@@ -431,7 +441,8 @@
       const pages = getPages();
       if (!pages.length) return;
       const idx = pages.indexOf(window.currentPage);
-      window.currentPage = idx === pages.length - 1 ? pages[0] : pages[idx + 1];
+      window.currentPage =
+        idx === pages.length - 1 ? pages[0] : pages[idx + 1];
       renderPage();
     };
 
@@ -442,7 +453,6 @@
 
     window.currentPage = Number(sessionStorage.getItem("currentPage")) || 1;
 
-    // observe container children and re-render page when changed
     const observer = new MutationObserver(
       debounce(() => {
         if (typeof renderPage === "function") renderPage();
@@ -450,7 +460,6 @@
     );
     observer.observe(container, { childList: true });
 
-    // initial render
     renderPage();
   }
 
@@ -478,7 +487,6 @@
     };
 
     window.startPlaceholderCycle = () => {
-      // prevent multiple cycles
       if (window._placeholderRunning) return;
       window._placeholderRunning = true;
 
@@ -496,7 +504,7 @@
           });
           await delay(HOLD_DURATION);
           if (window._placeholderRunning) loop();
-        } catch (e) {
+        } catch {
           window._placeholderRunning = false;
         }
       };
@@ -504,7 +512,6 @@
       loop();
     };
 
-    // allow stopping the cycle
     window.stopPlaceholderCycle = () => {
       window._placeholderRunning = false;
     };
@@ -524,13 +531,22 @@
       try {
         await loadAssets();
       } catch (err) {
-        console.error("Startup error:", err);
-        await cyclePreloaderGifs(false);
-        updateProgress(100);
-        hidePreloader(true);
+        console.error("❌ Startup asset load failed:", err);
+        showLoading("Error loading assets. Retrying...");
+        await delay(1500);
+        await loadAssets(true);
       }
+
+      console.log("✅ WannaSmile Unified Loader Initialized Successfully");
     } catch (err) {
-      console.error("Fatal initialization error:", err);
+      console.error("❌ Critical initialization error:", err);
+      showLoading("Initialization failed. Please reload the page.");
+      await cyclePreloaderGifs(false);
+      hidePreloader(true);
     }
   });
+
+  /* ==========================================================
+     End of Unified JS Loader
+     ========================================================== */
 })();
