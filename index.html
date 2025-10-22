@@ -16,12 +16,17 @@
   <link rel="stylesheet" href="system/css/quotes.css" />
   <link rel="stylesheet" href="system/css/commands.css" />
 
-  <!-- Discord Widget -->
-  <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3" async defer>
-    new Crate({
-      server: '1273329263923302430',
-      channel: '1329289920845713471'
-    })
+  <!-- Discord Widget (fixed) -->
+  <script async defer src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3"></script>
+  <script>
+    window.addEventListener("load", () => {
+      if (typeof Crate !== "undefined") {
+        new Crate({
+          server: '1273329263923302430',
+          channel: '1329289920845713471'
+        });
+      }
+    });
   </script>
 
   <!-- Meta Tags for social embeds -->
@@ -120,20 +125,17 @@
 </head>
 
 <body theme="classic">
-  <!-- Single preloader with one progress bar -->
+  <!-- Preloader -->
   <div id="preloader" class="preloader" aria-live="polite" aria-busy="true">
     <div class="loader-gif">
       <img id="loaderImage" src="system/images/GIF/loading.gif" alt="Loading animation" />
     </div>
-
     <div class="load-progress-bar">
       <div id="progressBar" class="load-progress-fill"></div>
     </div>
-
     <div id="progressText" class="load-progress-text">0%</div>
     <div id="loaderText" class="loading-text">Loading...</div>
   </div>
-  <!-- End preloader -->
 
   <header>
     <nav class="nav-links" aria-label="Main Navigation">
@@ -171,22 +173,12 @@
     </div>
   </header>
 
-	  <!-- Make-shift Marquee -->
-  <div id="quoteWrapper">
-    <p id="quoteBox"></p>
-  </div>
-  
   <aside id="dashboardMenu" class="dashboard-menu" aria-hidden="true">
-    <a href="https://bguhm.github.io./music-player.html">Music Player</a>
+    <a href="https://bguhm.github.io/music-player.html">Music Player</a>
     <a href="system/pages/settings-themes.html">Themes</a>
     <a href="system/pages/credits.html">Credits</a>
     <a href="system/pages/alt.html">Alternative Links</a>
   </aside>
-
-  <!-- Quote system -->
-  <div id="quoteWrapper">
-    <p id="quoteBox"></p>
-  </div>
 
   <!-- Update popup -->
   <div id="updatePopup" class="update-popup" role="dialog" aria-modal="true" aria-labelledby="updatePopupTitle">
@@ -194,14 +186,9 @@
       <h2 id="updatePopupTitle">🎉 Version 0.8 Update!</h2>
       <p>New games, smoother loading, and visual tweaks across the library!</p>
       <div class="update-video-wrapper">
-        <iframe
-          id="updateVideo"
-          width="100%"
-          height="200"
-          src=""
-          title="v0.8 Update Trailer"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        <iframe id="updateVideo" width="100%" height="200"
+          src="" title="v0.8 Update Trailer"
+          frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen>
         </iframe>
         <div class="video-tooltip">Press F or double click for full screen</div>
@@ -230,7 +217,7 @@
     <a href="system/pages/version-log.html">Version V0.8</a>
   </footer>
 
-  <!-- Scripts (ordered for dependency safety) -->
+  <!-- === Unified & dependent JS === -->
   <script src="system/js/all.js"></script>
   <script src="system/js/settings.js"></script>
   <script src="system/js/commands.js"></script>
@@ -240,16 +227,14 @@
   <script src="system/js/index.js"></script>
 
   <script>
-    // Ensure everything is defined before loader runs
-    window.addEventListener("DOMContentLoaded", () => {
-      const waitForGlobals = setInterval(() => {
+    window.addEventListener("load", () => {
+      const interval = setInterval(() => {
         if (window.dom && typeof createAssetCards === "function" && typeof hidePreloader === "function") {
-          clearInterval(waitForGlobals);
-          loadAssets(); // <-- start loader safely
+          clearInterval(interval);
+          if (typeof loadAssets === "function") loadAssets();
         }
       }, 150);
     });
   </script>
-
 </body>
 </html>
