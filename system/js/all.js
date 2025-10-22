@@ -1,6 +1,6 @@
 /* ==========================================================
    WannaSmile | Unified JS Loader & UI Logic
-   Cleaned, optimized, single-source version
+   Final Hardened Version — Safe for numeric titles like "2048"
    ========================================================== */
 
 // --- DOM READY ---
@@ -194,7 +194,6 @@ async function loadAssets(retry = false) {
     if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
 
     console.log("✅ Assets loaded successfully");
-
   } catch (err) {
     console.error("Error loading assets:", err);
 
@@ -219,7 +218,7 @@ function showLoading(text) {
 }
 
 /* ==========================================================
-   5️⃣ CREATE ASSET CARDS
+   5️⃣ CREATE ASSET CARDS — Hardened for numeric/null titles
    ========================================================== */
 function createAssetCards(data) {
   const { container } = dom;
@@ -229,28 +228,36 @@ function createAssetCards(data) {
   const imagePromises = [];
 
   const sorted = [...data].sort((a, b) => {
-    const aFav = favorites.has(a.title);
-    const bFav = favorites.has(b.title);
+    const aTitle = String(a.title || "").trim();
+    const bTitle = String(b.title || "").trim();
+    const aFav = favorites.has(aTitle);
+    const bFav = favorites.has(bTitle);
     if (aFav !== bFav) return bFav - aFav;
     return (a.page || 1) - (b.page || 1);
   });
 
   for (const asset of sorted) {
+    const safeTitle = String(asset.title || "").trim();
+    const safeAuthor = String(asset.author || "").trim();
+    const safeStatus = String(asset.status || "").toLowerCase();
+    const safeImage = String(asset.image || "").trim();
+    const safeLink = String(asset.link || "").trim();
+
     const card = document.createElement("div");
     card.className = "asset-card";
-    card.dataset.title = (asset.title || "").toLowerCase();
-    card.dataset.author = (asset.author || "").toLowerCase();
+    card.dataset.title = safeTitle.toLowerCase();
+    card.dataset.author = safeAuthor.toLowerCase();
     card.dataset.page = asset.page ? parseInt(asset.page) : 1;
     card.dataset.filtered = "true";
 
-    let imageSrc = asset.image?.trim() || "";
-    if (!imageSrc || imageSrc === "blank" || asset.status?.toLowerCase() === "blank") {
+    let imageSrc = safeImage;
+    if (!imageSrc || imageSrc === "blank" || safeStatus === "blank") {
       imageSrc = config.fallbackImage;
     }
 
     const img = document.createElement("img");
     img.src = imageSrc;
-    img.alt = asset.title || "Asset";
+    img.alt = safeTitle || "Asset";
     img.loading = "eager";
     img.addEventListener("error", () => {
       if (!img.dataset.fallbackApplied) {
@@ -266,37 +273,36 @@ function createAssetCards(data) {
     imagePromises.push({ promise: imgPromise, page: card.dataset.page });
 
     const link = document.createElement("a");
-    link.href = asset.link?.trim() || config.fallbackLink;
+    link.href = safeLink || config.fallbackLink;
     link.target = "_blank";
     link.rel = "noopener";
     link.appendChild(img);
-    link.innerHTML += `<h3>${asset.title || "Untitled"}</h3>`;
+    link.innerHTML += `<h3>${safeTitle || "Untitled"}</h3>`;
 
     const author = document.createElement("p");
-    author.textContent = asset.author || " ";
+    author.textContent = safeAuthor || " ";
 
     const star = document.createElement("span");
     star.className = "favorite-star";
-    star.textContent = favorites.has(asset.title) ? "★" : "☆";
+    star.textContent = favorites.has(safeTitle) ? "★" : "☆";
     star.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (favorites.has(asset.title)) favorites.delete(asset.title);
-      else favorites.add(asset.title);
+      if (favorites.has(safeTitle)) favorites.delete(safeTitle);
+      else favorites.add(safeTitle);
       saveFavorites();
       refreshCards();
     });
 
-    const status = asset.status?.toLowerCase();
-    if (status === "soon") {
+    if (safeStatus === "soon") {
       card.classList.add("soon");
       link.removeAttribute("href");
       link.style.pointerEvents = "none";
-    } else if (status === "featured" || status === "fixed") {
+    } else if (safeStatus === "featured" || safeStatus === "fixed") {
       const overlay = document.createElement("img");
-      overlay.className = `status-overlay ${status}`;
-      overlay.src = `system/images/${status}.png`;
-      overlay.alt = status;
+      overlay.className = `status-overlay ${safeStatus}`;
+      overlay.src = `system/images/${safeStatus}.png`;
+      overlay.alt = safeStatus;
       overlay.loading = "eager";
       card.appendChild(overlay);
       imagePromises.push({
@@ -347,7 +353,7 @@ function initPaging() {
   };
 
   window.filterAssets = (query) => {
-    const q = query.toLowerCase().trim();
+    const q = String(query || "").toLowerCase().trim();
     getAllCards().forEach((card) => {
       const match =
         !q ||
