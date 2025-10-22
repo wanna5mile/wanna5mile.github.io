@@ -455,3 +455,33 @@ Preloader progress visuals
   background: linear-gradient(90deg, #00ffff, #ff00ff);
   transition: width 0.3s ease;
 }
+/* ============================================================
+   SORT MODE TOGGLE STYLES
+   ============================================================ */
+.theme-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.theme-btn {
+  padding: 10px 16px;
+  border: 2px solid var(--accent-color);
+  background: var(--header-bg);
+  color: var(--text-color);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+  transform: scale(1.05);
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.theme-btn.active {
+  background: var(--accent-color);
+  color: #fff;
+  box-shadow: 0 0 10px var(--accent-color);
+}
