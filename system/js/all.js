@@ -1,6 +1,6 @@
 /* ==========================================================
    WannaSmile | Unified JS Loader & UI Logic
-   Normal (Default) Order + Optional Alphabetical Sort
+   Final Optimized Version
    ========================================================== */
 
 (() => {
@@ -17,12 +17,7 @@
   /* ---------------------------
      Sort Mode Control
      --------------------------- */
-  function getSortMode() {
-    // sheet = default (normal order), alphabetical = sorted
-    return localStorage.getItem("sortMode") || "sheet";
-  }
-
-  // Listen to setting changes from settings.js
+  const getSortMode = () => localStorage.getItem("sortMode") || "sheet";
   document.addEventListener("sortModeChanged", (e) => {
     console.log("Sort mode changed:", e.detail);
     if (window.assetsData && typeof window.refreshCards === "function") {
@@ -46,11 +41,6 @@
       searchBtn: getEl("searchBtnHeader"),
     };
 
-    if (!dom.container) {
-      console.warn("⚠ Elements not ready, retrying...");
-      return setTimeout(initElements, 200);
-    }
-
     window.config = {
       fallbackImage:
         "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
@@ -63,7 +53,7 @@
   }
 
   /* ---------------------------
-     Favorites System
+     Favorites System (No Refresh)
      --------------------------- */
   function initFavorites() {
     try {
@@ -75,53 +65,42 @@
       window.favorites = new Set();
     }
 
-    window.saveFavorites = () => {
+    window.saveFavorites = () =>
       localStorage.setItem("favorites", JSON.stringify([...window.favorites]));
-    };
 
     window.refreshCards = () => {
-      if (!window.assetsData || typeof createAssetCards !== "function") return [];
-      const imagePromises = createAssetCards(window.assetsData);
+      if (!window.assetsData || typeof createAssetCards !== "function") return;
+      const promises = createAssetCards(window.assetsData);
       if (typeof renderPage === "function") renderPage();
       if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
-      return imagePromises;
+      return promises;
     };
   }
 
   /* ---------------------------
-     Preloader UI
+     Preloader UI (Fixed Visibility)
      --------------------------- */
   function initPreloader() {
     const { preloader } = dom || {};
     if (!preloader) return;
 
-    preloader.innerHTML = "";
+    preloader.style.display = "flex";
+    preloader.style.opacity = "1";
+    preloader.dataset.hidden = "false";
 
-    const progressText = document.createElement("div");
-    const progressBar = document.createElement("div");
-    const progressFill = document.createElement("div");
-
-    progressText.className = "load-progress-text";
-    progressBar.className = "load-progress-bar";
-    progressFill.className = "load-progress-fill";
-    progressBar.append(progressFill);
-    preloader.append(progressText, progressBar);
-
-    let lastProgress = -1;
-    window.updateProgress = (percent) => {
-      const clamped = clamp(Math.floor(percent), 0, 100);
-      if (clamped === lastProgress) return;
-      lastProgress = clamped;
-      progressText.textContent = `Loading ${clamped}%`;
-      progressFill.style.width = `${clamped}%`;
+    const counter = document.getElementById("counter");
+    window.updateProgress = (p) => {
+      const clamped = clamp(p, 0, 100);
+      if (counter) counter.textContent = `${clamped}%`;
     };
 
     window.showLoading = (text) => {
-      progressText.textContent = text;
+      const label = preloader.querySelector(".loading-text");
+      if (label) label.textContent = text;
     };
 
     window.hidePreloader = (force = false) => {
-      if (!preloader || preloader.dataset.hidden === "true") return;
+      if (preloader.dataset.hidden === "true") return;
       preloader.dataset.hidden = "true";
       preloader.style.transition = "opacity 0.45s ease";
       preloader.style.opacity = "0";
@@ -131,14 +110,117 @@
   }
 
   /* ---------------------------
+     Asset Card Builder
+     --------------------------- */
+  function createAssetCards(data) {
+    const { container } = dom || {};
+    if (!container) return [];
+
+    container.innerHTML = "";
+    const imagePromises = [];
+    const frag = document.createDocumentFragment();
+    const sortMode = getSortMode();
+    const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
+
+    let sorted = [...data];
+    if (sortMode === "alphabetical") {
+      sorted.sort((a, b) =>
+        safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
+          numeric: true,
+          sensitivity: "base",
+        })
+      );
+    }
+
+    for (const asset of sorted) {
+      const title = safeStr(asset.title).trim();
+      const author = safeStr(asset.author).trim();
+      const imageSrc = safeStr(asset.image).trim() || config.fallbackImage;
+      const link = safeStr(asset.link).trim() || config.fallbackLink;
+      const pageNum = Number(asset.page) || 1;
+      const status = safeStr(asset.status).toLowerCase().trim();
+      const gifFile = `${config.gifBase}${status}.gif`;
+
+      const card = document.createElement("div");
+      card.className = "asset-card";
+      card.dataset.title = title.toLowerCase();
+      card.dataset.author = author.toLowerCase();
+      card.dataset.page = String(pageNum);
+      card.dataset.filtered = "true";
+
+      // Link
+      const a = document.createElement("a");
+      a.href = link;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.className = "asset-link";
+
+      // Image
+      const img = document.createElement("img");
+      img.alt = title;
+      img.loading = "eager";
+      const imgPromise = new Promise((resolve) => {
+        const tmp = new Image();
+        tmp.onload = () => {
+          img.src = imageSrc;
+          resolve();
+        };
+        tmp.onerror = () => {
+          img.src = config.fallbackImage;
+          resolve();
+        };
+        tmp.src = imageSrc;
+      });
+      imagePromises.push({ promise: imgPromise, page: pageNum });
+      a.appendChild(img);
+
+      // Status GIF Overlay
+      if (status && ["soon", "new", "updated"].includes(status)) {
+        const overlay = document.createElement("img");
+        overlay.src = gifFile;
+        overlay.alt = status;
+        overlay.className = `status-gif status-${status}`;
+        a.appendChild(overlay);
+      }
+
+      // Title + Author
+      const titleEl = document.createElement("h3");
+      titleEl.textContent = title || "Untitled";
+      const authorEl = document.createElement("p");
+      authorEl.textContent = author || "";
+
+      // Favorite star
+      const star = document.createElement("button");
+      star.className = "favorite-star";
+      star.textContent = isFav(title) ? "★" : "☆";
+      Object.assign(star.style, {
+        background: "transparent",
+        border: "none",
+        cursor: "pointer",
+      });
+
+      star.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const key = title.toLowerCase();
+        if (window.favorites.has(key)) window.favorites.delete(key);
+        else window.favorites.add(key);
+        saveFavorites();
+        star.textContent = window.favorites.has(key) ? "★" : "☆";
+      });
+
+      card.append(a, titleEl, authorEl, star);
+      frag.appendChild(card);
+    }
+
+    container.appendChild(frag);
+    return imagePromises;
+  }
+
+  /* ---------------------------
      Asset Loader (Google Sheets)
      --------------------------- */
   async function loadAssets(retry = false) {
-    if (!window.dom || !dom.preloader) {
-      console.warn("DOM/preloader not ready, retrying...");
-      return setTimeout(() => loadAssets(retry), 200);
-    }
-
     showLoading("Loading assets...");
     updateProgress(5);
 
@@ -148,22 +230,20 @@
       const raw = await res.json();
       if (!Array.isArray(raw)) throw new Error("Invalid data from Sheets");
 
-      const data = raw.filter((item) =>
-        item && Object.values(item).some((v) => safeStr(v).trim() !== "")
+      const data = raw.filter((i) =>
+        Object.values(i).some((v) => safeStr(v).trim() !== "")
       );
 
       window.assetsData = data;
       updateProgress(30);
 
-      const imagePromises = createAssetCards(data);
+      const promises = createAssetCards(data);
       updateProgress(80);
-      await Promise.allSettled(imagePromises.map((p) => p.promise));
+      await Promise.allSettled(promises.map((p) => p.promise));
 
       updateProgress(100);
       await delay(300);
       hidePreloader(true);
-      if (typeof renderPage === "function") renderPage();
-      if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
     } catch (err) {
       console.error("Error loading assets:", err);
       if (!retry) return setTimeout(() => loadAssets(true), 1000);
@@ -172,126 +252,15 @@
     }
   }
 
-/* ---------------------------
-   Create Asset Cards (with Status & GIF Support)
-   --------------------------- */
-function createAssetCards(data) {
-  const { container } = dom || {};
-  if (!container) return [];
-
-  container.innerHTML = "";
-  const imagePromises = [];
-  const frag = document.createDocumentFragment();
-  const sortMode = getSortMode(); // "sheet" or "alphabetical"
-
-  // Sort mode logic
-  let sorted = [...data];
-  if (sortMode === "alphabetical") {
-    sorted.sort((a, b) =>
-      safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
-        numeric: true,
-        sensitivity: "base",
-      })
-    );
-  }
-
-  const isFav = (title) => window.favorites.has(safeStr(title).toLowerCase());
-
-  for (const asset of sorted) {
-    const title = safeStr(asset.title).trim();
-    const author = safeStr(asset.author).trim();
-    const imageSrc = safeStr(asset.image).trim() || config.fallbackImage;
-    const link = safeStr(asset.link).trim() || config.fallbackLink;
-    const pageNum = Number(asset.page) || 1;
-    const status = safeStr(asset.status).toLowerCase().trim(); // <— restore status
-    const gifFile = `${config.gifBase}${status}.gif`; // "soon", "new", etc.
-
-    const card = document.createElement("div");
-    card.className = "asset-card";
-    card.dataset.title = title.toLowerCase();
-    card.dataset.author = author.toLowerCase();
-    card.dataset.page = String(pageNum);
-    card.dataset.filtered = "true";
-
-    // --- Main link
-    const a = document.createElement("a");
-    a.href = link;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.className = "asset-link";
-
-    // --- Image
-    const img = document.createElement("img");
-    img.alt = title;
-    img.loading = "eager";
-
-    const imgPromise = new Promise((resolve) => {
-      const tmp = new Image();
-      tmp.onload = () => {
-        img.src = imageSrc;
-        resolve();
-      };
-      tmp.onerror = () => {
-        img.src = config.fallbackImage;
-        resolve();
-      };
-      tmp.src = imageSrc;
-    });
-    imagePromises.push({ promise: imgPromise, page: pageNum });
-    a.appendChild(img);
-
-    // --- Status GIF Overlay
-    if (status && ["soon", "new", "updated"].includes(status)) {
-      const overlay = document.createElement("img");
-      overlay.src = gifFile;
-      overlay.alt = status;
-      overlay.className = `status-gif status-${status}`;
-      a.appendChild(overlay);
-    }
-
-    // --- Title
-    const titleEl = document.createElement("h3");
-    titleEl.textContent = title || "Untitled";
-    a.appendChild(titleEl);
-
-    // --- Author
-    const authorEl = document.createElement("p");
-    authorEl.textContent = author || "";
-
-    // --- Favorite star
-    const star = document.createElement("button");
-    star.className = "favorite-star";
-    star.textContent = isFav(title) ? "★" : "☆";
-    star.style.background = "transparent";
-    star.style.border = "none";
-    star.style.cursor = "pointer";
-    star.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const key = title.toLowerCase();
-      if (window.favorites.has(key)) window.favorites.delete(key);
-      else window.favorites.add(key);
-      saveFavorites();
-      star.textContent = window.favorites.has(key) ? "★" : "☆";
-      window.refreshCards();
-    });
-
-    card.append(a, authorEl, star);
-    frag.appendChild(card);
-  }
-
-  container.appendChild(frag);
-  return imagePromises;
-}
-
   /* ---------------------------
-     Paging & Filtering
+     Paging + Search + Filter
      --------------------------- */
   function initPaging() {
     const { container, pageIndicator, searchInput, searchBtn } = dom || {};
     if (!container) return;
 
-    window.getAllCards = () => Array.from(container.querySelectorAll(".asset-card"));
+    window.getAllCards = () =>
+      Array.from(container.querySelectorAll(".asset-card"));
     window.getFilteredCards = () =>
       getAllCards().filter((c) => c.dataset.filtered === "true");
 
@@ -374,7 +343,7 @@ function createAssetCards(data) {
     const FADE = 400;
     const HOLD = 4000;
 
-    window.fadePlaceholder = (input, text, cb) => {
+    const fadePlaceholder = (input, text, cb) => {
       input.classList.add("fade-out");
       setTimeout(() => {
         input.placeholder = text;
@@ -396,13 +365,13 @@ function createAssetCards(data) {
           const visible = getFilteredCards().filter(
             (c) => +c.dataset.page === window.currentPage
           ).length;
-          await new Promise((r) => {
-            fadePlaceholder(searchInput, `${visible} assets on this page`, r);
-          });
+          await new Promise((r) =>
+            fadePlaceholder(searchInput, `${visible} assets on this page`, r)
+          );
           await delay(HOLD);
-          await new Promise((r) => {
-            fadePlaceholder(searchInput, "Search assets...", r);
-          });
+          await new Promise((r) =>
+            fadePlaceholder(searchInput, "Search assets...", r)
+          );
           await delay(HOLD);
           if (window._placeholderRunning) loop();
         } catch {
@@ -413,13 +382,11 @@ function createAssetCards(data) {
       loop();
     };
 
-    window.stopPlaceholderCycle = () => {
-      window._placeholderRunning = false;
-    };
+    window.stopPlaceholderCycle = () => (window._placeholderRunning = false);
   }
 
   /* ---------------------------
-     DOMContentLoaded Bootstrap
+     DOM Bootstrap
      --------------------------- */
   document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -429,7 +396,7 @@ function createAssetCards(data) {
       initPaging();
       initPlaceholders();
       await loadAssets();
-      console.log("Loader Initialized");
+      console.log("WannaSmile Loader Ready");
     } catch (err) {
       console.error("Initialization failed:", err);
       showLoading("Initialization failed. Please reload.");
