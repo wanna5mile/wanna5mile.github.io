@@ -27,7 +27,7 @@
     new Crate({
       server: '1273329263923302430',
       channel: '1329289920845713471'
-    })
+    });
   </script>
 
   <style>
@@ -109,7 +109,8 @@
         if (
           window.dom &&
           typeof createAssetCards === "function" &&
-          typeof hidePreloader === "function"
+          typeof hidePreloader === "function" &&
+          window.config?.sheetUrl
         ) {
           clearInterval(checkReady);
           loadFavoriteAssets();
@@ -120,37 +121,60 @@
     async function loadFavoriteAssets() {
       try {
         showLoading("Loading your favorites...");
-        updateProgress(5);
+        updateProgress(10);
 
+        // Load stored favorites
         const favorites = JSON.parse(localStorage.getItem("favorites") || "[]")
           .map((t) => t.toLowerCase());
+
+        // No favorites yet?
         if (!favorites.length) {
-          dom.container.innerHTML = "<p style='text-align:center;margin-top:2em;'>No favorites saved yet ⭐</p>";
+          dom.container.innerHTML =
+            "<p style='text-align:center;margin-top:2em;'>No favorites saved yet ⭐</p>";
           hidePreloader(true);
           return;
         }
 
-        const res = await fetch(window.config.sheetUrl, { cache: "no-store" });
-        const allAssets = await res.json();
+        // Fetch all assets (or use cached)
+        const allAssets =
+          window.allAssets ||
+          (await (await fetch(window.config.sheetUrl, { cache: "no-store" })).json());
+
+        // Filter only favorites
         const favAssets = allAssets.filter((item) =>
           favorites.includes((item.title || "").toLowerCase())
         );
 
         if (!favAssets.length) {
-          dom.container.innerHTML = "<p style='text-align:center;margin-top:2em;'>No favorites found in current data.</p>";
+          dom.container.innerHTML =
+            "<p style='text-align:center;margin-top:2em;'>No favorites found in current data.</p>";
         } else {
-          createAssetCards(favAssets);
+          const cards = createAssetCards(favAssets);
+          if (Array.isArray(cards)) {
+            let loaded = 0;
+            for (const { promise } of cards) {
+              await promise;
+              loaded++;
+              updateProgress(Math.floor((loaded / cards.length) * 100));
+            }
+          }
         }
 
-        updateProgress(100);
         hidePreloader(true);
         if (typeof renderPage === "function") renderPage();
       } catch (err) {
         console.error("Error loading favorites:", err);
-        dom.container.innerHTML = "<p style='text-align:center;margin-top:2em;'>Failed to load favorites.</p>";
+        dom.container.innerHTML =
+          "<p style='text-align:center;margin-top:2em;'>Failed to load favorites.</p>";
         hidePreloader(true);
       }
     }
+
+    // Prevent the main loader from loading all assets
+    window.loadAssets = async function () {
+      console.log("Overriding main asset loader for favorites page.");
+      await loadFavoriteAssets();
+    };
   </script>
 </body>
 </html>
