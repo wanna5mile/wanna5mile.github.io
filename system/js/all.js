@@ -24,7 +24,7 @@
 
   // Listen to setting changes from settings.js
   document.addEventListener("sortModeChanged", (e) => {
-    console.log("🔁 Sort mode changed:", e.detail);
+    console.log("Sort mode changed:", e.detail);
     if (window.assetsData && typeof window.refreshCards === "function") {
       window.refreshCards();
     }
@@ -219,7 +219,7 @@
 
       const img = document.createElement("img");
       img.alt = title;
-      img.loading = "lazy";
+      img.loading = "eager";
 
       const imgPromise = new Promise((resolve) => {
         const tmp = new Image();
@@ -414,9 +414,9 @@
       initPaging();
       initPlaceholders();
       await loadAssets();
-      console.log("✅ WannaSmile Loader Initialized");
+      console.log("Loader Initialized");
     } catch (err) {
-      console.error("❌ Initialization failed:", err);
+      console.error("Initialization failed:", err);
       showLoading("Initialization failed. Please reload.");
       hidePreloader(true);
     }
