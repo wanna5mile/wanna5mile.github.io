@@ -1,44 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>10x76 | Favorites</title>
-  <link rel="icon" href="system/images/favicons/logoo.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WannaSmile | Favorites</title>
+  <link rel="icon" href="system/images/favicons/logoo.png" />
   <link rel="stylesheet" href="system/css/loading-screen.css" />
-  <link rel="stylesheet" href="system/css/main.css">
-  <link rel="stylesheet" href="system/css/quotes.css">
-  <link rel="stylesheet" href="system/css/themes.css">
-  <link rel="stylesheet" href="system/css/commands.css">
-  <meta name="author" content="Bg.uhm by rhap5ody">
-  <meta name="keywords" content="fun, library, github, rhap5ody">
+  <link rel="stylesheet" href="system/css/main.css" />
+  <link rel="stylesheet" href="system/css/quotes.css" />
+  <link rel="stylesheet" href="system/css/themes.css" />
+  <link rel="stylesheet" href="system/css/commands.css" />
+  <meta name="author" content="Bg.uhm by rhap5ody" />
+  <meta name="keywords" content="fun, library, github, rhap5ody" />
 
-  <!-- Core scripts -->
-  <script src="system/js/quotes.js" defer></script>
-  <script src="system/js/searcherror.js" defer></script>
-  <!-- === Unified & dependent JS === -->
+  <!-- Core Scripts -->
   <script src="system/js/all.js"></script>
   <script src="system/js/settings.js"></script>
   <script src="system/js/commands.js"></script>
   <script src="system/js/main.js"></script>
-  <script src="system/js/quotes.js"></script>
-  <script src="system/js/searcherror.js"></script>
   <script src="system/js/index.js"></script>
-
-  <script>
-    window.addEventListener("load", () => {
-      const interval = setInterval(() => {
-        if (window.dom && typeof createAssetCards === "function" && typeof hidePreloader === "function") {
-          clearInterval(interval);
-          if (typeof loadAssets === "function") loadAssets();
-        }
-      }, 150);
-    });
-  </script>
-  <script src="system/js/commands.js" defer></script>
-
-  <!-- Load Favorites Script -->
-  <script src="system/js/favorites.js" defer></script>
+  <script src="system/js/quotes.js" defer></script>
+  <script src="system/js/searcherror.js" defer></script>
 
   <!-- Discord Widget -->
   <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3" async defer>
@@ -48,8 +30,8 @@
     })
   </script>
 
-  <!-- Popup & placeholder CSS -->
   <style>
+    /* Popup & Placeholder Animations */
     .update-popup { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
     .update-popup.show { opacity: 1; pointer-events: all; }
     .update-popup-content { background: var(--background-color,#1e1e1e); border-radius: 14px; box-shadow: 0 0 20px rgba(0,0,0,0.6); width: 90%; max-width: 480px; text-align: center; padding: 20px; color: var(--text-color,#fff); animation: popup-bounce 0.6s ease; }
@@ -63,64 +45,112 @@
     #searchInputHeader { transition: opacity 0.5s ease; }
     #searchInputHeader.fade-out { opacity:0; }
     #searchInputHeader.fade-in { opacity:1; }
-    .update-video-wrapper { position: relative; border-radius: 10px; overflow: hidden; }
-    .video-tooltip { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 0.8em; opacity:0; transition: opacity 0.3s ease; pointer-events:none; }
-    .update-video-wrapper:hover .video-tooltip { opacity:1; }
   </style>
 </head>
+
 <body>
   <!-- Preloader -->
   <div class="preloader" id="preloader">
     <div class="loader-gif">
-      <img src="system/images/GIF/loading.gif" id="loaderImage" alt="Loading..."/>
+      <img src="system/images/GIF/loading.gif" id="loaderImage" alt="Loading..." />
     </div>
     <div class="counter" id="counter">0%</div>
-    <div class="loading-text">Loading...</div>
+    <div class="loading-text">Loading favorites...</div>
   </div>
 
-<header>
-  <nav class="nav-links">
-    <a href="index.html">Home</a>
-    <a href="favorites.html" class="active">Favorites</a>
-    <a href="system/pages/discovery.html">Discovery</a>
-    <a href="system/pages/settings.html">Settings</a>
-    <a href="system/pages/support.html">Support</a>
-    <a href="system/pages/info.html">Info</a>
-  </nav>
+  <header>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="favorites.html" class="active">Favorites</a>
+      <a href="system/pages/discovery.html">Discovery</a>
+      <a href="system/pages/settings.html">Settings</a>
+      <a href="system/pages/support.html">Support</a>
+      <a href="system/pages/info.html">Info</a>
+    </nav>
 
-  <div class="header-controls">
-    <div class="search-box">
-      <input type="text" id="searchInputHeader" placeholder="Search favorites..." />
-      <button id="searchBtnHeader"><img src="system/icons/search.png" alt="Search"></button>
+    <div class="header-controls">
+      <div class="search-box">
+        <input type="text" id="searchInputHeader" placeholder="Search favorites..." />
+        <button id="searchBtnHeader"><img src="system/icons/search.png" alt="Search" /></button>
+      </div>
+      <a href="system/pages/profile.html"><img src="system/icons/profile.png" alt="profile" id="pfp" /></a>
+      <img src="system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn" />
     </div>
-    <a href="system/pages/profile.html"><img src="system/icons/profile.png" alt="profile" id="pfp"></a>
-    <img src="system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
+  </header>
+
+  <div id="quoteWrapper"><p id="quoteBox"></p></div>
+
+  <main>
+    <div id="container">Loading favorites...</div>
+  </main>
+
+  <button id="toTopBtn">⬆ Top</button>
+
+  <footer>
+    <a href="system/pages/sources.html">sources</a>
+    <a href="system/pages/contributors.html">contribute</a>
+    <a href="system/pages/discord.html">Discord</a>
+    <a href="system/pages/bugsNfixes.html">Bugs & fixes</a>
+    <a href="system/pages/contact.html">Socials</a>
+    <a href="system/pages/version-log.html">version V0.8</a>
+  </footer>
+
+  <div id="dashboardMenu" class="dashboard-menu">
+    <a href="system/pages/music-player.html">Music Player</a>
+    <a href="system/pages/settings-themes.html">Themes</a>
+    <a href="system/pages/credits.html">Credits</a>
+    <a href="system/pages/alternative.html">Alternative Links</a>
   </div>
-</header>
 
-<div id="quoteWrapper"><p id="quoteBox"></p></div>
+  <!-- === FAVORITES PAGE LOGIC === -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const checkReady = setInterval(() => {
+        if (
+          window.dom &&
+          typeof createAssetCards === "function" &&
+          typeof hidePreloader === "function"
+        ) {
+          clearInterval(checkReady);
+          loadFavoriteAssets();
+        }
+      }, 150);
+    });
 
-<main>
-  <div id="container">Loading favorites...</div>
-</main>
+    async function loadFavoriteAssets() {
+      try {
+        showLoading("Loading your favorites...");
+        updateProgress(5);
 
-<button id="toTopBtn">⬆ Top</button>
+        const favorites = JSON.parse(localStorage.getItem("favorites") || "[]")
+          .map((t) => t.toLowerCase());
+        if (!favorites.length) {
+          dom.container.innerHTML = "<p style='text-align:center;margin-top:2em;'>No favorites saved yet ⭐</p>";
+          hidePreloader(true);
+          return;
+        }
 
-<footer>
-  <a href="system/pages/sources.html">sources</a>
-  <a href="system/pages/contributors.html">contribute</a>
-  <a href="system/pages/discord.html">Discord</a>
-  <a href="system/pages/bugsNfixes.html">Bugs & fixes</a>
-  <a href="system/pages/contact.html">Socials</a>
-  <a href="system/pages/version-log.html">version V0.8</a>
-</footer>
+        const res = await fetch(window.config.sheetUrl, { cache: "no-store" });
+        const allAssets = await res.json();
+        const favAssets = allAssets.filter((item) =>
+          favorites.includes((item.title || "").toLowerCase())
+        );
 
-<div id="dashboardMenu" class="dashboard-menu">
-  <a href="system/pages/music-player.html">Music Player</a>
-  <a href="system/pages/settings-themes.html">Themes</a>
-  <a href="system/pages/credits.html">Credits</a>
-  <a href="system/pages/alternative.html">Alternative Links</a>
-</div>
+        if (!favAssets.length) {
+          dom.container.innerHTML = "<p style='text-align:center;margin-top:2em;'>No favorites found in current data.</p>";
+        } else {
+          createAssetCards(favAssets);
+        }
 
+        updateProgress(100);
+        hidePreloader(true);
+        if (typeof renderPage === "function") renderPage();
+      } catch (err) {
+        console.error("Error loading favorites:", err);
+        dom.container.innerHTML = "<p style='text-align:center;margin-top:2em;'>Failed to load favorites.</p>";
+        hidePreloader(true);
+      }
+    }
+  </script>
 </body>
 </html>
