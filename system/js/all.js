@@ -193,17 +193,17 @@
           sensitivity: "base",
         })
       );
-    } // else: "sheet" = original order
+    }
 
     const isFav = (title) => window.favorites.has(safeStr(title).toLowerCase());
 
     for (const asset of sorted) {
       const title = safeStr(asset.title).trim();
       const author = safeStr(asset.author).trim();
-      const imageSrc =
-        safeStr(asset.image).trim() || config.fallbackImage;
+      const imageSrc = safeStr(asset.image).trim() || config.fallbackImage;
       const link = safeStr(asset.link).trim() || config.fallbackLink;
       const pageNum = Number(asset.page) || 1;
+      const status = safeStr(asset.status).toLowerCase().trim(); // ✅ restored status field
 
       const card = document.createElement("div");
       card.className = "asset-card";
@@ -211,6 +211,19 @@
       card.dataset.author = author.toLowerCase();
       card.dataset.page = String(pageNum);
       card.dataset.filtered = "true";
+
+      // ✅ Apply status styling
+      if (status) {
+        card.dataset.status = status;
+        card.classList.add(`status-${status}`);
+        // Optional inline style if no CSS
+        if (status === "soon") {
+          card.style.opacity = "0.7";
+          card.style.filter = "grayscale(0.5)";
+        } else if (status === "new") {
+          card.style.border = "2px solid var(--accent, #ff0)";
+        }
+      }
 
       const a = document.createElement("a");
       a.href = link;
