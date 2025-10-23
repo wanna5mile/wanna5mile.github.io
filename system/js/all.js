@@ -89,63 +89,72 @@
     console.log("✅ Favorites initialized:", [...window.favorites]);
   }
 
-  /* ---------------------------
-     Preloader UI (Fixed + Progress Bar)
-     --------------------------- */
-  function initPreloader() {
-    const { preloader } = dom || {};
-    if (!preloader) return;
+/* ---------------------------
+   Preloader UI (No Duplicates)
+   --------------------------- */
+function initPreloader() {
+  const { preloader } = dom || {};
+  if (!preloader) return;
 
-    preloader.style.display = "flex";
-    preloader.style.opacity = "1";
-    preloader.dataset.hidden = "false";
+  preloader.style.display = "flex";
+  preloader.style.opacity = "1";
+  preloader.dataset.hidden = "false";
 
-    // Create counter + bar if missing
-    let counter = preloader.querySelector("#counter");
-    if (!counter) {
-      counter = document.createElement("div");
-      counter.id = "counter";
-      counter.className = "load-progress-text";
-      preloader.appendChild(counter);
-    }
+  // --- Use existing elements if available ---
+  let counter = preloader.querySelector("#counter");
+  let bar = preloader.querySelector(".load-progress-bar");
+  let fill = preloader.querySelector(".load-progress-fill");
 
-    let bar = preloader.querySelector(".load-progress-bar");
-    let fill = preloader.querySelector(".load-progress-fill");
-    if (!bar) {
-      bar = document.createElement("div");
-      bar.className = "load-progress-bar";
-      fill = document.createElement("div");
-      fill.className = "load-progress-fill";
-      bar.appendChild(fill);
-      preloader.appendChild(bar);
-    }
-
-    // Bind globals
-    dom.loaderText = counter;
-    dom.progressBarFill = fill;
-
-    window.updateProgress = (p) => {
-      const clamped = clamp(p, 0, 100);
-      if (counter) counter.textContent = `${clamped}%`;
-      if (fill) fill.style.width = `${clamped}%`;
-    };
-
-    window.showLoading = (text) => {
-      const label = preloader.querySelector(".loading-text");
-      if (label) label.textContent = text;
-    };
-
-    window.hidePreloader = (force = false) => {
-      if (preloader.dataset.hidden === "true") return;
-      const opacity = parseFloat(preloader.style.opacity || "1");
-      if (!force && opacity < 1) return;
-      preloader.dataset.hidden = "true";
-      preloader.style.transition = "opacity 0.45s ease";
-      preloader.style.opacity = "0";
-      preloader.style.pointerEvents = "none";
-      setTimeout(() => (preloader.style.display = "none"), 500);
-    };
+  // --- Create only if missing ---
+  if (!counter) {
+    counter = document.createElement("div");
+    counter.id = "counter";
+    counter.className = "load-progress-text";
+    preloader.appendChild(counter);
   }
+
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.className = "load-progress-bar";
+    fill = document.createElement("div");
+    fill.className = "load-progress-fill";
+    bar.appendChild(fill);
+    preloader.appendChild(bar);
+  } else if (!fill) {
+    fill = document.createElement("div");
+    fill.className = "load-progress-fill";
+    bar.appendChild(fill);
+  }
+
+  // --- Bind globals ---
+  dom.loaderText = counter;
+  dom.progressBarFill = fill;
+
+  // --- Progress update logic ---
+  window.updateProgress = (p) => {
+    const clamped = clamp(p, 0, 100);
+    if (counter) counter.textContent = `${clamped}%`;
+    if (fill) fill.style.width = `${clamped}%`;
+  };
+
+  window.showLoading = (text) => {
+    const label = preloader.querySelector(".loading-text");
+    if (label) label.textContent = text;
+  };
+
+  window.hidePreloader = (force = false) => {
+    if (preloader.dataset.hidden === "true") return;
+    const opacity = parseFloat(preloader.style.opacity || "1");
+    if (!force && opacity < 1) return; // ensure progress hits 100
+    preloader.dataset.hidden = "true";
+    preloader.style.transition = "opacity 0.45s ease";
+    preloader.style.opacity = "0";
+    preloader.style.pointerEvents = "none";
+    setTimeout(() => (preloader.style.display = "none"), 500);
+  };
+
+  console.log("Preloader initialized (single counter, single bar)");
+}
 
   /* ---------------------------
      Asset Card Builder
