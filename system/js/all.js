@@ -1,6 +1,6 @@
 /* ==========================================================
    WannaSmile | Unified JS Loader & UI Logic
-   Final Hardened & Optimized Version (with Progress Bar + Fixed Favorites)
+   Final Optimized — Real Progress + Pre-paged Cards
    ========================================================== */
 
 (() => {
@@ -19,7 +19,6 @@
      --------------------------- */
   const getSortMode = () => localStorage.getItem("sortMode") || "sheet";
   document.addEventListener("sortModeChanged", (e) => {
-    console.log("Sort mode changed:", e.detail);
     if (window.assetsData && typeof window.refreshCards === "function") {
       window.refreshCards();
     }
@@ -29,8 +28,7 @@
      DOM & Config Initialization
      --------------------------- */
   function initElements() {
-    const getEl = (sel) =>
-      document.getElementById(sel) || document.querySelector(sel);
+    const getEl = (sel) => document.getElementById(sel) || document.querySelector(sel);
 
     window.dom = {
       container: getEl("container"),
@@ -58,23 +56,16 @@
   function initFavorites() {
     try {
       const stored = JSON.parse(localStorage.getItem("favorites") || "[]");
-      window.favorites = new Set(
-        Array.isArray(stored)
-          ? stored.map((s) => safeStr(s).toLowerCase())
-          : []
-      );
+      window.favorites = new Set(Array.isArray(stored) ? stored.map((s) => safeStr(s).toLowerCase()) : []);
     } catch {
       window.favorites = new Set();
     }
 
     window.saveFavorites = function saveFavorites() {
       try {
-        localStorage.setItem(
-          "favorites",
-          JSON.stringify([...window.favorites])
-        );
+        localStorage.setItem("favorites", JSON.stringify([...window.favorites]));
       } catch (e) {
-        console.error("❌ Failed to save favorites:", e);
+        console.error("Failed to save favorites:", e);
       }
     };
 
@@ -85,97 +76,90 @@
       if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
       return promises;
     };
-
-    console.log("✅ Favorites initialized:", [...window.favorites]);
   }
-
-/* ---------------------------
-   Preloader UI (No Duplicates)
-   --------------------------- */
-function initPreloader() {
-  const { preloader } = dom || {};
-  if (!preloader) return;
-
-  preloader.style.display = "flex";
-  preloader.style.opacity = "1";
-  preloader.dataset.hidden = "false";
-
-  // --- Use existing elements if available ---
-  let counter = preloader.querySelector("#counter");
-  let bar = preloader.querySelector(".load-progress-bar");
-  let fill = preloader.querySelector(".load-progress-fill");
-
-  // --- Create only if missing ---
-  if (!counter) {
-    counter = document.createElement("div");
-    counter.id = "counter";
-    counter.className = "load-progress-text";
-    preloader.appendChild(counter);
-  }
-
-  if (!bar) {
-    bar = document.createElement("div");
-    bar.className = "load-progress-bar";
-    fill = document.createElement("div");
-    fill.className = "load-progress-fill";
-    bar.appendChild(fill);
-    preloader.appendChild(bar);
-  } else if (!fill) {
-    fill = document.createElement("div");
-    fill.className = "load-progress-fill";
-    bar.appendChild(fill);
-  }
-
-  // --- Bind globals ---
-  dom.loaderText = counter;
-  dom.progressBarFill = fill;
-
-  // --- Progress update logic ---
-  window.updateProgress = (p) => {
-    const clamped = clamp(p, 0, 100);
-    if (counter) counter.textContent = `${clamped}%`;
-    if (fill) fill.style.width = `${clamped}%`;
-  };
-
-  window.showLoading = (text) => {
-    const label = preloader.querySelector(".loading-text");
-    if (label) label.textContent = text;
-  };
-
-  window.hidePreloader = (force = false) => {
-    if (preloader.dataset.hidden === "true") return;
-    const opacity = parseFloat(preloader.style.opacity || "1");
-    if (!force && opacity < 1) return; // ensure progress hits 100
-    preloader.dataset.hidden = "true";
-    preloader.style.transition = "opacity 0.45s ease";
-    preloader.style.opacity = "0";
-    preloader.style.pointerEvents = "none";
-    setTimeout(() => (preloader.style.display = "none"), 500);
-  };
-
-  console.log("Preloader initialized (single counter, single bar)");
-}
 
   /* ---------------------------
-     Asset Card Builder
+     Preloader UI (No duplicate counters)
+     --------------------------- */
+  function initPreloader() {
+    const { preloader } = dom || {};
+    if (!preloader) return;
+
+    preloader.style.display = "flex";
+    preloader.style.opacity = "1";
+    preloader.dataset.hidden = "false";
+
+    // find or create counter elements (single instance)
+    let counter = preloader.querySelector("#counter");
+    let bar = preloader.querySelector(".load-progress-bar");
+    let fill = preloader.querySelector(".load-progress-fill");
+
+    if (!counter) {
+      counter = document.createElement("div");
+      counter.id = "counter";
+      counter.className = "load-progress-text";
+      preloader.appendChild(counter);
+    }
+
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.className = "load-progress-bar";
+      fill = document.createElement("div");
+      fill.className = "load-progress-fill";
+      bar.appendChild(fill);
+      preloader.appendChild(bar);
+    } else if (!fill) {
+      fill = document.createElement("div");
+      fill.className = "load-progress-fill";
+      bar.appendChild(fill);
+    }
+
+    dom.loaderText = counter;
+    dom.progressBarFill = fill;
+
+    window.updateProgress = (p) => {
+      const clamped = clamp(Math.round(p), 0, 100);
+      if (counter) counter.textContent = `${clamped}%`;
+      if (fill) fill.style.width = `${clamped}%`;
+    };
+
+    window.showLoading = (text) => {
+      const label = preloader.querySelector(".loading-text");
+      if (label) label.textContent = text;
+    };
+
+    window.hidePreloader = (force = false) => {
+      if (preloader.dataset.hidden === "true") return;
+      // only allow hide if force or progress reached 100
+      const currentPct = parseInt((dom.loaderText && dom.loaderText.textContent) || "0", 10);
+      if (!force && isNaN(currentPct)) return;
+      if (!force && currentPct < 100) return;
+      preloader.dataset.hidden = "true";
+      preloader.style.transition = "opacity 0.45s ease";
+      preloader.style.opacity = "0";
+      preloader.style.pointerEvents = "none";
+      setTimeout(() => (preloader.style.display = "none"), 500);
+    };
+  }
+
+  /* ---------------------------
+     Asset Card Builder (append hidden, pre-paging)
      --------------------------- */
   function createAssetCards(data) {
     const { container } = dom || {};
     if (!container) return [];
 
+    // clear and build the DOM fragment, but keep each card hidden initially
     container.innerHTML = "";
     const imagePromises = [];
     const frag = document.createDocumentFragment();
     const sortMode = getSortMode();
     const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
 
-    let sorted = [...data];
+    let sorted = Array.isArray(data) ? [...data] : [];
     if (sortMode === "alphabetical") {
       sorted.sort((a, b) =>
-        safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
-          numeric: true,
-          sensitivity: "base",
-        })
+        safeStr(a.title).localeCompare(safeStr(b.title), undefined, { numeric: true, sensitivity: "base" })
       );
     }
 
@@ -194,6 +178,8 @@ function initPreloader() {
       card.dataset.author = author.toLowerCase();
       card.dataset.page = String(pageNum);
       card.dataset.filtered = "true";
+      // keep hidden until renderPage decides visibility
+      card.style.display = "none";
 
       const a = document.createElement("a");
       a.href = link;
@@ -201,10 +187,11 @@ function initPreloader() {
       a.rel = "noopener noreferrer";
       a.className = "asset-link";
 
-      // Image (safe async load)
       const img = document.createElement("img");
       img.alt = title;
       img.loading = "eager";
+
+      // create image load promise
       const imgPromise = new Promise((resolve) => {
         const tmp = new Image();
         tmp.onload = () => {
@@ -220,7 +207,6 @@ function initPreloader() {
       imagePromises.push({ promise: imgPromise, page: pageNum });
       a.appendChild(img);
 
-      // Status GIF
       if (status && ["soon", "new", "updated"].includes(status)) {
         const overlay = document.createElement("img");
         overlay.src = gifFile;
@@ -229,21 +215,15 @@ function initPreloader() {
         a.appendChild(overlay);
       }
 
-      // Title / Author
       const titleEl = document.createElement("h3");
       titleEl.textContent = title || "Untitled";
       const authorEl = document.createElement("p");
       authorEl.textContent = author || "";
 
-      // Favorite Star
       const star = document.createElement("button");
       star.className = "favorite-star";
       star.textContent = isFav(title) ? "★" : "☆";
-      Object.assign(star.style, {
-        background: "transparent",
-        border: "none",
-        cursor: "pointer",
-      });
+      Object.assign(star.style, { background: "transparent", border: "none", cursor: "pointer" });
 
       star.addEventListener("click", (e) => {
         e.preventDefault();
@@ -251,7 +231,8 @@ function initPreloader() {
         const key = title.toLowerCase();
         if (window.favorites.has(key)) window.favorites.delete(key);
         else window.favorites.add(key);
-        saveFavorites();
+        // use window.saveFavorites to ensure global function called
+        if (typeof window.saveFavorites === "function") window.saveFavorites();
         star.textContent = window.favorites.has(key) ? "★" : "☆";
       });
 
@@ -264,7 +245,7 @@ function initPreloader() {
   }
 
   /* ---------------------------
-     Asset Loader (Google Sheets)
+     Asset Loader (accurate progress & pre-paging)
      --------------------------- */
   async function loadAssets(retry = false) {
     showLoading("Loading assets...");
@@ -276,20 +257,50 @@ function initPreloader() {
       const raw = await res.json();
       if (!Array.isArray(raw)) throw new Error("Invalid data from Sheets");
 
-      const data = raw.filter((i) =>
-        Object.values(i).some((v) => safeStr(v).trim() !== "")
-      );
-
+      // filter out empty rows
+      const data = raw.filter((row) => Object.values(row).some((v) => safeStr(v).trim() !== ""));
       window.assetsData = data;
-      updateProgress(40);
+
+      // small progress bump
+      updateProgress(25);
+
+      // create all cards but keep them hidden; we get back image promises
       const promises = createAssetCards(data);
-      updateProgress(70);
+      updateProgress(35);
 
+      // calculate progressive updates while images load in parallel
+      const total = promises.length || 1;
+      let completed = 0;
+
+      // attach individual handlers to update progress as images resolve
+      promises.forEach((p) => {
+        p.promise.then(() => {
+          completed++;
+          // map completed/total to a progress window e.g., 35 -> 95
+          const pct = 35 + Math.floor((completed / total) * 60); // 35..95
+          updateProgress(pct);
+        }).catch(() => {
+          completed++;
+          const pct = 35 + Math.floor((completed / total) * 60);
+          updateProgress(pct);
+        });
+      });
+
+      // wait until all images finish
       await Promise.allSettled(promises.map((p) => p.promise));
-      updateProgress(100);
 
-      await delay(400);
+      // ensure pages are calculated and renderPage runs BEFORE we reach 100
+      if (typeof renderPage === "function") {
+        renderPage();
+      }
+
+      updateProgress(100);
+      // slight delay so users can see 100% briefly and DOM settle
+      await delay(250);
       hidePreloader(true);
+
+      // start placeholder cycle after load completes
+      if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
     } catch (err) {
       console.error("Error loading assets:", err);
       if (!retry) return setTimeout(() => loadAssets(true), 1000);
@@ -305,10 +316,8 @@ function initPreloader() {
     const { container, pageIndicator, searchInput, searchBtn } = dom || {};
     if (!container) return;
 
-    window.getAllCards = () =>
-      Array.from(container.querySelectorAll(".asset-card"));
-    window.getFilteredCards = () =>
-      getAllCards().filter((c) => c.dataset.filtered === "true");
+    window.getAllCards = () => Array.from(container.querySelectorAll(".asset-card"));
+    window.getFilteredCards = () => getAllCards().filter((c) => c.dataset.filtered === "true");
 
     window.getPages = () =>
       [...new Set(getFilteredCards().map((c) => +c.dataset.page))]
@@ -318,18 +327,14 @@ function initPreloader() {
     window.renderPage = () => {
       const pages = getPages();
       const maxPage = pages.length ? Math.max(...pages) : 1;
-      if (!pages.includes(window.currentPage))
-        window.currentPage = pages[0] || 1;
+      if (!pages.includes(window.currentPage)) window.currentPage = pages[0] || 1;
 
       getAllCards().forEach((card) => {
-        const visible =
-          +card.dataset.page === window.currentPage &&
-          card.dataset.filtered === "true";
+        const visible = +card.dataset.page === window.currentPage && card.dataset.filtered === "true";
         card.style.display = visible ? "" : "none";
       });
 
-      if (pageIndicator)
-        pageIndicator.textContent = `Page ${window.currentPage} of ${maxPage}`;
+      if (pageIndicator) pageIndicator.textContent = `Page ${window.currentPage} of ${maxPage}`;
     };
 
     const debounce = (fn, ms = 150) => {
@@ -343,10 +348,7 @@ function initPreloader() {
     window.filterAssets = (query) => {
       const q = safeStr(query).toLowerCase().trim();
       getAllCards().forEach((card) => {
-        const match =
-          !q ||
-          card.dataset.title.includes(q) ||
-          card.dataset.author.includes(q);
+        const match = !q || card.dataset.title.includes(q) || card.dataset.author.includes(q);
         card.dataset.filtered = match ? "true" : "false";
       });
       renderPage();
@@ -362,21 +364,17 @@ function initPreloader() {
     window.nextPage = () => {
       const pages = getPages();
       const idx = pages.indexOf(window.currentPage);
-      window.currentPage =
-        idx === pages.length - 1 ? pages[0] : pages[idx + 1];
+      window.currentPage = idx === pages.length - 1 ? pages[0] : pages[idx + 1];
       renderPage();
     };
 
     if (searchInput && searchBtn) {
       searchBtn.addEventListener("click", () => filterAssets(searchInput.value));
-      searchInput.addEventListener(
-        "input",
-        debounce(() => filterAssets(searchInput.value), 200)
-      );
+      searchInput.addEventListener("input", debounce(() => filterAssets(searchInput.value), 200));
     }
 
     window.currentPage = 1;
-    renderPage();
+    // renderPage will be invoked after createAssetCards completes image loading
   }
 
   /* ---------------------------
@@ -408,16 +406,10 @@ function initPreloader() {
 
       const loop = async () => {
         try {
-          const visible = getFilteredCards().filter(
-            (c) => +c.dataset.page === window.currentPage
-          ).length;
-          await new Promise((r) =>
-            fadePlaceholder(searchInput, `${visible} assets on this page`, r)
-          );
+          const visible = getFilteredCards().filter((c) => +c.dataset.page === window.currentPage).length;
+          await new Promise((r) => fadePlaceholder(searchInput, `${visible} assets on this page`, r));
           await delay(HOLD);
-          await new Promise((r) =>
-            fadePlaceholder(searchInput, "Search assets...", r)
-          );
+          await new Promise((r) => fadePlaceholder(searchInput, "Search assets...", r));
           await delay(HOLD);
           if (window._placeholderRunning) loop();
         } catch {
