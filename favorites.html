@@ -5,54 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WannaSmile | Favorites</title>
   <link rel="icon" href="system/images/favicons/logoo.png" />
+
+  <!-- ✅ Core UI Styles -->
   <link rel="stylesheet" href="system/css/loading-screen.css" />
   <link rel="stylesheet" href="system/css/main.css" />
-  <link rel="stylesheet" href="system/css/quotes.css" />
   <link rel="stylesheet" href="system/css/themes.css" />
-  <link rel="stylesheet" href="system/css/commands.css" />
+
   <meta name="author" content="Bg.uhm by rhap5ody" />
   <meta name="keywords" content="fun, library, github, rhap5ody" />
 
-  <!-- Core Scripts -->
+  <!-- ✅ Only essential JS -->
   <script src="system/js/all.js"></script>
-  <script src="system/js/settings.js"></script>
-  <script src="system/js/commands.js"></script>
-  <script src="system/js/main.js"></script>
-  <script src="system/js/index.js"></script>
-  <script src="system/js/quotes.js" defer></script>
-  <script src="system/js/searcherror.js" defer></script>
+  <script src="system/js/settings.js" defer></script>
 
-  <!-- Discord Widget -->
-  <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3" async defer>
-    new Crate({
-      server: '1273329263923302430',
-      channel: '1329289920845713471'
-    });
-  </script>
+  <!-- ✅ Optional UI -->
+  <script src="system/js/quotes.js" defer></script>
 
   <style>
-    /* Popup & Placeholder Animations */
-    .update-popup { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+    .update-popup {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.65); backdrop-filter: blur(6px);
+      z-index: 9999; opacity: 0; pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
     .update-popup.show { opacity: 1; pointer-events: all; }
-    .update-popup-content { background: var(--background-color,#1e1e1e); border-radius: 14px; box-shadow: 0 0 20px rgba(0,0,0,0.6); width: 90%; max-width: 480px; text-align: center; padding: 20px; color: var(--text-color,#fff); animation: popup-bounce 0.6s ease; }
+    .update-popup-content {
+      background: var(--background-color,#1e1e1e);
+      border-radius: 14px; box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      width: 90%; max-width: 480px; text-align: center;
+      padding: 20px; color: var(--text-color,#fff);
+      animation: popup-bounce 0.6s ease;
+    }
     .update-popup-content h2 { margin-top:0; color: var(--accent-color,#fff); }
     .update-popup-content p { font-size:0.95em; margin:10px 0 20px; }
-    .update-video { margin-bottom:15px; border-radius:10px; overflow:hidden; }
-    .update-buttons { display:flex; gap:8px; flex-wrap:wrap; justify-content:space-between; }
-    .update-buttons button { flex:1; min-width:100px; background:var(--accent-color,#2e2e2e); color:#fff; border:none; border-radius:8px; padding:8px; font-size:0.9em; cursor:pointer; transition:all 0.2s ease; }
-    .update-buttons button:hover { background:#3e3e3e; }
-    @keyframes popup-bounce {0%{transform:scale(0.9);opacity:0;}60%{transform:scale(1.05);opacity:1;}100%{transform:scale(1);}}
-    #searchInputHeader { transition: opacity 0.5s ease; }
-    #searchInputHeader.fade-out { opacity:0; }
-    #searchInputHeader.fade-in { opacity:1; }
+    @keyframes popup-bounce {
+      0%{transform:scale(0.9);opacity:0;}
+      60%{transform:scale(1.05);opacity:1;}
+      100%{transform:scale(1);}
+    }
   </style>
 </head>
 
 <body>
-  <!-- Preloader -->
+  <!-- ✅ Preloader -->
   <div class="preloader" id="preloader">
     <div class="loader-gif">
-      <img src="system/images/GIF/loading.gif" id="loaderImage" alt="Loading..." />
+      <img src="system/images/GIF/loading.gif" alt="Loading..." />
     </div>
     <div class="counter" id="counter">0%</div>
     <div class="loading-text">Loading favorites...</div>
@@ -67,13 +66,16 @@
       <a href="system/pages/support.html">Support</a>
       <a href="system/pages/info.html">Info</a>
     </nav>
-
     <div class="header-controls">
       <div class="search-box">
         <input type="text" id="searchInputHeader" placeholder="Search favorites..." />
-        <button id="searchBtnHeader"><img src="system/icons/search.png" alt="Search" /></button>
+        <button id="searchBtnHeader">
+          <img src="system/icons/search.png" alt="Search" />
+        </button>
       </div>
-      <a href="system/pages/profile.html"><img src="system/icons/profile.png" alt="profile" id="pfp" /></a>
+      <a href="system/pages/profile.html">
+        <img src="system/icons/profile.png" alt="profile" id="pfp" />
+      </a>
       <img src="system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn" />
     </div>
   </header>
@@ -81,7 +83,7 @@
   <div id="quoteWrapper"><p id="quoteBox"></p></div>
 
   <main>
-    <div id="container">Loading favorites...</div>
+    <div id="container" class="asset-container">Loading favorites...</div>
   </main>
 
   <button id="toTopBtn">⬆ Top</button>
@@ -102,77 +104,88 @@
     <a href="system/pages/alternative.html">Alternative Links</a>
   </div>
 
-  <!-- === FAVORITES PAGE LOGIC === -->
+  <!-- ✅ FAVORITES PAGE LOGIC + OFFLINE CACHE -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const checkReady = setInterval(() => {
+      const waitReady = setInterval(() => {
         if (
           window.dom &&
           typeof createAssetCards === "function" &&
           typeof hidePreloader === "function" &&
           window.config?.sheetUrl
         ) {
-          clearInterval(checkReady);
+          clearInterval(waitReady);
           loadFavoriteAssets();
         }
-      }, 150);
+      }, 100);
     });
 
     async function loadFavoriteAssets() {
+      showLoading("Loading your favorites...");
+      updateProgress(10);
+
+      const favorites = JSON.parse(localStorage.getItem("favorites") || "[]")
+        .map(f => f.toLowerCase());
+
+      if (!favorites.length) {
+        dom.container.innerHTML =
+          "<p style='text-align:center;margin-top:2em;'>No favorites saved yet ⭐</p>";
+        return hidePreloader(true);
+      }
+
+      // ✅ Step 1: Try cached data first
+      const cachedData = JSON.parse(localStorage.getItem("favoritesCache") || "null");
+      if (cachedData && Array.isArray(cachedData)) {
+        renderFavorites(cachedData, false); // show immediately
+        hidePreloader(true);
+      }
+
+      // ✅ Step 2: Refresh in background (don’t block UI)
       try {
-        showLoading("Loading your favorites...");
-        updateProgress(10);
+        const response = await fetch(window.config.sheetUrl, { cache: "no-store" });
+        const allAssets = await response.json();
 
-        // Load stored favorites
-        const favorites = JSON.parse(localStorage.getItem("favorites") || "[]")
-          .map((t) => t.toLowerCase());
-
-        // No favorites yet?
-        if (!favorites.length) {
-          dom.container.innerHTML =
-            "<p style='text-align:center;margin-top:2em;'>No favorites saved yet ⭐</p>";
-          hidePreloader(true);
-          return;
-        }
-
-        // Fetch all assets (or use cached)
-        const allAssets =
-          window.allAssets ||
-          (await (await fetch(window.config.sheetUrl, { cache: "no-store" })).json());
-
-        // Filter only favorites
-        const favAssets = allAssets.filter((item) =>
+        const favAssets = allAssets.filter(item =>
           favorites.includes((item.title || "").toLowerCase())
         );
 
-        if (!favAssets.length) {
-          dom.container.innerHTML =
-            "<p style='text-align:center;margin-top:2em;'>No favorites found in current data.</p>";
-        } else {
-          const cards = createAssetCards(favAssets);
-          if (Array.isArray(cards)) {
-            let loaded = 0;
-            for (const { promise } of cards) {
-              await promise;
-              loaded++;
-              updateProgress(Math.floor((loaded / cards.length) * 100));
-            }
-          }
+        // Update cache if changed
+        const oldCache = JSON.stringify(cachedData);
+        const newCache = JSON.stringify(favAssets);
+        if (oldCache !== newCache) {
+          localStorage.setItem("favoritesCache", newCache);
+          renderFavorites(favAssets, true); // re-render silently
         }
-
-        hidePreloader(true);
-        if (typeof renderPage === "function") renderPage();
       } catch (err) {
-        console.error("Error loading favorites:", err);
-        dom.container.innerHTML =
-          "<p style='text-align:center;margin-top:2em;'>Failed to load favorites.</p>";
-        hidePreloader(true);
+        console.warn("Offline or failed to fetch new favorites:", err);
+        if (!cachedData) {
+          dom.container.innerHTML =
+            "<p style='text-align:center;margin-top:2em;'>Offline — no cached favorites available.</p>";
+        }
       }
     }
 
-    // Prevent the main loader from loading all assets
+    function renderFavorites(favAssets, refreshed = false) {
+      if (!favAssets.length) {
+        dom.container.innerHTML =
+          "<p style='text-align:center;margin-top:2em;'>No favorites found.</p>";
+        return;
+      }
+      const cards = createAssetCards(favAssets);
+      if (Array.isArray(cards)) {
+        let done = 0;
+        cards.forEach(async ({ promise }) => {
+          await promise;
+          done++;
+          updateProgress(Math.floor((done / cards.length) * 100));
+        });
+      }
+      if (refreshed) console.log("Favorites refreshed from network.");
+    }
+
+    // ✅ Override global loader
     window.loadAssets = async function () {
-      console.log("Overriding main asset loader for favorites page.");
+      console.log("Favorites page override: skipping full asset load");
       await loadFavoriteAssets();
     };
   </script>
