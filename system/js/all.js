@@ -1,6 +1,6 @@
 /* ==========================================================
    WannaSmile | Unified JS Loader & UI Logic
-   Final Optimized Version
+   Final Hardened & Optimized Version (with Progress Bar + Fixed Favorites)
    ========================================================== */
 
 (() => {
@@ -53,32 +53,44 @@
   }
 
   /* ---------------------------
-     Favorites System (No Refresh)
+     Favorites System (Fixed)
      --------------------------- */
   function initFavorites() {
     try {
       const stored = JSON.parse(localStorage.getItem("favorites") || "[]");
       window.favorites = new Set(
-        Array.isArray(stored) ? stored.map((s) => safeStr(s).toLowerCase()) : []
+        Array.isArray(stored)
+          ? stored.map((s) => safeStr(s).toLowerCase())
+          : []
       );
     } catch {
       window.favorites = new Set();
     }
 
-    window.saveFavorites = () =>
-      localStorage.setItem("favorites", JSON.stringify([...window.favorites]));
+    window.saveFavorites = function saveFavorites() {
+      try {
+        localStorage.setItem(
+          "favorites",
+          JSON.stringify([...window.favorites])
+        );
+      } catch (e) {
+        console.error("❌ Failed to save favorites:", e);
+      }
+    };
 
-    window.refreshCards = () => {
+    window.refreshCards = function refreshCards() {
       if (!window.assetsData || typeof createAssetCards !== "function") return;
       const promises = createAssetCards(window.assetsData);
       if (typeof renderPage === "function") renderPage();
       if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
       return promises;
     };
+
+    console.log("✅ Favorites initialized:", [...window.favorites]);
   }
 
   /* ---------------------------
-     Preloader UI (Fixed Visibility)
+     Preloader UI (Fixed + Progress Bar)
      --------------------------- */
   function initPreloader() {
     const { preloader } = dom || {};
@@ -88,10 +100,34 @@
     preloader.style.opacity = "1";
     preloader.dataset.hidden = "false";
 
-    const counter = document.getElementById("counter");
+    // Create counter + bar if missing
+    let counter = preloader.querySelector("#counter");
+    if (!counter) {
+      counter = document.createElement("div");
+      counter.id = "counter";
+      counter.className = "load-progress-text";
+      preloader.appendChild(counter);
+    }
+
+    let bar = preloader.querySelector(".load-progress-bar");
+    let fill = preloader.querySelector(".load-progress-fill");
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.className = "load-progress-bar";
+      fill = document.createElement("div");
+      fill.className = "load-progress-fill";
+      bar.appendChild(fill);
+      preloader.appendChild(bar);
+    }
+
+    // Bind globals
+    dom.loaderText = counter;
+    dom.progressBarFill = fill;
+
     window.updateProgress = (p) => {
       const clamped = clamp(p, 0, 100);
       if (counter) counter.textContent = `${clamped}%`;
+      if (fill) fill.style.width = `${clamped}%`;
     };
 
     window.showLoading = (text) => {
@@ -101,6 +137,8 @@
 
     window.hidePreloader = (force = false) => {
       if (preloader.dataset.hidden === "true") return;
+      const opacity = parseFloat(preloader.style.opacity || "1");
+      if (!force && opacity < 1) return;
       preloader.dataset.hidden = "true";
       preloader.style.transition = "opacity 0.45s ease";
       preloader.style.opacity = "0";
@@ -148,14 +186,13 @@
       card.dataset.page = String(pageNum);
       card.dataset.filtered = "true";
 
-      // Link
       const a = document.createElement("a");
       a.href = link;
       a.target = "_blank";
       a.rel = "noopener noreferrer";
       a.className = "asset-link";
 
-      // Image
+      // Image (safe async load)
       const img = document.createElement("img");
       img.alt = title;
       img.loading = "eager";
@@ -174,7 +211,7 @@
       imagePromises.push({ promise: imgPromise, page: pageNum });
       a.appendChild(img);
 
-      // Status GIF Overlay
+      // Status GIF
       if (status && ["soon", "new", "updated"].includes(status)) {
         const overlay = document.createElement("img");
         overlay.src = gifFile;
@@ -183,13 +220,13 @@
         a.appendChild(overlay);
       }
 
-      // Title + Author
+      // Title / Author
       const titleEl = document.createElement("h3");
       titleEl.textContent = title || "Untitled";
       const authorEl = document.createElement("p");
       authorEl.textContent = author || "";
 
-      // Favorite star
+      // Favorite Star
       const star = document.createElement("button");
       star.className = "favorite-star";
       star.textContent = isFav(title) ? "★" : "☆";
@@ -235,14 +272,14 @@
       );
 
       window.assetsData = data;
-      updateProgress(30);
-
+      updateProgress(40);
       const promises = createAssetCards(data);
-      updateProgress(80);
-      await Promise.allSettled(promises.map((p) => p.promise));
+      updateProgress(70);
 
+      await Promise.allSettled(promises.map((p) => p.promise));
       updateProgress(100);
-      await delay(300);
+
+      await delay(400);
       hidePreloader(true);
     } catch (err) {
       console.error("Error loading assets:", err);
@@ -334,7 +371,7 @@
   }
 
   /* ---------------------------
-     Placeholder Cycling
+     Placeholder Cycle
      --------------------------- */
   function initPlaceholders() {
     const { searchInput } = dom || {};
@@ -396,7 +433,7 @@
       initPaging();
       initPlaceholders();
       await loadAssets();
-      console.log("WannaSmile Loader Ready");
+      console.log("✅ WannaSmile Loader Ready");
     } catch (err) {
       console.error("Initialization failed:", err);
       showLoading("Initialization failed. Please reload.");
