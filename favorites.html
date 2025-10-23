@@ -15,9 +15,26 @@
 
   <!-- Core scripts -->
   <script src="system/js/quotes.js" defer></script>
-  <!--<script src="system/js/settings.js" defer></script>-->
   <script src="system/js/searcherror.js" defer></script>
-  <script src="system/js/carousel.js" defer></script>
+  <!-- === Unified & dependent JS === -->
+  <script src="system/js/all.js"></script>
+  <script src="system/js/settings.js"></script>
+  <script src="system/js/commands.js"></script>
+  <script src="system/js/main.js"></script>
+  <script src="system/js/quotes.js"></script>
+  <script src="system/js/searcherror.js"></script>
+  <script src="system/js/index.js"></script>
+
+  <script>
+    window.addEventListener("load", () => {
+      const interval = setInterval(() => {
+        if (window.dom && typeof createAssetCards === "function" && typeof hidePreloader === "function") {
+          clearInterval(interval);
+          if (typeof loadAssets === "function") loadAssets();
+        }
+      }, 150);
+    });
+  </script>
   <script src="system/js/commands.js" defer></script>
 
   <!-- Load Favorites Script -->
