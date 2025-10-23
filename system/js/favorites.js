@@ -1,117 +1,134 @@
 // ---- favorites.js ----
-// Safe boot helpers for favorites, preloader bindings, and refresh routines
+// Handles loading and displaying only starred (favorited) assets.
 
-(function initFavoritesBoot() {
-  // --- Ensure global favorite state ---
-  window.initFavorites = function initFavorites() {
-    // 1️⃣ Restore favorites from localStorage or create empty
+(() => {
+  "use strict";
+
+  // --- Utility ---
+  const safeStr = (v) => (v == null ? "" : String(v).trim().toLowerCase());
+  const clamp = (v, a = 0, b = 100) => Math.min(b, Math.max(a, v));
+
+  /* ==========================================================
+     FAVORITES INITIALIZATION
+     ========================================================== */
+  window.initFavorites = function () {
     try {
       const stored = JSON.parse(localStorage.getItem("favorites") || "[]");
-      window.favorites = new Set(Array.isArray(stored) ? stored : []);
+      window.favorites = new Set(Array.isArray(stored) ? stored.map(safeStr) : []);
     } catch {
       window.favorites = new Set();
     }
 
-    // 2️⃣ Ensure saveFavorites exists
-    if (typeof window.saveFavorites !== "function") {
-      window.saveFavorites = function saveFavorites() {
-        try {
-          localStorage.setItem("favorites", JSON.stringify([...window.favorites]));
-        } catch (e) {
-          console.error("❌ Failed to save favorites:", e);
-        }
-      };
-    }
+    window.saveFavorites = function () {
+      try {
+        localStorage.setItem("favorites", JSON.stringify([...window.favorites]));
+      } catch (e) {
+        console.error("❌ Failed to save favorites:", e);
+      }
+    };
 
-    // 3️⃣ Ensure refreshCards exists
-    if (typeof window.refreshCards !== "function") {
-      window.refreshCards = function refreshCards() {
-        if (!window.assetsData || typeof createAssetCards !== "function") {
-          console.warn("⚠️ Cannot refresh cards — assets not ready yet.");
-          return;
-        }
-
-        const imagePromises = createAssetCards(window.assetsData || []);
-
-        // Trigger optional UI modules if available
-        if (typeof renderPage === "function") renderPage();
-        if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
-
-        return imagePromises;
-      };
-    }
-
-    console.log("✅ Favorites initialized:", [...window.favorites]);
+    console.log("✅ Favorites ready:", [...window.favorites]);
   };
 
-  // --- Loading text helper ---
-  window.showLoading = function showLoading(text) {
-    const { loaderText, preloader, container } = window.dom || {};
-
-    if (loaderText) {
-      loaderText.textContent = text;
-    } else if (preloader) {
-      preloader.textContent = text;
-      preloader.style.textAlign = "center";
-    } else if (container) {
-      console.warn("⚠️ Preloader elements missing — using container for loading text.");
-      container.textContent = text;
-      container.style.textAlign = "center";
-    } else {
-      console.warn("⚠️ No element available to show loading text:", text);
-    }
+  /* ==========================================================
+     PRELOADER BINDINGS
+     ========================================================== */
+  window.updateProgress = (p) => {
+    const clamped = clamp(p, 0, 100);
+    const c = document.getElementById("counter");
+    const bar = document.querySelector(".load-progress-fill");
+    if (c) c.textContent = `${clamped}%`;
+    if (bar) bar.style.width = `${clamped}%`;
   };
 
-  // --- Ensure preloader DOM bindings exist ---
-  document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-      if (!window.dom) window.dom = {};
-      const dom = window.dom;
+  window.showLoading = (txt) => {
+    const t = document.querySelector(".loading-text");
+    if (t) t.textContent = txt;
+  };
 
-      const preloader = document.getElementById("preloader");
-      if (!preloader) return;
+  window.hidePreloader = (force = false) => {
+    const pre = document.getElementById("preloader");
+    if (!pre) return;
+    pre.style.transition = "opacity 0.4s ease";
+    pre.style.opacity = "0";
+    setTimeout(() => (pre.style.display = "none"), 500);
+  };
 
-      let loaderText = preloader.querySelector(".load-progress-text");
-      let progressFill = preloader.querySelector(".load-progress-fill");
-      let loaderImage =
-        document.getElementById("loaderImage") ||
-        preloader.querySelector("img#loaderImage");
+  /* ==========================================================
+     MAIN FAVORITES LOADER
+     ========================================================== */
+  async function loadFavoriteAssets() {
+    showLoading("Loading your favorites...");
+    updateProgress(10);
+    const { sheetUrl } = window.config || {};
 
-      // Create placeholders if missing
-      if (!loaderText) {
-        loaderText = document.createElement("div");
-        loaderText.className = "load-progress-text";
-        preloader.appendChild(loaderText);
+    const favList = JSON.parse(localStorage.getItem("favorites") || "[]").map(safeStr);
+    const container = document.getElementById("container");
+
+    if (!favList.length) {
+      container.innerHTML = `<p class="center-msg">No favorites yet ⭐</p>`;
+      return hidePreloader(true);
+    }
+
+    // Use cached favorites if available
+    const cached = JSON.parse(localStorage.getItem("favoritesCache") || "null");
+    if (Array.isArray(cached)) {
+      renderFavorites(cached, false);
+      hidePreloader(true);
+    }
+
+    try {
+      const res = await fetch(sheetUrl, { cache: "no-store" });
+      const all = await res.json();
+
+      const favAssets = all.filter((a) => favList.includes(safeStr(a.title)));
+      const newCache = JSON.stringify(favAssets);
+      const oldCache = JSON.stringify(cached);
+      if (newCache !== oldCache) {
+        localStorage.setItem("favoritesCache", newCache);
+        renderFavorites(favAssets, true);
       }
-
-      if (!progressFill) {
-        const progressBar = document.createElement("div");
-        progressBar.className = "load-progress-bar";
-        const progressBarFill = document.createElement("div");
-        progressBarFill.className = "load-progress-fill";
-        progressBar.appendChild(progressBarFill);
-        preloader.appendChild(progressBar);
-        progressFill = progressBarFill;
+    } catch (err) {
+      console.warn("⚠ Offline or failed to refresh favorites:", err);
+      if (!cached) {
+        container.innerHTML = `<p class="center-msg">Offline — no cached favorites.</p>`;
       }
+    }
+  }
 
-      // Attach to global dom for other modules
-      dom.preloader = preloader;
-      dom.loaderText = loaderText;
-      dom.progressBarFill = progressFill;
-      if (loaderImage) dom.loaderImage = loaderImage;
+  /* ==========================================================
+     RENDERING FAVORITES ONLY
+     ========================================================== */
+  function renderFavorites(favAssets, refreshed = false) {
+    if (!favAssets?.length) {
+      document.getElementById("container").innerHTML =
+        `<p class="center-msg">No favorites found.</p>`;
+      return;
+    }
 
-      console.log("✅ Preloader elements bound to dom:", dom);
-    },
-    { once: true }
-  );
+    const cards = createAssetCards(favAssets);
+    let done = 0;
+    if (Array.isArray(cards)) {
+      cards.forEach(async ({ promise }) => {
+        await promise;
+        done++;
+        updateProgress(Math.floor((done / cards.length) * 100));
+      });
+    }
+    if (refreshed) console.log("🔄 Favorites refreshed");
+  }
 
-  // --- Auto-init favorites when DOM is ready ---
-  document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-      if (!window.favorites) window.initFavorites();
-    },
-    { once: true }
-  );
+  /* ==========================================================
+     PAGE BOOTSTRAP
+     ========================================================== */
+  document.addEventListener("DOMContentLoaded", async () => {
+    window.initFavorites();
+
+    const wait = setInterval(() => {
+      if (typeof createAssetCards === "function" && window.config?.sheetUrl) {
+        clearInterval(wait);
+        loadFavoriteAssets();
+      }
+    }, 100);
+  });
 })();
