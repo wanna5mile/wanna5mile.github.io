@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WannaSmile | Snow Rider 3D</title>
   <link rel="icon" href="system/images/favicons/logoo.png" />
-
-  <!-- Core Styles -->
   <link rel="stylesheet" href="system/css/themes.css" />
   <link rel="stylesheet" href="system/css/main.css" />
 
@@ -24,7 +22,7 @@
     .embed-container {
       width: 100%;
       position: relative;
-      padding-top: 65%; /* bigger embed */
+      padding-top: 65%;
       background: #000;
       border-radius: 12px;
       overflow: hidden;
@@ -33,7 +31,7 @@
 
     .embed-container iframe {
       position: absolute;
-      top: 0; left: 0;
+      inset: 0;
       width: 100%;
       height: 100%;
       border: 0;
@@ -59,8 +57,9 @@
     .embed-actions {
       display: flex;
       justify-content: center;
-      gap: 1.5rem;
+      gap: 1.2rem;
       margin-top: 12px;
+      flex-wrap: wrap;
     }
 
     .embed-actions button {
@@ -164,7 +163,7 @@
 </head>
 
 <body theme="classic">
-  <!-- Header Navigation -->
+  <!-- Header -->
   <header>
     <nav class="nav-links">
       <a href="index.html">Home</a>
@@ -190,28 +189,26 @@
   </aside>
 
   <main>
-    <!-- Embed Info -->
+    <!-- Game Info -->
     <div class="embed-meta">
-      <h1 id="embedTitle">Snow Rider 3D</h1>
-      <p id="embedDesc">
-        An endless 3D snowboarding game where players steer their character 
-        down a snowy mountain, dodging obstacles, collecting gifts, and performing tricks!
-      </p>
+      <h1>Snow Rider 3D</h1>
+      <p>An endless 3D snowboarding game! Dodge obstacles, collect gifts, and perform tricks.</p>
     </div>
 
     <!-- Game Embed -->
     <div class="embed-container">
       <iframe id="embedFrame"
-        src="https://wanna5mile.github.io./source/snowrider3d/"
+        src="https://wanna5mile.github.io/source/snowrider3d/"
         title="Snow Rider 3D"
         allowfullscreen></iframe>
     </div>
 
-    <!-- Embed Controls -->
+    <!-- Actions -->
     <div class="embed-actions">
       <button id="fullscreenBtn" title="Fullscreen">⛶</button>
       <button id="likeBtn" title="Like">❤️</button>
       <button id="favBtn" title="Favorite">⭐</button>
+      <button id="shareBtn" title="Share">📤</button>
     </div>
 
     <!-- Comments -->
@@ -229,19 +226,17 @@
     <p>WannaSmile © 2025 — by Rhap5ody & contributors</p>
   </footer>
 
-  <!-- Scripts -->
   <script src="system/js/all.js"></script>
-
   <script>
-    // ==== Comments with LocalStorage ====
-    const input = document.getElementById("commentInput");
-    const list = document.getElementById("commentList");
-    const postBtn = document.getElementById("postCommentBtn");
+    // === Comments ===
+    const commentInput = document.getElementById("commentInput");
+    const commentList = document.getElementById("commentList");
+    const postCommentBtn = document.getElementById("postCommentBtn");
     const storageKey = "snowrider3d-comments";
 
     function loadComments() {
       const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
-      list.innerHTML = "";
+      commentList.innerHTML = "";
       saved.forEach(text => addComment(text, false));
     }
 
@@ -249,7 +244,7 @@
       const div = document.createElement("div");
       div.className = "comment";
       div.innerHTML = `<strong>You</strong>: ${text}`;
-      list.prepend(div);
+      commentList.prepend(div);
       if (save) {
         const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
         saved.unshift(text);
@@ -257,36 +252,49 @@
       }
     }
 
-    postBtn.addEventListener("click", () => {
-      const text = input.value.trim();
+    postCommentBtn.onclick = () => {
+      const text = commentInput.value.trim();
       if (!text) return;
       addComment(text);
-      input.value = "";
-    });
+      commentInput.value = "";
+    };
 
     loadComments();
 
-    // ==== Bottom Controls ====
+    // === Buttons ===
     const iframe = document.getElementById("embedFrame");
     const fullscreenBtn = document.getElementById("fullscreenBtn");
     const likeBtn = document.getElementById("likeBtn");
     const favBtn = document.getElementById("favBtn");
+    const shareBtn = document.getElementById("shareBtn");
 
-    fullscreenBtn.addEventListener("click", () => {
-      if (iframe.requestFullscreen) iframe.requestFullscreen();
-    });
+    fullscreenBtn.onclick = () => iframe.requestFullscreen?.();
 
-    likeBtn.addEventListener("click", () => {
+    likeBtn.onclick = () => {
       likeBtn.classList.toggle("active");
       localStorage.setItem("liked-snowrider3d", likeBtn.classList.contains("active"));
-    });
+    };
 
-    favBtn.addEventListener("click", () => {
+    favBtn.onclick = () => {
       favBtn.classList.toggle("active");
       localStorage.setItem("fav-snowrider3d", favBtn.classList.contains("active"));
-    });
+    };
 
-    // Restore states
+    shareBtn.onclick = async () => {
+      const shareData = {
+        title: "Snow Rider 3D | WannaSmile",
+        text: "Play Snow Rider 3D on WannaSmile!",
+        url: window.location.href
+      };
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        navigator.clipboard.writeText(shareData.url);
+        alert("Link copied to clipboard!");
+      }
+    };
+
+    // === Restore States ===
     if (localStorage.getItem("liked-snowrider3d") === "true") likeBtn.classList.add("active");
     if (localStorage.getItem("fav-snowrider3d") === "true") favBtn.classList.add("active");
   </script>
