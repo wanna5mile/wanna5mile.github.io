@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="system/css/quotes.css" />
   <link rel="stylesheet" href="system/css/commands.css" />
 
-  <!-- Discord Widget (fixed) -->
+  <!-- Discord Widget -->
   <script async defer src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3"></script>
   <script>
     window.addEventListener("load", () => {
@@ -29,7 +29,7 @@
     });
   </script>
 
-  <!-- Meta Tags for social embeds -->
+  <!-- Social Meta -->
   <meta property="og:title" content="WannaSmile" />
   <meta property="og:description" content="Welcome to WannaSmile — a library full of content! Enjoy it in your free time." />
   <meta property="og:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
@@ -43,6 +43,7 @@
 
   <!-- Inline custom styles -->
   <style>
+    /* === Update popup === */
     .update-popup {
       position: fixed;
       inset: 0;
@@ -72,131 +73,110 @@
       margin-top: 0;
       color: var(--accent-color, #fff);
     }
-    .update-popup-content p {
-      font-size: 0.95em;
-      margin: 10px 0 20px;
-    }
-    .update-video-wrapper {
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 15px;
-    }
-    .video-tooltip {
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.7);
-      color: #fff;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 0.8em;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-    }
-    .update-video-wrapper:hover .video-tooltip { opacity: 1; }
-    .update-buttons {
+
+    /* === Asset Cards === */
+    .asset-card {
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: space-between;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      background: var(--card-bg, #2a2a2a);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
-    .update-buttons button {
-      flex: 1;
-      min-width: 100px;
-      background: var(--accent-color, #2e2e2e);
-      color: #fff;
+
+    .asset-card h4 {
+      width: 100%;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 10px 0;
+      color: var(--text-color, #fff);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px 0;
+    }
+
+    .asset-card iframe, 
+    .asset-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
       border: none;
-      border-radius: 8px;
-      padding: 8px;
-      font-size: 0.9em;
-      cursor: pointer;
-      transition: all 0.2s ease;
     }
-    .update-buttons button:hover { filter: brightness(1.2); }
+
+    .asset-card.soon {
+      opacity: 0.5;
+      pointer-events: none;
+      display: flex;
+    }
+
+    /* Optional hover scaling for available cards */
+    .asset-card:not(.soon):hover {
+      transform: scale(1.02);
+    }
+
     @keyframes popup-bounce {
       0% { transform: scale(0.9); opacity: 0; }
       60% { transform: scale(1.05); opacity: 1; }
       100% { transform: scale(1); }
-    }
-
-    /* === Soon state === */
-    .soon {
-      opacity: 0.6;
-      pointer-events: none;
     }
   </style>
 </head>
 
 <body theme="classic">
   <!-- Preloader -->
-  <div id="preloader" class="preloader" aria-live="polite" aria-busy="true">
+  <div id="preloader" class="preloader">
     <div class="loader-gif">
       <img id="loaderImage" src="system/images/GIF/loading.gif" alt="Loading animation" />
     </div>
-    <div class="load-progress-bar">
-      <div id="progressBar" class="load-progress-fill"></div>
-    </div>
+    <div class="load-progress-bar"><div id="progressBar" class="load-progress-fill"></div></div>
     <div id="progressText" class="load-progress-text">0%</div>
     <div id="loaderText" class="loading-text">Loading...</div>
   </div>
 
+  <!-- Header -->
   <header>
-    <nav class="nav-links" aria-label="Main Navigation">
+    <nav class="nav-links">
       <a href="index.html">Home</a>
       <a href="favorites.html">Favorites</a>
       <a href="system/pages/discovery.html">Discovery</a>
       <a href="system/pages/settings.html">Settings</a>
       <a href="system/pages/support.html">Support</a>
       <a href="info.html">Info</a>
-
-      <div class="pages-anchor" role="group" aria-label="Page Navigation">
-        <button class="arrowleft" onclick="prevPage()" aria-label="Previous Page">
-          <img src="system/icons/left.png" alt="Previous page" />
-        </button>
-        <span class="page-indicator" aria-live="polite">...</span>
-        <button class="arrowright" onclick="nextPage()" aria-label="Next Page">
-          <img src="system/icons/right.png" alt="Next page" />
-        </button>
+      <div class="pages-anchor">
+        <button class="arrowleft" onclick="prevPage()"><img src="system/icons/left.png" alt="Previous page" /></button>
+        <span class="page-indicator">...</span>
+        <button class="arrowright" onclick="nextPage()"><img src="system/icons/right.png" alt="Next page" /></button>
       </div>
     </nav>
 
     <div class="header-controls">
-      <div class="search-box" role="search">
-        <input id="searchInputHeader" type="text" placeholder="Search ϱames..." aria-label="Search games library" />
-        <button id="searchBtnHeader" aria-label="Submit Search">
-          <img src="system/icons/search.png" alt="Search" />
-        </button>
+      <div class="search-box">
+        <input id="searchInputHeader" type="text" placeholder="Search ϱames..." />
+        <button id="searchBtnHeader"><img src="system/icons/search.png" alt="Search" /></button>
       </div>
-      <a href="system/pages/profile.html" aria-label="View Profile">
-        <img id="pfp" src="system/icons/profile.png" alt="Profile" />
-      </a>
-      <button id="dashboardBtn" aria-controls="dashboardMenu" aria-expanded="false" aria-label="Open Dashboard Menu">
-        <img src="system/icons/dashboard.png" alt="Dashboard" style="width:100%;height:100%;object-fit:contain;" />
-      </button>
+      <a href="system/pages/profile.html"><img id="pfp" src="system/icons/profile.png" alt="Profile" /></a>
+      <button id="dashboardBtn"><img src="system/icons/dashboard.png" alt="Dashboard" /></button>
     </div>
   </header>
 
-  <aside id="dashboardMenu" class="dashboard-menu" aria-hidden="true">
+  <!-- Dashboard -->
+  <aside id="dashboardMenu" class="dashboard-menu">
     <a href="https://bguhm.github.io/music-player.html">Music Player</a>
     <a href="system/pages/settings-themes.html">Themes</a>
     <a href="system/pages/credits.html">Credits</a>
     <a href="system/pages/alt.html">Alternative Links</a>
   </aside>
 
-  <!-- Update popup -->
-  <div id="updatePopup" class="update-popup" role="dialog" aria-modal="true" aria-labelledby="updatePopupTitle">
+  <!-- Update Popup -->
+  <div id="updatePopup" class="update-popup">
     <div class="update-popup-content">
-      <h2 id="updatePopupTitle">🎉 Version 0.8 Update!</h2>
+      <h2>🎉 Version 0.8 Update!</h2>
       <p>New games, smoother loading, and visual tweaks across the library!</p>
       <div class="update-video-wrapper">
-        <iframe id="updateVideo" width="100%" height="200"
-          src="" title="v0.8 Update Trailer"
-          frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen>
-        </iframe>
+        <iframe id="updateVideo" width="100%" height="200" src="" title="v0.8 Update Trailer"
+          frameborder="0" allowfullscreen></iframe>
         <div class="video-tooltip">Press F or double click for full screen</div>
       </div>
       <div class="update-buttons">
@@ -208,11 +188,12 @@
     </div>
   </div>
 
+  <!-- Main -->
   <main>
     <div id="container">Loading assets...</div>
   </main>
 
-  <button id="toTopBtn" aria-label="Scroll back to top">⬆ Top</button>
+  <button id="toTopBtn">⬆ Top</button>
 
   <footer>
     <a href="system/pages/sources.html">Sources</a>
@@ -223,7 +204,7 @@
     <a href="system/pages/version-log.html">Version V0.8</a>
   </footer>
 
-  <!-- === Unified & dependent JS === -->
+  <!-- JS -->
   <script src="system/js/all.js"></script>
   <script src="system/js/settings.js"></script>
   <script src="system/js/commands.js"></script>
@@ -232,24 +213,12 @@
   <script src="system/js/searcherror.js"></script>
   <script src="system/js/index.js"></script>
 
-  <!-- Apply soon logic when rendering assets -->
   <script>
     window.addEventListener("load", () => {
       const interval = setInterval(() => {
         if (window.dom && typeof createAssetCards === "function" && typeof hidePreloader === "function") {
           clearInterval(interval);
           if (typeof loadAssets === "function") loadAssets();
-
-          // Inject "soon" styling into generated cards
-          const observer = new MutationObserver(() => {
-            document.querySelectorAll(".asset-card").forEach(card => {
-              const status = card.getAttribute("data-status")?.toLowerCase();
-              if (status === "soon") card.classList.add("soon");
-            });
-          });
-
-          const container = document.getElementById("container");
-          if (container) observer.observe(container, { childList: true, subtree: true });
         }
       }, 150);
     });
