@@ -121,6 +121,12 @@
       60% { transform: scale(1.05); opacity: 1; }
       100% { transform: scale(1); }
     }
+
+    /* === Soon state === */
+    .soon {
+      opacity: 0.6;
+      pointer-events: none;
+    }
   </style>
 </head>
 
@@ -226,12 +232,24 @@
   <script src="system/js/searcherror.js"></script>
   <script src="system/js/index.js"></script>
 
+  <!-- Apply soon logic when rendering assets -->
   <script>
     window.addEventListener("load", () => {
       const interval = setInterval(() => {
         if (window.dom && typeof createAssetCards === "function" && typeof hidePreloader === "function") {
           clearInterval(interval);
           if (typeof loadAssets === "function") loadAssets();
+
+          // Inject "soon" styling into generated cards
+          const observer = new MutationObserver(() => {
+            document.querySelectorAll(".asset-card").forEach(card => {
+              const status = card.getAttribute("data-status")?.toLowerCase();
+              if (status === "soon") card.classList.add("soon");
+            });
+          });
+
+          const container = document.getElementById("container");
+          if (container) observer.observe(container, { childList: true, subtree: true });
         }
       }, 150);
     });
