@@ -1,13 +1,10 @@
-// ===== WannaSmile | Version Auto-Updater =====
-// Dynamically updates footer version from Google Sheets API
+// ===== WannaSmile | Footer Version Auto-Updater =====
 
 (async function updateFooterVersion() {
   const footerAnchor = document.getElementById("footerVersion");
   if (!footerAnchor) return;
 
-  // ✅ Your published Google Apps Script endpoint (replace this URL)
-  const sheetAPI =
-    "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec";
+  const sheetAPI = "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec";
 
   try {
     const response = await fetch(sheetAPI);
@@ -18,7 +15,7 @@
 
     footerAnchor.textContent = `Version ${version}`;
   } catch (err) {
-    console.warn("[Version.js] Using fallback version due to:", err.message);
+    console.warn("[Version.js] Fallback version due to:", err.message);
     footerAnchor.textContent = "Version V0.8";
   }
 })();
