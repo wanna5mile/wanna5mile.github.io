@@ -9,28 +9,26 @@
   <!-- Core Styles -->
   <link rel="stylesheet" href="system/css/themes.css" />
   <link rel="stylesheet" href="system/css/main.css" />
-  <link rel="stylesheet" href="system/css/loading-screen.css" />
 
-  <!-- Inline Page Styling -->
   <style>
     main {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 18px;
+      gap: 20px;
       padding: 2rem 1rem;
-      max-width: 960px;
+      max-width: 900px;
       margin: auto;
     }
 
     .embed-container {
       width: 100%;
       position: relative;
-      padding-top: 65%; /* bigger embed area */
+      padding-top: 65%; /* bigger embed */
       background: #000;
-      border-radius: 14px;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 0 25px rgba(0,0,0,0.45);
+      box-shadow: 0 0 25px rgba(0,0,0,0.4);
     }
 
     .embed-container iframe {
@@ -44,46 +42,72 @@
     .embed-meta {
       text-align: center;
       color: var(--text-color);
-      margin-bottom: 1rem;
     }
 
     .embed-meta h1 {
-      font-size: 1.9rem;
-      color: var(--accent-color, #fff);
       margin: 0.4em 0;
+      font-size: 1.8rem;
+      color: var(--accent-color, #fff);
     }
 
-    .embed-desc {
-      text-align: center;
-      color: var(--text-color);
+    .embed-meta p {
       font-size: 0.95rem;
       opacity: 0.85;
-      max-width: 750px;
-      margin-top: 0.6em;
-      margin-bottom: 1.5em;
-      line-height: 1.5;
+      margin-bottom: 0.8em;
     }
 
-    /* Compact comment section */
+    .embed-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 12px;
+    }
+
+    .embed-actions button {
+      background: var(--card-bg, #1b1b1b);
+      border: 1px solid #333;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: var(--text-color);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 6px rgba(0,0,0,0.3);
+    }
+
+    .embed-actions button:hover {
+      transform: scale(1.1);
+      background: var(--accent-color, #3b82f6);
+      color: #fff;
+    }
+
+    .embed-actions .active {
+      color: #ff4747;
+      transform: scale(1.15);
+    }
+
     .comment-section {
       width: 100%;
+      margin-top: 25px;
       background: var(--card-bg, #1b1b1b);
       border-radius: 12px;
-      padding: 14px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.25);
-      max-width: 750px;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
     }
 
     .comment-section h3 {
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       color: var(--accent-color);
-      font-size: 1.1rem;
     }
 
     .comment-box {
       display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
+      gap: 10px;
+      margin-bottom: 16px;
     }
 
     .comment-box textarea {
@@ -93,40 +117,41 @@
       border-radius: 8px;
       color: #fff;
       resize: vertical;
-      padding: 8px;
-      font-size: 0.85em;
-      min-height: 60px;
+      padding: 10px;
+      font-size: 0.9em;
+      min-height: 70px;
     }
 
     .comment-box button {
       background: var(--accent-color, #3b82f6);
       border: none;
       border-radius: 8px;
-      color: #fff;
-      padding: 8px 12px;
+      color: white;
+      padding: 10px 14px;
       font-weight: 600;
       cursor: pointer;
       transition: 0.2s ease;
     }
 
-    .comment-box button:hover { filter: brightness(1.2); }
+    .comment-box button:hover {
+      filter: brightness(1.2);
+    }
 
     .comment-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
 
     .comment {
       background: rgba(255,255,255,0.05);
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-size: 0.88em;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.9rem;
     }
 
     .comment strong {
       color: var(--accent-color);
-      margin-right: 4px;
     }
 
     footer {
@@ -139,16 +164,6 @@
 </head>
 
 <body theme="classic">
-  <!-- Preloader -->
-  <div id="preloader" class="preloader">
-    <div class="loader-gif">
-      <img id="loaderImage" src="system/images/GIF/loading.gif" alt="Loading..." />
-    </div>
-    <div class="load-progress-bar"><div id="progressBar" class="load-progress-fill"></div></div>
-    <div id="progressText" class="load-progress-text">0%</div>
-    <div id="loaderText" class="loading-text">Loading...</div>
-  </div>
-
   <!-- Header Navigation -->
   <header>
     <nav class="nav-links">
@@ -160,7 +175,9 @@
     </nav>
     <div class="header-controls">
       <a href="system/pages/profile.html"><img id="pfp" src="system/icons/profile.png" alt="Profile"></a>
-      <button id="dashboardBtn"><img src="system/icons/dashboard.png" alt="Dashboard"></button>
+      <button id="dashboardBtn">
+        <img src="system/icons/dashboard.png" alt="Dashboard">
+      </button>
     </div>
   </header>
 
@@ -173,23 +190,31 @@
   </aside>
 
   <main>
+    <!-- Embed Info -->
     <div class="embed-meta">
       <h1 id="embedTitle">Snow Rider 3D</h1>
+      <p id="embedDesc">
+        An endless 3D snowboarding game where players steer their character 
+        down a snowy mountain, dodging obstacles, collecting gifts, and performing tricks!
+      </p>
     </div>
 
+    <!-- Game Embed -->
     <div class="embed-container">
       <iframe id="embedFrame"
-        src="https://wanna5mile.github.io/source/snowrider3d/"
+        src="https://wanna5mile.github.io./source/snowrider3d/"
         title="Snow Rider 3D"
         allowfullscreen></iframe>
     </div>
 
-    <p id="embedDesc" class="embed-desc">
-      An endless 3D snowboarding game where players steer down a snowy mountain,
-      dodge obstacles, collect gifts, and perform tricks!
-    </p>
+    <!-- Embed Controls -->
+    <div class="embed-actions">
+      <button id="fullscreenBtn" title="Fullscreen">⛶</button>
+      <button id="likeBtn" title="Like">❤️</button>
+      <button id="favBtn" title="Favorite">⭐</button>
+    </div>
 
-    <!-- Comment Section -->
+    <!-- Comments -->
     <div class="comment-section">
       <h3>Comments</h3>
       <div class="comment-box">
@@ -204,46 +229,66 @@
     <p>WannaSmile © 2025 — by Rhap5ody & contributors</p>
   </footer>
 
-  <!-- JS -->
+  <!-- Scripts -->
   <script src="system/js/all.js"></script>
-  <script src="system/js/settings.js"></script>
-  <script src="system/js/index.js"></script>
 
   <script>
+    // ==== Comments with LocalStorage ====
     const input = document.getElementById("commentInput");
     const list = document.getElementById("commentList");
     const postBtn = document.getElementById("postCommentBtn");
-    const STORAGE_KEY = "comments_snowrider3d";
+    const storageKey = "snowrider3d-comments";
 
-    // Load saved comments
-    const savedComments = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    savedComments.forEach(text => addComment(text));
+    function loadComments() {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
+      list.innerHTML = "";
+      saved.forEach(text => addComment(text, false));
+    }
 
-    function addComment(text) {
+    function addComment(text, save = true) {
       const div = document.createElement("div");
       div.className = "comment";
-      div.innerHTML = `<strong>You</strong>${text}`;
+      div.innerHTML = `<strong>You</strong>: ${text}`;
       list.prepend(div);
+      if (save) {
+        const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
+        saved.unshift(text);
+        localStorage.setItem(storageKey, JSON.stringify(saved));
+      }
     }
 
     postBtn.addEventListener("click", () => {
       const text = input.value.trim();
       if (!text) return;
       addComment(text);
-      savedComments.unshift(text);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedComments));
       input.value = "";
     });
 
-    // Preloader hide
-    window.addEventListener("load", () => {
-      const interval = setInterval(() => {
-        if (typeof hidePreloader === "function") {
-          clearInterval(interval);
-          hidePreloader();
-        }
-      }, 150);
+    loadComments();
+
+    // ==== Bottom Controls ====
+    const iframe = document.getElementById("embedFrame");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const likeBtn = document.getElementById("likeBtn");
+    const favBtn = document.getElementById("favBtn");
+
+    fullscreenBtn.addEventListener("click", () => {
+      if (iframe.requestFullscreen) iframe.requestFullscreen();
     });
+
+    likeBtn.addEventListener("click", () => {
+      likeBtn.classList.toggle("active");
+      localStorage.setItem("liked-snowrider3d", likeBtn.classList.contains("active"));
+    });
+
+    favBtn.addEventListener("click", () => {
+      favBtn.classList.toggle("active");
+      localStorage.setItem("fav-snowrider3d", favBtn.classList.contains("active"));
+    });
+
+    // Restore states
+    if (localStorage.getItem("liked-snowrider3d") === "true") likeBtn.classList.add("active");
+    if (localStorage.getItem("fav-snowrider3d") === "true") favBtn.classList.add("active");
   </script>
 </body>
 </html>
