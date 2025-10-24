@@ -5,44 +5,123 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WannaSmile | Favorites</title>
   <link rel="icon" href="system/images/favicons/logoo.png" />
-  <link rel="stylesheet" href="system/css/loading-screen.css" />
-  <link rel="stylesheet" href="system/css/main.css" />
   <link rel="stylesheet" href="system/css/themes.css" />
-  <script src="system/js/all.js"></script>
-  <script src="system/js/favorites.js" defer></script>
+  <link rel="stylesheet" href="system/css/main.css" />
+  <link rel="stylesheet" href="system/css/loading-screen.css" />
+
   <style>
-    .center-msg {
-      text-align:center;
-      margin-top:2em;
-      font-size:1.1em;
-      opacity:0.8;
+    body {
+      background: var(--bg, #111);
+      color: var(--text-color, #fff);
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, sans-serif;
+    }
+    header, footer {
+      text-align: center;
+      padding: 1rem;
+    }
+    #container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      padding: 2rem;
+    }
+    .asset-card {
+      width: 180px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--card-bg, #1e1e1e);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+    .asset-card:hover {
+      transform: scale(1.04);
+    }
+    .asset-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+    }
+    .favorite-star {
+      font-size: 1.4em;
+      color: gold;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      margin: 0.5rem 0 1rem;
+    }
+    .no-favorites {
+      text-align: center;
+      color: #aaa;
+      font-size: 1.2rem;
+      margin-top: 4rem;
     }
   </style>
 </head>
-<body>
-  <div class="preloader" id="preloader">
-    <div class="loader-gif">
-      <img src="system/images/GIF/loading.gif" alt="Loading..." />
-    </div>
-    <div class="counter" id="counter">0%</div>
-    <div class="load-progress-bar"><div class="load-progress-fill"></div></div>
-    <div class="loading-text">Loading favorites...</div>
-  </div>
 
+<body theme="classic">
   <header>
-    <nav class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="favorites.html" class="active">Favorites</a>
-      <a href="system/pages/discovery.html">Discovery</a>
+    <h1>★ Your Favorites</h1>
+    <nav>
+      <a href="index.html">← Back to Home</a>
     </nav>
   </header>
 
   <main>
-    <div id="container" class="asset-container">Loading favorites...</div>
+    <div id="container">Loading your favorites...</div>
+    <p class="no-favorites" style="display:none;">No favorites yet. Add some from the Home page!</p>
   </main>
 
   <footer>
-    <a href="system/pages/version-log.html">version V0.8</a>
+    <a href="system/pages/settings.html">Settings</a> · 
+    <a href="system/pages/support.html">Support</a>
   </footer>
+
+  <!-- Load your unified JS -->
+  <script src="system/js/all.js"></script>
+
+  <script>
+    // Load only favorites and hide others
+    window.addEventListener("load", async () => {
+      try {
+        // Initialize systems from all.js
+        if (typeof initElements === "function") initElements();
+        if (typeof initFavorites === "function") initFavorites();
+
+        const container = document.getElementById("container");
+        const noFavs = document.querySelector(".no-favorites");
+
+        // Fetch all assets, then filter to favorites
+        const res = await fetch(window.config.sheetUrl, { cache: "no-store" });
+        const raw = await res.json();
+        const data = raw.filter(r => Object.values(r).some(v => String(v || "").trim() !== ""));
+
+        const favs = [...window.favorites];
+        const favData = data.filter(d =>
+          favs.includes(String(d.title).toLowerCase())
+        );
+
+        if (favData.length === 0) {
+          container.style.display = "none";
+          noFavs.style.display = "block";
+          return;
+        }
+
+        // Build cards for only favorites
+        if (typeof createAssetCards === "function") {
+          createAssetCards(favData);
+          const cards = container.querySelectorAll(".asset-card");
+          cards.forEach(card => (card.style.display = ""));
+        }
+
+      } catch (err) {
+        console.error("Failed to load favorites:", err);
+        document.getElementById("container").textContent = "Error loading favorites.";
+      }
+    });
+  </script>
 </body>
 </html>
