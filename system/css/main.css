@@ -336,48 +336,43 @@ header img {
 }
 
 /* ==========================================
-   Status Effects
+   Restored "SOON" Status Logic (Classic Behavior)
    ========================================== */
 .soon {
-  opacity: 0.55;
-  pointer-events: none;
-  filter: grayscale(100%);
+  position: relative;
+  opacity: 0.5;                   /* semi-faded look */
+  pointer-events: none;           /* not clickable */
+  filter: grayscale(100%);        /* desaturate */
 }
+
 .soon::after {
   content: "COMING SOON";
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.75);
+  background: rgba(0, 0, 0, 0.7); /* dark overlay like original */
   color: #fff;
-  padding: 10px 16px;
+  padding: 10px 14px;
   border-radius: 8px;
   font-family: monospace;
   font-size: 14px;
   font-weight: bold;
-  text-shadow: 0 0 5px #000;
+  letter-spacing: 1px;
+  text-shadow: 0 0 4px #000;
+  z-index: 3;
 }
-.ok:hover {
-  border: 2px solid var(--status-ok-border);
-  box-shadow: 0 0 8px var(--status-ok-border);
+
+/* Keep hover border red (from old logic) */
+.soon:hover {
+  border: 2px solid #ff0000;
+  box-shadow: 0 0 10px #ff0000;
 }
-.FIX:hover, .soon:hover {
-  border: 2px solid var(--status-fix-border);
-  box-shadow: 0 0 8px var(--status-fix-border);
-}
-.FIX img { filter: invert(100%); opacity: 0.7; }
-.soon img { filter: grayscale(100%); opacity: 0.7; }
-.FIX::after {
-  content: url('images/status/progress.jpeg');
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0.8;
-  width: 48px;
-  height: 48px;
-  pointer-events: none;
+
+/* Ensure image stays dim + gray */
+.soon img {
+  filter: grayscale(100%);
+  opacity: 0.7;
 }
 
 /* ==========================================
