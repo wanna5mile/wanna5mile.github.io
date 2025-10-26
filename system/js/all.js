@@ -240,14 +240,22 @@
       imagePromises.push({ promise: imgPromise, page: pageNum });
       a.appendChild(img);
 
-      // Status GIF
-      if (status && ["soon", "new", "updated"].includes(status)) {
-        const overlay = document.createElement("img");
-        overlay.src = gifFile;
-        overlay.alt = status;
-        overlay.className = `status-gif status-${status}`;
-        a.appendChild(overlay);
-        if (status === "soon") card.classList.add("soon");
+      // Status badge/class only — no overlay image for "soon"
+      if (status) {
+        if (status === "soon") {
+          // only add a class — CSS should display the "soon" styling (no image or text)
+          card.classList.add("soon");
+          // optionally add a class on the anchor so you can target the overlay area via CSS
+          a.classList.add("status-soon");
+        } else if (status === "new" || status === "updated") {
+          // keep the GIF overlay for new/updated states
+          const overlay = document.createElement("img");
+          overlay.src = gifFile;
+          overlay.alt = `${status} badge`;
+          overlay.className = `status-gif status-${status}`;
+          a.appendChild(overlay);
+          card.classList.add(`status-${status}`);
+        }
       }
 
       // Title / Author
