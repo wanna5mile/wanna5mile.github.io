@@ -59,7 +59,6 @@ header img {
   object-fit: cover;
 }
 
-/* Nav + Pages controls */
 .nav-links {
   display: flex;
   align-items: center;
@@ -73,7 +72,7 @@ header img {
 }
 
 /* ==========================================
-   Page Controls (Restored to Old Look)
+   Page Controls
    ========================================== */
 .pages-anchor {
   display: inline-flex;
@@ -109,7 +108,6 @@ header img {
   font-size: 0.9rem;
   color: var(--link-color);
   font-family: monospace;
-  line-height: 1;
   user-select: none;
 }
 
@@ -137,7 +135,6 @@ header img {
 }
 #dashboardBtn:hover { transform: scale(1.1); }
 
-/* Dashboard Menu */
 .dashboard-menu {
   position: fixed;
   top: 60px;
@@ -205,15 +202,37 @@ header img {
 .search-box button:hover { transform: scale(1.1); filter: brightness(1.2); }
 .search-box button img { width: 14px; height: 14px; }
 
-/* Search feedback + error */
-.search-error,
+.search-error {
+  display: none;
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4d4d;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 1000;
+}
+
 #searchFeedback {
+  display: none;
   position: fixed;
   top: 80px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
   text-align: center;
+}
+#searchFeedback img {
+  max-height: 120px;
+  border-radius: 8px;
+}
+.search-box input:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
 }
 
 /* ==========================================
@@ -222,10 +241,10 @@ header img {
 #container,
 #container-discov {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* ~13% wider */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   justify-items: center;
-  gap: 22px;
-  padding: 22px;
+  gap: 20px;
+  padding: 20px;
   background-color: var(--main-bg);
   min-height: calc(100vh - 120px);
   flex-grow: 1;
@@ -236,8 +255,8 @@ header img {
    ========================================== */
 #container div,
 #container-discov div {
-  width: 250px;                /* was 220px → +13% */
-  min-height: 215px;           /* was 190px → +13% */
+  width: 220px;
+  min-height: 190px;
   background: var(--card-bg);
   text-align: center;
   border-radius: 15%;
@@ -252,8 +271,47 @@ header img {
   transform: scale(1.03);
 }
 
+#container div img,
+#container-discov div img {
+  width: 60%;
+  max-width: 144px;
+  height: auto;
+  display: block;
+  margin: 0 auto 8px;
+  border-radius: 12%;
+  transition: transform 0.3s ease;
+}
+
+#container div img:hover,
+#container-discov div img:hover {
+  transform: scale(1.05);
+}
+
+/* Overlay for status (beta, soon, etc.) */
+.game-card {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.status-overlay {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 80px;
+  height: auto;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.status-overlay.fixed {
+  top: 5px;
+  right: 5px;
+  left: auto;
+}
+
 /* ==========================================
-   Card Text (cursor update)
+   Card Text
    ========================================== */
 #container div h3,
 #container div p,
@@ -263,9 +321,7 @@ header img {
   font-family: monospace;
   font-size: 0.9rem;
   transition: color 0.3s, text-decoration 0.3s;
-  cursor: pointer; /* 🟢 pointer instead of text cursor */
 }
-
 #container div h3:hover,
 #container div p:hover,
 #container-discov div h3:hover,
@@ -275,7 +331,7 @@ header img {
 }
 
 /* ==========================================
-   Restored "SOON" Status Logic
+   SOON Status (Classic)
    ========================================== */
 .soon {
   position: relative;
@@ -300,11 +356,13 @@ header img {
   text-shadow: 0 0 4px #000;
   z-index: 3;
 }
-
-/* Keep hover border red */
 .soon:hover {
   border: 2px solid #ff0000;
   box-shadow: 0 0 10px #ff0000;
+}
+.soon img {
+  filter: grayscale(100%);
+  opacity: 0.7;
 }
 
 /* ==========================================
@@ -355,4 +413,56 @@ footer {
   font-family: monospace;
   color: var(--link-color);
   box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
+}
+
+/* ==========================================
+   Preloader Progress Bar
+   ========================================== */
+.load-progress-text {
+  font-family: monospace;
+  color: white;
+  text-align: center;
+  margin-top: 10px;
+}
+.load-progress-bar {
+  width: 80%;
+  height: 8px;
+  margin: 10px auto;
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.load-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #00ffff, #ff00ff);
+  transition: width 0.3s ease;
+}
+
+/* ==========================================
+   Sort Mode Buttons
+   ========================================== */
+.theme-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.theme-btn {
+  padding: 10px 16px;
+  border: 2px solid var(--accent-color);
+  background: var(--header-bg);
+  color: var(--text-color);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.theme-btn:hover {
+  transform: scale(1.05);
+  background: var(--accent-color);
+  color: #fff;
+}
+.theme-btn.active {
+  background: var(--accent-color);
+  color: #fff;
+  box-shadow: 0 0 10px var(--accent-color);
 }
