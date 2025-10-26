@@ -271,20 +271,30 @@ header img {
   transform: scale(1.03);
 }
 
+/* --- UPDATED IMAGE LOGIC --- */
 #container div img,
 #container-discov div img {
-  width: 60%;
-  max-width: 144px;
+  width: 180px;
+  max-width: 85%;
   height: auto;
   display: block;
   margin: 0 auto 8px;
   border-radius: 12%;
+  object-fit: contain;
   transition: transform 0.3s ease;
 }
 
 #container div img:hover,
 #container-discov div img:hover {
   transform: scale(1.05);
+}
+
+/* Mobile responsive fallback */
+@media (max-width: 600px) {
+  #container div img,
+  #container-discov div img {
+    width: 140px;
+  }
 }
 
 /* Overlay for status (beta, soon, etc.) */
