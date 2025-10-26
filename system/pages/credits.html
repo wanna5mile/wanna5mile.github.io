@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Credits & Contributions</title>
   <link rel="icon" href="system/images/favicons/logoo.png" />
   <style>
@@ -13,19 +13,20 @@
       box-sizing: border-box;
     }
 
-    body {
-      background: #000;
+    html, body {
+      height: 100%;
+      width: 100%;
+      background-color: #000;
       color: #fff;
       font-family: "JetBrains Mono", monospace;
-      overflow: hidden;
-      height: 100vh;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       flex-direction: column;
+      overflow: hidden;
     }
 
-    /* === Credits Wrapper === */
+    /* === Credits Container === */
     .credits-container {
       position: relative;
       width: 100%;
@@ -36,35 +37,31 @@
       align-items: center;
     }
 
-    /* Duplicate list for continuous scroll illusion */
     .credits-scroll {
       position: absolute;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      animation: scrollUp 30s linear infinite;
+      animation: scrollUp 35s linear infinite;
       will-change: transform;
     }
 
     @keyframes scrollUp {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-100%); }
+      from { transform: translateY(0); }
+      to { transform: translateY(-100%); }
     }
 
-    /* === Text Hierarchy === */
-    h1, h2, h3, h4, h5, h6, p {
-      margin: 0.8rem 0;
+    /* === Typography === */
+    h1, h2, h3, h4, p {
+      margin: 0.7rem 0;
       color: #fff;
-      text-shadow: 0 0 6px rgba(255,255,255,0.25);
+      text-shadow: none;
     }
 
-    h1 { font-size: 2rem; }
-    h2 { font-size: 1.7rem; }
-    h3 { font-size: 1.4rem; }
-    h4 { font-size: 1.2rem; }
-    h5 { font-size: 1rem; }
-    h6 { font-size: 0.9rem; color: #ccc; }
+    h1 { font-size: 2rem; text-transform: uppercase; }
+    h3 { font-size: 1.3rem; }
+    p  { font-size: 0.9rem; color: #bbb; }
 
     /* === Return Button === */
     .return-btn {
@@ -72,33 +69,34 @@
       bottom: 2rem;
       left: 50%;
       transform: translateX(-50%);
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #00b4ff, #0078ff);
+      background: #c62828; /* red */
       color: #fff;
-      font-weight: bold;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.95rem;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
       text-decoration: none;
-      letter-spacing: 0.5px;
-      transition: all 0.25s ease;
-      box-shadow: 0 0 10px rgba(0, 180, 255, 0.4);
+      cursor: pointer;
+      transition: background 0.25s ease, transform 0.2s ease;
     }
 
     .return-btn:hover {
+      background: #e53935;
       transform: translateX(-50%) scale(1.05);
-      box-shadow: 0 0 20px rgba(0, 180, 255, 0.8);
-      filter: brightness(1.2);
     }
 
     .return-btn:active {
-      transform: translateX(-50%) scale(0.98);
+      background: #b71c1c;
+      transform: translateX(-50%) scale(0.97);
     }
 
-    /* === Fade Edges === */
+    /* === Fade Overlays === */
     .fade-overlay {
       position: absolute;
-      left: 0;
       width: 100%;
       height: 80px;
+      left: 0;
       pointer-events: none;
       z-index: 2;
     }
@@ -112,19 +110,27 @@
       bottom: 0;
       background: linear-gradient(to top, #000 0%, transparent 100%);
     }
+
+    /* === Responsive === */
+    @media (max-width: 600px) {
+      h1 { font-size: 1.6rem; }
+      h3 { font-size: 1.1rem; }
+      p  { font-size: 0.85rem; }
+      .return-btn { font-size: 0.85rem; padding: 0.6rem 1.2rem; }
+    }
   </style>
 </head>
-<body>
 
+<body>
   <div class="credits-container">
     <div class="fade-overlay fade-top"></div>
 
-    <!-- Two copies of the credits to create seamless loop -->
+    <!-- Scroll 1 -->
     <div class="credits-scroll" style="top: 0%;">
       <h1>Credits & Contributors</h1>
 
       <h3>WilardzySenpai</h3>
-      <p>The original template for the loading screen.</p>
+      <p>Original template for the loading screen.</p>
 
       <h3>skys the limit</h3>
       <p>Asset library and main inspiration.</p>
@@ -133,26 +139,27 @@
       <p>Webports and text templates.</p>
 
       <h3>tw31122007</h3>
-      <p>Asset links and information.</p>
+      <p>Asset links and game data.</p>
 
       <h3>kaizhelam</h3>
-      <p>Music player template.</p>
+      <p>Music player structure.</p>
 
       <h3>Ubg83</h3>
-      <p>Blumgi assets.</p>
+      <p>Blumgi asset support.</p>
 
       <h3>rhap5ody</h3>
       <p>Main web designer and API integrator.</p>
 
       <h3>RGP ϱames</h3>
-      <p>Contributor of v0.1 through v0.3.</p>
+      <p>Contributor of versions v0.1 through v0.3.</p>
     </div>
 
+    <!-- Scroll 2 for seamless loop -->
     <div class="credits-scroll" style="top: 100%;">
       <h1>Credits & Contributors</h1>
 
       <h3>WilardzySenpai</h3>
-      <p>The original template for the loading screen.</p>
+      <p>Original template for the loading screen.</p>
 
       <h3>skys the limit</h3>
       <p>Asset library and main inspiration.</p>
@@ -161,26 +168,24 @@
       <p>Webports and text templates.</p>
 
       <h3>tw31122007</h3>
-      <p>Asset links and information.</p>
+      <p>Asset links and game data.</p>
 
       <h3>kaizhelam</h3>
-      <p>Music player template.</p>
+      <p>Music player structure.</p>
 
       <h3>Ubg83</h3>
-      <p>Blumgi assets.</p>
+      <p>Blumgi asset support.</p>
 
       <h3>rhap5ody</h3>
       <p>Main web designer and API integrator.</p>
 
       <h3>RGP ϱames</h3>
-      <p>Contributor of v0.1 through v0.3.</p>
+      <p>Contributor of versions v0.1 through v0.3.</p>
     </div>
 
     <div class="fade-overlay fade-bottom"></div>
   </div>
 
-  <!-- Return Button -->
   <a href="https://wanna5mile.github.io/index.html" class="return-btn">⮌ Return to Main Page</a>
-
 </body>
 </html>
