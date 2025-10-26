@@ -255,8 +255,8 @@ header img {
    ========================================== */
 #container div,
 #container-discov div {
-  width: 220px;
-  min-height: 190px;
+  width: 180px;
+  min-height: 160px;
   background: var(--card-bg);
   text-align: center;
   border-radius: 15%;
@@ -268,7 +268,7 @@ header img {
 
 #container div:hover,
 #container-discov div:hover {
-  transform: scale(1.03);
+  transform: scale(1.05);
 }
 
 /* --- UPDATED IMAGE LOGIC --- */
