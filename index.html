@@ -42,86 +42,111 @@
   <meta name="twitter:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
 
   <!-- Inline custom styles -->
-  <style>
-    /* === Update popup === */
-    .update-popup {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.65);
-      backdrop-filter: blur(6px);
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-    }
-    .update-popup.show { opacity: 1; pointer-events: all; }
-    .update-popup-content {
-      background: var(--card-bg, #1e1e1e);
-      border-radius: 14px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
-      width: 90%;
-      max-width: 480px;
-      text-align: center;
-      padding: 20px;
-      color: var(--text-color, #fff);
-      animation: popup-bounce 0.6s ease;
-    }
-    .update-popup-content h2 {
-      margin-top: 0;
-      color: var(--accent-color, #fff);
-    }
+<style>
+  /* === Update popup (neutral dark theme, no CSS variables) === */
+  .update-popup {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .update-popup.show {
+    opacity: 1;
+    pointer-events: all;
+  }
 
-    /* === Asset Cards === */
-    .asset-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      background: var(--card-bg, #2a2a2a);
-      border-radius: 12px;
-      overflow: hidden;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
+  .update-popup-content {
+    background: #111; /* black base */
+    border: 1px solid #333;
+    border-radius: 14px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    width: 90%;
+    max-width: 480px;
+    text-align: center;
+    padding: 24px;
+    color: #fff;
+    animation: popup-bounce 0.6s ease;
+    font-family: monospace;
+  }
 
-    .asset-card h4 {
-      width: 100%;
-      text-align: center;
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 10px 0;
-      color: var(--text-color, #fff);
-      background: rgba(0, 0, 0, 0.4);
-      padding: 6px 0;
-    }
+  .update-popup-content h2 {
+    margin-top: 0;
+    color: #fff;
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+  }
 
-    .asset-card iframe, 
-    .asset-card img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      border: none;
-    }
+  .update-popup-content p {
+    color: #ddd;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
 
-    .asset-card.soon {
-      opacity: 0.5;
-      pointer-events: none;
-      display: flex;
-    }
+  .update-video-wrapper {
+    margin-bottom: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #222;
+  }
 
-    /* Optional hover scaling for available cards */
-    .asset-card:not(.soon):hover {
-      transform: scale(1.02);
-    }
+  .update-video-wrapper iframe {
+    width: 100%;
+    height: 200px;
+    border: none;
+  }
 
-    @keyframes popup-bounce {
-      0% { transform: scale(0.9); opacity: 0; }
-      60% { transform: scale(1.05); opacity: 1; }
-      100% { transform: scale(1); }
-    }
-  </style>
+  .video-tooltip {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-top: 4px;
+  }
+
+  /* === Buttons === */
+  .update-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .update-buttons button {
+    background: #222;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-family: monospace;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+  }
+
+  .update-buttons button:hover {
+    color: #ff3b3b;
+    background: #1a1a1a;
+    transform: scale(1.05);
+  }
+
+  .update-buttons button:active {
+    transform: scale(0.97);
+  }
+
+  @keyframes popup-bounce {
+    0% { transform: scale(0.9); opacity: 0; }
+    60% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+</style>
 </head>
 
 <body theme="classic">
