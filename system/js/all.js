@@ -493,51 +493,73 @@ async function loadAssets(retry = false) {
     window.stopPlaceholderCycle = () => (window._placeholderRunning = false);
   }
 
-  /* ---------------------------
-     Update Popup initializer
-     --------------------------- */
-  function initUpdatePopup() {
-    const p = dom.updatePopup;
-    if (!p) return;
+/* ---------------------------
+   Update Popup initializer (persistent + version-aware)
+   --------------------------- */
+function initUpdatePopup() {
+  const p = dom.updatePopup;
+  if (!p) return;
 
-    // check stored preference
-    const dontShow = localStorage.getItem("ws_hideUpdate") === "1";
-    if (dontShow) {
-      p.classList.remove("show");
-      return;
-    }
+  // ---- define current site version ----
+  const CURRENT_VERSION = "1.0.0"; // 🔹 change this each update release
+  const LS_KEY_HIDE = "ws_hideUpdate";
+  const LS_KEY_LASTVER = "ws_lastUpdateVersion";
 
-    // Populate video src if config has one
-    if (dom.updateVideo && config.updateTrailerSrc) {
-      dom.updateVideo.src = config.updateTrailerSrc;
-    }
+  // ---- get stored preferences ----
+  const hidePref = localStorage.getItem(LS_KEY_HIDE);
+  const lastVersion = localStorage.getItem(LS_KEY_LASTVER);
+  const hideForSession = sessionStorage.getItem(LS_KEY_HIDE);
 
-    // show popup after a short delay (only if not hidden)
-    setTimeout(() => p.classList.add("show"), 600);
+  // ---- determine if popup should show ----
+  const shouldShow =
+    (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
 
-    // wire buttons
-    dom.viewUpdateBtn?.addEventListener("click", () => {
-      window.open(config.updateLink, "_self");
-      p.classList.remove("show");
-    });
-    dom.viewUpdateInfoBtn?.addEventListener("click", () => {
-      window.open(config.updateLink, "_blank");
-    });
-    dom.closeUpdateBtn?.addEventListener("click", () => {
-      p.classList.remove("show");
-      // remember it was shown (optional)
-      localStorage.setItem("ws_updateLastSeen", Date.now().toString());
-    });
-    dom.dontShowBtn?.addEventListener("click", () => {
-      localStorage.setItem("ws_hideUpdate", "1");
-      p.classList.remove("show");
-    });
-
-    // allow clicking the overlay to close
-    p.addEventListener("click", (ev) => {
-      if (ev.target === p) p.classList.remove("show");
-    });
+  if (!shouldShow) {
+    p.classList.remove("show");
+    return;
   }
+
+  // ---- record current version (so it can re-show after update) ----
+  localStorage.setItem(LS_KEY_LASTVER, CURRENT_VERSION);
+
+  // ---- populate trailer (if configured) ----
+  if (dom.updateVideo && config.updateTrailerSrc) {
+    dom.updateVideo.src = config.updateTrailerSrc;
+  }
+
+  // ---- show popup after delay ----
+  setTimeout(() => p.classList.add("show"), 600);
+
+  // ---- button behavior ----
+  dom.viewUpdateBtn?.addEventListener("click", () => {
+    window.open(config.updateLink, "_self");
+    p.classList.remove("show");
+  });
+
+  dom.viewUpdateInfoBtn?.addEventListener("click", () => {
+    window.open(config.updateLink, "_blank");
+  });
+
+  dom.closeUpdateBtn?.addEventListener("click", () => {
+    // hide for this session only
+    sessionStorage.setItem(LS_KEY_HIDE, "1");
+    p.classList.remove("show");
+  });
+
+  dom.dontShowBtn?.addEventListener("click", () => {
+    // hide until next update
+    localStorage.setItem(LS_KEY_HIDE, "1");
+    p.classList.remove("show");
+  });
+
+  // ---- click overlay to close ----
+  p.addEventListener("click", (ev) => {
+    if (ev.target === p) {
+      sessionStorage.setItem(LS_KEY_HIDE, "1");
+      p.classList.remove("show");
+    }
+  });
+}
 
   /* ---------------------------
      DOM Bootstrap
