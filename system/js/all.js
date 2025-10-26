@@ -285,43 +285,55 @@
     return imagePromises;
   }
 
-  /* ---------------------------
-     Asset Loader (Google Sheets)
-     --------------------------- */
-  async function loadAssets(retry = false) {
-    showLoading("Loading assets...");
-    updateProgress(5);
+/* ---------------------------
+   Asset Loader (Google Sheets)
+   --------------------------- */
+async function loadAssets(retry = false) {
+  showLoading("Loading assets...");
+  updateProgress(5);
 
-    try {
-      const res = await fetch(config.sheetUrl, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
-      const raw = await res.json();
-      if (!Array.isArray(raw)) throw new Error("Invalid data from Sheets");
+  try {
+    const res = await fetch(config.sheetUrl, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
+    const raw = await res.json();
+    if (!Array.isArray(raw)) throw new Error("Invalid data from Sheets");
 
-      const data = raw.filter((i) =>
-        Object.values(i).some((v) => safeStr(v).trim() !== "")
-      );
+    // Filter out empty rows
+    const data = raw.filter((i) =>
+      Object.values(i).some((v) => safeStr(v).trim() !== "")
+    );
 
-      window.assetsData = data;
-      updateProgress(40);
-      const promises = createAssetCards(data);
-      updateProgress(70);
+    window.assetsData = data;
+    updateProgress(35);
 
-      // wait for images to load but render page immediately so layout exists
-      if (typeof renderPage === "function") renderPage();
+    // Step 1: Create asset cards for each record
+    const promises = createAssetCards(data);
+    updateProgress(55);
 
-      await Promise.allSettled(promises.map((p) => p.promise));
-      updateProgress(100);
+    // Step 2: Wait for all image assets to finish loading
+    await Promise.allSettled(promises.map((p) => p.promise));
+    updateProgress(80);
 
-      await delay(400);
-      hidePreloader(true);
-    } catch (err) {
-      console.error("Error loading assets:", err);
-      if (!retry) return setTimeout(() => loadAssets(true), 1000);
-      showLoading("⚠ Failed to load assets.");
-      hidePreloader(true);
+    // Step 3: Determine available pages (before showing anything)
+    if (typeof getPages === "function") {
+      const pages = getPages();
+      window.currentPage = pages[0] || 1;
     }
+
+    // Step 4: Render proper page layout
+    if (typeof renderPage === "function") renderPage();
+
+    // Step 5: Allow UI time to stabilize before fade-out
+    updateProgress(100);
+    await delay(350);
+    hidePreloader(true);
+  } catch (err) {
+    console.error("Error loading assets:", err);
+    if (!retry) return setTimeout(() => loadAssets(true), 1000);
+    showLoading("⚠ Failed to load assets.");
+    hidePreloader(true);
   }
+}
 
   /* ---------------------------
      Paging + Search + Filter
