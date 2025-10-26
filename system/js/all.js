@@ -1,6 +1,7 @@
 /* ==========================================================
    WannaSmile | Unified JS Loader & UI Logic
-   Final Hardened & Optimized Version (with Progress Bar + Fixed Favorites + Popup)
+   Final Hardened & Optimized Version
+   (Favorites Page Filter + Progress Bar + Fixed Favorites + Popup)
    ========================================================== */
 
 (() => {
@@ -29,10 +30,8 @@
      DOM & Config Initialization
      --------------------------- */
   function initElements() {
-    // helper that accepts either id or selector
     const getEl = (sel) => {
       if (!sel) return null;
-      // if string looks like an id (no selector punctuation) try id first
       const tryById = /^[A-Za-z0-9\-_]+$/.test(sel) && document.getElementById(sel);
       if (tryById) return tryById;
       try {
@@ -66,13 +65,13 @@
         "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
       sheetUrl:
         "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
-      updateTrailerSrc: "", // set if you want a default trailer url
-      updateLink: "system/pages/version-log.html", // where "Check it out" goes
+      updateTrailerSrc: "",
+      updateLink: "system/pages/version-log.html",
     };
   }
 
   /* ---------------------------
-     Favorites System (Fixed)
+     Favorites System
      --------------------------- */
   function initFavorites() {
     try {
@@ -88,10 +87,7 @@
 
     window.saveFavorites = function saveFavorites() {
       try {
-        localStorage.setItem(
-          "favorites",
-          JSON.stringify([...window.favorites])
-        );
+        localStorage.setItem("favorites", JSON.stringify([...window.favorites]));
       } catch (e) {
         console.error("❌ Failed to save favorites:", e);
       }
@@ -109,7 +105,7 @@
   }
 
   /* ---------------------------
-     Preloader UI (No Duplicates)
+     Preloader UI
      --------------------------- */
   function initPreloader() {
     const { preloader } = dom || {};
@@ -119,19 +115,16 @@
     preloader.style.opacity = "1";
     preloader.dataset.hidden = "false";
 
-    // --- Use existing elements if available ---
     let counter = preloader.querySelector("#counter") || preloader.querySelector("#loaderText");
     let bar = preloader.querySelector(".load-progress-bar");
     let fill = preloader.querySelector(".load-progress-fill");
 
-    // --- Create only if missing ---
     if (!counter) {
       counter = document.createElement("div");
       counter.id = "counter";
       counter.className = "load-progress-text";
       preloader.appendChild(counter);
     }
-
     if (!bar) {
       bar = document.createElement("div");
       bar.className = "load-progress-bar";
@@ -145,11 +138,9 @@
       bar.appendChild(fill);
     }
 
-    // --- Bind globals ---
     dom.loaderText = counter;
     dom.progressBarFill = fill;
 
-    // --- Progress update logic ---
     window.updateProgress = (p) => {
       const clamped = clamp(Math.round(p), 0, 100);
       if (counter) counter.textContent = `${clamped}%`;
@@ -164,15 +155,13 @@
     window.hidePreloader = (force = false) => {
       if (preloader.dataset.hidden === "true") return;
       const opacity = parseFloat(preloader.style.opacity || "1");
-      if (!force && opacity < 1) return; // ensure progress hits 100
+      if (!force && opacity < 1) return;
       preloader.dataset.hidden = "true";
       preloader.style.transition = "opacity 0.45s ease";
       preloader.style.opacity = "0";
       preloader.style.pointerEvents = "none";
       setTimeout(() => (preloader.style.display = "none"), 500);
     };
-
-    console.log("Preloader initialized (single counter, single bar)");
   }
 
   /* ---------------------------
@@ -212,7 +201,6 @@
       card.dataset.title = title.toLowerCase();
       card.dataset.author = author.toLowerCase();
       card.dataset.page = String(pageNum);
-      // default filtered true so the card participates in pagination
       card.dataset.filtered = "true";
 
       const a = document.createElement("a");
@@ -221,7 +209,6 @@
       a.rel = "noopener noreferrer";
       a.className = "asset-link";
 
-      // Image (safe async load)
       const img = document.createElement("img");
       img.alt = title;
       img.loading = "eager";
@@ -240,15 +227,12 @@
       imagePromises.push({ promise: imgPromise, page: pageNum });
       a.appendChild(img);
 
-      // Status badge/class only — no overlay image for "soon"
+      // 🟢 no “soon” overlay image/text — only class for CSS
       if (status) {
         if (status === "soon") {
-          // only add a class — CSS should display the "soon" styling (no image or text)
           card.classList.add("soon");
-          // optionally add a class on the anchor so you can target the overlay area via CSS
           a.classList.add("status-soon");
         } else if (status === "new" || status === "updated") {
-          // keep the GIF overlay for new/updated states
           const overlay = document.createElement("img");
           overlay.src = gifFile;
           overlay.alt = `${status} badge`;
@@ -258,13 +242,11 @@
         }
       }
 
-      // Title / Author
       const titleEl = document.createElement("h3");
       titleEl.textContent = title || "Untitled";
       const authorEl = document.createElement("p");
       authorEl.textContent = author || "";
 
-      // Favorite Star
       const star = document.createElement("button");
       star.className = "favorite-star";
       star.textContent = isFav(title) ? "★" : "☆";
@@ -273,7 +255,6 @@
         border: "none",
         cursor: "pointer",
       });
-
       star.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -289,59 +270,65 @@
     }
 
     container.appendChild(frag);
-    // after cards are added, ensure page rendering runs externally (renderPage)
     return imagePromises;
   }
 
-/* ---------------------------
-   Asset Loader (Google Sheets)
-   --------------------------- */
-async function loadAssets(retry = false) {
-  showLoading("Loading assets...");
-  updateProgress(5);
+  /* ---------------------------
+     Asset Loader (Google Sheets) — includes Favorites Page Filter
+     --------------------------- */
+  async function loadAssets(retry = false) {
+    showLoading("Loading assets...");
+    updateProgress(5);
 
-  try {
-    const res = await fetch(config.sheetUrl, { cache: "no-store" });
-    if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
-    const raw = await res.json();
-    if (!Array.isArray(raw)) throw new Error("Invalid data from Sheets");
+    try {
+      const res = await fetch(config.sheetUrl, { cache: "no-store" });
+      if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
+      const raw = await res.json();
+      if (!Array.isArray(raw)) throw new Error("Invalid data from Sheets");
 
-    // Filter out empty rows
-    const data = raw.filter((i) =>
-      Object.values(i).some((v) => safeStr(v).trim() !== "")
-    );
+      const data = raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim() !== ""));
+      window.assetsData = data;
+      updateProgress(35);
 
-    window.assetsData = data;
-    updateProgress(35);
+      // 🟡 Filter favorites if on favorites.html
+      const isFavoritesPage = window.location.pathname.toLowerCase().includes("favorites.html");
+      let filteredData = data;
 
-    // Step 1: Create asset cards for each record
-    const promises = createAssetCards(data);
-    updateProgress(55);
+      if (isFavoritesPage && window.favorites?.size) {
+        filteredData = data.filter((asset) =>
+          window.favorites.has(safeStr(asset.title).toLowerCase())
+        );
+      } else if (isFavoritesPage && (!window.favorites || !window.favorites.size)) {
+        filteredData = [];
+      }
 
-    // Step 2: Wait for all image assets to finish loading
-    await Promise.allSettled(promises.map((p) => p.promise));
-    updateProgress(80);
+      const promises = createAssetCards(filteredData);
+      updateProgress(55);
+      await Promise.allSettled(promises.map((p) => p.promise));
+      updateProgress(80);
 
-    // Step 3: Determine available pages (before showing anything)
-    if (typeof getPages === "function") {
-      const pages = getPages();
-      window.currentPage = pages[0] || 1;
+      if (typeof getPages === "function") {
+        const pages = getPages();
+        window.currentPage = pages[0] || 1;
+      }
+
+      if (typeof renderPage === "function") renderPage();
+
+      if (isFavoritesPage && !filteredData.length && dom.container) {
+        dom.container.innerHTML =
+          "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
+      }
+
+      updateProgress(100);
+      await delay(350);
+      hidePreloader(true);
+    } catch (err) {
+      console.error("Error loading assets:", err);
+      if (!retry) return setTimeout(() => loadAssets(true), 1000);
+      showLoading("⚠ Failed to load assets.");
+      hidePreloader(true);
     }
-
-    // Step 4: Render proper page layout
-    if (typeof renderPage === "function") renderPage();
-
-    // Step 5: Allow UI time to stabilize before fade-out
-    updateProgress(100);
-    await delay(350);
-    hidePreloader(true);
-  } catch (err) {
-    console.error("Error loading assets:", err);
-    if (!retry) return setTimeout(() => loadAssets(true), 1000);
-    showLoading("⚠ Failed to load assets.");
-    hidePreloader(true);
   }
-}
 
   /* ---------------------------
      Paging + Search + Filter
