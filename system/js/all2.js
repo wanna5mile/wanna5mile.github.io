@@ -220,16 +220,18 @@
       imagePromises.push({ promise: imgPromise, page: pageNum });
       a.appendChild(img);
 
-      if (status === "soon") {
-        card.classList.add("soon");
-        a.classList.add("status-soon");
-      } else if (["new", "updated"].includes(status)) {
-        const overlay = document.createElement("img");
-        overlay.src = gifFile;
-        overlay.alt = `${status} badge`;
-        overlay.className = `status-gif status-${status}`;
-        a.appendChild(overlay);
-      }
+  // Apply visual status classes — CSS handles visuals for FIX + SOON
+if (status === "soon" || status === "fix") {
+  // Capitalize FIX to match your CSS selector `.FIX`
+  card.classList.add(status === "fix" ? "FIX" : "soon");
+} else if (["new", "updated"].includes(status)) {
+  // Optional: still allow animated GIF overlays for these
+  const overlay = document.createElement("img");
+  overlay.src = gifFile;
+  overlay.alt = `${status} badge`;
+  overlay.className = `status-gif status-${status}`;
+  a.appendChild(overlay);
+}
 
       const titleEl = document.createElement("h3");
       titleEl.textContent = title || "Untitled";
