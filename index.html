@@ -233,18 +233,23 @@
     <a href="system/pages/version-log.html" id="footerVersion">Version loading...</a>
   </footer>
 
-<!-- JS -->
-<!-- Settings / Core Functions -->
+<!-- JS: Core, UI, Quotes -->
+<!-- 1️⃣ Core / Settings -->
 <script src="system/js/settings.js" defer></script>
 <script src="system/js/commands.js" defer></script>
 <script src="system/js/main.js" defer></script>
-<!-- UI Logic -->
+
+<!-- 2️⃣ UI Logic -->
 <script src="system/js/searcherror.js" defer></script>
 <script src="system/js/index.js" defer></script>
 <script src="system/js/version.js" defer></script>
-<!-- Quotes -->
+
+<!-- 3️⃣ Quotes -->
 <script src="system/js/quotes.js" defer></script>
-<!-- 🚨 Move this last, no defer -->
+
+<!-- 4️⃣ Main Loader (Preloader control) -->
+<!-- No defer here — runs last, after all deferred scripts are executed -->
 <script src="system/js/all2.js"></script>
+
 </body>
 </html>
