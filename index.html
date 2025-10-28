@@ -233,25 +233,47 @@
     <a href="system/pages/version-log.html" id="footerVersion">Version loading...</a>
   </footer>
 
-  <!-- JS -->
-  <script src="system/js/all2.js"></script>
-  <script src="system/js/settings.js"></script>
-  <script src="system/js/commands.js"></script>
-  <script src="system/js/main.js"></script>
-  <script src="system/js/quotes.js"></script>
-  <script src="system/js/searcherror.js"></script>
-  <script src="system/js/index.js"></script>
-  <script src="system/js/version.js"></script>
+<!-- JS -->
+<script src="system/js/all2.js" defer></script>
+<!-- Settings / Core Functions -->
+<script src="system/js/settings.js" defer></script>
+<script src="system/js/commands.js" defer></script>
+<script src="system/js/main.js" defer></script>
+<!-- UI Logic -->
+<script src="system/js/searcherror.js" defer></script>
+<script src="system/js/index.js" defer></script>
+<script src="system/js/version.js" defer></script>
+<!-- Quotes -->
+<script src="system/js/quotes.js" defer></script>
+<!-- Defer & Fallback -->
+<script defer>
+  document.addEventListener("DOMContentLoaded", () => {
+    let tried = false;
 
-  <script>
-    window.addEventListener("load", () => {
-      const interval = setInterval(() => {
-        if (window.dom && typeof createAssetCards === "function" && typeof hidePreloader === "function") {
-          clearInterval(interval);
-          if (typeof loadAssets === "function") loadAssets();
-        }
-      }, 150);
-    });
-  </script>
+    const init = () => {
+      if (tried) return;
+      if (window.dom && typeof loadAssets === "function" && typeof createAssetCards === "function") {
+        tried = true;
+        loadAssets();
+      }
+    };
+
+    // Try immediately when DOM is ready
+    init();
+
+    // Fallback interval — in case DOM loaded before scripts finished
+    const interval = setInterval(() => {
+      if (tried) return clearInterval(interval);
+      if (window.dom && typeof createAssetCards === "function" && typeof hidePreloader === "function") {
+        clearInterval(interval);
+        tried = true;
+        loadAssets();
+      }
+    }, 150);
+
+    // Final guarantee on full load
+    window.addEventListener("load", init);
+  });
+</script>
 </body>
 </html>
