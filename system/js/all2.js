@@ -204,11 +204,13 @@
       img.alt = title;
       img.loading = "eager";
 
+      // ✅ Improved image load promise logic
       const imgPromise = new Promise((resolve) => {
         const tmp = new Image();
         tmp.onload = () => {
-          img.src = imageSrc;
-          resolve();
+          img.onload = resolve;
+          img.onerror = resolve;
+          img.src = tmp.src;
         };
         tmp.onerror = () => {
           img.src = config.fallbackImage;
@@ -220,18 +222,16 @@
       imagePromises.push({ promise: imgPromise, page: pageNum });
       a.appendChild(img);
 
-  // Apply visual status classes — CSS handles visuals for FIX + SOON
-if (status === "soon" || status === "fix") {
-  // Capitalize FIX to match your CSS selector `.FIX`
-  card.classList.add(status === "fix" ? "FIX" : "soon");
-} else if (["new", "updated"].includes(status)) {
-  // Optional: still allow animated GIF overlays for these
-  const overlay = document.createElement("img");
-  overlay.src = gifFile;
-  overlay.alt = `${status} badge`;
-  overlay.className = `status-gif status-${status}`;
-  a.appendChild(overlay);
-}
+      // Apply visual status classes — CSS handles visuals for FIX + SOON
+      if (status === "soon" || status === "fix") {
+        card.classList.add(status === "fix" ? "FIX" : "soon");
+      } else if (["new", "updated"].includes(status)) {
+        const overlay = document.createElement("img");
+        overlay.src = gifFile;
+        overlay.alt = `${status} badge`;
+        overlay.className = `status-gif status-${status}`;
+        a.appendChild(overlay);
+      }
 
       const titleEl = document.createElement("h3");
       titleEl.textContent = title || "Untitled";
@@ -267,20 +267,17 @@ if (status === "soon" || status === "fix") {
   /* ---------------------------
      Paging + Search + Filter (Optimized + Persistent)
      --------------------------- */
+  // (unchanged)
   function initPaging() {
     const { container, pageIndicator, searchInput, searchBtn } = dom || {};
     if (!container) return;
-
     const getAllCards = () => [...container.querySelectorAll(".asset-card")];
     const getFilteredCards = () =>
       getAllCards().filter((c) => c.dataset.filtered === "true");
     const getPages = () =>
-      [...new Set(
-        getFilteredCards()
-          .map((c) => +c.dataset.page)
-          .filter((n) => !isNaN(n))
-      )].sort((a, b) => a - b);
-
+      [...new Set(getFilteredCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort(
+        (a, b) => a - b
+      );
     window.renderPage = () => {
       const pages = getPages();
       if (!pages.length) {
@@ -289,26 +286,21 @@ if (status === "soon" || status === "fix") {
         pageIndicator && (pageIndicator.textContent = "No pages");
         return;
       }
-
       const saved = +localStorage.getItem("currentPage") || pages[0];
       if (!window._pageRestored) {
         window.currentPage = pages.includes(saved) ? saved : pages[0];
         window._pageRestored = true;
       }
-
       getAllCards().forEach((c) => {
         const visible =
-          +c.dataset.page === +window.currentPage &&
-          c.dataset.filtered === "true";
+          +c.dataset.page === +window.currentPage && c.dataset.filtered === "true";
         c.style.display = visible ? "" : "none";
       });
-
       const idx = pages.indexOf(+window.currentPage);
       pageIndicator &&
         (pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`);
       localStorage.setItem("currentPage", window.currentPage);
     };
-
     window.filterAssets = (q) => {
       const query = safeStr(q).toLowerCase().trim();
       getAllCards().forEach((c) => {
@@ -322,7 +314,6 @@ if (status === "soon" || status === "fix") {
       window.currentPage = pages[0] || 1;
       renderPage();
     };
-
     window.prevPage = () => {
       const pages = getPages();
       if (!pages.length) return;
@@ -330,7 +321,6 @@ if (status === "soon" || status === "fix") {
       window.currentPage = i <= 0 ? pages.at(-1) : pages[i - 1];
       renderPage();
     };
-
     window.nextPage = () => {
       const pages = getPages();
       if (!pages.length) return;
@@ -338,116 +328,42 @@ if (status === "soon" || status === "fix") {
       window.currentPage = i === -1 || i === pages.length - 1 ? pages[0] : pages[i + 1];
       renderPage();
     };
-
     searchBtn?.addEventListener("click", () => filterAssets(searchInput.value));
     searchInput?.addEventListener(
       "input",
       debounce(() => filterAssets(searchInput.value), 200)
     );
-
     const saved = +localStorage.getItem("currentPage") || 1;
     window.currentPage = saved;
     renderPage();
   }
 
   /* ---------------------------
-     Placeholder Cycle
+     Decode Helper (wait for all DOM images + full render)
      --------------------------- */
-  function initPlaceholders() {
-    const { searchInput } = dom || {};
-    if (!searchInput) return;
-    const FADE = 400,
-      HOLD = 4000;
-
-    const fadePlaceholder = (input, text, cb) => {
-      input.classList.add("fade-out");
-      setTimeout(() => {
-        input.placeholder = text;
-        input.classList.remove("fade-out");
-        input.classList.add("fade-in");
-        setTimeout(() => {
-          input.classList.remove("fade-in");
-          cb?.();
-        }, FADE);
-      }, FADE);
-    };
-
-    window.startPlaceholderCycle = () => {
-      if (window._placeholderRunning) return;
-      window._placeholderRunning = true;
-      const loop = async () => {
-        try {
-          const visible = document.querySelectorAll(
-            `.asset-card[data-filtered="true"][data-page="${window.currentPage}"]`
-          ).length;
-          await new Promise((r) =>
-            fadePlaceholder(searchInput, `${visible} assets on this page`, r)
-          );
-          await delay(HOLD);
-          await new Promise((r) =>
-            fadePlaceholder(searchInput, "Search assets...", r)
-          );
-          await delay(HOLD);
-          if (window._placeholderRunning) loop();
-        } catch {
-          window._placeholderRunning = false;
-        }
-      };
-      loop();
-    };
-
-    window.stopPlaceholderCycle = () => (window._placeholderRunning = false);
-  }
-
-  /* ---------------------------
-     Update Popup (Persistent)
-     --------------------------- */
-  function initUpdatePopup() {
-    const p = dom.updatePopup;
-    if (!p) return;
-
-    const CURRENT_VERSION = "1.0.0";
-    const LS_HIDE = "ws_hideUpdate";
-    const LS_VER = "ws_lastUpdateVersion";
-
-    const hidePref = localStorage.getItem(LS_HIDE);
-    const lastVersion = localStorage.getItem(LS_VER);
-    const hideForSession = sessionStorage.getItem(LS_HIDE);
-    const shouldShow = (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
-
-    if (!shouldShow) return;
-
-    localStorage.setItem(LS_VER, CURRENT_VERSION);
-    if (dom.updateVideo && config.updateTrailerSrc)
-      dom.updateVideo.src = config.updateTrailerSrc;
-
-    setTimeout(() => p.classList.add("show"), 600);
-
-    dom.viewUpdateBtn?.addEventListener("click", () => {
-      window.open(config.updateLink, "_self");
-      p.classList.remove("show");
-    });
-
-    dom.viewUpdateInfoBtn?.addEventListener("click", () =>
-      window.open(config.updateLink, "_blank")
-    );
-
-    dom.closeUpdateBtn?.addEventListener("click", () => {
-      sessionStorage.setItem(LS_HIDE, "1");
-      p.classList.remove("show");
-    });
-
-    dom.dontShowBtn?.addEventListener("click", () => {
-      localStorage.setItem(LS_HIDE, "1");
-      p.classList.remove("show");
-    });
-
-    p.addEventListener("click", (e) => {
-      if (e.target === p) {
-        sessionStorage.setItem(LS_HIDE, "1");
-        p.classList.remove("show");
-      }
-    });
+  async function waitForDomImagesToDecode(timeout = 8000) {
+    try {
+      await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 20)));
+      const imgs = Array.from(document.images || []);
+      const decodes = imgs
+        .filter((img) => img.src)
+        .map((img) =>
+          typeof img.decode === "function"
+            ? Promise.race([
+                img.decode(),
+                new Promise((res) => setTimeout(res, timeout)),
+              ]).catch(() => {})
+            : new Promise((res) => {
+                if (img.complete) return res();
+                img.onload = img.onerror = () => res();
+              })
+        );
+      await Promise.all(decodes);
+      await new Promise((r) => requestAnimationFrame(r));
+      await new Promise((r) => setTimeout(r, 100));
+    } catch (e) {
+      console.warn("waitForDomImagesToDecode failed silently:", e);
+    }
   }
 
   /* ---------------------------
@@ -456,7 +372,6 @@ if (status === "soon" || status === "fix") {
   async function loadAssets(retry = false) {
     showLoading("Loading assets...");
     updateProgress(5);
-
     try {
       const res = await fetch(config.sheetUrl, { cache: "no-store" });
       if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
@@ -484,15 +399,10 @@ if (status === "soon" || status === "fix") {
         dom.container.innerHTML =
           "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
 
-  updateProgress(100);
-
-  // wait for the asset promises you created earlier (already done),
-  // then also wait for any remaining DOM images to decode (icons, overlays, etc.)
-  await waitForDomImagesToDecode(5000); // 5s timeout — adjust as needed
-
-  // small UX delay then hide
-  await delay(350);
-  hidePreloader(true);
+      updateProgress(100);
+      await waitForDomImagesToDecode(8000);
+      await delay(400);
+      hidePreloader(true);
     } catch (err) {
       console.error("Error loading assets:", err);
       if (!retry) return setTimeout(() => loadAssets(true), 1000);
@@ -501,43 +411,6 @@ if (status === "soon" || status === "fix") {
     }
   }
 
-/* ---------------------------
-   Decode Helper (wait for all DOM images + full render)
-   --------------------------- */
-async function waitForDomImagesToDecode(timeout = 8000) {
-  try {
-    // Wait a frame to ensure all <img> elements exist (e.g., overlays just appended)
-    await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 20)));
-
-    const imgs = Array.from(document.images || []);
-    const decodes = imgs
-      .filter((img) => img.src)
-      .map((img) => {
-        // if decode() supported
-        if (typeof img.decode === "function") {
-          return Promise.race([
-            img.decode(),
-            new Promise((res) => setTimeout(res, timeout)), // timeout fallback
-          ]).catch(() => {});
-        }
-        // fallback for browsers without decode()
-        return new Promise((res) => {
-          if (img.complete) return res();
-          img.onload = img.onerror = () => res();
-        });
-      });
-
-    // Wait for decoding
-    await Promise.all(decodes);
-
-    // ✅ ensure at least one repaint cycle after decoding
-    await new Promise((r) => requestAnimationFrame(r));
-    await new Promise((r) => setTimeout(r, 100));
-  } catch (e) {
-    console.warn("waitForDomImagesToDecode failed silently:", e);
-  }
-}
-   
   /* ---------------------------
      DOM Bootstrap
      --------------------------- */
