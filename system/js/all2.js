@@ -501,34 +501,43 @@ if (status === "soon" || status === "fix") {
     }
   }
 
-  /* ---------------------------
-     Decode Helper (wait for all DOM images)
-     --------------------------- */
-  async function waitForDomImagesToDecode(timeout = 5000) {
-    try {
-      const imgs = Array.from(document.images || []);
-      const decodes = imgs
-        .filter((img) => img.src) // only images with a src
-        .map((img) => {
-          // If decode available, use it; otherwise fallback to onload/onerror
-          if (typeof img.decode === "function") {
-            // wrap decode with timeout to avoid waiting forever
-            return Promise.race([
-              img.decode(),
-              new Promise((res) => setTimeout(res, timeout)),
-            ]).catch(() => {});
-          }
-          return new Promise((res) => {
-            if (img.complete) return res();
-            img.onload = img.onerror = () => res();
-          });
-        });
-      await Promise.all(decodes);
-    } catch (e) {
-      // fail silently
-    }
-  }
+/* ---------------------------
+   Decode Helper (wait for all DOM images + full render)
+   --------------------------- */
+async function waitForDomImagesToDecode(timeout = 8000) {
+  try {
+    // Wait a frame to ensure all <img> elements exist (e.g., overlays just appended)
+    await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 20)));
 
+    const imgs = Array.from(document.images || []);
+    const decodes = imgs
+      .filter((img) => img.src)
+      .map((img) => {
+        // if decode() supported
+        if (typeof img.decode === "function") {
+          return Promise.race([
+            img.decode(),
+            new Promise((res) => setTimeout(res, timeout)), // timeout fallback
+          ]).catch(() => {});
+        }
+        // fallback for browsers without decode()
+        return new Promise((res) => {
+          if (img.complete) return res();
+          img.onload = img.onerror = () => res();
+        });
+      });
+
+    // Wait for decoding
+    await Promise.all(decodes);
+
+    // ✅ ensure at least one repaint cycle after decoding
+    await new Promise((r) => requestAnimationFrame(r));
+    await new Promise((r) => setTimeout(r, 100));
+  } catch (e) {
+    console.warn("waitForDomImagesToDecode failed silently:", e);
+  }
+}
+   
   /* ---------------------------
      DOM Bootstrap
      --------------------------- */
