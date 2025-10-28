@@ -367,72 +367,45 @@
   }
 
   /* ---------------------------
-     Asset Loader (Preloader hides after full completion)
+     Asset Loader
      --------------------------- */
   async function loadAssets(retry = false) {
     showLoading("Loading assets...");
     updateProgress(5);
-
     try {
-      // 1️⃣ Fetch data
       const res = await fetch(config.sheetUrl, { cache: "no-store" });
       if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
-
       const raw = await res.json();
       const data = raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
       window.assetsData = data;
-      updateProgress(25);
+      updateProgress(35);
 
-      // 2️⃣ Determine favorites mode
       const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
       let filtered = data;
       if (isFavPage) {
-        filtered = [...window.favorites].length
+        filtered = [...window.favorites]
           ? data.filter((a) => window.favorites.has(safeStr(a.title).toLowerCase()))
           : [];
       }
 
-      // 3️⃣ Build cards & wait for image load promises
-      showLoading("Building cards...");
-      const imageEntries = createAssetCards(filtered);
-      updateProgress(45);
+      const promises = createAssetCards(filtered);
+      updateProgress(55);
+      await Promise.allSettled(promises.map((p) => p.promise));
+      updateProgress(80);
 
-      if (!imageEntries || !imageEntries.length) {
-        console.warn("No assets to build.");
-      }
-
-      // Wait until every card image has finished loading (success or fail)
-      await Promise.allSettled(imageEntries.map((e) => e.promise));
-      updateProgress(75);
-
-      // 4️⃣ Assign pages and render once all cards exist
-      showLoading("Finalizing layout...");
       if (typeof renderPage === "function") renderPage();
 
-      // Empty favorites message if needed
       if (isFavPage && !filtered.length && dom.container)
         dom.container.innerHTML =
           "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
 
-      // 5️⃣ Wait for all DOM images to fully decode & render
-      await waitForDomImagesToDecode(8000);
-      updateProgress(95);
-
-      // 6️⃣ Short delay to ensure UI paints completely
-      await rafAsync();
-      await delay(250);
       updateProgress(100);
-
-      // ✅ Finally hide preloader — only now is everything built and rendered
-      showLoading("Ready!");
-      await delay(200);
+      await waitForDomImagesToDecode(8000);
+      await delay(400);
       hidePreloader(true);
     } catch (err) {
       console.error("Error loading assets:", err);
-      if (!retry) {
-        console.warn("Retrying asset load...");
-        return setTimeout(() => loadAssets(true), 1000);
-      }
+      if (!retry) return setTimeout(() => loadAssets(true), 1000);
       showLoading("⚠ Failed to load assets.");
       hidePreloader(true);
     }
