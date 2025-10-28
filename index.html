@@ -245,35 +245,6 @@
 <script src="system/js/version.js" defer></script>
 <!-- Quotes -->
 <script src="system/js/quotes.js" defer></script>
-<!-- Defer & Fallback -->
-<script defer>
-  document.addEventListener("DOMContentLoaded", () => {
-    let tried = false;
 
-    const init = () => {
-      if (tried) return;
-      if (window.dom && typeof loadAssets === "function" && typeof createAssetCards === "function") {
-        tried = true;
-        loadAssets();
-      }
-    };
-
-    // Try immediately when DOM is ready
-    init();
-
-    // Fallback interval — in case DOM loaded before scripts finished
-    const interval = setInterval(() => {
-      if (tried) return clearInterval(interval);
-      if (window.dom && typeof createAssetCards === "function" && typeof hidePreloader === "function") {
-        clearInterval(interval);
-        tried = true;
-        loadAssets();
-      }
-    }, 150);
-
-    // Final guarantee on full load
-    window.addEventListener("load", init);
-  });
-</script>
 </body>
 </html>
