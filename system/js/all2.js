@@ -484,14 +484,48 @@ if (status === "soon" || status === "fix") {
         dom.container.innerHTML =
           "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
 
-      updateProgress(100);
-      await delay(350);
-      hidePreloader(true);
+  updateProgress(100);
+
+  // wait for the asset promises you created earlier (already done),
+  // then also wait for any remaining DOM images to decode (icons, overlays, etc.)
+  await waitForDomImagesToDecode(5000); // 5s timeout — adjust as needed
+
+  // small UX delay then hide
+  await delay(350);
+  hidePreloader(true);
     } catch (err) {
       console.error("Error loading assets:", err);
       if (!retry) return setTimeout(() => loadAssets(true), 1000);
       showLoading("⚠ Failed to load assets.");
       hidePreloader(true);
+    }
+  }
+
+  /* ---------------------------
+     Decode Helper (wait for all DOM images)
+     --------------------------- */
+  async function waitForDomImagesToDecode(timeout = 5000) {
+    try {
+      const imgs = Array.from(document.images || []);
+      const decodes = imgs
+        .filter((img) => img.src) // only images with a src
+        .map((img) => {
+          // If decode available, use it; otherwise fallback to onload/onerror
+          if (typeof img.decode === "function") {
+            // wrap decode with timeout to avoid waiting forever
+            return Promise.race([
+              img.decode(),
+              new Promise((res) => setTimeout(res, timeout)),
+            ]).catch(() => {});
+          }
+          return new Promise((res) => {
+            if (img.complete) return res();
+            img.onload = img.onerror = () => res();
+          });
+        });
+      await Promise.all(decodes);
+    } catch (e) {
+      // fail silently
     }
   }
 
