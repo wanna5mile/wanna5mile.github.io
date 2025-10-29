@@ -180,51 +180,63 @@ WannaSmile | Unified JS Loader & UI Logic - Fixed v2
     };
   }
 
-  /* ---------------------------
-  Asset Loader + Fallback Video
-  --------------------------- */
-  async function loadAssets(retry = false) {
-    try {
-      showLoading && showLoading("Loading assets...");
-      updateProgress && updateProgress(5);
+/* ---------------------------
+Asset Loader + Image Wait + Fallback Video
+--------------------------- */
+async function loadAssets(retry = false) {
+  try {
+    showLoading && showLoading("Loading assets...");
+    updateProgress && updateProgress(5);
 
-      const res = await fetch(config.sheetUrl, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
-      const raw = await res.json();
+    const res = await fetch(config.sheetUrl, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
+    const raw = await res.json();
 
-      const sheetVersion = safeStr(raw[0]?.version || raw.version || raw._version || raw[0]?._ver);
-      if (sheetVersion && typeof handleVersionPopup === "function")
-        handleVersionPopup(sheetVersion);
+    const sheetVersion = safeStr(raw[0]?.version || raw.version || raw._version || raw[0]?._ver);
+    if (sheetVersion && typeof handleVersionPopup === "function")
+      handleVersionPopup(sheetVersion);
 
-      const data = Array.isArray(raw)
-        ? raw.map((a) => ({
-            ...a,
-            video: safeStr(a.video).trim() || config.fallbackVideo,
-          })).filter((i) => Object.values(i).some((v) => safeStr(v).trim()))
-        : [];
-      window.assetsData = data;
+    // Prepare assets
+    const data = Array.isArray(raw)
+      ? raw.map((a) => ({
+          ...a,
+          video: safeStr(a.video).trim() || config.fallbackVideo,
+          image: safeStr(a.image).trim() || config.fallbackImage,
+        })).filter((i) => Object.values(i).some((v) => safeStr(v).trim()))
+      : [];
+    window.assetsData = data;
 
-      updateProgress && updateProgress(35);
+    updateProgress && updateProgress(35);
 
-      if (typeof createAssetCards === "function") createAssetCards(data);
-      updateProgress && updateProgress(65);
-      if (typeof renderPage === "function") renderPage();
+    // Render cards
+    if (typeof createAssetCards === "function") createAssetCards(data);
+    updateProgress && updateProgress(65);
+    if (typeof renderPage === "function") renderPage();
 
-      if (dom.container && !data.length)
-        dom.container.innerHTML =
-          "<p style='text-align:center;color:#ccc;font-family:monospace;'>No assets found ★</p>";
+    if (dom.container && !data.length)
+      dom.container.innerHTML =
+        "<p style='text-align:center;color:#ccc;font-family:monospace;'>No assets found ★</p>";
 
-      if (typeof waitForRenderedImages === "function") await waitForRenderedImages(8000);
-      updateProgress && updateProgress(100);
-      await delay(250);
-      hidePreloader && hidePreloader();
-    } catch (err) {
-      console.error("Error loading assets:", err);
-      if (!retry) return setTimeout(() => loadAssets(true), 1000);
-      showLoading && showLoading("⚠ Failed to load assets.");
-      hidePreloader && hidePreloader();
+    // Wait for all images to fully load
+    const images = dom.container?.querySelectorAll("img") || [];
+    if (images.length) {
+      await Promise.all([...images].map((img) => new Promise((resolve) => {
+        if (img.complete && img.naturalWidth !== 0) return resolve();
+        img.onerror = () => { img.src = config.fallbackImage; resolve(); };
+        img.onload = () => resolve();
+      })));
     }
+
+    updateProgress && updateProgress(100);
+    await delay(250);
+    hidePreloader && hidePreloader();
+  } catch (err) {
+    console.error("Error loading assets:", err);
+    if (!retry) return setTimeout(() => loadAssets(true), 1000);
+    showLoading && showLoading("⚠ Failed to load assets.");
+    hidePreloader && hidePreloader();
   }
+}
 
   /* ---------------------------
   DOM Bootstrap
