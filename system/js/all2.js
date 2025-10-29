@@ -146,58 +146,74 @@ Final Hardened & Optimized Version (with Version-Aware Popup)
     };
   }
 
-  /* ---------------------------
-  Update Popup Logic (Version-Synced)
-  --------------------------- */
-  function initUpdatePopup() {
-    const { updatePopup, closeUpdateBtn, dontShowBtn, viewUpdateBtn, viewUpdateInfoBtn, updateVideo } = dom || {};
-    if (!updatePopup) return;
+/* ---------------------------
+Update Popup Logic (Version-Synced)
+--------------------------- */
+function initUpdatePopup() {
+  const { updatePopup, closeUpdateBtn, dontShowBtn, viewUpdateBtn, viewUpdateInfoBtn, updateVideo } = dom || {};
+  if (!updatePopup) return;
 
-    const POPUP_KEY = "updatePopupState";
-    const VERSION_KEY = "sheetVersion";
+  const POPUP_KEY = "updatePopupState";
+  const VERSION_KEY = "sheetVersion";
+  const YT_CHANNEL = "https://www.youtube.com/@rhap5ody?si=iD7C-rAanz8k_JwL";
 
-    const showPopup = () => {
-      updatePopup.classList.add("show");
-      if (updateVideo && config.updateTrailerSrc)
-        updateVideo.src = config.updateTrailerSrc;
-    };
-    const hidePopup = () => {
-      updatePopup.classList.remove("show");
-      if (updateVideo) updateVideo.src = "";
-    };
+  const showPopup = (trailerURL = "") => {
+    updatePopup.classList.add("show");
 
-    closeUpdateBtn?.addEventListener("click", hidePopup);
-    viewUpdateBtn?.addEventListener("click", () => {
-      hidePopup();
-      window.open(config.updateLink, "_blank");
-    });
-    viewUpdateInfoBtn?.addEventListener("click", () => {
-      hidePopup();
-      window.open("system/pages/version-log.html", "_blank");
-    });
-    dontShowBtn?.addEventListener("click", () => {
-      localStorage.setItem(POPUP_KEY, "dontshow");
-      hidePopup();
-    });
-
-    // Called automatically after sheet load:
-    window.handleVersionPopup = (sheetVersion) => {
-      const savedVersion = localStorage.getItem(VERSION_KEY);
-      const popupPref = localStorage.getItem(POPUP_KEY);
-
-      console.log(`🧩 Current Sheet Version: ${sheetVersion}`);
-      console.log(`📦 Saved Version: ${savedVersion || "none"}`);
-
-      if (sheetVersion && sheetVersion !== savedVersion) {
-        console.log("🔔 New sheet version detected!");
-        localStorage.setItem(VERSION_KEY, sheetVersion);
-        localStorage.removeItem(POPUP_KEY); // reset preference to show again
-        showPopup();
+    if (updateVideo) {
+      if (trailerURL) {
+        updateVideo.src = trailerURL;
+        updateVideo.style.display = "block";
+        if (dom.viewUpdateBtn) {
+          dom.viewUpdateBtn.onclick = () => window.open(trailerURL, "_blank");
+        }
+        updatePopup.querySelector("p").textContent =
+          "New games, smoother loading, and visual tweaks across the library!";
       } else {
-        if (popupPref !== "dontshow") showPopup();
+        updateVideo.style.display = "none";
+        updatePopup.querySelector("p").textContent =
+          "Small bug fixes and patches. Check out the channel for other videos!";
+        if (dom.viewUpdateBtn) dom.viewUpdateBtn.onclick = () => window.open(YT_CHANNEL, "_blank");
       }
-    };
-  }
+    }
+  };
+
+  const hidePopup = () => {
+    updatePopup.classList.remove("show");
+    if (updateVideo) updateVideo.src = "";
+  };
+
+  closeUpdateBtn?.addEventListener("click", hidePopup);
+  viewUpdateInfoBtn?.addEventListener("click", () => {
+    hidePopup();
+    window.open("system/pages/version-log.html", "_blank");
+  });
+  dontShowBtn?.addEventListener("click", () => {
+    localStorage.setItem(POPUP_KEY, "dontshow");
+    hidePopup();
+  });
+
+  // Called automatically after sheet load
+  window.handleVersionPopup = (sheetVersion, trailerURL = "") => {
+    const savedVersion = localStorage.getItem(VERSION_KEY);
+    const popupPref = localStorage.getItem(POPUP_KEY);
+
+    console.log(`🧩 Current Sheet Version: ${sheetVersion}`);
+    console.log(`📦 Saved Version: ${savedVersion || "none"}`);
+
+    if (sheetVersion && sheetVersion !== savedVersion) {
+      console.log("🔔 New sheet version detected!");
+      localStorage.setItem(VERSION_KEY, sheetVersion);
+      localStorage.removeItem(POPUP_KEY); // reset preference to show again
+      showPopup(trailerURL);
+    } else {
+      if (popupPref !== "dontshow") showPopup(trailerURL);
+    }
+
+    // Update footer version
+    if (dom.footerVersion) dom.footerVersion.textContent = `Version ${sheetVersion}`;
+  };
+}
 
   /* ---------------------------
   Asset Loader + Version Logic
