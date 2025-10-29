@@ -359,6 +359,27 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3
     const saved = +sessionStorage.getItem("currentPage") || 1;
     window.currentPage = saved;
     renderPage();
+
+    /* ---------------------------
+    Page Navigation Controls (wrap-around)
+    --------------------------- */
+    window.nextPage = () => {
+      const pages = getPages();
+      if (!pages.length) return;
+      const idx = pages.indexOf(+window.currentPage);
+      const nextIdx = (idx + 1) % pages.length;
+      window.currentPage = pages[nextIdx];
+      renderPage();
+    };
+
+    window.prevPage = () => {
+      const pages = getPages();
+      if (!pages.length) return;
+      const idx = pages.indexOf(+window.currentPage);
+      const prevIdx = (idx - 1 + pages.length) % pages.length;
+      window.currentPage = pages[prevIdx];
+      renderPage();
+    };
   }
 
   /* ---------------------------
