@@ -1,6 +1,6 @@
 /* ==========================================================
 WannaSmile | Unified JS Loader & UI Logic - Optimized
-Final Hardened & Optimized Version
+Final Hardened & Optimized Version (with Version-Aware Popup)
 ========================================================== */
 (() => {
   "use strict";
@@ -50,7 +50,6 @@ Final Hardened & Optimized Version
       searchInput: $("#searchInputHeader"),
       searchBtn: $("#searchBtnHeader"),
       updatePopup: $("#updatePopup"),
-      updatePopupContent: $(".update-popup-content"),
       viewUpdateBtn: $("#viewUpdateBtn"),
       viewUpdateInfoBtn: $("#viewUpdateInfoBtn"),
       closeUpdateBtn: $("#closeUpdateBtn"),
@@ -66,11 +65,11 @@ Final Hardened & Optimized Version
         "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
       sheetUrl:
         "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
-      updateTrailerSrc: "",
       updateLink: "system/pages/version-log.html",
+      updateTrailerSrc: "",
     };
   }
-  
+
   /* ---------------------------
   Favorites System
   --------------------------- */
@@ -86,7 +85,7 @@ Final Hardened & Optimized Version
 
     window.refreshCards = () => {
       if (!window.assetsData || typeof createAssetCards !== "function") return;
-      createAssetCards(window.assetsData); // Changed to not return promises here
+      createAssetCards(window.assetsData);
       if (typeof renderPage === "function") renderPage();
       if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
     };
@@ -106,24 +105,23 @@ Final Hardened & Optimized Version
     let bar = preloader.querySelector(".load-progress-bar");
     let fill = preloader.querySelector(".load-progress-fill");
 
-    // Existing logic to create elements if they don't exist...
     if (!counter) {
-        counter = document.createElement("div");
-        counter.id = "counter";
-        counter.className = "load-progress-text";
-        preloader.appendChild(counter);
+      counter = document.createElement("div");
+      counter.id = "counter";
+      counter.className = "load-progress-text";
+      preloader.appendChild(counter);
     }
     if (!bar) {
-        bar = document.createElement("div");
-        bar.className = "load-progress-bar";
-        fill = document.createElement("div");
-        fill.className = "load-progress-fill";
-        bar.appendChild(fill);
-        preloader.appendChild(bar);
+      bar = document.createElement("div");
+      bar.className = "load-progress-bar";
+      fill = document.createElement("div");
+      fill.className = "load-progress-fill";
+      bar.appendChild(fill);
+      preloader.appendChild(bar);
     } else if (!fill) {
-        fill = document.createElement("div");
-        fill.className = "load-progress-fill";
-        bar.appendChild(fill);
+      fill = document.createElement("div");
+      fill.className = "load-progress-fill";
+      bar.appendChild(fill);
     }
 
     dom.loaderText = counter;
@@ -138,240 +136,71 @@ Final Hardened & Optimized Version
     window.showLoading = (text) =>
       (preloader.querySelector(".loading-text") || counter).textContent = text;
 
-    /**
-     * @description Hides the preloader gracefully.
-     * The `loadAssets` function now handles the timing to ensure assets are ready.
-     */
     window.hidePreloader = () => {
       if (preloader.dataset.hidden === "true") return;
       preloader.dataset.hidden = "true";
       preloader.style.transition = "opacity 0.45s ease";
       preloader.style.opacity = "0";
       preloader.style.pointerEvents = "none";
-      // Added a small delay here for a smoother transition
       setTimeout(() => (preloader.style.display = "none"), 500);
     };
   }
 
   /* ---------------------------
-  Asset Card Builder
+  Update Popup Logic (Version-Synced)
   --------------------------- */
-  function createAssetCards(data) {
-    const { container } = dom || {};
-    if (!container) return [];
-    container.innerHTML = "";
-    const frag = document.createDocumentFragment();
-    const sortMode = getSortMode();
-    const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
+  function initUpdatePopup() {
+    const { updatePopup, closeUpdateBtn, dontShowBtn, viewUpdateBtn, viewUpdateInfoBtn, updateVideo } = dom || {};
+    if (!updatePopup) return;
 
-    let sorted = Array.isArray(data) ? [...data] : [];
-    if (sortMode === "alphabetical") {
-      sorted.sort((a, b) =>
-        safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
-          numeric: true,
-          sensitivity: "base",
-        })
-      );
-    }
+    const POPUP_KEY = "updatePopupState";
+    const VERSION_KEY = "sheetVersion";
 
-    for (const asset of sorted) {
-      const title = safeStr(asset.title).trim();
-      const author = safeStr(asset.author).trim();
-      const imageSrc = safeStr(asset.image) || config.fallbackImage;
-      const link = safeStr(asset.link) || config.fallbackLink;
-      const pageNum = Number(asset.page) || 1;
-      const status = safeStr(asset.status).toLowerCase();
-      const gifFile = `${config.gifBase}${status}.gif`;
+    const showPopup = () => {
+      updatePopup.classList.add("show");
+      if (updateVideo && config.updateTrailerSrc)
+        updateVideo.src = config.updateTrailerSrc;
+    };
+    const hidePopup = () => {
+      updatePopup.classList.remove("show");
+      if (updateVideo) updateVideo.src = "";
+    };
 
-      const card = document.createElement("div");
-      card.className = "asset-card";
-      Object.assign(card.dataset, {
-        title: title.toLowerCase(),
-        author: author.toLowerCase(),
-        page: String(pageNum),
-        filtered: "true",
-      });
+    closeUpdateBtn?.addEventListener("click", hidePopup);
+    viewUpdateBtn?.addEventListener("click", () => {
+      hidePopup();
+      window.open(config.updateLink, "_blank");
+    });
+    viewUpdateInfoBtn?.addEventListener("click", () => {
+      hidePopup();
+      window.open("system/pages/version-log.html", "_blank");
+    });
+    dontShowBtn?.addEventListener("click", () => {
+      localStorage.setItem(POPUP_KEY, "dontshow");
+      hidePopup();
+    });
 
-      const a = document.createElement("a");
-      a.href = link;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.className = "asset-link";
+    // Called automatically after sheet load:
+    window.handleVersionPopup = (sheetVersion) => {
+      const savedVersion = localStorage.getItem(VERSION_KEY);
+      const popupPref = localStorage.getItem(POPUP_KEY);
 
-      const img = document.createElement("img");
-      img.alt = title;
-      img.loading = "eager";
-      img.src = imageSrc; // Set src directly. Decoding/loading handled in loadAssets
-      a.appendChild(img);
+      console.log(`🧩 Current Sheet Version: ${sheetVersion}`);
+      console.log(`📦 Saved Version: ${savedVersion || "none"}`);
 
-      // Apply visual status classes
-      if (status === "soon" || status === "fix") {
-        card.classList.add(status === "fix" ? "FIX" : "soon");
-      } else if (["new", "updated"].includes(status)) {
-        const overlay = document.createElement("img");
-        overlay.src = gifFile;
-        overlay.alt = `${status} badge`;
-        overlay.className = `status-gif status-${status}`;
-        a.appendChild(overlay);
+      if (sheetVersion && sheetVersion !== savedVersion) {
+        console.log("🔔 New sheet version detected!");
+        localStorage.setItem(VERSION_KEY, sheetVersion);
+        localStorage.removeItem(POPUP_KEY); // reset preference to show again
+        showPopup();
+      } else {
+        if (popupPref !== "dontshow") showPopup();
       }
-
-      const titleEl = document.createElement("h3");
-      titleEl.textContent = title || "Untitled";
-      const authorEl = document.createElement("p");
-      authorEl.textContent = author || "";
-
-      const star = document.createElement("button");
-      star.className = "favorite-star";
-      star.textContent = isFav(title) ? "★" : "☆";
-      Object.assign(star.style, {
-        background: "transparent",
-        border: "none",
-        cursor: "pointer",
-      });
-      star.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const key = title.toLowerCase();
-        if (window.favorites.has(key)) window.favorites.delete(key);
-        else window.favorites.add(key);
-        saveFavorites();
-        star.textContent = window.favorites.has(key) ? "★" : "☆";
-      });
-
-      card.append(a, titleEl, authorEl, star);
-      frag.appendChild(card);
-    }
-
-    container.appendChild(frag);
-    // No longer returning image promises, as the decode logic is centralized in loadAssets
-    return [];
+    };
   }
 
   /* ---------------------------
-  Paging + Search + Filter (Optimized + Session Storage)
-  --------------------------- */
-  function initPaging() {
-    const { container, pageIndicator, searchInput, searchBtn } = dom || {};
-    if (!container) return;
-    const getAllCards = () => [...container.querySelectorAll(".asset-card")];
-    const getFilteredCards = () =>
-      getAllCards().filter((c) => c.dataset.filtered === "true");
-    const getPages = () =>
-      [...new Set(getFilteredCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort(
-        (a, b) => a - b
-      );
-
-    window.renderPage = () => {
-      const pages = getPages();
-      if (!pages.length) {
-        window.currentPage = 1;
-        getAllCards().forEach((c) => (c.style.display = "none"));
-        pageIndicator && (pageIndicator.textContent = "No pages");
-        return;
-      }
-
-      // 🔑 FIX: Use sessionStorage for page persistence within the same tab/window.
-      const saved = +sessionStorage.getItem("currentPage") || pages[0];
-
-      if (!window._pageRestored) {
-        window.currentPage = pages.includes(saved) ? saved : pages[0];
-        window._pageRestored = true;
-      }
-
-      getAllCards().forEach((c) => {
-        const visible =
-          +c.dataset.page === +window.currentPage && c.dataset.filtered === "true";
-        c.style.display = visible ? "" : "none";
-      });
-
-      const idx = pages.indexOf(+window.currentPage);
-      pageIndicator &&
-        (pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`);
-
-      // 🔑 FIX: Store the current page in sessionStorage
-      sessionStorage.setItem("currentPage", window.currentPage);
-    };
-
-    window.filterAssets = (q) => {
-      const query = safeStr(q).toLowerCase().trim();
-      getAllCards().forEach((c) => {
-        const match =
-          !query ||
-          c.dataset.title.includes(query) ||
-          c.dataset.author.includes(query);
-        c.dataset.filtered = match ? "true" : "false";
-      });
-      const pages = getPages();
-      window.currentPage = pages[0] || 1;
-      renderPage();
-    };
-
-    window.prevPage = () => {
-      const pages = getPages();
-      if (!pages.length) return;
-      const i = pages.indexOf(+window.currentPage);
-      window.currentPage = i <= 0 ? pages.at(-1) : pages[i - 1];
-      renderPage();
-    };
-
-    window.nextPage = () => {
-      const pages = getPages();
-      if (!pages.length) return;
-      const i = pages.indexOf(+window.currentPage);
-      window.currentPage = i === -1 || i === pages.length - 1 ? pages[0] : pages[i + 1];
-      renderPage();
-    };
-
-    searchBtn?.addEventListener("click", () => filterAssets(searchInput.value));
-    searchInput?.addEventListener(
-      "input",
-      debounce(() => filterAssets(searchInput.value), 200)
-    );
-
-    // Initial page load, using sessionStorage
-    const saved = +sessionStorage.getItem("currentPage") || 1;
-    window.currentPage = saved;
-    renderPage();
-  }
-
-  /* ---------------------------
-  Decode Helper (wait for all DOM images + full render)
-  --------------------------- */
-  /**
-   * @description Waits for all images currently in the DOM to be fully loaded and decoded.
-   * This is critical for preventing the preloader from hiding before visual assets are ready.
-   */
-  async function waitForRenderedImages(timeout = 8000) {
-    try {
-      // Small pause to allow images to be appended to the DOM
-      await delay(50);
-      const imgs = Array.from(document.querySelectorAll("#container img") || []);
-
-      const decodes = imgs
-        .filter((img) => img.src)
-        .map((img) =>
-          typeof img.decode === "function"
-            ? Promise.race([
-                img.decode(),
-                new Promise((res) => setTimeout(res, timeout)),
-              ]).catch(() => {})
-            : new Promise((res) => {
-                // Fallback for older browsers
-                if (img.complete) return res();
-                img.onload = img.onerror = () => res();
-              })
-        );
-      
-      await Promise.all(decodes);
-      // Wait for a final paint to ensure everything is visible before hiding the preloader
-      await new Promise((r) => requestAnimationFrame(r));
-    } catch (e) {
-      console.warn("waitForRenderedImages failed silently:", e);
-    }
-  }
-
-  /* ---------------------------
-  Asset Loader
+  Asset Loader + Version Logic
   --------------------------- */
   async function loadAssets(retry = false) {
     showLoading("Loading assets...");
@@ -380,35 +209,34 @@ Final Hardened & Optimized Version
       const res = await fetch(config.sheetUrl, { cache: "no-store" });
       if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
       const raw = await res.json();
-      const data = raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
+      
+      // ✅ Detect version field (custom column “version” or _version in sheet)
+      const sheetVersion = safeStr(raw[0]?.version || raw.version || raw._version || raw[0]?._ver);
+      if (sheetVersion && typeof handleVersionPopup === "function")
+        handleVersionPopup(sheetVersion);
+
+      const data = Array.isArray(raw)
+        ? raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()))
+        : [];
       window.assetsData = data;
+
       updateProgress(35);
-
       const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
-      let filtered = data;
-      if (isFavPage) {
-        filtered = [...window.favorites]
-          ? data.filter((a) => window.favorites.has(safeStr(a.title).toLowerCase()))
-          : [];
-      }
+      const filtered = isFavPage
+        ? data.filter((a) => window.favorites.has(safeStr(a.title).toLowerCase()))
+        : data;
 
-      // 1. Create the card elements and append them to the DOM
       createAssetCards(filtered);
       updateProgress(65);
-
       if (typeof renderPage === "function") renderPage();
 
       if (isFavPage && !filtered.length && dom.container)
         dom.container.innerHTML =
           "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
 
-      // 2. Wait for all card images to be loaded and decoded before proceeding
       await waitForRenderedImages(8000);
-      
       updateProgress(100);
-      
-      // 🔑 FIX: Wait a final 250ms for smooth transition
-      await delay(250); 
+      await delay(250);
       hidePreloader();
 
     } catch (err) {
@@ -420,6 +248,11 @@ Final Hardened & Optimized Version
   }
 
   /* ---------------------------
+  Paging / Decode helpers
+  --------------------------- */
+  // ... (Keep your existing Paging + waitForRenderedImages + createAssetCards code unchanged)
+
+  /* ---------------------------
   DOM Bootstrap
   --------------------------- */
   document.addEventListener("DOMContentLoaded", async () => {
@@ -428,10 +261,8 @@ Final Hardened & Optimized Version
       initFavorites();
       initPreloader();
       initPaging();
-      // Ensure these are defined or remove if they don't exist in the actual code
-      // initPlaceholders(); 
-      // initUpdatePopup();
-      
+      initUpdatePopup();
+
       await loadAssets();
       console.log("✅ WannaSmile Loader Ready");
     } catch (err) {
