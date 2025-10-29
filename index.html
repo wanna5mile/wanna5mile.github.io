@@ -41,110 +41,112 @@
   <meta name="twitter:description" content="A fun, content-filled library to make you smile." />
   <meta name="twitter:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
 
-  <style>
-    /* === Update popup === */
-    .update-popup {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(6px);
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
-    }
-    .update-popup.show {
-      opacity: 1;
-      pointer-events: all;
-    }
+  <!-- Inline custom styles -->
+<style>
+  /* === Update popup (neutral dark theme, no CSS variables) === */
+  .update-popup {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .update-popup.show {
+    opacity: 1;
+    pointer-events: all;
+  }
 
-    .update-popup-content {
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 14px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
-      width: 90%;
-      max-width: 480px;
-      text-align: center;
-      padding: 24px;
-      color: #fff;
-      animation: popup-bounce 0.6s ease;
-      font-family: monospace;
-    }
+  .update-popup-content {
+    background: #111; /* black base */
+    border: 1px solid #333;
+    border-radius: 14px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    width: 90%;
+    max-width: 480px;
+    text-align: center;
+    padding: 24px;
+    color: #fff;
+    animation: popup-bounce 0.6s ease;
+    font-family: monospace;
+  }
 
-    .update-popup-content h2 {
-      margin-top: 0;
-      color: #fff;
-      font-size: 1.6rem;
-      margin-bottom: 12px;
-    }
+  .update-popup-content h2 {
+    margin-top: 0;
+    color: #fff;
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+  }
 
-    .update-popup-content p {
-      color: #ddd;
-      font-size: 1rem;
-      margin-bottom: 20px;
-      line-height: 1.4;
-    }
+  .update-popup-content p {
+    color: #ddd;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
 
-    .update-video-wrapper {
-      margin-bottom: 20px;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #222;
-    }
+  .update-video-wrapper {
+    margin-bottom: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #222;
+  }
 
-    .update-video-wrapper iframe {
-      width: 100%;
-      height: 200px;
-      border: none;
-    }
+  .update-video-wrapper iframe {
+    width: 100%;
+    height: 200px;
+    border: none;
+  }
 
-    .video-tooltip {
-      font-size: 0.8rem;
-      color: #aaa;
-      margin-top: 4px;
-    }
+  .video-tooltip {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-top: 4px;
+  }
 
-    .update-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
+  /* === Buttons === */
+  .update-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
 
-    .update-buttons button {
-      background: #222;
-      border: 1px solid #333;
-      border-radius: 8px;
-      color: #fff;
-      font-family: monospace;
-      font-size: 0.95rem;
-      font-weight: 600;
-      padding: 10px 18px;
-      cursor: pointer;
-      transition: color 0.25s ease, background 0.25s ease, transform 0.25s ease;
-    }
+  .update-buttons button {
+    background: #222;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-family: monospace;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+  }
 
-    .update-buttons button:hover {
-      color: #ff3b3b;
-      background: #1a1a1a;
-      transform: scale(1.05);
-    }
+  .update-buttons button:hover {
+    color: #ff3b3b;
+    background: #1a1a1a;
+    transform: scale(1.05);
+  }
 
-    .update-buttons button:active {
-      transform: scale(0.97);
-    }
+  .update-buttons button:active {
+    transform: scale(0.97);
+  }
 
-    @keyframes popup-bounce {
-      0% { transform: scale(0.9); opacity: 0; }
-      60% { transform: scale(1.05); opacity: 1; }
-      100% { transform: scale(1); }
-    }
-  </style>
+  @keyframes popup-bounce {
+    0% { transform: scale(0.9); opacity: 0; }
+    60% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+</style>
 </head>
 
 <body theme="classic">
@@ -214,11 +216,13 @@
   <main>
     <div id="container">Loading assets...</div>
   </main>
-
+  
   <button id="toTopBtn">⬆ Top</button>
-
+  
   <!-- Quote Bar -->
-  <div id="quoteWrapper"><p id="quoteBox"></p></div>
+<div id="quoteWrapper">
+  <p id="quoteBox"></p>
+</div>
 
   <footer>
     <a href="system/pages/sources.html">Sources</a>
@@ -229,87 +233,23 @@
     <a href="system/pages/version-log.html" id="footerVersion">Version loading...</a>
   </footer>
 
-  <!-- JS -->
-  <script src="system/js/settings.js" defer></script>
-  <script src="system/js/commands.js" defer></script>
-  <script src="system/js/main.js" defer></script>
-  <script src="system/js/searcherror.js" defer></script>
-  <script src="system/js/index.js" defer></script>
-  <script src="system/js/version.js" defer></script>
+<!-- JS: Core, UI, Quotes -->
+<!-- 1️⃣ Core / Settings -->
+<script src="system/js/settings.js" defer></script>
+<script src="system/js/commands.js" defer></script>
+<script src="system/js/main.js" defer></script>
 
-  <!-- ✅ Quotes via JSON -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const wrapper = document.getElementById("quoteWrapper");
-      const quoteBox = document.getElementById("quoteBox");
-      if (!wrapper || !quoteBox) return;
+<!-- 2️⃣ UI Logic -->
+<script src="system/js/searcherror.js" defer></script>
+<script src="system/js/index.js" defer></script>
+<script src="system/js/version.js" defer></script>
 
-      const jsonPath = "system/json/quotes.json";
-      let quotes = [];
-      let baseSpeed = 120;
-      let targetMultiplier = 1;
-      let currentMultiplier = 1;
-      let position;
-      let lastTime = null;
-      let paused = false;
+<!-- 3️⃣ Quotes -->
+<script src="system/js/quotes.js" defer></script>
 
-      async function loadQuotes() {
-        try {
-          const res = await fetch(jsonPath);
-          const data = await res.json();
-          quotes = Array.isArray(data) && data.length ? data : ["No quotes available."];
-          initQuotes();
-        } catch (err) {
-          console.error("Error loading quotes:", err);
-          quotes = ["⚠ Failed to load quotes."];
-          initQuotes();
-        }
-      }
+<!-- 4️⃣ Main Loader (Preloader control) -->
+<!-- No defer here — runs last, after all deferred scripts are executed -->
+<script src="system/js/all2.js" defer></script>
 
-      function setRandomQuote() {
-        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        quoteBox.textContent = randomQuote;
-        position = wrapper.offsetWidth + 50;
-        quoteBox.style.transform = `translateX(${position}px)`;
-      }
-
-      function animate(timestamp) {
-        if (lastTime !== null) {
-          const delta = (timestamp - lastTime) / 1000;
-          const accel = 2;
-          currentMultiplier += (targetMultiplier - currentMultiplier) * accel * delta;
-
-          if (!paused) {
-            position -= baseSpeed * currentMultiplier * delta;
-            quoteBox.style.transform = `translateX(${position}px)`;
-          }
-
-          if (position + quoteBox.offsetWidth < 0) {
-            setRandomQuote();
-          }
-        }
-        lastTime = timestamp;
-        requestAnimationFrame(animate);
-      }
-
-      const hoverSlowdown = (m) => () => (targetMultiplier = m);
-      wrapper.addEventListener("mouseenter", hoverSlowdown(0.8));
-      wrapper.addEventListener("mouseleave", hoverSlowdown(1));
-      quoteBox.addEventListener("mouseenter", hoverSlowdown(0.4));
-      quoteBox.addEventListener("mouseleave", hoverSlowdown(1));
-
-      wrapper.addEventListener("mousedown", () => (paused = true));
-      window.addEventListener("mouseup", () => (paused = false));
-
-      function initQuotes() {
-        setRandomQuote();
-        requestAnimationFrame(animate);
-      }
-
-      loadQuotes();
-    });
-  </script>
-
-  <script src="system/js/all2.js" defer></script>
 </body>
 </html>
