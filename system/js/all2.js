@@ -1,6 +1,5 @@
 /* ==========================================================
-WannaSmile | Unified JS Loader & UI Logic - Optimized
-Final Hardened & Optimized Version (with Version-Aware Popup)
+WannaSmile | Unified JS Loader & UI Logic - Fixed
 ========================================================== */
 (() => {
   "use strict";
@@ -55,6 +54,7 @@ Final Hardened & Optimized Version (with Version-Aware Popup)
       closeUpdateBtn: $("#closeUpdateBtn"),
       dontShowBtn: $("#dontShowBtn"),
       updateVideo: $("#updateVideo"),
+      footerVersion: $("#footerVersion"),
     };
 
     window.config = {
@@ -97,6 +97,7 @@ Final Hardened & Optimized Version (with Version-Aware Popup)
   function initPreloader() {
     const { preloader } = dom || {};
     if (!preloader) return;
+
     preloader.style.display = "flex";
     preloader.style.opacity = "1";
     preloader.dataset.hidden = "false";
@@ -133,8 +134,10 @@ Final Hardened & Optimized Version (with Version-Aware Popup)
       fill.style.width = `${clamped}%`;
     };
 
-    window.showLoading = (text) =>
-      (preloader.querySelector(".loading-text") || counter).textContent = text;
+    window.showLoading = (text) => {
+      const tEl = preloader.querySelector(".loading-text") || counter;
+      if (tEl) tEl.textContent = text;
+    };
 
     window.hidePreloader = () => {
       if (preloader.dataset.hidden === "true") return;
@@ -146,87 +149,83 @@ Final Hardened & Optimized Version (with Version-Aware Popup)
     };
   }
 
-/* ---------------------------
-Update Popup Logic (Version-Synced)
---------------------------- */
-function initUpdatePopup() {
-  const { updatePopup, closeUpdateBtn, dontShowBtn, viewUpdateBtn, viewUpdateInfoBtn, updateVideo } = dom || {};
-  if (!updatePopup) return;
+  /* ---------------------------
+  Update Popup Logic
+  --------------------------- */
+  function initUpdatePopup() {
+    const { updatePopup, closeUpdateBtn, dontShowBtn, viewUpdateBtn, viewUpdateInfoBtn, updateVideo } = dom || {};
+    if (!updatePopup) return;
 
-  const POPUP_KEY = "updatePopupState";
-  const VERSION_KEY = "sheetVersion";
-  const YT_CHANNEL = "https://www.youtube.com/@rhap5ody?si=iD7C-rAanz8k_JwL";
+    const POPUP_KEY = "updatePopupState";
+    const VERSION_KEY = "sheetVersion";
+    const YT_CHANNEL = "https://www.youtube.com/@rhap5ody?si=iD7C-rAanz8k_JwL";
 
-  const showPopup = (trailerURL = "") => {
-    updatePopup.classList.add("show");
+    const showPopup = (trailerURL = "") => {
+      updatePopup.classList.add("show");
 
-    if (updateVideo) {
-      if (trailerURL) {
-        updateVideo.src = trailerURL;
-        updateVideo.style.display = "block";
-        if (dom.viewUpdateBtn) {
-          dom.viewUpdateBtn.onclick = () => window.open(trailerURL, "_blank");
+      if (updateVideo) {
+        if (trailerURL) {
+          updateVideo.src = trailerURL;
+          updateVideo.style.display = "block";
+          if (viewUpdateBtn) viewUpdateBtn.onclick = () => window.open(trailerURL, "_blank");
+          updatePopup.querySelector("p").textContent =
+            "New games, smoother loading, and visual tweaks across the library!";
+        } else {
+          updateVideo.style.display = "none";
+          updatePopup.querySelector("p").textContent =
+            "Small bug fixes and patches. Check out the channel for other videos!";
+          if (viewUpdateBtn) viewUpdateBtn.onclick = () => window.open(YT_CHANNEL, "_blank");
         }
-        updatePopup.querySelector("p").textContent =
-          "New games, smoother loading, and visual tweaks across the library!";
-      } else {
-        updateVideo.style.display = "none";
-        updatePopup.querySelector("p").textContent =
-          "Small bug fixes and patches. Check out the channel for other videos!";
-        if (dom.viewUpdateBtn) dom.viewUpdateBtn.onclick = () => window.open(YT_CHANNEL, "_blank");
       }
-    }
-  };
+    };
 
-  const hidePopup = () => {
-    updatePopup.classList.remove("show");
-    if (updateVideo) updateVideo.src = "";
-  };
+    const hidePopup = () => {
+      updatePopup.classList.remove("show");
+      if (updateVideo) updateVideo.src = "";
+    };
 
-  closeUpdateBtn?.addEventListener("click", hidePopup);
-  viewUpdateInfoBtn?.addEventListener("click", () => {
-    hidePopup();
-    window.open("system/pages/version-log.html", "_blank");
-  });
-  dontShowBtn?.addEventListener("click", () => {
-    localStorage.setItem(POPUP_KEY, "dontshow");
-    hidePopup();
-  });
+    closeUpdateBtn?.addEventListener("click", hidePopup);
+    viewUpdateInfoBtn?.addEventListener("click", () => {
+      hidePopup();
+      window.open("system/pages/version-log.html", "_blank");
+    });
+    dontShowBtn?.addEventListener("click", () => {
+      localStorage.setItem(POPUP_KEY, "dontshow");
+      hidePopup();
+    });
 
-  // Called automatically after sheet load
-  window.handleVersionPopup = (sheetVersion, trailerURL = "") => {
-    const savedVersion = localStorage.getItem(VERSION_KEY);
-    const popupPref = localStorage.getItem(POPUP_KEY);
+    window.handleVersionPopup = (sheetVersion, trailerURL = "") => {
+      const savedVersion = localStorage.getItem(VERSION_KEY);
+      const popupPref = localStorage.getItem(POPUP_KEY);
 
-    console.log(`🧩 Current Sheet Version: ${sheetVersion}`);
-    console.log(`📦 Saved Version: ${savedVersion || "none"}`);
+      console.log(`🧩 Current Sheet Version: ${sheetVersion}`);
+      console.log(`📦 Saved Version: ${savedVersion || "none"}`);
 
-    if (sheetVersion && sheetVersion !== savedVersion) {
-      console.log("🔔 New sheet version detected!");
-      localStorage.setItem(VERSION_KEY, sheetVersion);
-      localStorage.removeItem(POPUP_KEY); // reset preference to show again
-      showPopup(trailerURL);
-    } else {
-      if (popupPref !== "dontshow") showPopup(trailerURL);
-    }
+      if (sheetVersion && sheetVersion !== savedVersion) {
+        console.log("🔔 New sheet version detected!");
+        localStorage.setItem(VERSION_KEY, sheetVersion);
+        localStorage.removeItem(POPUP_KEY);
+        showPopup(trailerURL);
+      } else if (popupPref !== "dontshow") {
+        showPopup(trailerURL);
+      }
 
-    // Update footer version
-    if (dom.footerVersion) dom.footerVersion.textContent = `Version ${sheetVersion}`;
-  };
-}
+      if (dom.footerVersion) dom.footerVersion.textContent = `Version ${sheetVersion}`;
+    };
+  }
 
   /* ---------------------------
   Asset Loader + Version Logic
   --------------------------- */
   async function loadAssets(retry = false) {
-    showLoading("Loading assets...");
-    updateProgress(5);
+    if (typeof showLoading === "function") showLoading("Loading assets...");
+    if (typeof updateProgress === "function") updateProgress(5);
+
     try {
       const res = await fetch(config.sheetUrl, { cache: "no-store" });
       if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
       const raw = await res.json();
-      
-      // ✅ Detect version field (custom column “version” or _version in sheet)
+
       const sheetVersion = safeStr(raw[0]?.version || raw.version || raw._version || raw[0]?._ver);
       if (sheetVersion && typeof handleVersionPopup === "function")
         handleVersionPopup(sheetVersion);
@@ -236,37 +235,32 @@ function initUpdatePopup() {
         : [];
       window.assetsData = data;
 
-      updateProgress(35);
+      if (typeof updateProgress === "function") updateProgress(35);
+
       const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
       const filtered = isFavPage
         ? data.filter((a) => window.favorites.has(safeStr(a.title).toLowerCase()))
         : data;
 
-      createAssetCards(filtered);
-      updateProgress(65);
+      if (typeof createAssetCards === "function") createAssetCards(filtered);
+      if (typeof updateProgress === "function") updateProgress(65);
       if (typeof renderPage === "function") renderPage();
 
       if (isFavPage && !filtered.length && dom.container)
         dom.container.innerHTML =
           "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
 
-      await waitForRenderedImages(8000);
-      updateProgress(100);
+      if (typeof waitForRenderedImages === "function") await waitForRenderedImages(8000);
+      if (typeof updateProgress === "function") updateProgress(100);
       await delay(250);
-      hidePreloader();
-
+      if (typeof hidePreloader === "function") hidePreloader();
     } catch (err) {
       console.error("Error loading assets:", err);
       if (!retry) return setTimeout(() => loadAssets(true), 1000);
-      showLoading("⚠ Failed to load assets.");
-      hidePreloader();
+      if (typeof showLoading === "function") showLoading("⚠ Failed to load assets.");
+      if (typeof hidePreloader === "function") hidePreloader();
     }
   }
-
-  /* ---------------------------
-  Paging / Decode helpers
-  --------------------------- */
-  // ... (Keep your existing Paging + waitForRenderedImages + createAssetCards code unchanged)
 
   /* ---------------------------
   DOM Bootstrap
@@ -276,15 +270,15 @@ function initUpdatePopup() {
       initElements();
       initFavorites();
       initPreloader();
-      initPaging();
+      if (typeof initPaging === "function") initPaging();
       initUpdatePopup();
 
       await loadAssets();
       console.log("✅ WannaSmile Loader Ready");
     } catch (err) {
       console.error("Initialization failed:", err);
-      showLoading("Initialization failed. Please reload.");
-      hidePreloader();
+      if (typeof showLoading === "function") showLoading("Initialization failed. Please reload.");
+      if (typeof hidePreloader === "function") hidePreloader();
     }
   });
 
