@@ -65,7 +65,7 @@
       font-family: monospace;
     }
 
-    /* === Update popup (neutral dark theme, no CSS variables) === */
+    /* === Update popup (neutral dark theme) === */
     .update-popup {
       position: fixed;
       inset: 0;
@@ -208,8 +208,24 @@
     <a href="system/pages/alt.html">Alternative Links</a>
   </aside>
 
-  <!-- Update Popup -->
-  ... (same as before) ...
+  <!-- ✅ Update Popup -->
+  <div id="updatePopup" class="update-popup">
+    <div class="update-popup-content">
+      <h2>Version ... Update!</h2>
+      <p>New games, smoother loading, and visual tweaks across the library!</p>
+      <div class="update-video-wrapper">
+        <iframe id="updateVideo" width="100%" height="200" src="" title="v0.8 Update Trailer"
+          frameborder="0" allowfullscreen></iframe>
+        <div class="video-tooltip">Press F or double click for full screen</div>
+      </div>
+      <div class="update-buttons">
+        <button id="viewUpdateBtn">Check it out!</button>
+        <button id="viewUpdateInfoBtn">More information</button>
+        <button id="closeUpdateBtn">Close</button>
+        <button id="dontShowBtn">Don’t show again</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Main -->
   <main>
@@ -235,7 +251,7 @@
   <script src="system/js/index.js" defer></script>
   <script src="system/js/version.js" defer></script>
 
-  <!-- ✅ Inline Quotes JSON Logic (fully merged from test version) -->
+  <!-- ✅ Inline Quotes JSON Logic -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const wrapper = document.getElementById("quoteWrapper");
@@ -245,21 +261,18 @@
       const jsonPath = "system/json/quotes.json";
       let quotes = [];
 
-      // --- Animation state ---
-      let baseSpeed = 120; // px/sec
+      let baseSpeed = 120;
       let targetMultiplier = 1;
       let currentMultiplier = 1;
       let position;
       let lastTime = null;
       let paused = false;
 
-      // --- Load quotes ---
       async function loadQuotes() {
         try {
           const res = await fetch(jsonPath);
           if (!res.ok) throw new Error(`Failed to fetch quotes: ${res.status}`);
           const data = await res.json();
-
           quotes = Array.isArray(data) && data.length ? data : ["No quotes available."];
           initQuotes();
         } catch (err) {
@@ -269,7 +282,6 @@
         }
       }
 
-      // --- Pick and position a random quote ---
       function setRandomQuote() {
         const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
         quoteBox.textContent = randomQuote;
@@ -277,12 +289,10 @@
         quoteBox.style.transform = `translateX(${position}px)`;
       }
 
-      // --- Main animation loop ---
       function animate(timestamp) {
         if (lastTime !== null) {
           const delta = (timestamp - lastTime) / 1000;
           const accel = 2;
-
           currentMultiplier += (targetMultiplier - currentMultiplier) * accel * delta;
 
           if (!paused) {
@@ -294,12 +304,10 @@
             setRandomQuote();
           }
         }
-
         lastTime = timestamp;
         requestAnimationFrame(animate);
       }
 
-      // --- Controls ---
       const hoverSlowdown = (m) => () => (targetMultiplier = m);
       wrapper.addEventListener("mouseenter", hoverSlowdown(0.8));
       wrapper.addEventListener("mouseleave", hoverSlowdown(1));
@@ -309,13 +317,11 @@
       wrapper.addEventListener("mousedown", () => (paused = true));
       window.addEventListener("mouseup", () => (paused = false));
 
-      // --- Initialize ---
       function initQuotes() {
         setRandomQuote();
         requestAnimationFrame(animate);
       }
 
-      // Start
       loadQuotes();
     });
   </script>
