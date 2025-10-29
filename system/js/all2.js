@@ -1,5 +1,5 @@
 /* ==========================================================
-WannaSmile | Unified JS Loader & UI Logic - Fixed
+WannaSmile | Unified JS Loader & UI Logic - Fixed v2
 ========================================================== */
 (() => {
   "use strict";
@@ -10,23 +10,6 @@ WannaSmile | Unified JS Loader & UI Logic - Fixed
   const clamp = (v, a = 0, b = 100) => Math.min(b, Math.max(a, v));
   const delay = (ms) => new Promise((r) => setTimeout(r, ms));
   const safeStr = (v) => (v == null ? "" : String(v));
-  const debounce = (fn, ms = 150) => {
-    let t;
-    return (...args) => {
-      clearTimeout(t);
-      t = setTimeout(() => fn(...args), ms);
-    };
-  };
-
-  /* ---------------------------
-  Sort Mode Control
-  --------------------------- */
-  const getSortMode = () => localStorage.getItem("sortMode") || "sheet";
-  document.addEventListener("sortModeChanged", () => {
-    if (window.assetsData && typeof window.refreshCards === "function") {
-      window.refreshCards();
-    }
-  });
 
   /* ---------------------------
   DOM & Config Initialization
@@ -46,8 +29,6 @@ WannaSmile | Unified JS Loader & UI Logic - Fixed
       preloader: $("#preloader"),
       loaderImage: $("#loaderImage"),
       pageIndicator: $(".page-indicator") || $("#page-indicator"),
-      searchInput: $("#searchInputHeader"),
-      searchBtn: $("#searchBtnHeader"),
       updatePopup: $("#updatePopup"),
       viewUpdateBtn: $("#viewUpdateBtn"),
       viewUpdateInfoBtn: $("#viewUpdateInfoBtn"),
@@ -60,13 +41,9 @@ WannaSmile | Unified JS Loader & UI Logic - Fixed
     window.config = {
       fallbackImage:
         "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
-      fallbackLink: "https://wanna5mile.github.io/source/dino/",
-      gifBase:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
+      fallbackVideo: "system/images/qrcode.png",
       sheetUrl:
         "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
-      updateLink: "system/pages/version-log.html",
-      updateTrailerSrc: "",
     };
   }
 
@@ -82,13 +59,6 @@ WannaSmile | Unified JS Loader & UI Logic - Fixed
     }
     window.saveFavorites = () =>
       localStorage.setItem("favorites", JSON.stringify([...window.favorites]));
-
-    window.refreshCards = () => {
-      if (!window.assetsData || typeof createAssetCards !== "function") return;
-      createAssetCards(window.assetsData);
-      if (typeof renderPage === "function") renderPage();
-      if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
-    };
   }
 
   /* ---------------------------
@@ -167,14 +137,14 @@ WannaSmile | Unified JS Loader & UI Logic - Fixed
         if (trailerURL) {
           updateVideo.src = trailerURL;
           updateVideo.style.display = "block";
-          if (viewUpdateBtn) viewUpdateBtn.onclick = () => window.open(trailerURL, "_blank");
+          viewUpdateBtn && (viewUpdateBtn.onclick = () => window.open(trailerURL, "_blank"));
           updatePopup.querySelector("p").textContent =
             "New games, smoother loading, and visual tweaks across the library!";
         } else {
           updateVideo.style.display = "none";
           updatePopup.querySelector("p").textContent =
             "Small bug fixes and patches. Check out the channel for other videos!";
-          if (viewUpdateBtn) viewUpdateBtn.onclick = () => window.open(YT_CHANNEL, "_blank");
+          viewUpdateBtn && (viewUpdateBtn.onclick = () => window.open(YT_CHANNEL, "_blank"));
         }
       }
     };
@@ -198,11 +168,7 @@ WannaSmile | Unified JS Loader & UI Logic - Fixed
       const savedVersion = localStorage.getItem(VERSION_KEY);
       const popupPref = localStorage.getItem(POPUP_KEY);
 
-      console.log(`🧩 Current Sheet Version: ${sheetVersion}`);
-      console.log(`📦 Saved Version: ${savedVersion || "none"}`);
-
       if (sheetVersion && sheetVersion !== savedVersion) {
-        console.log("🔔 New sheet version detected!");
         localStorage.setItem(VERSION_KEY, sheetVersion);
         localStorage.removeItem(POPUP_KEY);
         showPopup(trailerURL);
@@ -215,13 +181,13 @@ WannaSmile | Unified JS Loader & UI Logic - Fixed
   }
 
   /* ---------------------------
-  Asset Loader + Version Logic
+  Asset Loader + Fallback Video
   --------------------------- */
   async function loadAssets(retry = false) {
-    if (typeof showLoading === "function") showLoading("Loading assets...");
-    if (typeof updateProgress === "function") updateProgress(5);
-
     try {
+      showLoading && showLoading("Loading assets...");
+      updateProgress && updateProgress(5);
+
       const res = await fetch(config.sheetUrl, { cache: "no-store" });
       if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
       const raw = await res.json();
@@ -231,34 +197,32 @@ WannaSmile | Unified JS Loader & UI Logic - Fixed
         handleVersionPopup(sheetVersion);
 
       const data = Array.isArray(raw)
-        ? raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()))
+        ? raw.map((a) => ({
+            ...a,
+            video: safeStr(a.video).trim() || config.fallbackVideo,
+          })).filter((i) => Object.values(i).some((v) => safeStr(v).trim()))
         : [];
       window.assetsData = data;
 
-      if (typeof updateProgress === "function") updateProgress(35);
+      updateProgress && updateProgress(35);
 
-      const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
-      const filtered = isFavPage
-        ? data.filter((a) => window.favorites.has(safeStr(a.title).toLowerCase()))
-        : data;
-
-      if (typeof createAssetCards === "function") createAssetCards(filtered);
-      if (typeof updateProgress === "function") updateProgress(65);
+      if (typeof createAssetCards === "function") createAssetCards(data);
+      updateProgress && updateProgress(65);
       if (typeof renderPage === "function") renderPage();
 
-      if (isFavPage && !filtered.length && dom.container)
+      if (dom.container && !data.length)
         dom.container.innerHTML =
-          "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
+          "<p style='text-align:center;color:#ccc;font-family:monospace;'>No assets found ★</p>";
 
       if (typeof waitForRenderedImages === "function") await waitForRenderedImages(8000);
-      if (typeof updateProgress === "function") updateProgress(100);
+      updateProgress && updateProgress(100);
       await delay(250);
-      if (typeof hidePreloader === "function") hidePreloader();
+      hidePreloader && hidePreloader();
     } catch (err) {
       console.error("Error loading assets:", err);
       if (!retry) return setTimeout(() => loadAssets(true), 1000);
-      if (typeof showLoading === "function") showLoading("⚠ Failed to load assets.");
-      if (typeof hidePreloader === "function") hidePreloader();
+      showLoading && showLoading("⚠ Failed to load assets.");
+      hidePreloader && hidePreloader();
     }
   }
 
@@ -266,24 +230,12 @@ WannaSmile | Unified JS Loader & UI Logic - Fixed
   DOM Bootstrap
   --------------------------- */
   document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      initElements();
-      initFavorites();
-      initPreloader();
-      if (typeof initPaging === "function") initPaging();
-      initUpdatePopup();
-
-      await loadAssets();
-      console.log("✅ WannaSmile Loader Ready");
-    } catch (err) {
-      console.error("Initialization failed:", err);
-      if (typeof showLoading === "function") showLoading("Initialization failed. Please reload.");
-      if (typeof hidePreloader === "function") hidePreloader();
-    }
-  });
-
-  window.addEventListener("load", () => {
-    if (typeof loadAssets === "function" && !window.assetsData)
-      setTimeout(() => loadAssets().catch(() => {}), 100);
+    initElements();
+    initFavorites();
+    initPreloader();
+    if (typeof initPaging === "function") initPaging();
+    initUpdatePopup();
+    await loadAssets();
+    console.log("✅ WannaSmile Loader Ready");
   });
 })();
