@@ -47,7 +47,7 @@
     #quoteWrapper {
       position: relative;
       display: flex;
-      align-items: center; /* ✅ vertical centering */
+      align-items: center;
       width: 100vw;
       height: 40px;
       overflow: hidden;
@@ -195,7 +195,7 @@
     </div>
   </header>
 
-  <!-- ✅ QUOTE BAR (moved here, right below header) -->
+  <!-- ✅ QUOTE BAR -->
   <div id="quoteWrapper">
     <p id="quoteBox"></p>
   </div>
@@ -209,6 +209,7 @@
   </aside>
 
   <!-- Update Popup -->
+  ... (same as before) ...
 
   <!-- Main -->
   <main>
@@ -234,7 +235,7 @@
   <script src="system/js/index.js" defer></script>
   <script src="system/js/version.js" defer></script>
 
-  <!-- ✅ Inline Quotes JSON Logic -->
+  <!-- ✅ Inline Quotes JSON Logic (fully merged from test version) -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const wrapper = document.getElementById("quoteWrapper");
@@ -244,18 +245,21 @@
       const jsonPath = "system/json/quotes.json";
       let quotes = [];
 
-      let baseSpeed = 120;
+      // --- Animation state ---
+      let baseSpeed = 120; // px/sec
       let targetMultiplier = 1;
       let currentMultiplier = 1;
       let position;
       let lastTime = null;
       let paused = false;
 
+      // --- Load quotes ---
       async function loadQuotes() {
         try {
           const res = await fetch(jsonPath);
           if (!res.ok) throw new Error(`Failed to fetch quotes: ${res.status}`);
           const data = await res.json();
+
           quotes = Array.isArray(data) && data.length ? data : ["No quotes available."];
           initQuotes();
         } catch (err) {
@@ -265,6 +269,7 @@
         }
       }
 
+      // --- Pick and position a random quote ---
       function setRandomQuote() {
         const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
         quoteBox.textContent = randomQuote;
@@ -272,10 +277,12 @@
         quoteBox.style.transform = `translateX(${position}px)`;
       }
 
+      // --- Main animation loop ---
       function animate(timestamp) {
         if (lastTime !== null) {
           const delta = (timestamp - lastTime) / 1000;
           const accel = 2;
+
           currentMultiplier += (targetMultiplier - currentMultiplier) * accel * delta;
 
           if (!paused) {
@@ -287,10 +294,12 @@
             setRandomQuote();
           }
         }
+
         lastTime = timestamp;
         requestAnimationFrame(animate);
       }
 
+      // --- Controls ---
       const hoverSlowdown = (m) => () => (targetMultiplier = m);
       wrapper.addEventListener("mouseenter", hoverSlowdown(0.8));
       wrapper.addEventListener("mouseleave", hoverSlowdown(1));
@@ -300,11 +309,13 @@
       wrapper.addEventListener("mousedown", () => (paused = true));
       window.addEventListener("mouseup", () => (paused = false));
 
+      // --- Initialize ---
       function initQuotes() {
         setRandomQuote();
         requestAnimationFrame(animate);
       }
 
+      // Start
       loadQuotes();
     });
   </script>
