@@ -27,12 +27,12 @@
     /* ===== Quote Bar ===== */
     #quoteWrapper {
       position: relative;
-      align-items: center;
+      display: flex;
+      align-items: center;     /* ✅ Vertically centers the quote */
       width: 100vw;
-      height: 30px;
+      height: 40px;
       overflow: hidden;
       background: #1D201F;
-      text-align: center;
       user-select: none;
       z-index: 10;
     }
@@ -61,7 +61,7 @@
       const quoteBox = document.getElementById("quoteBox");
       if (!wrapper || !quoteBox) return;
 
-      const jsonPath = "../system/json/quotes.json"; // adjust path as needed
+      const jsonPath = "../system/json/quotes.json";
       let quotes = [];
 
       // --- Animation state ---
@@ -79,12 +79,7 @@
           if (!res.ok) throw new Error(`Failed to fetch quotes: ${res.status}`);
           const data = await res.json();
 
-          if (Array.isArray(data) && data.length) {
-            quotes = data;
-          } else {
-            quotes = ["No quotes available."];
-          }
-
+          quotes = Array.isArray(data) && data.length ? data : ["No quotes available."];
           initQuotes();
         } catch (err) {
           console.error("Error loading quotes:", err);
