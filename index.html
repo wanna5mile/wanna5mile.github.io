@@ -146,6 +146,24 @@
     60% { transform: scale(1.05); opacity: 1; }
     100% { transform: scale(1); }
   }
+/*
+  ================
+  quotes logic
+  ================*/
+    #quoteWrapper {
+      position: relative;
+      width: 100vw;
+      height: 30px;
+      overflow: hidden;
+      background: #1d201f;
+      display: flex;
+      align-items: center;
+    }
+    #quoteBox {
+      position: absolute;
+      white-space: nowrap;
+      font-weight: bold;
+    }
 </style>
 </head>
 
@@ -184,6 +202,10 @@
       <button id="dashboardBtn"><img src="system/icons/dashboard.png" alt="Dashboard" /></button>
     </div>
   </header>
+<!--quotes-->
+  <div id="quoteWrapper">
+    <p id="quoteBox"></p>
+  </div>
 
   <!-- Dashboard -->
   <aside id="dashboardMenu" class="dashboard-menu">
@@ -218,11 +240,6 @@
   </main>
   
   <button id="toTopBtn">⬆ Top</button>
-  
-  <!-- Quote Bar -->
-<div id="quoteWrapper">
-  <p id="quoteBox"></p>
-</div>
 
   <footer>
     <a href="system/pages/sources.html">Sources</a>
@@ -250,6 +267,55 @@
 <!-- 4️⃣ Main Loader (Preloader control) -->
 <!-- No defer here — runs last, after all deferred scripts are executed -->
 <script src="system/js/all2.js" defer></script>
+<!-- quotes -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const wrapper = document.getElementById("quoteWrapper");
+      const box = document.getElementById("quoteBox");
+      const jsonPath = "../system/json/quotes.json";
 
+      let quotes = [];
+      let pos = 0;
+      let speed = 120;
+      let lastTime = null;
+
+      async function loadQuotes() {
+        try {
+          const res = await fetch(jsonPath);
+          const data = await res.json();
+          quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
+          start();
+        } catch {
+          quotes = ["⚠ Error loading quotes"];
+          start();
+        }
+      }
+
+      function setQuote() {
+        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        box.textContent = quote;
+        pos = wrapper.offsetWidth;
+        box.style.transform = `translateX(${pos}px)`;
+      }
+
+      function animate(t) {
+        if (lastTime !== null) {
+          const dt = (t - lastTime) / 1000;
+          pos -= speed * dt;
+          box.style.transform = `translateX(${pos}px)`;
+          if (pos + box.offsetWidth < 0) setQuote();
+        }
+        lastTime = t;
+        requestAnimationFrame(animate);
+      }
+
+      function start() {
+        setQuote();
+        requestAnimationFrame(animate);
+      }
+
+      loadQuotes();
+    });
+  </script>
 </body>
 </html>
