@@ -1,13 +1,16 @@
 /* ==========================================================
-WannaSmile | Unified JS Loader & UI Logic - Session Smart Load v4
+WannaSmile | Unified JS Loader & UI Logic - Smart Session Paging v6
 ==============================================================
-✅ Combined Fixes:
-1. Guaranteed preloader/asset load (with decode wait).
-2. Session asset caching (only 1 fetch per session).
-3. Version-aware update check + toast.
-4. Robust image fallback + 404 card fallback.
-5. Popup (session + "don't show again" memory).
-6. Favorites + paging + search preserved.
+✅ Combined + Enhanced Features:
+1. Smart page-based display (from "page" column in Sheet).
+2. Wrap-around navigation (next/prev loops).
+3. Decode wait for smooth image loading.
+4. Session asset caching (only 1 fetch per session).
+5. Version-aware update check + toast.
+6. Popup (session + “don’t show again” memory).
+7. Fallback image & 404 card handling.
+8. Favorites system (persistent).
+9. Preloader with progress and message updates.
 ========================================================== */
 (() => {
   "use strict";
@@ -18,23 +21,14 @@ WannaSmile | Unified JS Loader & UI Logic - Session Smart Load v4
   const CLAMP = (v, a = 0, b = 100) => Math.min(b, Math.max(a, v));
   const DELAY = (ms) => new Promise((r) => setTimeout(r, ms));
   const SAFE_STR = (v) => (v == null ? "" : String(v));
-  const DEBOUNCE = (fn, ms = 150) => {
-    let t;
-    return (...args) => {
-      clearTimeout(t);
-      t = setTimeout(() => fn(...args), ms);
-    };
-  };
 
   const SESSION_KEY = "assetsDataCache";
   const VERSION_KEY = "assetsVersion";
   const FAV_KEY = "favorites";
   let isPreloaderActive = false;
-
-  /* ---------------------------
-  Sort Mode
-  --------------------------- */
-  const getSortMode = () => localStorage.getItem("sortMode") || "sheet";
+  let currentPage = 1;
+  let totalPages = 1;
+  let assetsByPage = {};
 
   /* ---------------------------
   DOM + Config
@@ -53,9 +47,9 @@ WannaSmile | Unified JS Loader & UI Logic - Session Smart Load v4
     window.dom = {
       container: $("#container"),
       preloader: $("#preloader"),
-      pageIndicator: $(".page-indicator") || $("#page-indicator"),
-      searchInput: $("#searchInputHeader"),
-      searchBtn: $("#searchBtnHeader"),
+      pageIndicator: $("#page-indicator") || $(".page-indicator"),
+      nextBtn: $("#nextPage"),
+      prevBtn: $("#prevPage"),
       updatePopup: $("#updatePopup"),
       loaderText: null,
       progressBarFill: null,
@@ -128,17 +122,15 @@ WannaSmile | Unified JS Loader & UI Logic - Session Smart Load v4
     preloader.style.opacity = "1";
 
     let counter = preloader.querySelector("#counter");
-    let bar = preloader.querySelector(".load-progress-bar");
     let fill = preloader.querySelector(".load-progress-fill");
-
     if (!counter) {
       counter = document.createElement("div");
       counter.id = "counter";
       counter.className = "load-progress-text";
       preloader.appendChild(counter);
     }
-    if (!bar) {
-      bar = document.createElement("div");
+    if (!fill) {
+      const bar = document.createElement("div");
       bar.className = "load-progress-bar";
       fill = document.createElement("div");
       fill.className = "load-progress-fill";
@@ -170,7 +162,7 @@ WannaSmile | Unified JS Loader & UI Logic - Session Smart Load v4
   }
 
   /* ---------------------------
-  Popup Logic (Session + Local)
+  Popup Logic
   --------------------------- */
   function initPopup() {
     const popup = dom.updatePopup;
@@ -308,7 +300,28 @@ WannaSmile | Unified JS Loader & UI Logic - Session Smart Load v4
   }
 
   /* ---------------------------
-  Asset Loader (Session Cache + Update Check)
+  Paging
+  --------------------------- */
+  function renderPage(pageNum) {
+    if (!assetsByPage[pageNum]) return;
+    createAssetCards(assetsByPage[pageNum]);
+    currentPage = pageNum;
+    if (dom.pageIndicator)
+      dom.pageIndicator.textContent = `Page ${currentPage} / ${totalPages}`;
+  }
+
+  function nextPage() {
+    const next = currentPage >= totalPages ? 1 : currentPage + 1;
+    renderPage(next);
+  }
+
+  function prevPage() {
+    const prev = currentPage <= 1 ? totalPages : currentPage - 1;
+    renderPage(prev);
+  }
+
+  /* ---------------------------
+  Asset Loader (Session + Paging)
   --------------------------- */
   async function loadAssets() {
     const cached = sessionStorage.getItem(SESSION_KEY);
@@ -317,7 +330,8 @@ WannaSmile | Unified JS Loader & UI Logic - Session Smart Load v4
     if (cached && cachedVersion) {
       try {
         const data = JSON.parse(cached);
-        createAssetCards(data);
+        groupAssetsByPage(data);
+        renderPage(1);
         hidePreloader();
         checkForUpdate(cachedVersion);
         return;
@@ -340,7 +354,8 @@ WannaSmile | Unified JS Loader & UI Logic - Session Smart Load v4
       sessionStorage.setItem(SESSION_KEY, JSON.stringify(data));
       sessionStorage.setItem(VERSION_KEY, version);
 
-      createAssetCards(data);
+      groupAssetsByPage(data);
+      renderPage(1);
       await waitForRenderedImages();
       hidePreloader();
     } catch (err) {
@@ -348,6 +363,16 @@ WannaSmile | Unified JS Loader & UI Logic - Session Smart Load v4
       createAssetCards([]);
       hidePreloader();
     }
+  }
+
+  function groupAssetsByPage(data) {
+    assetsByPage = {};
+    for (const asset of data) {
+      const pageNum = parseInt(asset.page || 1);
+      if (!assetsByPage[pageNum]) assetsByPage[pageNum] = [];
+      assetsByPage[pageNum].push(asset);
+    }
+    totalPages = Object.keys(assetsByPage).length || 1;
   }
 
   async function checkForUpdate(localVersion) {
@@ -371,5 +396,8 @@ WannaSmile | Unified JS Loader & UI Logic - Session Smart Load v4
     initPreloader();
     initPopup();
     await loadAssets();
+
+    dom.nextBtn?.addEventListener("click", nextPage);
+    dom.prevBtn?.addEventListener("click", prevPage);
   });
 })();
