@@ -155,7 +155,7 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3 (Fixed Fallback)
   }
 
   /* ---------------------------
-  Update Popup Logic
+  Update Popup Logic (Session-aware)
   --------------------------- */
   function initUpdatePopup() {
     const {
@@ -168,7 +168,8 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3 (Fixed Fallback)
     } = dom || {};
     if (!updatePopup) return;
 
-    const POPUP_KEY = "updatePopupState";
+    const POPUP_KEY = "updatePopupState"; // "dontshow" = permanent hide
+    const SESSION_KEY = "updatePopupHidden"; // session-only hide
     const VERSION_KEY = "sheetVersion";
     const YT_CHANNEL = "https://www.youtube.com/@rhap5ody?si=iD7C-rAanz8k_JwL";
 
@@ -180,8 +181,7 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3 (Fixed Fallback)
           updateVideo.src = trailerURL;
           updateVideo.style.display = "block";
           viewUpdateBtn &&
-            (viewUpdateBtn.onclick = () =>
-              window.open(trailerURL, "_blank"));
+            (viewUpdateBtn.onclick = () => window.open(trailerURL, "_blank"));
           updatePopup.querySelector("p").textContent =
             "New games, smoother loading, and visual tweaks across the library!";
         } else {
@@ -189,8 +189,7 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3 (Fixed Fallback)
           updatePopup.querySelector("p").textContent =
             "Small bug fixes and patches. Check out the channel for other videos!";
           viewUpdateBtn &&
-            (viewUpdateBtn.onclick = () =>
-              window.open(YT_CHANNEL, "_blank"));
+            (viewUpdateBtn.onclick = () => window.open(YT_CHANNEL, "_blank"));
         }
       }
     };
@@ -200,25 +199,40 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3 (Fixed Fallback)
       if (updateVideo) updateVideo.src = "";
     };
 
-    closeUpdateBtn?.addEventListener("click", hidePopup);
+    // 🔸 Hide for this session only
+    closeUpdateBtn?.addEventListener("click", () => {
+      sessionStorage.setItem(SESSION_KEY, "hidden");
+      hidePopup();
+    });
+
+    // 🔸 Don't show again (persistent)
+    dontShowBtn?.addEventListener("click", () => {
+      localStorage.setItem(POPUP_KEY, "dontshow");
+      sessionStorage.removeItem(SESSION_KEY);
+      hidePopup();
+    });
+
+    // 🔸 View log
     viewUpdateInfoBtn?.addEventListener("click", () => {
       hidePopup();
       window.open("system/pages/version-log.html", "_blank");
     });
-    dontShowBtn?.addEventListener("click", () => {
-      localStorage.setItem(POPUP_KEY, "dontshow");
-      hidePopup();
-    });
 
+    // ✅ Popup handler
     window.handleVersionPopup = (sheetVersion, trailerURL = "") => {
       const savedVersion = localStorage.getItem(VERSION_KEY);
       const popupPref = localStorage.getItem(POPUP_KEY);
+      const sessionHidden = sessionStorage.getItem(SESSION_KEY);
 
+      // new version → show again (even if session said hidden)
       if (sheetVersion && sheetVersion !== savedVersion) {
         localStorage.setItem(VERSION_KEY, sheetVersion);
+        sessionStorage.removeItem(SESSION_KEY);
         localStorage.removeItem(POPUP_KEY);
         showPopup(trailerURL);
-      } else if (popupPref !== "dontshow") {
+      }
+      // no permanent hide & not session-hidden → show
+      else if (popupPref !== "dontshow" && !sessionHidden) {
         showPopup(trailerURL);
       }
 
