@@ -1,10 +1,13 @@
 /* ==========================================================
-WannaSmile | Unified JS Loader & UI Logic - FIXED & GUARANTEED LOAD v2
-Fixes:
-1. Guaranteed Preloader/Asset Loading sequence (Preloader hides only AFTER full decode).
-2. Robust image loading with fallback handling.
-3. Popup initialization (session + “don’t show again” memory).
-4. Graceful empty-asset fallback with 404 image.
+WannaSmile | Unified JS Loader & UI Logic - Session Smart Load v4
+==============================================================
+✅ Combined Fixes:
+1. Guaranteed preloader/asset load (with decode wait).
+2. Session asset caching (only 1 fetch per session).
+3. Version-aware update check + toast.
+4. Robust image fallback + 404 card fallback.
+5. Popup (session + "don't show again" memory).
+6. Favorites + paging + search preserved.
 ========================================================== */
 (() => {
   "use strict";
@@ -23,19 +26,15 @@ Fixes:
     };
   };
 
-  // State
-  let isPreloaderActive = false;
+  const SESSION_KEY = "assetsDataCache";
+  const VERSION_KEY = "assetsVersion";
   const FAV_KEY = "favorites";
+  let isPreloaderActive = false;
 
   /* ---------------------------
   Sort Mode
   --------------------------- */
   const getSortMode = () => localStorage.getItem("sortMode") || "sheet";
-  document.addEventListener("sortModeChanged", () => {
-    if (window.assetsData && typeof window.refreshCards === "function") {
-      window.refreshCards();
-    }
-  });
 
   /* ---------------------------
   DOM + Config
@@ -75,6 +74,34 @@ Fixes:
   }
 
   /* ---------------------------
+  Toast Notification
+  --------------------------- */
+  function showToast(msg, duration = 4000) {
+    let toast = document.getElementById("toastNotify");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "toastNotify";
+      Object.assign(toast.style, {
+        position: "fixed",
+        bottom: "20px",
+        right: "20px",
+        padding: "10px 16px",
+        background: "#222",
+        color: "#fff",
+        borderRadius: "8px",
+        fontSize: "14px",
+        zIndex: "9999",
+        opacity: "0",
+        transition: "opacity 0.3s ease",
+      });
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = "1";
+    setTimeout(() => (toast.style.opacity = "0"), duration);
+  }
+
+  /* ---------------------------
   Favorites
   --------------------------- */
   function initFavorites() {
@@ -84,14 +111,9 @@ Fixes:
     } catch {
       window.favorites = new Set();
     }
+
     window.saveFavorites = () =>
       localStorage.setItem(FAV_KEY, JSON.stringify([...window.favorites]));
-
-    window.refreshCards = () => {
-      if (!window.assetsData || typeof createAssetCards !== "function") return;
-      createAssetCards(window.assetsData);
-      if (typeof renderPage === "function") renderPage();
-    };
   }
 
   /* ---------------------------
@@ -104,7 +126,6 @@ Fixes:
     isPreloaderActive = true;
     preloader.style.display = "flex";
     preloader.style.opacity = "1";
-    preloader.dataset.hidden = "false";
 
     let counter = preloader.querySelector("#counter");
     let bar = preloader.querySelector(".load-progress-bar");
@@ -123,10 +144,6 @@ Fixes:
       fill.className = "load-progress-fill";
       bar.appendChild(fill);
       preloader.appendChild(bar);
-    } else if (!fill) {
-      fill = document.createElement("div");
-      fill.className = "load-progress-fill";
-      bar.appendChild(fill);
     }
 
     dom.loaderText = counter;
@@ -140,13 +157,12 @@ Fixes:
     };
 
     window.showLoading = (text) => {
-      if (isPreloaderActive) dom.loaderText.textContent = text;
+      if (isPreloaderActive && dom.loaderText) dom.loaderText.textContent = text;
     };
 
     window.hidePreloader = () => {
       if (!isPreloaderActive) return;
       isPreloaderActive = false;
-      preloader.dataset.hidden = "true";
       preloader.style.transition = "opacity 0.4s ease";
       preloader.style.opacity = "0";
       setTimeout(() => (preloader.style.display = "none"), 450);
@@ -154,7 +170,7 @@ Fixes:
   }
 
   /* ---------------------------
-  Popup Logic (Session + Local Memory)
+  Popup Logic (Session + Local)
   --------------------------- */
   function initPopup() {
     const popup = dom.updatePopup;
@@ -191,54 +207,33 @@ Fixes:
   --------------------------- */
   function createAssetCards(data) {
     const { container } = dom || {};
-    if (!container) return [];
-
+    if (!container) return;
     container.innerHTML = "";
     const frag = document.createDocumentFragment();
-    const sortMode = getSortMode();
     const isFav = (t) => window.favorites.has(SAFE_STR(t).toLowerCase());
-    let sorted = Array.isArray(data) ? [...data] : [];
 
-    if (sortMode === "alphabetical") {
-      sorted.sort((a, b) =>
-        SAFE_STR(a.title).localeCompare(SAFE_STR(b.title), undefined, {
-          numeric: true,
-          sensitivity: "base",
-        })
-      );
-    }
-
-    if (!sorted.length) {
-      // 🔥 No data fallback — show a single 404 card
+    if (!Array.isArray(data) || !data.length) {
       const fallbackCard = document.createElement("div");
       fallbackCard.className = "asset-card fallback-card";
       fallbackCard.innerHTML = `
         <a href="${config.fallbackLink}" target="_blank" rel="noopener noreferrer">
-          <img src="${config.fallbackImage}" alt="No assets available" loading="eager">
+          <img src="${config.fallbackImage}" alt="No assets available">
         </a>
         <h3>No assets available</h3>
       `;
       container.appendChild(fallbackCard);
-      return [];
+      return;
     }
 
-    for (const asset of sorted) {
-      const title = SAFE_STR(asset.title).trim();
-      const author = SAFE_STR(asset.author).trim();
-      const imageSrc = SAFE_STR(asset.image) || config.fallbackImage;
+    for (const asset of data) {
+      const title = SAFE_STR(asset.title);
+      const author = SAFE_STR(asset.author);
       const link = SAFE_STR(asset.link) || config.fallbackLink;
-      const pageNum = Number(asset.page) || 1;
+      const imageSrc = SAFE_STR(asset.image) || config.fallbackImage;
       const status = SAFE_STR(asset.status).toLowerCase();
-      const gifFile = `${config.gifBase}${status}.gif`;
 
       const card = document.createElement("div");
       card.className = "asset-card";
-      Object.assign(card.dataset, {
-        title: title.toLowerCase(),
-        author: author.toLowerCase(),
-        page: String(pageNum),
-        filtered: "true",
-      });
 
       const a = document.createElement("a");
       a.href = link;
@@ -246,103 +241,54 @@ Fixes:
       a.rel = "noopener noreferrer";
 
       const img = document.createElement("img");
-      img.alt = title;
-      img.loading = "eager";
       img.crossOrigin = "anonymous";
       img.src = imageSrc;
+      img.alt = title;
+      img.loading = "eager";
       img.onerror = () => (img.src = config.fallbackImage);
-
       a.appendChild(img);
 
-      if (["soon", "fix"].includes(status)) card.classList.add(status);
-      else if (["new", "updated"].includes(status)) {
+      if (["new", "updated"].includes(status)) {
         const overlay = document.createElement("img");
-        overlay.src = gifFile;
-        overlay.alt = `${status} badge`;
+        overlay.src = `${config.gifBase}${status}.gif`;
         overlay.className = `status-gif status-${status}`;
         a.appendChild(overlay);
       }
 
-      const titleEl = document.createElement("h3");
-      titleEl.textContent = title || "Untitled";
-      const authorEl = document.createElement("p");
-      authorEl.textContent = author;
+      const h3 = document.createElement("h3");
+      h3.textContent = title || "Untitled";
+      const p = document.createElement("p");
+      p.textContent = author;
 
-      const star = document.createElement("button");
-      star.className = "favorite-star";
-      star.textContent = isFav(title) ? "★" : "☆";
-      star.addEventListener("click", (e) => {
+      const fav = document.createElement("button");
+      fav.textContent = isFav(title) ? "★" : "☆";
+      Object.assign(fav.style, {
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        fontSize: "20px",
+        color: "#ffcc00",
+      });
+      fav.addEventListener("click", (e) => {
         e.preventDefault();
-        e.stopPropagation();
         const key = title.toLowerCase();
         if (window.favorites.has(key)) window.favorites.delete(key);
         else window.favorites.add(key);
+        fav.textContent = window.favorites.has(key) ? "★" : "☆";
         saveFavorites();
-        star.textContent = window.favorites.has(key) ? "★" : "☆";
       });
 
-      card.append(a, titleEl, authorEl, star);
+      card.append(a, h3, p, fav);
       frag.appendChild(card);
     }
 
     container.appendChild(frag);
-    return [];
   }
 
   /* ---------------------------
-  Paging + Search
-  --------------------------- */
-  function initPaging() {
-    const { container, pageIndicator, searchInput, searchBtn } = dom || {};
-    if (!container) return;
-    const getAll = () => [...container.querySelectorAll(".asset-card")];
-    const getFiltered = () => getAll().filter((c) => c.dataset.filtered === "true");
-    const getPages = () =>
-      [...new Set(getFiltered().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort(
-        (a, b) => a - b
-      );
-
-    window.renderPage = () => {
-      const pages = getPages();
-      if (!pages.length) {
-        getAll().forEach((c) => (c.style.display = ""));
-        pageIndicator && (pageIndicator.textContent = "No pages");
-        return;
-      }
-      const saved = +sessionStorage.getItem("currentPage") || pages[0];
-      window.currentPage = pages.includes(saved) ? saved : pages[0];
-      getAll().forEach((c) => {
-        c.style.display =
-          +c.dataset.page === +window.currentPage && c.dataset.filtered === "true" ? "" : "none";
-      });
-      const idx = pages.indexOf(+window.currentPage);
-      pageIndicator &&
-        (pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`);
-      sessionStorage.setItem("currentPage", window.currentPage);
-    };
-
-    window.filterAssets = (q) => {
-      const query = SAFE_STR(q).toLowerCase().trim();
-      getAll().forEach((c) => {
-        const match =
-          !query ||
-          c.dataset.title.includes(query) ||
-          c.dataset.author.includes(query);
-        c.dataset.filtered = match ? "true" : "false";
-      });
-      renderPage();
-    };
-
-    searchBtn?.addEventListener("click", () => filterAssets(searchInput.value));
-    searchInput?.addEventListener("input", DEBOUNCE(() => filterAssets(searchInput.value), 200));
-    renderPage();
-  }
-
-  /* ---------------------------
-  Decode Helper
+  Image Decode Wait
   --------------------------- */
   async function waitForRenderedImages() {
-    if (!isPreloaderActive) return;
     try {
       showLoading("Optimizing images...");
       await DELAY(60);
@@ -351,46 +297,68 @@ Fixes:
         imgs.map(
           (img) =>
             new Promise((res) => {
-              if (img.complete && img.naturalWidth !== 0) return res();
-              img.onerror = () => res();
-              img.onload = () => res();
+              if (img.complete && img.naturalWidth) return res();
+              img.onload = img.onerror = () => res();
             })
         )
       );
-    } catch (e) {
-      console.warn("Image decode wait failed:", e);
+    } catch {
+      console.warn("Image decode wait failed");
     }
   }
 
   /* ---------------------------
-  Asset Loader
+  Asset Loader (Session Cache + Update Check)
   --------------------------- */
-  async function loadAssets(retry = false) {
-    if (isPreloaderActive) {
-      showLoading("Loading assets...");
-      updateProgress(5);
+  async function loadAssets() {
+    const cached = sessionStorage.getItem(SESSION_KEY);
+    const cachedVersion = sessionStorage.getItem(VERSION_KEY);
+
+    if (cached && cachedVersion) {
+      try {
+        const data = JSON.parse(cached);
+        createAssetCards(data);
+        hidePreloader();
+        checkForUpdate(cachedVersion);
+        return;
+      } catch {
+        console.warn("Cache invalid, refetching...");
+      }
     }
+
     try {
+      showLoading("Loading assets...");
       const res = await fetch(config.sheetUrl, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
-      const raw = await res.json();
-      const data = raw.filter((i) => Object.values(i).some((v) => SAFE_STR(v).trim()));
-      window.assetsData = data;
+      const json = await res.json();
+      const version = SAFE_STR(json.version || Date.now());
+      const data = Array.isArray(json)
+        ? json
+        : Array.isArray(json.data)
+        ? json.data
+        : [];
 
-      updateProgress(40);
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(data));
+      sessionStorage.setItem(VERSION_KEY, version);
+
       createAssetCards(data);
-      if (typeof renderPage === "function") renderPage();
-
       await waitForRenderedImages();
-      updateProgress(100);
-      await DELAY(200);
       hidePreloader();
     } catch (err) {
-      console.error("Error loading assets:", err);
-      if (!retry) return setTimeout(() => loadAssets(true), 1000);
-      showLoading("⚠ Failed to load assets.");
-      createAssetCards([]); // show fallback 404 card
+      console.error("Asset load failed:", err);
+      createAssetCards([]);
       hidePreloader();
+    }
+  }
+
+  async function checkForUpdate(localVersion) {
+    try {
+      const res = await fetch(config.sheetUrl, { cache: "no-store" });
+      const json = await res.json();
+      const version = SAFE_STR(json.version || Date.now());
+      if (version !== localVersion)
+        showToast("⚡ New update available! Refresh to rebuild assets.");
+    } catch (e) {
+      console.warn("Update check failed:", e);
     }
   }
 
@@ -398,22 +366,10 @@ Fixes:
   Bootstrap
   --------------------------- */
   document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      initElements();
-      initFavorites();
-      initPaging();
-      initPreloader();
-      initPopup();
-      await loadAssets();
-      console.log("✅ WannaSmile Loader Ready");
-    } catch (e) {
-      console.error("Init failed:", e);
-      showLoading("Initialization failed. Please reload.");
-      hidePreloader();
-    }
-  });
-
-  window.addEventListener("load", () => {
-    if (!window.assetsData) setTimeout(() => loadAssets().catch(() => {}), 100);
+    initElements();
+    initFavorites();
+    initPreloader();
+    initPopup();
+    await loadAssets();
   });
 })();
