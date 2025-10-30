@@ -1,5 +1,5 @@
 /* ==========================================================
-WannaSmile | Unified JS Loader & UI Logic - Final Merged v3
+WannaSmile | Unified JS Loader & UI Logic - Final Merged v3 (Fixed Fallback)
 ========================================================== */
 (() => {
   "use strict";
@@ -59,9 +59,13 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3
     };
 
     window.config = {
+      // ✅ Use QR code as fallback image
       fallbackImage:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
-      fallbackVideo: "system/images/qrcode.png",
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/qrcode.png",
+
+      // ✅ Leave fallbackVideo empty (no image used as video)
+      fallbackVideo: "",
+
       fallbackLink: "https://wanna5mile.github.io/source/dino/",
       gifBase:
         "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
@@ -154,7 +158,14 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3
   Update Popup Logic
   --------------------------- */
   function initUpdatePopup() {
-    const { updatePopup, closeUpdateBtn, dontShowBtn, viewUpdateBtn, viewUpdateInfoBtn, updateVideo } = dom || {};
+    const {
+      updatePopup,
+      closeUpdateBtn,
+      dontShowBtn,
+      viewUpdateBtn,
+      viewUpdateInfoBtn,
+      updateVideo,
+    } = dom || {};
     if (!updatePopup) return;
 
     const POPUP_KEY = "updatePopupState";
@@ -168,14 +179,18 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3
         if (trailerURL) {
           updateVideo.src = trailerURL;
           updateVideo.style.display = "block";
-          viewUpdateBtn && (viewUpdateBtn.onclick = () => window.open(trailerURL, "_blank"));
+          viewUpdateBtn &&
+            (viewUpdateBtn.onclick = () =>
+              window.open(trailerURL, "_blank"));
           updatePopup.querySelector("p").textContent =
             "New games, smoother loading, and visual tweaks across the library!";
         } else {
           updateVideo.style.display = "none";
           updatePopup.querySelector("p").textContent =
             "Small bug fixes and patches. Check out the channel for other videos!";
-          viewUpdateBtn && (viewUpdateBtn.onclick = () => window.open(YT_CHANNEL, "_blank"));
+          viewUpdateBtn &&
+            (viewUpdateBtn.onclick = () =>
+              window.open(YT_CHANNEL, "_blank"));
         }
       }
     };
@@ -207,7 +222,8 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3
         showPopup(trailerURL);
       }
 
-      if (dom.footerVersion) dom.footerVersion.textContent = `Version ${sheetVersion}`;
+      if (dom.footerVersion)
+        dom.footerVersion.textContent = `Version ${sheetVersion}`;
     };
   }
 
@@ -262,6 +278,9 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3
       img.src = imageSrc;
       a.appendChild(img);
 
+      // ✅ fallback handling for broken images
+      img.onerror = () => (img.src = config.fallbackImage);
+
       if (["soon", "fix"].includes(status)) {
         card.classList.add(status === "fix" ? "FIX" : "soon");
       } else if (["new", "updated"].includes(status)) {
@@ -280,7 +299,8 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3
       const star = document.createElement("button");
       star.className = "favorite-star";
       star.textContent = isFav(title) ? "★" : "☆";
-      star.style.cssText = "background:transparent;border:none;cursor:pointer;";
+      star.style.cssText =
+        "background:transparent;border:none;cursor:pointer;";
       star.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -353,8 +373,13 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3
       renderPage();
     };
 
-    searchBtn?.addEventListener("click", () => filterAssets(searchInput.value));
-    searchInput?.addEventListener("input", debounce(() => filterAssets(searchInput.value), 200));
+    searchBtn?.addEventListener("click", () =>
+      filterAssets(searchInput.value)
+    );
+    searchInput?.addEventListener(
+      "input",
+      debounce(() => filterAssets(searchInput.value), 200)
+    );
 
     const saved = +sessionStorage.getItem("currentPage") || 1;
     window.currentPage = saved;
@@ -394,7 +419,9 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3
       if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
       const raw = await res.json();
 
-      const sheetVersion = safeStr(raw[0]?.version || raw.version || raw._version || raw[0]?._ver);
+      const sheetVersion = safeStr(
+        raw[0]?.version || raw.version || raw._version || raw[0]?._ver
+      );
       if (sheetVersion && typeof handleVersionPopup === "function")
         handleVersionPopup(sheetVersion);
 
@@ -405,17 +432,23 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3
               video: safeStr(a.video).trim() || config.fallbackVideo,
               image: safeStr(a.image).trim() || config.fallbackImage,
             }))
-            .filter((i) => Object.values(i).some((v) => safeStr(v).trim()))
+            .filter((i) =>
+              Object.values(i).some((v) => safeStr(v).trim())
+            )
         : [];
 
       window.assetsData = data;
       updateProgress && updateProgress(35);
 
-      const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
+      const isFavPage = location.pathname
+        .toLowerCase()
+        .includes("favorites.html");
       let filtered = data;
       if (isFavPage)
         filtered = [...window.favorites].length
-          ? data.filter((a) => window.favorites.has(safeStr(a.title).toLowerCase()))
+          ? data.filter((a) =>
+              window.favorites.has(safeStr(a.title).toLowerCase())
+            )
           : [];
 
       createAssetCards(filtered);
@@ -426,7 +459,7 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3
         dom.container.innerHTML =
           "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
 
-      // ✅ Wait for all images to fully load
+      // ✅ Wait for all images to fully load, use QR fallback on fail
       const images = dom.container?.querySelectorAll("img") || [];
       if (images.length) {
         await Promise.all(
