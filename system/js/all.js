@@ -276,14 +276,27 @@
       a.rel = "noopener noreferrer";
       a.className = "asset-link";
 
-      const img = document.createElement("img");
-      img.alt = title || "Untitled";
-      img.loading = "eager";
-      img.src = imageSrc;
-      img.crossOrigin = "anonymous";
-      img.onerror = () => {
-        if (img.src !== config.fallbackImage) img.src = config.fallbackImage;
-      };
+const img = document.createElement("img");
+img.alt = title || "Untitled";
+img.loading = "eager";
+img.crossOrigin = "anonymous";
+
+if (imageCache.has(imageSrc)) {
+  // Use cached version instantly
+  img.src = imageCache.get(imageSrc).src;
+} else {
+  img.src = imageSrc;
+  img.decode?.().then(() => {
+    imageCache.set(imageSrc, img);
+  }).catch(() => {
+    // fallback if decode fails
+    if (!imageCache.has(imageSrc)) imageCache.set(imageSrc, img);
+  });
+}
+
+img.onerror = () => {
+  if (img.src !== config.fallbackImage) img.src = config.fallbackImage;
+};
 
       a.appendChild(img);
 
