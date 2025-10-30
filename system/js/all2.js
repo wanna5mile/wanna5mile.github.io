@@ -154,92 +154,126 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3 (Fixed Fallback)
     };
   }
 
-  /* ---------------------------
-  Update Popup Logic (Session-aware)
-  --------------------------- */
-  function initUpdatePopup() {
-    const {
-      updatePopup,
-      closeUpdateBtn,
-      dontShowBtn,
-      viewUpdateBtn,
-      viewUpdateInfoBtn,
-      updateVideo,
-    } = dom || {};
-    if (!updatePopup) return;
+/* ---------------------------
+Update Popup Logic (Version-aware + Session)
+--------------------------- */
+function initUpdatePopup() {
+  const {
+    updatePopup,
+    closeUpdateBtn,
+    dontShowBtn,
+    viewUpdateBtn,
+    viewUpdateInfoBtn,
+    updateVideo,
+  } = dom || {};
+  if (!updatePopup) return;
 
-    const POPUP_KEY = "updatePopupState"; // "dontshow" = permanent hide
-    const SESSION_KEY = "updatePopupHidden"; // session-only hide
-    const VERSION_KEY = "sheetVersion";
-    const YT_CHANNEL = "https://www.youtube.com/@rhap5ody?si=iD7C-rAanz8k_JwL";
+  const POPUP_KEY = "updatePopupState"; // "dontshow" = permanent hide
+  const SESSION_KEY = "updatePopupHidden"; // session-only hide
+  const VERSION_KEY = "sheetVersion";
+  const YT_CHANNEL = "https://www.youtube.com/@rhap5ody?si=iD7C-rAanz8k_JwL";
 
-    const showPopup = (trailerURL = "") => {
-      updatePopup.classList.add("show");
+  const parseVersion = (v) =>
+    safeStr(v)
+      .split(".")
+      .map((n) => parseInt(n, 10) || 0);
 
-      if (updateVideo) {
-        if (trailerURL) {
-          updateVideo.src = trailerURL;
-          updateVideo.style.display = "block";
-          viewUpdateBtn &&
-            (viewUpdateBtn.onclick = () => window.open(trailerURL, "_blank"));
-          updatePopup.querySelector("p").textContent =
-            "New games, smoother loading, and visual tweaks across the library!";
-        } else {
-          updateVideo.style.display = "none";
-          updatePopup.querySelector("p").textContent =
-            "Small bug fixes and patches. Check out the channel for other videos!";
-          viewUpdateBtn &&
-            (viewUpdateBtn.onclick = () => window.open(YT_CHANNEL, "_blank"));
-        }
+  const compareVersions = (a, b) => {
+    const va = parseVersion(a);
+    const vb = parseVersion(b);
+    const len = Math.max(va.length, vb.length);
+    for (let i = 0; i < len; i++) {
+      const diff = (va[i] || 0) - (vb[i] || 0);
+      if (diff !== 0) return diff > 0 ? 1 : -1;
+    }
+    return 0;
+  };
+
+  const showPopup = (trailerURL = "") => {
+    updatePopup.classList.add("show");
+
+    if (updateVideo) {
+      if (trailerURL) {
+        updateVideo.src = trailerURL;
+        updateVideo.style.display = "block";
+        viewUpdateBtn &&
+          (viewUpdateBtn.onclick = () => window.open(trailerURL, "_blank"));
+        updatePopup.querySelector("p").textContent =
+          "New games, smoother loading, and visual tweaks across the library!";
+      } else {
+        updateVideo.style.display = "none";
+        updatePopup.querySelector("p").textContent =
+          "Small bug fixes and patches. Check out the channel for other videos!";
+        viewUpdateBtn &&
+          (viewUpdateBtn.onclick = () => window.open(YT_CHANNEL, "_blank"));
       }
-    };
+    }
+  };
 
-    const hidePopup = () => {
-      updatePopup.classList.remove("show");
-      if (updateVideo) updateVideo.src = "";
-    };
+  const hidePopup = () => {
+    updatePopup.classList.remove("show");
+    if (updateVideo) updateVideo.src = "";
+  };
 
-    // 🔸 Hide for this session only
-    closeUpdateBtn?.addEventListener("click", () => {
-      sessionStorage.setItem(SESSION_KEY, "hidden");
-      hidePopup();
-    });
+  // 🔸 Hide for this session only
+  closeUpdateBtn?.addEventListener("click", () => {
+    sessionStorage.setItem(SESSION_KEY, "hidden");
+    hidePopup();
+  });
 
-    // 🔸 Don't show again (persistent)
-    dontShowBtn?.addEventListener("click", () => {
-      localStorage.setItem(POPUP_KEY, "dontshow");
-      sessionStorage.removeItem(SESSION_KEY);
-      hidePopup();
-    });
+  // 🔸 Don't show again (persistent)
+  dontShowBtn?.addEventListener("click", () => {
+    localStorage.setItem(POPUP_KEY, "dontshow");
+    sessionStorage.removeItem(SESSION_KEY);
+    hidePopup();
+  });
 
-    // 🔸 View log
-    viewUpdateInfoBtn?.addEventListener("click", () => {
-      hidePopup();
-      window.open("system/pages/version-log.html", "_blank");
-    });
+  // 🔸 View log
+  viewUpdateInfoBtn?.addEventListener("click", () => {
+    hidePopup();
+    window.open("system/pages/version-log.html", "_blank");
+  });
 
-    // ✅ Popup handler
-    window.handleVersionPopup = (sheetVersion, trailerURL = "") => {
-      const savedVersion = localStorage.getItem(VERSION_KEY);
-      const popupPref = localStorage.getItem(POPUP_KEY);
-      const sessionHidden = sessionStorage.getItem(SESSION_KEY);
+  // ✅ Main handler (compare + log)
+  window.handleVersionPopup = (sheetVersion, trailerURL = "") => {
+    const savedVersion = localStorage.getItem(VERSION_KEY);
+    const popupPref = localStorage.getItem(POPUP_KEY);
+    const sessionHidden = sessionStorage.getItem(SESSION_KEY);
 
-      // new version → show again (even if session said hidden)
-      if (sheetVersion && sheetVersion !== savedVersion) {
-        localStorage.setItem(VERSION_KEY, sheetVersion);
-        sessionStorage.removeItem(SESSION_KEY);
+    console.log(
+      `[Popup Check] Saved: ${savedVersion || "none"}, Latest: ${sheetVersion}`
+    );
+
+    let shouldShow = false;
+
+    if (!savedVersion) {
+      shouldShow = true; // first time visitor
+    } else {
+      const cmp = compareVersions(sheetVersion, savedVersion);
+      if (cmp > 0) {
+        // newer version detected
+        console.log("🆕 Newer version detected → forcing popup reset");
+        shouldShow = true;
+        // reset stored flags to re-ask
         localStorage.removeItem(POPUP_KEY);
-        showPopup(trailerURL);
+        sessionStorage.removeItem(SESSION_KEY);
       }
-      // no permanent hide & not session-hidden → show
-      else if (popupPref !== "dontshow" && !sessionHidden) {
-        showPopup(trailerURL);
-      }
+    }
 
-      if (dom.footerVersion)
-        dom.footerVersion.textContent = `Version ${sheetVersion}`;
-    };
-  }
+    // ✅ Save latest version for next comparisons
+    localStorage.setItem(VERSION_KEY, sheetVersion);
+
+    if (shouldShow) {
+      showPopup(trailerURL);
+    } else if (popupPref !== "dontshow" && !sessionHidden) {
+      // show only if not hidden this session and not permanently disabled
+      showPopup(trailerURL);
+    }
+
+    if (dom.footerVersion)
+      dom.footerVersion.textContent = `Version ${sheetVersion}`;
+  };
+}
 
   /* ---------------------------
   Asset Card Builder
