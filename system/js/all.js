@@ -1,16 +1,17 @@
 /* ==========================================================
-WannaSmile | Unified JS Loader & UI Logic - Smart Session Paging v6
+WannaSmile | Unified JS Loader & UI Logic - Smart Session Paging v7
 ==============================================================
 ✅ Combined + Enhanced Features:
 1. Smart page-based display (from "page" column in Sheet).
 2. Wrap-around navigation (next/prev loops).
-3. Decode wait for smooth image loading.
-4. Session asset caching (only 1 fetch per session).
-5. Version-aware update check + toast.
-6. Popup (session + “don’t show again” memory).
-7. Fallback image & 404 card handling.
-8. Favorites system (persistent).
-9. Preloader with progress and message updates.
+3. Live search filtering (with reset on clear).
+4. Decode wait for smooth image loading.
+5. Session asset caching (only 1 fetch per session).
+6. Version-aware update check + toast.
+7. Popup (session + “don’t show again” memory).
+8. Fallback image & 404 card handling.
+9. Favorites system (persistent).
+10. Preloader with progress and message updates.
 ========================================================== */
 (() => {
   "use strict";
@@ -25,6 +26,7 @@ WannaSmile | Unified JS Loader & UI Logic - Smart Session Paging v6
   const SESSION_KEY = "assetsDataCache";
   const VERSION_KEY = "assetsVersion";
   const FAV_KEY = "favorites";
+
   let isPreloaderActive = false;
   let currentPage = 1;
   let totalPages = 1;
@@ -50,6 +52,8 @@ WannaSmile | Unified JS Loader & UI Logic - Smart Session Paging v6
       pageIndicator: $("#page-indicator") || $(".page-indicator"),
       nextBtn: $("#nextPage"),
       prevBtn: $("#prevPage"),
+      searchInput: $("#searchInputHeader"),
+      searchBtn: $("#searchBtnHeader"),
       updatePopup: $("#updatePopup"),
       loaderText: null,
       progressBarFill: null,
@@ -278,28 +282,6 @@ WannaSmile | Unified JS Loader & UI Logic - Smart Session Paging v6
   }
 
   /* ---------------------------
-  Image Decode Wait
-  --------------------------- */
-  async function waitForRenderedImages() {
-    try {
-      showLoading("Optimizing images...");
-      await DELAY(60);
-      const imgs = Array.from(document.querySelectorAll("#container img"));
-      await Promise.all(
-        imgs.map(
-          (img) =>
-            new Promise((res) => {
-              if (img.complete && img.naturalWidth) return res();
-              img.onload = img.onerror = () => res();
-            })
-        )
-      );
-    } catch {
-      console.warn("Image decode wait failed");
-    }
-  }
-
-  /* ---------------------------
   Paging
   --------------------------- */
   function renderPage(pageNum) {
@@ -314,10 +296,42 @@ WannaSmile | Unified JS Loader & UI Logic - Smart Session Paging v6
     const next = currentPage >= totalPages ? 1 : currentPage + 1;
     renderPage(next);
   }
+  window.nextPage = nextPage;
 
   function prevPage() {
     const prev = currentPage <= 1 ? totalPages : currentPage - 1;
     renderPage(prev);
+  }
+  window.prevPage = prevPage;
+
+  /* ---------------------------
+  Live Search
+  --------------------------- */
+  function initLiveSearch() {
+    const input = dom.searchInput;
+    const btn = dom.searchBtn;
+    if (!input) return;
+
+    function applySearch() {
+      const query = input.value.trim().toLowerCase();
+      if (!query) return renderPage(1);
+
+      const allAssets = Object.values(assetsByPage).flat();
+      const filtered = allAssets.filter((a) => {
+        const t = SAFE_STR(a.title).toLowerCase();
+        const auth = SAFE_STR(a.author).toLowerCase();
+        return t.includes(query) || auth.includes(query);
+      });
+
+      createAssetCards(filtered);
+      if (dom.pageIndicator)
+        dom.pageIndicator.textContent = `Search: ${filtered.length} result${
+          filtered.length === 1 ? "" : "s"
+        }`;
+    }
+
+    input.addEventListener("input", applySearch);
+    btn?.addEventListener("click", applySearch);
   }
 
   /* ---------------------------
@@ -356,7 +370,7 @@ WannaSmile | Unified JS Loader & UI Logic - Smart Session Paging v6
 
       groupAssetsByPage(data);
       renderPage(1);
-      await waitForRenderedImages();
+      await DELAY(100);
       hidePreloader();
     } catch (err) {
       console.error("Asset load failed:", err);
@@ -396,6 +410,7 @@ WannaSmile | Unified JS Loader & UI Logic - Smart Session Paging v6
     initPreloader();
     initPopup();
     await loadAssets();
+    initLiveSearch();
 
     dom.nextBtn?.addEventListener("click", nextPage);
     dom.prevBtn?.addEventListener("click", prevPage);
