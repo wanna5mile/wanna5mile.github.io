@@ -1,5 +1,6 @@
 /* ==========================================================
-WannaSmile | Unified JS Loader & UI Logic - Final Merged v3 (Fixed Fallback)
+WannaSmile | Unified JS Loader & UI Logic - Final Merged & Optimized
+Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallback
 ========================================================== */
 (() => {
   "use strict";
@@ -59,12 +60,13 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3 (Fixed Fallback)
     };
 
     window.config = {
-      // ✅ Use QR code as fallback image
+      // ✅ Reverted to Old JS Fallback Image for main assets
       fallbackImage:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/qrcode.png",
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
 
-      // ✅ Leave fallbackVideo empty (no image used as video)
-      fallbackVideo: "",
+      // ✅ New key: QR code as fallback for popups/videos
+      fallbackYtImage:
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/qrcode.png",
 
       fallbackLink: "https://wanna5mile.github.io/source/dino/",
       gifBase:
@@ -92,6 +94,7 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3 (Fixed Fallback)
 
     window.refreshCards = () => {
       if (!window.assetsData || typeof createAssetCards !== "function") return;
+      // Note: Removed redundant startPlaceholderCycle from the old code
       createAssetCards(window.assetsData);
       if (typeof renderPage === "function") renderPage();
     };
@@ -111,6 +114,7 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3 (Fixed Fallback)
     let bar = preloader.querySelector(".load-progress-bar");
     let fill = preloader.querySelector(".load-progress-fill");
 
+    // Unified logic to ensure elements exist (from both old/new)
     if (!counter) {
       counter = document.createElement("div");
       counter.id = "counter";
@@ -150,130 +154,127 @@ WannaSmile | Unified JS Loader & UI Logic - Final Merged v3 (Fixed Fallback)
       preloader.style.transition = "opacity 0.45s ease";
       preloader.style.opacity = "0";
       preloader.style.pointerEvents = "none";
+      // Added a small delay here for a smoother transition (from Old JS)
       setTimeout(() => (preloader.style.display = "none"), 500);
     };
   }
 
-/* ---------------------------
-Update Popup Logic (Version-aware + Session)
---------------------------- */
-function initUpdatePopup() {
-  const {
-    updatePopup,
-    closeUpdateBtn,
-    dontShowBtn,
-    viewUpdateBtn,
-    viewUpdateInfoBtn,
-    updateVideo,
-  } = dom || {};
-  if (!updatePopup) return;
+  /* ---------------------------
+  Update Popup Logic (Version-aware + Session)
+  --------------------------- */
+  function initUpdatePopup() {
+    const {
+      updatePopup,
+      closeUpdateBtn,
+      dontShowBtn,
+      viewUpdateBtn,
+      viewUpdateInfoBtn,
+      updateVideo,
+    } = dom || {};
+    if (!updatePopup) return;
 
-  const POPUP_KEY = "updatePopupState"; // "dontshow" = permanent hide
-  const SESSION_KEY = "updatePopupHidden"; // session-only hide
-  const VERSION_KEY = "sheetVersion";
-  const YT_CHANNEL = "https://www.youtube.com/@rhap5ody?si=iD7C-rAanz8k_JwL";
+    const POPUP_KEY = "updatePopupState";
+    const SESSION_KEY = "updatePopupHidden";
+    const VERSION_KEY = "sheetVersion";
+    const YT_CHANNEL = "https://www.youtube.com/@rhap5ody?si=iD7C-rAanz8k_JwL";
+    
+    // ✅ Use the new fallbackYtImage for the video area if needed
+    const YOUTUBE_IMAGE_FALLBACK = config.fallbackYtImage;
 
-  const parseVersion = (v) =>
-    safeStr(v)
-      .split(".")
-      .map((n) => parseInt(n, 10) || 0);
+    const parseVersion = (v) =>
+      safeStr(v)
+        .split(".")
+        .map((n) => parseInt(n, 10) || 0);
 
-  const compareVersions = (a, b) => {
-    const va = parseVersion(a);
-    const vb = parseVersion(b);
-    const len = Math.max(va.length, vb.length);
-    for (let i = 0; i < len; i++) {
-      const diff = (va[i] || 0) - (vb[i] || 0);
-      if (diff !== 0) return diff > 0 ? 1 : -1;
-    }
-    return 0;
-  };
-
-  const showPopup = (trailerURL = "") => {
-    updatePopup.classList.add("show");
-
-    if (updateVideo) {
-      if (trailerURL) {
-        updateVideo.src = trailerURL;
-        updateVideo.style.display = "block";
-        viewUpdateBtn &&
-          (viewUpdateBtn.onclick = () => window.open(trailerURL, "_blank"));
-        updatePopup.querySelector("p").textContent =
-          "New games, smoother loading, and visual tweaks across the library!";
-      } else {
-        updateVideo.style.display = "none";
-        updatePopup.querySelector("p").textContent =
-          "Small bug fixes and patches. Check out the channel for other videos!";
-        viewUpdateBtn &&
-          (viewUpdateBtn.onclick = () => window.open(YT_CHANNEL, "_blank"));
+    const compareVersions = (a, b) => {
+      const va = parseVersion(a);
+      const vb = parseVersion(b);
+      const len = Math.max(va.length, vb.length);
+      for (let i = 0; i < len; i++) {
+        const diff = (va[i] || 0) - (vb[i] || 0);
+        if (diff !== 0) return diff > 0 ? 1 : -1;
       }
-    }
-  };
+      return 0;
+    };
 
-  const hidePopup = () => {
-    updatePopup.classList.remove("show");
-    if (updateVideo) updateVideo.src = "";
-  };
+    const showPopup = (trailerURL = "") => {
+      updatePopup.classList.add("show");
 
-  // 🔸 Hide for this session only
-  closeUpdateBtn?.addEventListener("click", () => {
-    sessionStorage.setItem(SESSION_KEY, "hidden");
-    hidePopup();
-  });
+      if (updateVideo) {
+        if (trailerURL) {
+          updateVideo.src = trailerURL;
+          updateVideo.style.display = "block";
+          viewUpdateBtn &&
+            (viewUpdateBtn.onclick = () => window.open(trailerURL, "_blank"));
+          updatePopup.querySelector("p").textContent =
+            "New games, smoother loading, and visual tweaks across the library!";
+        } else {
+          // ✅ When no trailer URL, hide the video and show the QR as a placeholder
+          updateVideo.src = YOUTUBE_IMAGE_FALLBACK;
+          updateVideo.style.display = "block";
+          updatePopup.querySelector("p").textContent =
+            "Small bug fixes and patches. Check out the channel for other videos!";
+          viewUpdateBtn &&
+            (viewUpdateBtn.onclick = () => window.open(YT_CHANNEL, "_blank"));
+        }
+      }
+    };
 
-  // 🔸 Don't show again (persistent)
-  dontShowBtn?.addEventListener("click", () => {
-    localStorage.setItem(POPUP_KEY, "dontshow");
-    sessionStorage.removeItem(SESSION_KEY);
-    hidePopup();
-  });
+    const hidePopup = () => {
+      updatePopup.classList.remove("show");
+      if (updateVideo) updateVideo.src = "";
+    };
 
-  // 🔸 View log
-  viewUpdateInfoBtn?.addEventListener("click", () => {
-    hidePopup();
-    window.open("system/pages/version-log.html", "_blank");
-  });
+    closeUpdateBtn?.addEventListener("click", () => {
+      sessionStorage.setItem(SESSION_KEY, "hidden");
+      hidePopup();
+    });
 
-  // ✅ Main handler (compare + log)
-  window.handleVersionPopup = (sheetVersion, trailerURL = "") => {
-    const savedVersion = localStorage.getItem(VERSION_KEY);
-    const popupPref = localStorage.getItem(POPUP_KEY);
-    const sessionHidden = sessionStorage.getItem(SESSION_KEY);
+    dontShowBtn?.addEventListener("click", () => {
+      localStorage.setItem(POPUP_KEY, "dontshow");
+      sessionStorage.removeItem(SESSION_KEY);
+      hidePopup();
+    });
 
-    console.log(
-      `[Popup Check] Saved: ${savedVersion || "none"}, Latest: ${sheetVersion}`
-    );
+    viewUpdateInfoBtn?.addEventListener("click", () => {
+      hidePopup();
+      window.open("system/pages/version-log.html", "_blank");
+    });
 
-    let shouldShow = false;
+    window.handleVersionPopup = (sheetVersion, trailerURL = "") => {
+      const savedVersion = localStorage.getItem(VERSION_KEY);
+      const popupPref = localStorage.getItem(POPUP_KEY);
+      const sessionHidden = sessionStorage.getItem(SESSION_KEY);
 
-    if (!savedVersion) {
-      shouldShow = true; // first time visitor
-    } else {
-      const cmp = compareVersions(sheetVersion, savedVersion);
-      if (cmp > 0) {
-        // newer version detected
-        console.log("🆕 Newer version detected → forcing popup reset");
+      console.log(
+        `[Popup Check] Saved: ${savedVersion || "none"}, Latest: ${sheetVersion}`
+      );
+
+      let shouldShow = false;
+
+      if (!savedVersion) {
         shouldShow = true;
-        // reset stored flags to re-ask
-        localStorage.removeItem(POPUP_KEY);
-        sessionStorage.removeItem(SESSION_KEY);
+      } else {
+        const cmp = compareVersions(sheetVersion, savedVersion);
+        if (cmp > 0) {
+          console.log("🆕 Newer version detected → forcing popup reset");
+          shouldShow = true;
+          localStorage.removeItem(POPUP_KEY);
+          sessionStorage.removeItem(SESSION_KEY);
+        }
       }
-    }
 
-    // ✅ Save latest version for next comparisons
-    localStorage.setItem(VERSION_KEY, sheetVersion);
+      localStorage.setItem(VERSION_KEY, sheetVersion);
 
-    if (shouldShow) {
-      showPopup(trailerURL);
-    } else if (popupPref !== "dontshow" && !sessionHidden) {
-      // show only if not hidden this session and not permanently disabled
-      showPopup(trailerURL);
-    }
+      if (shouldShow || (popupPref !== "dontshow" && !sessionHidden)) {
+        showPopup(trailerURL);
+      }
 
-    if (dom.footerVersion)
-      dom.footerVersion.textContent = `Version ${sheetVersion}`;
-  };
-}
+      if (dom.footerVersion)
+        dom.footerVersion.textContent = `Version ${sheetVersion}`;
+    };
+  }
+
 
   /* ---------------------------
   Asset Card Builder
@@ -326,7 +327,7 @@ function initUpdatePopup() {
       img.src = imageSrc;
       a.appendChild(img);
 
-      // ✅ fallback handling for broken images
+      // ✅ Image error fallback to the default asset image
       img.onerror = () => (img.src = config.fallbackImage);
 
       if (["soon", "fix"].includes(status)) {
@@ -364,10 +365,12 @@ function initUpdatePopup() {
     }
 
     container.appendChild(frag);
+    // Returning an empty array to match the old function's non-promise return style post-optimization
+    return [];
   }
 
   /* ---------------------------
-  Paging + Search + Filter
+  Paging + Search + Filter (Optimized)
   --------------------------- */
   function initPaging() {
     const { container, pageIndicator, searchInput, searchBtn } = dom || {};
@@ -404,6 +407,7 @@ function initUpdatePopup() {
       const idx = pages.indexOf(+window.currentPage);
       pageIndicator &&
         (pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`);
+      // Store the current page in sessionStorage (from Old JS Fix)
       sessionStorage.setItem("currentPage", window.currentPage);
     };
 
@@ -432,10 +436,8 @@ function initUpdatePopup() {
     const saved = +sessionStorage.getItem("currentPage") || 1;
     window.currentPage = saved;
     renderPage();
-
-    /* ---------------------------
-    Page Navigation Controls (wrap-around)
-    --------------------------- */
+    
+    // Page Navigation Controls (wrap-around from New JS)
     window.nextPage = () => {
       const pages = getPages();
       if (!pages.length) return;
@@ -456,7 +458,7 @@ function initUpdatePopup() {
   }
 
   /* ---------------------------
-  Asset Loader (with image wait)
+  Asset Loader (with robust image wait)
   --------------------------- */
   async function loadAssets(retry = false) {
     try {
@@ -467,17 +469,19 @@ function initUpdatePopup() {
       if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
       const raw = await res.json();
 
+      // Handle versioning/popup first (from New JS)
       const sheetVersion = safeStr(
         raw[0]?.version || raw.version || raw._version || raw[0]?._ver
       );
       if (sheetVersion && typeof handleVersionPopup === "function")
-        handleVersionPopup(sheetVersion);
+        // Trailer source is currently not in the sheet data structure, so pass an empty string
+        handleVersionPopup(sheetVersion, "");
 
       const data = Array.isArray(raw)
         ? raw
             .map((a) => ({
               ...a,
-              video: safeStr(a.video).trim() || config.fallbackVideo,
+              // Use fallbackImage for the asset image
               image: safeStr(a.image).trim() || config.fallbackImage,
             }))
             .filter((i) =>
@@ -499,6 +503,7 @@ function initUpdatePopup() {
             )
           : [];
 
+      // 1. Create the card elements and append them to the DOM
       createAssetCards(filtered);
       updateProgress && updateProgress(65);
       if (typeof renderPage === "function") renderPage();
@@ -507,14 +512,16 @@ function initUpdatePopup() {
         dom.container.innerHTML =
           "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
 
-      // ✅ Wait for all images to fully load, use QR fallback on fail
+      // 2. Wait for all card images to be loaded and decoded/completed
       const images = dom.container?.querySelectorAll("img") || [];
       if (images.length) {
+        // Using the robust Promise.all image loading from New JS (which includes onerror fallback)
         await Promise.all(
           [...images].map(
             (img) =>
               new Promise((resolve) => {
                 if (img.complete && img.naturalWidth !== 0) return resolve();
+                // Fallback to asset image on error
                 img.onerror = () => {
                   img.src = config.fallbackImage;
                   resolve();
@@ -526,7 +533,7 @@ function initUpdatePopup() {
       }
 
       updateProgress && updateProgress(100);
-      await delay(250);
+      await delay(250); // Final delay for smooth transition (from Old JS fix)
       hidePreloader && hidePreloader();
     } catch (err) {
       console.error("Error loading assets:", err);
@@ -540,12 +547,25 @@ function initUpdatePopup() {
   DOM Bootstrap
   --------------------------- */
   document.addEventListener("DOMContentLoaded", async () => {
-    initElements();
-    initFavorites();
-    initPreloader();
-    initPaging();
-    initUpdatePopup();
-    await loadAssets();
-    console.log("✅ WannaSmile Loader Ready");
+    try {
+      initElements();
+      initFavorites();
+      initPreloader();
+      initPaging();
+      initUpdatePopup(); // Initialize popup logic
+      
+      await loadAssets();
+      console.log("✅ WannaSmile Loader Ready");
+    } catch (err) {
+      console.error("Initialization failed:", err);
+      showLoading && showLoading("Initialization failed. Please reload.");
+      hidePreloader && hidePreloader();
+    }
+  });
+
+  // Fallback load on window.load (from Old JS)
+  window.addEventListener("load", () => {
+    if (typeof loadAssets === "function" && !window.assetsData)
+      setTimeout(() => loadAssets().catch(() => {}), 100);
   });
 })();
