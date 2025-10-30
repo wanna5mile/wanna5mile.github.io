@@ -1,6 +1,6 @@
 /* ==========================================================
-   WannaSmile | Unified Asset Loader v11 (Stable)
-   Sheet Paging + Favorites Styling Fix
+   WannaSmile | Unified Asset Loader v11.1 (Fixed)
+   Paging + Favorites Style Clean + Button Fix
    ========================================================== */
 (() => {
   "use strict";
@@ -22,12 +22,8 @@
   /* ---------------------------
   Keys / State
   --------------------------- */
-  const SESSION_KEY = "assetsDataCache";
-  const VERSION_KEY = "assetsVersion";
   const FAV_KEY = "favorites";
-  let isPreloaderActive = false;
   let allAssetsFlat = [];
-  let assetsByPage = {};
   let currentPage = 1;
   let isFavoritesPage = location.pathname.toLowerCase().includes("favorites");
 
@@ -53,10 +49,6 @@
       prevBtn: $("#prevPage"),
       searchInput: $("#searchInputHeader"),
       searchBtn: $("#searchBtnHeader"),
-      updatePopup: $("#updatePopup"),
-      viewUpdateBtn: $("#viewUpdateBtn"),
-      closeUpdateBtn: $("#closeUpdateBtn"),
-      dontShowBtn: $("#dontShowBtn"),
     };
 
     window.config = {
@@ -67,7 +59,6 @@
         "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
       sheetUrl:
         "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
-      updateLink: "system/pages/version-log.html",
     };
   }
 
@@ -114,71 +105,6 @@
   }
 
   /* ---------------------------
-  Preloader
-  --------------------------- */
-  function initPreloader() {
-    const pre = dom.preloader;
-    if (!pre) return;
-    isPreloaderActive = true;
-    pre.style.display = "flex";
-    pre.style.opacity = "1";
-    pre.dataset.hidden = "false";
-
-    const counter =
-      pre.querySelector("#counter") ||
-      pre.appendChild(Object.assign(document.createElement("div"), { id: "counter", className: "load-progress-text" }));
-    const bar =
-      pre.querySelector(".load-progress-bar") ||
-      pre.appendChild(Object.assign(document.createElement("div"), { className: "load-progress-bar" }));
-    const fill =
-      bar.querySelector(".load-progress-fill") ||
-      bar.appendChild(Object.assign(document.createElement("div"), { className: "load-progress-fill" }));
-
-    window.updateProgress = (p) => {
-      if (!isPreloaderActive) return;
-      const val = clamp(Math.round(p), 0, 100);
-      counter.textContent = `${val}%`;
-      fill.style.width = `${val}%`;
-    };
-
-    window.showLoading = (t) => (counter.textContent = t);
-    window.hidePreloader = () => {
-      if (!isPreloaderActive || pre.dataset.hidden === "true") return;
-      pre.dataset.hidden = "true";
-      pre.style.transition = "opacity 0.4s ease";
-      pre.style.opacity = "0";
-      setTimeout(() => {
-        pre.style.display = "none";
-        isPreloaderActive = false;
-      }, 500);
-    };
-  }
-
-  /* ---------------------------
-  Popup
-  --------------------------- */
-  function initPopup() {
-    const pop = dom.updatePopup;
-    if (!pop) return;
-    const hiddenSession = sessionStorage.getItem("popupHidden");
-    const dontShow = localStorage.getItem("popupDontShow");
-    if (hiddenSession === "true" || dontShow === "true") return;
-
-    pop.classList.add("show");
-    dom.closeUpdateBtn?.addEventListener("click", () => {
-      pop.classList.remove("show");
-      sessionStorage.setItem("popupHidden", "true");
-    });
-    dom.dontShowBtn?.addEventListener("click", () => {
-      pop.classList.remove("show");
-      localStorage.setItem("popupDontShow", "true");
-    });
-    dom.viewUpdateBtn?.addEventListener("click", () => {
-      window.location.href = config.updateLink;
-    });
-  }
-
-  /* ---------------------------
   Build Asset Cards
   --------------------------- */
   function createAssetCards(list) {
@@ -210,7 +136,6 @@
       const img = document.createElement("img");
       img.src = imgSrc;
       img.alt = title || "Untitled";
-      img.loading = "eager";
       img.onerror = () => (img.src = config.fallbackImage);
       anchor.appendChild(img);
 
@@ -239,14 +164,20 @@
         star.textContent = favCheck(title) ? "★" : "☆";
       };
 
-      // --- Favorites styling ---
+      // Clean favorites styling
       if (isFavoritesPage) {
-        card.style.background = "none";
-        card.style.boxShadow = "none";
-        card.style.border = "none";
-        star.style.border = "none";
-        star.style.background = "none";
-        star.style.fontSize = "1.4em";
+        Object.assign(card.style, {
+          background: "transparent",
+          boxShadow: "none",
+          border: "none",
+        });
+        Object.assign(star.style, {
+          border: "none",
+          background: "transparent",
+          fontSize: "1.4em",
+          color: "gold",
+          cursor: "pointer",
+        });
       }
 
       card.append(anchor, titleEl, authorEl, star);
@@ -256,54 +187,45 @@
   }
 
   /* ---------------------------
-  Paging + Search
+  Paging
   --------------------------- */
   function initPaging() {
     const cont = dom.container;
     const pageLabel = dom.pageIndicator;
-    const search = dom.searchInput;
-    const searchBtn = dom.searchBtn;
     if (!cont) return;
 
     const allCards = () => [...cont.querySelectorAll(".asset-card")];
     const getPages = () =>
       [...new Set(allCards().map((c) => +c.dataset.page))].sort((a, b) => a - b);
 
-    window.renderPage = (page = currentPage) => {
+    window.renderPage = (page) => {
       const pages = getPages();
       if (!pages.length) return;
-      currentPage = pages.includes(page) ? page : pages[0];
-      allCards().forEach((c) => (c.style.display = +c.dataset.page === currentPage ? "" : "none"));
-      pageLabel && (pageLabel.textContent = `Page ${pages.indexOf(currentPage) + 1} of ${pages.length}`);
-      sessionStorage.setItem("currentPage", currentPage);
+      const max = pages.length;
+      currentPage = clamp(page, 1, max);
+      allCards().forEach(
+        (c) => (c.style.display = +c.dataset.page === currentPage ? "" : "none")
+      );
+      if (pageLabel)
+        pageLabel.textContent = `Page ${currentPage} of ${max}`;
     };
 
-    window.filterAssets = (q) => {
-      const query = safeStr(q).toLowerCase().trim();
-      allCards().forEach((c) => {
-        const match =
-          !query ||
-          c.dataset.title.includes(query) ||
-          c.dataset.author.includes(query);
-        c.style.display = match ? "" : "none";
-      });
-    };
+    dom.nextBtn?.addEventListener("click", () => {
+      renderPage(currentPage + 1);
+    });
 
-    searchBtn?.addEventListener("click", () => filterAssets(search.value));
-    search?.addEventListener("input", debounce(() => filterAssets(search.value), 250));
+    dom.prevBtn?.addEventListener("click", () => {
+      renderPage(currentPage - 1);
+    });
   }
 
   /* ---------------------------
-  Load + Version
+  Load Assets
   --------------------------- */
-  async function loadAssets(retry = false) {
+  async function loadAssets() {
     try {
-      showLoading("Loading assets...");
-      updateProgress(10);
       const res = await fetch(config.sheetUrl, { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
-
       const arr = Array.isArray(json.data || json.assets || json)
         ? json.data || json.assets || json
         : [];
@@ -311,29 +233,21 @@
 
       allAssetsFlat = clean;
       createAssetCards(allAssetsFlat);
-      await delay(500);
-      updateProgress(100);
-      hidePreloader();
+      await delay(400);
       renderPage(1);
     } catch (e) {
       console.error("❌ Asset load failed:", e);
-      if (!retry) setTimeout(() => loadAssets(true), 1200);
-      else hidePreloader();
     }
   }
 
   /* ---------------------------
-  Bootstrap
+  Init
   --------------------------- */
   document.addEventListener("DOMContentLoaded", async () => {
     initElements();
     initFavorites();
-    initPreloader();
-    initPopup();
     await loadAssets();
     initPaging();
-    dom.nextBtn?.addEventListener("click", () => renderPage(currentPage + 1));
-    dom.prevBtn?.addEventListener("click", () => renderPage(currentPage - 1));
-    console.log("✅ WannaSmile Loader Ready (v11)");
+    console.log("✅ WannaSmile Loader Ready (v11.1)");
   });
 })();
