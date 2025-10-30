@@ -1,9 +1,10 @@
 /* ==========================================================
 WannaSmile | Unified JS Loader & UI Logic - FINAL FIXED & RESTRUCTURED
-Fixes:
+Fixes & Enhancements:
 1. Guaranteed Preloader/Asset Loading sequence (Preloader only hides AFTER all assets load).
-2. Corrected visibility check for preloader progress updates.
+2. Corrected visibility check for preloader progress updates via `isPreloaderVisible`.
 3. Ensured assets load on all pages, but preloader only shows on session start.
+4. CRITICAL FIX: Corrected Asset Hash logic to avoid infinite "Refresh to rebuild" loop.
 ========================================================== */
 (() => {
   "use strict";
@@ -29,10 +30,9 @@ Fixes:
   const POPUP_KEY = "updatePopupState";
   const POPUP_SESSION_KEY = "updatePopupHidden";
   const SHEET_VERSION_KEY = "sheetVersion";
-  // ✅ Renamed for clarity and encapsulated state
-  const IS_NEW_SESSION_KEY = "isNewSession"; 
+  const IS_NEW_SESSION_KEY = "isNewSession";
   const ASSET_HASH_KEY = "assetBuildHash";
-  
+
   // Track if preloader is currently visible and active (Session only)
   let isPreloaderVisible = false;
 
@@ -47,12 +47,12 @@ Fixes:
   });
 
   /* ---------------------------
-  DOM & Config Initialization (Simplified)
+  DOM & Config Initialization
   --------------------------- */
   function initElements() {
     const $ = (sel) => {
       try {
-        if (!sel) return document.querySelector(sel) || null;
+        if (!sel) return null;
         if (/^[A-Za-z0-9-_]+$/.test(sel)) return document.getElementById(sel);
         return document.querySelector(sel) || null;
       } catch {
@@ -63,7 +63,6 @@ Fixes:
     window.dom = {
       container: $("#container"),
       preloader: $("#preloader"),
-      // ... other DOM elements remain the same ...
       loaderImage: $("#loaderImage"),
       pageIndicator: $(".page-indicator") || $("#page-indicator"),
       searchInput: $("#searchInputHeader"),
@@ -75,6 +74,9 @@ Fixes:
       dontShowBtn: $("#dontShowBtn"),
       updateVideo: $("#updateVideo"),
       footerVersion: $("#footerVersion"),
+      // Will be set by initPreloader
+      loaderText: null, 
+      progressBarFill: null, 
     };
 
     window.config = {
@@ -96,6 +98,7 @@ Fixes:
   Favorites System (No change)
   --------------------------- */
   function initFavorites() {
+    // ... (Your original initFavorites function body) ...
     try {
       const stored = JSON.parse(localStorage.getItem(FAV_KEY) || "[]");
       window.favorites = new Set(stored.map((s) => SAFE_STR(s).toLowerCase()));
@@ -114,7 +117,7 @@ Fixes:
   }
 
   /* ---------------------------
-  Preloader UI (Fixed Visibility)
+  Preloader UI (Fixed Visibility & UI Setup)
   --------------------------- */
   function initPreloader() {
     const { preloader } = dom || {};
@@ -122,7 +125,7 @@ Fixes:
 
     // Determine if this is the first load in the session/tab
     const loaderRan = sessionStorage.getItem(IS_NEW_SESSION_KEY) === "false";
-    
+
     // Set global visibility flag
     isPreloaderVisible = !loaderRan;
 
@@ -131,18 +134,19 @@ Fixes:
       preloader.style.opacity = "1";
       preloader.dataset.hidden = "false";
       // Mark session as NOT new for future refreshes
-      sessionStorage.setItem(IS_NEW_SESSION_KEY, "false"); 
+      sessionStorage.setItem(IS_NEW_SESSION_KEY, "false");
     } else {
       preloader.style.display = "none";
       preloader.dataset.hidden = "true";
     }
-    
-    // UI elements initialization (moved outside the visibility check)
+
+    // UI elements initialization (always run, even if hidden initially)
     let counter = preloader.querySelector("#counter");
     let bar = preloader.querySelector(".load-progress-bar");
     let fill = preloader.querySelector(".load-progress-fill");
 
     if (!counter) {
+      // Create and append missing UI elements if necessary
       counter = document.createElement("div");
       counter.id = "counter";
       counter.className = "load-progress-text";
@@ -165,16 +169,15 @@ Fixes:
     dom.progressBarFill = fill;
 
     window.updateProgress = (p) => {
-      if (!isPreloaderVisible) return; // Only update if visible
+      if (!isPreloaderVisible || !dom.loaderText || !dom.progressBarFill) return; // Only update if visible
       const clamped = CLAMP(Math.round(p), 0, 100);
-      counter.textContent = `${clamped}%`;
-      fill.style.width = `${clamped}%`;
+      dom.loaderText.textContent = `${clamped}%`;
+      dom.progressBarFill.style.width = `${clamped}%`;
     };
 
     window.showLoading = (text) => {
-      if (!isPreloaderVisible) return; // Only show text if visible
-      const tEl = preloader.querySelector(".loading-text") || counter;
-      if (tEl) tEl.textContent = text;
+      if (!isPreloaderVisible || !dom.loaderText) return; // Only show text if visible
+      dom.loaderText.textContent = text;
     };
 
     window.hidePreloader = () => {
@@ -184,7 +187,8 @@ Fixes:
       preloader.style.transition = "opacity 0.45s ease";
       preloader.style.opacity = "0";
       preloader.style.pointerEvents = "none";
-      setTimeout(() => (preloader.style.display = "none"), 500);
+      // The delay ensures the opacity transition completes
+      setTimeout(() => (preloader.style.display = "none"), 500); 
     };
   }
 
@@ -192,6 +196,7 @@ Fixes:
   Update Popup Logic (No change needed)
   --------------------------- */
   function initUpdatePopup() {
+    // ... (Your original initUpdatePopup function body) ...
     const {
       updatePopup,
       closeUpdateBtn,
@@ -272,7 +277,7 @@ Fixes:
       let shouldShow = false;
 
       if (!savedVersion) {
-        shouldShow = true; 
+        shouldShow = true;
       } else {
         const cmp = compareVersions(sheetVersion, savedVersion);
         if (cmp > 0) {
@@ -288,7 +293,7 @@ Fixes:
 
       if (shouldShow && popupPref !== "dontshow" && !sessionHidden) {
         showPopup(trailerURL);
-      } 
+      }
 
       if (dom.footerVersion)
         dom.footerVersion.textContent = `Version ${sheetVersion}`;
@@ -300,6 +305,7 @@ Fixes:
   Asset Card Builder (No change needed)
   --------------------------- */
   function createAssetCards(data) {
+    // ... (Your original createAssetCards function body) ...
     const { container } = dom || {};
     if (!container) return [];
     container.innerHTML = "";
@@ -391,6 +397,7 @@ Fixes:
   Paging + Search + Filter (No change needed)
   --------------------------- */
   function initPaging() {
+    // ... (Your original initPaging function body) ...
     const { container, pageIndicator, searchInput, searchBtn } = dom || {};
     if (!container) return;
     const getAllCards = () => [...container.querySelectorAll(".asset-card")];
@@ -453,7 +460,7 @@ Fixes:
     const saved = +sessionStorage.getItem(PAGE_KEY) || 1;
     window.currentPage = saved;
     renderPage();
-    
+
     // Page Navigation Controls
     window.nextPage = () => {
       const pages = getPages();
@@ -475,12 +482,11 @@ Fixes:
   }
 
   /* ---------------------------
-  Asset Loader (Critical Fixes)
+  Asset Loader (Critical Fixes Implemented)
   --------------------------- */
   async function loadAssets(retry = false) {
+    const isLoaderActive = isPreloaderVisible;
     try {
-      // Use the global visibility flag, which is set correctly by initPreloader
-      const isLoaderActive = isPreloaderVisible; 
       const storedHash = localStorage.getItem(ASSET_HASH_KEY);
 
       if (isLoaderActive) {
@@ -496,13 +502,16 @@ Fixes:
       const sheetVersion = SAFE_STR(
         raw[0]?.version || raw.version || raw._version || raw[0]?._ver
       );
-      const assetHash = sheetVersion || JSON.stringify(raw).length; 
+      const assetHash = sheetVersion || JSON.stringify(raw).length;
 
-      // --- ASSET REBUILD/UPDATE CHECK ---
+      // --- ASSET REBUILD/UPDATE CHECK (CRITICAL FIX) ---
       if (storedHash && storedHash !== assetHash) {
-        if (isLoaderActive) hidePreloader && hidePreloader(); 
+        if (isLoaderActive) hidePreloader && hidePreloader();
+
+        await DELAY(50);
+        // CRITICAL FIX: Save the new hash *before* returning, so the next load doesn't re-alert.
+        localStorage.setItem(ASSET_HASH_KEY, assetHash); 
         
-        await DELAY(50); 
         alert("✨ Changes have been made to the asset library. Refresh the page to rebuild assets and see the latest content.");
         
         // Block further execution if assets need rebuilding
@@ -514,9 +523,10 @@ Fixes:
 
       // Handle versioning/popup (before data processing)
       if (sheetVersion && typeof handleVersionPopup === "function") {
-        handleVersionPopup(sheetVersion, "");
+        handleVersionPopup(sheetVersion, config.updateTrailerSrc);
       }
-      
+
+      // Process and filter data
       const data = Array.isArray(raw)
         ? raw
             .map((a) => ({
@@ -545,7 +555,7 @@ Fixes:
       // 1. Create the card elements and append them to the DOM
       createAssetCards(filtered);
       if (isLoaderActive) updateProgress && updateProgress(65);
-      // Paging needs to run immediately to set visibility
+      // Paging needs to run immediately to set visibility for the first page
       if (typeof renderPage === "function") renderPage();
 
       if (isFavPage && !filtered.length && dom.container)
@@ -556,7 +566,8 @@ Fixes:
       if (isLoaderActive) {
         const images = dom.container?.querySelectorAll("img") || [];
         if (images.length) {
-          // This ensures the loader does not hide until ALL images are confirmed loaded or errored
+          showLoading && showLoading("Optimizing images...");
+          // Wait for ALL images to load or error out
           await Promise.all(
             [...images].map(
               (img) =>
@@ -573,13 +584,14 @@ Fixes:
         }
 
         updateProgress && updateProgress(100);
-        await DELAY(250);
-        // ✅ FINAL STEP: Only hide the preloader after all loading/image checks are complete
+        await DELAY(250); // Short delay for visual effect
+        // ✅ FINAL STEP: Only hide the preloader after all checks are complete
         hidePreloader && hidePreloader();
       }
 
     } catch (err) {
       console.error("Error loading assets:", err);
+      // If first attempt failed, retry once
       if (!retry) return setTimeout(() => loadAssets(true), 1000); 
       showLoading && showLoading("⚠ Failed to load assets.");
       hidePreloader && hidePreloader();
@@ -595,11 +607,11 @@ Fixes:
       initElements();
       initFavorites();
       initPaging();
-      initUpdatePopup(); 
-      
+      initUpdatePopup();
+
       // 2. Initialize Preloader last, as it determines session state
       initPreloader();
-      
+
       // 3. Start Asset Loading (which uses the state set by initPreloader)
       await loadAssets();
       console.log("✅ WannaSmile Loader Ready");
@@ -610,7 +622,7 @@ Fixes:
     }
   });
 
-  // Fallback load on window.load (No change needed)
+  // Fallback load on window.load 
   window.addEventListener("load", () => {
     // Only attempt fallback if assets haven't been loaded yet (i.e., assetData is missing)
     if (typeof loadAssets === "function" && !window.assetsData)
