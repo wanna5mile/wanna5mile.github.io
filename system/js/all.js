@@ -1,17 +1,20 @@
 /* ==========================================================
-WannaSmile | Unified JS Loader & UI Logic - Final Merged & Optimized
-Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallback
+WannaSmile | Unified JS Loader & UI Logic - FINAL OPTIMIZED
+Key Changes:
+- Session-based preloader (only runs on first tab open/session start).
+- Version-check with user alert for asset rebuild on update.
+- Fix for update popup 'hide' not showing again on new version.
 ========================================================== */
 (() => {
   "use strict";
 
   /* ---------------------------
-  Utilities
+  Constants & Utilities
   --------------------------- */
-  const clamp = (v, a = 0, b = 100) => Math.min(b, Math.max(a, v));
-  const delay = (ms) => new Promise((r) => setTimeout(r, ms));
-  const safeStr = (v) => (v == null ? "" : String(v));
-  const debounce = (fn, ms = 150) => {
+  const CLAMP = (v, a = 0, b = 100) => Math.min(b, Math.max(a, v));
+  const DELAY = (ms) => new Promise((r) => setTimeout(r, ms));
+  const SAFE_STR = (v) => (v == null ? "" : String(v));
+  const DEBOUNCE = (fn, ms = 150) => {
     let t;
     return (...args) => {
       clearTimeout(t);
@@ -19,10 +22,22 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
     };
   };
 
+  // Keys for localStorage/sessionStorage
+  const SORT_KEY = "sortMode";
+  const FAV_KEY = "favorites";
+  const PAGE_KEY = "currentPage";
+  const POPUP_KEY = "updatePopupState"; // For 'Don't Show Again'
+  const POPUP_SESSION_KEY = "updatePopupHidden"; // For 'Close' (Current Session)
+  const SHEET_VERSION_KEY = "sheetVersion";
+  // ✅ NEW KEY: Tracks if preloader ran in the current session/tab
+  const LOADER_SESSION_KEY = "loaderRan"; 
+  // ✅ NEW KEY: Stores the version/hash of the last loaded/built assets
+  const ASSET_HASH_KEY = "assetBuildHash";
+
   /* ---------------------------
   Sort Mode Control
   --------------------------- */
-  const getSortMode = () => localStorage.getItem("sortMode") || "sheet";
+  const getSortMode = () => localStorage.getItem(SORT_KEY) || "sheet";
   document.addEventListener("sortModeChanged", () => {
     if (window.assetsData && typeof window.refreshCards === "function") {
       window.refreshCards();
@@ -60,19 +75,15 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
     };
 
     window.config = {
-      // ✅ Reverted to Old JS Fallback Image for main assets
       fallbackImage:
         "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
-
-      // ✅ New key: QR code as fallback for popups/videos
       fallbackYtImage:
         "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/qrcode.png",
-
       fallbackLink: "https://wanna5mile.github.io/source/dino/",
       gifBase:
         "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
       sheetUrl:
-        "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
+        "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xI9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
       updateLink: "system/pages/version-log.html",
       updateTrailerSrc: "",
     };
@@ -83,38 +94,48 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
   --------------------------- */
   function initFavorites() {
     try {
-      const stored = JSON.parse(localStorage.getItem("favorites") || "[]");
-      window.favorites = new Set(stored.map((s) => safeStr(s).toLowerCase()));
+      const stored = JSON.parse(localStorage.getItem(FAV_KEY) || "[]");
+      window.favorites = new Set(stored.map((s) => SAFE_STR(s).toLowerCase()));
     } catch {
       window.favorites = new Set();
     }
 
     window.saveFavorites = () =>
-      localStorage.setItem("favorites", JSON.stringify([...window.favorites]));
+      localStorage.setItem(FAV_KEY, JSON.stringify([...window.favorites]));
 
     window.refreshCards = () => {
       if (!window.assetsData || typeof createAssetCards !== "function") return;
-      // Note: Removed redundant startPlaceholderCycle from the old code
       createAssetCards(window.assetsData);
       if (typeof renderPage === "function") renderPage();
     };
   }
 
   /* ---------------------------
-  Preloader UI
+  Preloader UI (Modified for Session Control)
   --------------------------- */
   function initPreloader() {
     const { preloader } = dom || {};
     if (!preloader) return;
+
+    // Check if loader already ran in this session
+    const loaderRan = sessionStorage.getItem(LOADER_SESSION_KEY) === "true";
+    if (loaderRan) {
+      preloader.style.display = "none";
+      preloader.dataset.hidden = "true";
+      return;
+    }
+
+    // Show preloader only on first session open
     preloader.style.display = "flex";
     preloader.style.opacity = "1";
     preloader.dataset.hidden = "false";
+    sessionStorage.setItem(LOADER_SESSION_KEY, "true");
 
     let counter = preloader.querySelector("#counter");
     let bar = preloader.querySelector(".load-progress-bar");
     let fill = preloader.querySelector(".load-progress-fill");
 
-    // Unified logic to ensure elements exist (from both old/new)
+    // Unified logic to ensure elements exist
     if (!counter) {
       counter = document.createElement("div");
       counter.id = "counter";
@@ -138,23 +159,25 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
     dom.progressBarFill = fill;
 
     window.updateProgress = (p) => {
-      const clamped = clamp(Math.round(p), 0, 100);
+      const clamped = CLAMP(Math.round(p), 0, 100);
       counter.textContent = `${clamped}%`;
       fill.style.width = `${clamped}%`;
     };
 
     window.showLoading = (text) => {
       const tEl = preloader.querySelector(".loading-text") || counter;
-      if (tEl) tEl.textContent = text;
+      // Only update text if preloader is actually visible
+      if (tEl && preloader.style.display !== "none") tEl.textContent = text;
     };
 
     window.hidePreloader = () => {
+      // Don't animate if already hidden or if we skipped showing it
       if (preloader.dataset.hidden === "true") return;
+
       preloader.dataset.hidden = "true";
       preloader.style.transition = "opacity 0.45s ease";
       preloader.style.opacity = "0";
       preloader.style.pointerEvents = "none";
-      // Added a small delay here for a smoother transition (from Old JS)
       setTimeout(() => (preloader.style.display = "none"), 500);
     };
   }
@@ -173,16 +196,11 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
     } = dom || {};
     if (!updatePopup) return;
 
-    const POPUP_KEY = "updatePopupState";
-    const SESSION_KEY = "updatePopupHidden";
-    const VERSION_KEY = "sheetVersion";
     const YT_CHANNEL = "https://www.youtube.com/@rhap5ody?si=iD7C-rAanz8k_JwL";
-    
-    // ✅ Use the new fallbackYtImage for the video area if needed
     const YOUTUBE_IMAGE_FALLBACK = config.fallbackYtImage;
 
     const parseVersion = (v) =>
-      safeStr(v)
+      SAFE_STR(v)
         .split(".")
         .map((n) => parseInt(n, 10) || 0);
 
@@ -209,7 +227,6 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
           updatePopup.querySelector("p").textContent =
             "New games, smoother loading, and visual tweaks across the library!";
         } else {
-          // ✅ When no trailer URL, hide the video and show the QR as a placeholder
           updateVideo.src = YOUTUBE_IMAGE_FALLBACK;
           updateVideo.style.display = "block";
           updatePopup.querySelector("p").textContent =
@@ -226,48 +243,59 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
     };
 
     closeUpdateBtn?.addEventListener("click", () => {
-      sessionStorage.setItem(SESSION_KEY, "hidden");
+      // Close/Hide for CURRENT SESSION only
+      sessionStorage.setItem(POPUP_SESSION_KEY, "hidden");
       hidePopup();
     });
 
     dontShowBtn?.addEventListener("click", () => {
+      // Don't show again (PERSISTENT)
       localStorage.setItem(POPUP_KEY, "dontshow");
-      sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(POPUP_SESSION_KEY);
       hidePopup();
     });
 
     viewUpdateInfoBtn?.addEventListener("click", () => {
       hidePopup();
-      window.open("system/pages/version-log.html", "_blank");
+      window.open(config.updateLink, "_blank");
     });
 
     window.handleVersionPopup = (sheetVersion, trailerURL = "") => {
-      const savedVersion = localStorage.getItem(VERSION_KEY);
-      const popupPref = localStorage.getItem(POPUP_KEY);
-      const sessionHidden = sessionStorage.getItem(SESSION_KEY);
-
-      console.log(
-        `[Popup Check] Saved: ${savedVersion || "none"}, Latest: ${sheetVersion}`
-      );
+      const savedVersion = localStorage.getItem(SHEET_VERSION_KEY);
+      let popupPref = localStorage.getItem(POPUP_KEY);
+      const sessionHidden = sessionStorage.getItem(POPUP_SESSION_KEY);
 
       let shouldShow = false;
 
+      // 1. Check for a version update
       if (!savedVersion) {
-        shouldShow = true;
+        shouldShow = true; // First run ever
       } else {
         const cmp = compareVersions(sheetVersion, savedVersion);
         if (cmp > 0) {
-          console.log("🆕 Newer version detected → forcing popup reset");
+          // Newer version detected
           shouldShow = true;
+          // ✅ FIX: Force reset of 'Don't Show Again' preference
           localStorage.removeItem(POPUP_KEY);
-          sessionStorage.removeItem(SESSION_KEY);
+          popupPref = null;
+          sessionStorage.removeItem(POPUP_SESSION_KEY);
         }
       }
 
-      localStorage.setItem(VERSION_KEY, sheetVersion);
+      // Update the stored version
+      localStorage.setItem(SHEET_VERSION_KEY, sheetVersion);
 
-      if (shouldShow || (popupPref !== "dontshow" && !sessionHidden)) {
+      // 2. Determine final visibility
+      if (shouldShow && popupPref !== "dontshow" && !sessionHidden) {
         showPopup(trailerURL);
+      } else if (!shouldShow && popupPref === "dontshow" && sessionHidden) {
+        // If there's no update, and 'dontShowAgain' or 'close' was clicked,
+        // we need to re-evaluate the 'close' button state if 'dontShowAgain' was not set.
+        // The fix above handles the new version case. This block is primarily for cleanup.
+        if (popupPref !== "dontshow" && sessionHidden) {
+          // User clicked 'Close' on an old version - remove session flag for next session
+          sessionStorage.removeItem(POPUP_SESSION_KEY);
+        }
       }
 
       if (dom.footerVersion)
@@ -285,12 +313,12 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
     container.innerHTML = "";
     const frag = document.createDocumentFragment();
     const sortMode = getSortMode();
-    const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
+    const isFav = (t) => window.favorites.has(SAFE_STR(t).toLowerCase());
 
     let sorted = Array.isArray(data) ? [...data] : [];
     if (sortMode === "alphabetical") {
       sorted.sort((a, b) =>
-        safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
+        SAFE_STR(a.title).localeCompare(SAFE_STR(b.title), undefined, {
           numeric: true,
           sensitivity: "base",
         })
@@ -298,12 +326,12 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
     }
 
     for (const asset of sorted) {
-      const title = safeStr(asset.title).trim();
-      const author = safeStr(asset.author).trim();
-      const imageSrc = safeStr(asset.image) || config.fallbackImage;
-      const link = safeStr(asset.link) || config.fallbackLink;
+      const title = SAFE_STR(asset.title).trim();
+      const author = SAFE_STR(asset.author).trim();
+      const imageSrc = SAFE_STR(asset.image) || config.fallbackImage;
+      const link = SAFE_STR(asset.link) || config.fallbackLink;
       const pageNum = Number(asset.page) || 1;
-      const status = safeStr(asset.status).toLowerCase();
+      const status = SAFE_STR(asset.status).toLowerCase();
       const gifFile = `${config.gifBase}${status}.gif`;
 
       const card = document.createElement("div");
@@ -327,7 +355,6 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
       img.src = imageSrc;
       a.appendChild(img);
 
-      // ✅ Image error fallback to the default asset image
       img.onerror = () => (img.src = config.fallbackImage);
 
       if (["soon", "fix"].includes(status)) {
@@ -365,12 +392,11 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
     }
 
     container.appendChild(frag);
-    // Returning an empty array to match the old function's non-promise return style post-optimization
     return [];
   }
 
   /* ---------------------------
-  Paging + Search + Filter (Optimized)
+  Paging + Search + Filter
   --------------------------- */
   function initPaging() {
     const { container, pageIndicator, searchInput, searchBtn } = dom || {};
@@ -392,7 +418,7 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
         return;
       }
 
-      const saved = +sessionStorage.getItem("currentPage") || pages[0];
+      const saved = +sessionStorage.getItem(PAGE_KEY) || pages[0];
       if (!window._pageRestored) {
         window.currentPage = pages.includes(saved) ? saved : pages[0];
         window._pageRestored = true;
@@ -407,12 +433,11 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
       const idx = pages.indexOf(+window.currentPage);
       pageIndicator &&
         (pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`);
-      // Store the current page in sessionStorage (from Old JS Fix)
-      sessionStorage.setItem("currentPage", window.currentPage);
+      sessionStorage.setItem(PAGE_KEY, window.currentPage);
     };
 
     window.filterAssets = (q) => {
-      const query = safeStr(q).toLowerCase().trim();
+      const query = SAFE_STR(q).toLowerCase().trim();
       getAllCards().forEach((c) => {
         const match =
           !query ||
@@ -430,14 +455,14 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
     );
     searchInput?.addEventListener(
       "input",
-      debounce(() => filterAssets(searchInput.value), 200)
+      DEBOUNCE(() => filterAssets(searchInput.value), 200)
     );
 
-    const saved = +sessionStorage.getItem("currentPage") || 1;
+    const saved = +sessionStorage.getItem(PAGE_KEY) || 1;
     window.currentPage = saved;
     renderPage();
     
-    // Page Navigation Controls (wrap-around from New JS)
+    // Page Navigation Controls
     window.nextPage = () => {
       const pages = getPages();
       if (!pages.length) return;
@@ -458,39 +483,62 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
   }
 
   /* ---------------------------
-  Asset Loader (with robust image wait)
+  Asset Loader (Modified for Asset Caching/Rebuild)
   --------------------------- */
   async function loadAssets(retry = false) {
     try {
-      showLoading && showLoading("Loading assets...");
-      updateProgress && updateProgress(5);
+      const isLoaderActive = sessionStorage.getItem(LOADER_SESSION_KEY) === "true";
+      const storedHash = localStorage.getItem(ASSET_HASH_KEY);
+
+      if (isLoaderActive) {
+        showLoading && showLoading("Loading assets...");
+        updateProgress && updateProgress(5);
+      }
 
       const res = await fetch(config.sheetUrl, { cache: "no-store" });
       if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
       const raw = await res.json();
 
-      // Handle versioning/popup first (from New JS)
-      const sheetVersion = safeStr(
+      // Determine the asset hash/version
+      const sheetVersion = SAFE_STR(
         raw[0]?.version || raw.version || raw._version || raw[0]?._ver
       );
-      if (sheetVersion && typeof handleVersionPopup === "function")
-        // Trailer source is currently not in the sheet data structure, so pass an empty string
-        handleVersionPopup(sheetVersion, "");
+      const assetHash = sheetVersion || JSON.stringify(raw).length; // Fallback to content length as a basic hash
 
+      // --- ASSET REBUILD/UPDATE CHECK ---
+      if (storedHash && storedHash !== assetHash) {
+        // Assets have changed but we should NOT auto-rebuild
+        if (isLoaderActive) hidePreloader && hidePreloader(); // Hide the loader if it was active
+        
+        // Use a timeout to ensure the current thread finishes before the alert
+        await DELAY(50); 
+        alert("✨ Changes have been made to the asset library. Refresh the page to rebuild assets and see the latest content.");
+        
+        // This stops the execution, forcing a user-initiated refresh to proceed.
+        return; 
+      }
+      
+      // If no stored hash, or hash matches, or it's the first run, proceed to build/load
+      localStorage.setItem(ASSET_HASH_KEY, assetHash);
+
+      // Handle versioning/popup (before data processing)
+      if (sheetVersion && typeof handleVersionPopup === "function") {
+        handleVersionPopup(sheetVersion, "");
+      }
+      
       const data = Array.isArray(raw)
         ? raw
             .map((a) => ({
               ...a,
-              // Use fallbackImage for the asset image
-              image: safeStr(a.image).trim() || config.fallbackImage,
+              image: SAFE_STR(a.image).trim() || config.fallbackImage,
             }))
             .filter((i) =>
-              Object.values(i).some((v) => safeStr(v).trim())
+              Object.values(i).some((v) => SAFE_STR(v).trim())
             )
         : [];
 
       window.assetsData = data;
-      updateProgress && updateProgress(35);
+      if (isLoaderActive) updateProgress && updateProgress(35);
 
       const isFavPage = location.pathname
         .toLowerCase()
@@ -499,45 +547,47 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
       if (isFavPage)
         filtered = [...window.favorites].length
           ? data.filter((a) =>
-              window.favorites.has(safeStr(a.title).toLowerCase())
+              window.favorites.has(SAFE_STR(a.title).toLowerCase())
             )
           : [];
 
       // 1. Create the card elements and append them to the DOM
       createAssetCards(filtered);
-      updateProgress && updateProgress(65);
+      if (isLoaderActive) updateProgress && updateProgress(65);
       if (typeof renderPage === "function") renderPage();
 
       if (isFavPage && !filtered.length && dom.container)
         dom.container.innerHTML =
           "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
 
-      // 2. Wait for all card images to be loaded and decoded/completed
-      const images = dom.container?.querySelectorAll("img") || [];
-      if (images.length) {
-        // Using the robust Promise.all image loading from New JS (which includes onerror fallback)
-        await Promise.all(
-          [...images].map(
-            (img) =>
-              new Promise((resolve) => {
-                if (img.complete && img.naturalWidth !== 0) return resolve();
-                // Fallback to asset image on error
-                img.onerror = () => {
-                  img.src = config.fallbackImage;
-                  resolve();
-                };
-                img.onload = () => resolve();
-              })
-          )
-        );
+      // 2. Wait for all card images to be loaded and decoded/completed (only if loader is active)
+      if (isLoaderActive) {
+        const images = dom.container?.querySelectorAll("img") || [];
+        if (images.length) {
+          await Promise.all(
+            [...images].map(
+              (img) =>
+                new Promise((resolve) => {
+                  if (img.complete && img.naturalWidth !== 0) return resolve();
+                  img.onerror = () => {
+                    img.src = config.fallbackImage;
+                    resolve();
+                  };
+                  img.onload = () => resolve();
+                })
+            )
+          );
+        }
+
+        updateProgress && updateProgress(100);
+        await DELAY(250);
+        hidePreloader && hidePreloader();
       }
 
-      updateProgress && updateProgress(100);
-      await delay(250); // Final delay for smooth transition (from Old JS fix)
-      hidePreloader && hidePreloader();
     } catch (err) {
       console.error("Error loading assets:", err);
-      if (!retry) return setTimeout(() => loadAssets(true), 1000);
+      // Only retry if it failed (and we haven't retried yet)
+      if (!retry) return setTimeout(() => loadAssets(true), 1000); 
       showLoading && showLoading("⚠ Failed to load assets.");
       hidePreloader && hidePreloader();
     }
@@ -552,7 +602,7 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
       initFavorites();
       initPreloader();
       initPaging();
-      initUpdatePopup(); // Initialize popup logic
+      initUpdatePopup(); 
       
       await loadAssets();
       console.log("✅ WannaSmile Loader Ready");
@@ -563,7 +613,7 @@ Configuration Fix: Asset Image Fallback Reverted, QR Code for Video/Update Fallb
     }
   });
 
-  // Fallback load on window.load (from Old JS)
+  // Fallback load on window.load 
   window.addEventListener("load", () => {
     if (typeof loadAssets === "function" && !window.assetsData)
       setTimeout(() => loadAssets().catch(() => {}), 100);
