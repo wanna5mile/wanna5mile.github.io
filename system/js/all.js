@@ -1,6 +1,6 @@
 /* ==========================================================
-   WannaSmile | Unified Asset Loader v10 (Stable)
-   Fixed Asset Loading, Preloader, and Version Cache
+   WannaSmile | Unified Asset Loader v11 (Stable)
+   Sheet Paging + Favorites Styling Fix
    ========================================================== */
 (() => {
   "use strict";
@@ -29,6 +29,7 @@
   let allAssetsFlat = [];
   let assetsByPage = {};
   let currentPage = 1;
+  let isFavoritesPage = location.pathname.toLowerCase().includes("favorites");
 
   /* ---------------------------
   DOM / Config
@@ -118,7 +119,6 @@
   function initPreloader() {
     const pre = dom.preloader;
     if (!pre) return;
-
     isPreloaderActive = true;
     pre.style.display = "flex";
     pre.style.opacity = "1";
@@ -155,7 +155,7 @@
   }
 
   /* ---------------------------
-  Popup Logic
+  Popup
   --------------------------- */
   function initPopup() {
     const pop = dom.updatePopup;
@@ -185,29 +185,10 @@
     const cont = dom.container;
     if (!cont) return;
     cont.innerHTML = "";
-
     const frag = document.createDocumentFragment();
-    const sortMode = localStorage.getItem("sortMode") || "sheet";
     const favCheck = (t) => window.favorites.has(safeStr(t).toLowerCase());
-    const arr = Array.isArray(list) ? [...list] : [];
 
-    if (sortMode === "alphabetical")
-      arr.sort((a, b) =>
-        safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
-          numeric: true,
-          sensitivity: "base",
-        })
-      );
-
-    if (!arr.length) {
-      cont.innerHTML = `<div class="asset-card fallback-card">
-        <a href="${config.fallbackLink}" target="_blank" rel="noopener noreferrer">
-          <img src="${config.fallbackImage}" alt="No assets" loading="eager">
-        </a><h3>No assets found</h3></div>`;
-      return;
-    }
-
-    for (const a of arr) {
+    for (const a of list) {
       const title = safeStr(a.title);
       const author = safeStr(a.author);
       const imgSrc = safeStr(a.image) || config.fallbackImage;
@@ -258,6 +239,16 @@
         star.textContent = favCheck(title) ? "★" : "☆";
       };
 
+      // --- Favorites styling ---
+      if (isFavoritesPage) {
+        card.style.background = "none";
+        card.style.boxShadow = "none";
+        card.style.border = "none";
+        star.style.border = "none";
+        star.style.background = "none";
+        star.style.fontSize = "1.4em";
+      }
+
       card.append(anchor, titleEl, authorEl, star);
       frag.appendChild(card);
     }
@@ -303,85 +294,32 @@
   }
 
   /* ---------------------------
-  Helpers
-  --------------------------- */
-  async function waitForImages(timeout = 8000) {
-    const imgs = [...document.querySelectorAll("#container img")];
-    const tasks = imgs.map((img) =>
-      img.decode ? Promise.race([img.decode(), delay(timeout)]) : delay(50)
-    );
-    await Promise.all(tasks);
-  }
-
-  function groupAssets(list) {
-    assetsByPage = {};
-    allAssetsFlat = Array.isArray(list) ? list : [];
-    for (const a of allAssetsFlat) {
-      const p = parseInt(a.page || 1);
-      if (!assetsByPage[p]) assetsByPage[p] = [];
-      assetsByPage[p].push(a);
-    }
-  }
-
-  /* ---------------------------
-  Load Assets (cache + version)
+  Load + Version
   --------------------------- */
   async function loadAssets(retry = false) {
     try {
       showLoading("Loading assets...");
       updateProgress(10);
-
-      const cached = sessionStorage.getItem(SESSION_KEY);
-      const ver = sessionStorage.getItem(VERSION_KEY);
-
-      // --- Use cache if present ---
-      if (cached && ver) {
-        const data = JSON.parse(cached);
-        groupAssets(data);
-        createAssetCards(allAssetsFlat);
-        await waitForImages();
-        updateProgress(100);
-        hidePreloader();
-        checkForUpdate(ver);
-        return;
-      }
-
-      // --- Fetch fresh data ---
       const res = await fetch(config.sheetUrl, { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
 
-      const version = safeStr(json.version || Date.now());
       const arr = Array.isArray(json.data || json.assets || json)
         ? json.data || json.assets || json
         : [];
-
       const clean = arr.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(clean));
-      sessionStorage.setItem(VERSION_KEY, version);
 
-      groupAssets(clean);
+      allAssetsFlat = clean;
       createAssetCards(allAssetsFlat);
-      await waitForImages();
+      await delay(500);
       updateProgress(100);
       hidePreloader();
+      renderPage(1);
     } catch (e) {
       console.error("❌ Asset load failed:", e);
       if (!retry) setTimeout(() => loadAssets(true), 1200);
       else hidePreloader();
     }
-  }
-
-  /* ---------------------------
-  Version check
-  --------------------------- */
-  async function checkForUpdate(localVer) {
-    try {
-      const res = await fetch(config.sheetUrl, { cache: "no-store" });
-      const j = await res.json();
-      if (safeStr(j.version) !== localVer)
-        showToast("⚡ New update available! Refresh to rebuild assets.");
-    } catch {}
   }
 
   /* ---------------------------
@@ -396,6 +334,6 @@
     initPaging();
     dom.nextBtn?.addEventListener("click", () => renderPage(currentPage + 1));
     dom.prevBtn?.addEventListener("click", () => renderPage(currentPage - 1));
-    console.log("✅ WannaSmile Loader Ready (v10)");
+    console.log("✅ WannaSmile Loader Ready (v11)");
   });
 })();
