@@ -7,7 +7,7 @@
   const clamp = (v, a = 0, b = 100) => Math.min(b, Math.max(a, v));
   const delay = (ms) => new Promise((r) => setTimeout(r, ms));
   const safeStr = (v) => (v == null ? "" : String(v));
-  const debounce = (fn, ms = 150) => {
+  const debounce = (fn, ms = 180) => {
     let t;
     return (...args) => {
       clearTimeout(t);
@@ -22,10 +22,9 @@
   const VERSION_KEY = "assetsVersion";
   const FAV_KEY = "favorites";
   let isPreloaderActive = false;
-  let currentPage = 1;
-  let totalPages = 1;
   let assetsByPage = {};
-  let allAssetsFlat = []; // cached flattened list for searches
+  let allAssetsFlat = [];
+  let currentPage = 1;
 
   /* ---------------------------
   DOM + Config
@@ -52,10 +51,8 @@
       searchBtn: $("#searchBtnHeader"),
       updatePopup: $("#updatePopup"),
       viewUpdateBtn: $("#viewUpdateBtn"),
-      viewUpdateInfoBtn: $("#viewUpdateInfoBtn"),
       closeUpdateBtn: $("#closeUpdateBtn"),
       dontShowBtn: $("#dontShowBtn"),
-      updateVideo: $("#updateVideo"),
     };
 
     window.config = {
@@ -117,186 +114,135 @@
   Preloader UI
   --------------------------- */
   function initPreloader() {
-    const { preloader } = dom || {};
-    if (!preloader) return;
-
+    const pre = dom.preloader;
+    if (!pre) return;
     isPreloaderActive = true;
-    preloader.style.display = "flex";
-    preloader.style.opacity = "1";
-    preloader.dataset.hidden = "false";
+    pre.style.display = "flex";
+    pre.style.opacity = "1";
+    pre.dataset.hidden = "false";
 
-    let counter = preloader.querySelector("#counter");
-    let bar = preloader.querySelector(".load-progress-bar");
-    let fill = preloader.querySelector(".load-progress-fill");
-
-    if (!counter) {
-      counter = document.createElement("div");
-      counter.id = "counter";
-      counter.className = "load-progress-text";
-      preloader.appendChild(counter);
-    }
-    if (!bar) {
-      bar = document.createElement("div");
-      bar.className = "load-progress-bar";
-      fill = document.createElement("div");
-      fill.className = "load-progress-fill";
-      bar.appendChild(fill);
-      preloader.appendChild(bar);
-    } else if (!fill) {
-      fill = document.createElement("div");
-      fill.className = "load-progress-fill";
-      bar.appendChild(fill);
-    }
+    const counter = pre.querySelector("#counter") || pre.appendChild(Object.assign(document.createElement("div"), { id: "counter", className: "load-progress-text" }));
+    const bar = pre.querySelector(".load-progress-bar") || pre.appendChild(Object.assign(document.createElement("div"), { className: "load-progress-bar" }));
+    const fill = bar.querySelector(".load-progress-fill") || bar.appendChild(Object.assign(document.createElement("div"), { className: "load-progress-fill" }));
 
     dom.loaderText = counter;
     dom.progressBarFill = fill;
 
     window.updateProgress = (p) => {
-      if (!isPreloaderActive || !dom.loaderText || !dom.progressBarFill) return;
-      const clamped = clamp(Math.round(p), 0, 100);
-      dom.loaderText.textContent = `${clamped}%`;
-      dom.progressBarFill.style.width = `${clamped}%`;
-    };
-
-    window.showLoading = (text) => {
       if (!isPreloaderActive) return;
-      (preloader.querySelector(".loading-text") || dom.loaderText).textContent = text;
+      const val = clamp(Math.round(p), 0, 100);
+      counter.textContent = `${val}%`;
+      fill.style.width = `${val}%`;
     };
 
+    window.showLoading = (t) => (counter.textContent = t);
     window.hidePreloader = () => {
-      if (!isPreloaderActive || preloader.dataset.hidden === "true") return;
+      if (!isPreloaderActive || pre.dataset.hidden === "true") return;
+      pre.dataset.hidden = "true";
+      pre.style.transition = "opacity 0.4s ease";
+      pre.style.opacity = "0";
+      pre.style.pointerEvents = "none";
+      setTimeout(() => (pre.style.display = "none"), 500);
       isPreloaderActive = false;
-      preloader.dataset.hidden = "true";
-      preloader.style.transition = "opacity 0.45s ease";
-      preloader.style.opacity = "0";
-      preloader.style.pointerEvents = "none";
-      setTimeout(() => (preloader.style.display = "none"), 500);
     };
   }
 
   /* ---------------------------
-  Popup (session + "don't show again")
+  Popup (Session + Don’t Show Again)
   --------------------------- */
   function initPopup() {
     const popup = dom.updatePopup;
     if (!popup) return;
-
-    const closeBtn = dom.closeUpdateBtn;
-    const dontShowBtn = dom.dontShowBtn;
-    const viewBtn = dom.viewUpdateBtn;
-
-    const hiddenThisSession = sessionStorage.getItem("popupHidden");
+    const hiddenSession = sessionStorage.getItem("popupHidden");
     const dontShow = localStorage.getItem("popupDontShow");
-
-    if (dontShow === "true" || hiddenThisSession === "true") return;
+    if (dontShow === "true" || hiddenSession === "true") return;
 
     popup.classList.add("show");
-
-    closeBtn?.addEventListener("click", () => {
+    dom.closeUpdateBtn?.addEventListener("click", () => {
       popup.classList.remove("show");
       sessionStorage.setItem("popupHidden", "true");
     });
-
-    dontShowBtn?.addEventListener("click", () => {
+    dom.dontShowBtn?.addEventListener("click", () => {
       popup.classList.remove("show");
       localStorage.setItem("popupDontShow", "true");
     });
-
-    viewBtn?.addEventListener("click", () => {
+    dom.viewUpdateBtn?.addEventListener("click", () => {
       window.location.href = config.updateLink;
     });
   }
 
   /* ---------------------------
-  Card builder (status + fallback + star)
+  Asset Cards (Eager-loaded images)
   --------------------------- */
-  function createAssetCards(data) {
-    const { container } = dom || {};
-    if (!container) return [];
-    container.innerHTML = "";
+  function createAssetCards(list) {
+    const cont = dom.container;
+    if (!cont) return;
+    cont.innerHTML = "";
+
     const frag = document.createDocumentFragment();
     const sortMode = localStorage.getItem("sortMode") || "sheet";
-    const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
+    const favCheck = (t) => window.favorites.has(safeStr(t).toLowerCase());
+    const data = Array.isArray(list) ? [...list] : [];
 
-    let list = Array.isArray(data) ? [...data] : [];
-    if (sortMode === "alphabetical") {
-      list.sort((a, b) =>
-        safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
-          numeric: true,
-          sensitivity: "base",
-        })
-      );
-    }
+    if (sortMode === "alphabetical")
+      data.sort((a, b) => safeStr(a.title).localeCompare(safeStr(b.title), undefined, { numeric: true, sensitivity: "base" }));
 
-    if (!list.length) {
-      const fallbackCard = document.createElement("div");
-      fallbackCard.className = "asset-card fallback-card";
-      fallbackCard.innerHTML = `
+    if (!data.length) {
+      cont.innerHTML = `<div class="asset-card fallback-card">
         <a href="${config.fallbackLink}" target="_blank" rel="noopener noreferrer">
-          <img src="${config.fallbackImage}" alt="No assets available" loading="eager">
-        </a>
-        <h3>No assets available</h3>
-      `;
-      container.appendChild(fallbackCard);
-      return [];
+          <img src="${config.fallbackImage}" alt="No assets" loading="eager">
+        </a><h3>No assets available</h3></div>`;
+      return;
     }
 
-    for (const asset of list) {
-      const title = safeStr(asset.title).trim();
-      const author = safeStr(asset.author).trim();
-      const imageSrc = safeStr(asset.image) || config.fallbackImage;
-      const link = safeStr(asset.link) || config.fallbackLink;
-      const pageNum = Number(asset.page) || 1;
-      const status = safeStr(asset.status).toLowerCase();
-      const gifFile = `${config.gifBase}${status}.gif`;
+    for (const a of data) {
+      const title = safeStr(a.title);
+      const author = safeStr(a.author);
+      const imgSrc = safeStr(a.image) || config.fallbackImage;
+      const link = safeStr(a.link) || config.fallbackLink;
+      const status = safeStr(a.status).toLowerCase();
+      const page = Number(a.page) || 1;
 
       const card = document.createElement("div");
       card.className = "asset-card";
-      Object.assign(card.dataset, {
-        title: title.toLowerCase(),
-        author: author.toLowerCase(),
-        page: String(pageNum),
-        filtered: "true",
-      });
+      card.dataset.page = String(page);
+      card.dataset.title = title.toLowerCase();
+      card.dataset.author = author.toLowerCase();
+      card.dataset.filtered = "true";
 
-      const a = document.createElement("a");
-      a.href = link;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.className = "asset-link";
+      const anchor = document.createElement("a");
+      anchor.href = link;
+      anchor.target = "_blank";
+      anchor.rel = "noopener noreferrer";
 
       const img = document.createElement("img");
+      img.src = imgSrc;
       img.alt = title || "Untitled";
-      img.loading = "eager"; // explicit eager as requested
-      img.src = imageSrc;
+      img.loading = "eager";
       img.crossOrigin = "anonymous";
-      // fallback to 404 if the src exists but 404s
       img.onerror = () => {
         if (img.src !== config.fallbackImage) img.src = config.fallbackImage;
       };
+      anchor.appendChild(img);
 
-      a.appendChild(img);
-
-      // status badges / classes
-      if (status === "soon" || status === "fix") {
-        card.classList.add(status === "fix" ? "FIX" : "soon");
-      } else if (["new", "updated"].includes(status)) {
+      if (["new", "updated"].includes(status)) {
         const overlay = document.createElement("img");
-        overlay.src = gifFile;
-        overlay.alt = `${status} badge`;
+        overlay.src = `${config.gifBase}${status}.gif`;
+        overlay.alt = status;
         overlay.className = `status-gif status-${status}`;
-        a.appendChild(overlay);
+        anchor.appendChild(overlay);
+      } else if (status === "fix" || status === "soon") {
+        card.classList.add(status);
       }
 
       const titleEl = document.createElement("h3");
-      titleEl.textContent = title || "Untitled";
+      titleEl.textContent = title;
       const authorEl = document.createElement("p");
-      authorEl.textContent = author || "";
+      authorEl.textContent = author;
 
       const star = document.createElement("button");
       star.className = "favorite-star";
-      star.textContent = isFav(title) ? "★" : "☆";
-      // Unstyled star: transparent background, no border
+      star.textContent = favCheck(title) ? "★" : "☆";
       Object.assign(star.style, {
         background: "transparent",
         border: "none",
@@ -304,361 +250,154 @@
         fontSize: "20px",
         color: "#ffcc00",
       });
-      star.addEventListener("click", (e) => {
-        e.preventDefault();
+      star.onclick = (e) => {
         e.stopPropagation();
+        e.preventDefault();
         const key = title.toLowerCase();
         if (window.favorites.has(key)) window.favorites.delete(key);
         else window.favorites.add(key);
         saveFavorites();
-        star.textContent = window.favorites.has(key) ? "★" : "☆";
-      });
+        star.textContent = favCheck(title) ? "★" : "☆";
+      };
 
-      card.append(a, titleEl, authorEl, star);
-      frag.appendChild(card);
+      card.append(anchor, titleEl, authorEl, star);
+      frag.append(card);
     }
 
-    container.appendChild(frag);
-    return [];
+    cont.append(frag);
   }
 
   /* ---------------------------
-  Paging + Search (session-aware)
+  Paging + Search
   --------------------------- */
   function initPaging() {
-    const { container, pageIndicator, searchInput, searchBtn } = dom || {};
-    if (!container) return;
+    const cont = dom.container;
+    const pageLabel = dom.pageIndicator;
+    const search = dom.searchInput;
+    const searchBtn = dom.searchBtn;
+    if (!cont) return;
 
-    const getAllCards = () => [...container.querySelectorAll(".asset-card")];
-    const getFilteredCards = () =>
-      getAllCards().filter((c) => c.dataset.filtered === "true");
+    const allCards = () => [...cont.querySelectorAll(".asset-card")];
     const getPages = () =>
-      [...new Set(getFilteredCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort(
-        (a, b) => a - b
-      );
+      [...new Set(allCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort((a, b) => a - b);
 
-    window.renderPage = () => {
+    window.renderPage = (page = currentPage) => {
       const pages = getPages();
-      if (!pages.length) {
-        window.currentPage = 1;
-        getAllCards().forEach((c) => (c.style.display = "none"));
-        pageIndicator && (pageIndicator.textContent = "No pages");
-        return;
-      }
-
-      const saved = +sessionStorage.getItem("currentPage") || pages[0];
-
-      if (!window._pageRestored) {
-        window.currentPage = pages.includes(saved) ? saved : pages[0];
-        window._pageRestored = true;
-      }
-
-      getAllCards().forEach((c) => {
-        const visible = +c.dataset.page === +window.currentPage && c.dataset.filtered === "true";
-        c.style.display = visible ? "" : "none";
-      });
-
-      const idx = pages.indexOf(+window.currentPage);
-      pageIndicator && (pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`);
-
-      sessionStorage.setItem("currentPage", window.currentPage);
+      if (!pages.length) return;
+      currentPage = pages.includes(page) ? page : pages[0];
+      allCards().forEach((c) => (c.style.display = +c.dataset.page === currentPage ? "" : "none"));
+      pageLabel && (pageLabel.textContent = `Page ${pages.indexOf(currentPage) + 1} of ${pages.length}`);
+      sessionStorage.setItem("currentPage", currentPage);
     };
 
     window.filterAssets = (q) => {
       const query = safeStr(q).toLowerCase().trim();
-      getAllCards().forEach((c) => {
-        const match =
-          !query || c.dataset.title.includes(query) || c.dataset.author.includes(query);
-        c.dataset.filtered = match ? "true" : "false";
+      allCards().forEach((c) => {
+        const visible = !query || c.dataset.title.includes(query) || c.dataset.author.includes(query);
+        c.dataset.filtered = visible ? "true" : "false";
       });
-      const pages = getPages();
-      window.currentPage = pages[0] || 1;
-      renderPage();
+      renderPage(1);
     };
 
-    window.prevPage = () => {
-      const pages = getPages();
-      if (!pages.length) return;
-      const i = pages.indexOf(+window.currentPage);
-      window.currentPage = i <= 0 ? pages.at(-1) : pages[i - 1];
-      renderPage();
-    };
+    searchBtn?.addEventListener("click", () => filterAssets(search.value));
+    search?.addEventListener("input", debounce(() => filterAssets(search.value), 200));
 
-    window.nextPage = () => {
-      const pages = getPages();
-      if (!pages.length) return;
-      const i = pages.indexOf(+window.currentPage);
-      window.currentPage = i === -1 || i === pages.length - 1 ? pages[0] : pages[i + 1];
-      renderPage();
-    };
-
-    // live search
-    searchBtn?.addEventListener("click", () => filterAssets(searchInput.value));
-    searchInput?.addEventListener("input", debounce(() => filterAssets(searchInput.value), 200));
-
-    // initial page
-    const saved = +sessionStorage.getItem("currentPage") || 1;
-    window.currentPage = saved;
-    renderPage();
+    const savedPage = +sessionStorage.getItem("currentPage") || 1;
+    renderPage(savedPage);
   }
 
   /* ---------------------------
-  waitForRenderedImages (decode + paint)
+  Wait for all images decode
   --------------------------- */
   async function waitForRenderedImages(timeout = 8000) {
-    if (!isPreloaderActive) return;
-    try {
-      showLoading("Optimizing images...");
-      await delay(50); // allow DOM to update
-      const imgs = Array.from(document.querySelectorAll("#container img") || []);
-      const decodes = imgs
-        .filter((img) => img.src)
-        .map((img) =>
-          typeof img.decode === "function"
-            ? Promise.race([img.decode(), new Promise((res) => setTimeout(res, timeout))]).catch(
-                () => {}
-              )
-            : new Promise((res) => {
-                if (img.complete && img.naturalWidth !== 0) return res();
-                img.onerror = img.onload = () => res();
-                // safety timeout
-                setTimeout(res, timeout);
-              })
-        );
-
-      await Promise.all(decodes);
-      await new Promise((r) => requestAnimationFrame(r));
-    } catch (e) {
-      console.warn("waitForRenderedImages failed:", e);
-    }
+    const imgs = [...document.querySelectorAll("#container img")];
+    const promises = imgs.map((img) =>
+      img.decode ? Promise.race([img.decode(), delay(timeout)]) : delay(50)
+    );
+    await Promise.all(promises);
   }
 
   /* ---------------------------
-  Grouping & Paging helpers (page from sheet)
+  Group by page
   --------------------------- */
-  function groupAssetsByPage(data) {
+  function groupAssetsByPage(list) {
     assetsByPage = {};
-    allAssetsFlat = Array.isArray(data) ? [...data] : [];
-    for (const asset of allAssetsFlat) {
-      const pageNum = parseInt(asset.page || 1) || 1;
-      if (!assetsByPage[pageNum]) assetsByPage[pageNum] = [];
-      assetsByPage[pageNum].push(asset);
+    allAssetsFlat = Array.isArray(list) ? list : [];
+    for (const a of allAssetsFlat) {
+      const p = parseInt(a.page || 1);
+      if (!assetsByPage[p]) assetsByPage[p] = [];
+      assetsByPage[p].push(a);
     }
-    totalPages = Math.max(1, Object.keys(assetsByPage).length);
   }
 
   /* ---------------------------
-  loadAssets: supports both plain-array and {version,data}
-  - session cache used (SESSION_KEY)
-  - version stored (VERSION_KEY) if present
-  - creates cards, groups by page, waits for decode
+  Load assets (session cache + version)
   --------------------------- */
   async function loadAssets(retry = false) {
     try {
       showLoading("Loading assets...");
       updateProgress(5);
-
-      // session cache check
       const cached = sessionStorage.getItem(SESSION_KEY);
-      const cachedVersion = sessionStorage.getItem(VERSION_KEY);
-      if (cached && cachedVersion) {
-        try {
-          const dataCached = JSON.parse(cached);
-          groupAssetsByPage(dataCached);
-          // initially render page 1's cards (keeps paging logic)
-          createAssetCards(assetsByPage[1] || []);
-          if (typeof renderPage === "function") renderPage();
-          updateProgress(40);
-          // wait for images on cached DOM, then hide
-          await waitForRenderedImages(8000);
-          updateProgress(100);
-          await delay(200);
-          hidePreloader();
-          // background update check
-          checkForUpdate(cachedVersion).catch(() => {});
-          return;
-        } catch (err) {
-          console.warn("Cached assets invalid, refetching...", err);
-        }
-      }
+      const ver = sessionStorage.getItem(VERSION_KEY);
 
-      // fresh fetch
-      const res = await fetch(config.sheetUrl, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
-      const json = await res.json();
-
-      // Determine structure: plain array OR { version, data } OR { data: [...] }
-      let version = safeStr(Date.now());
-      let data = [];
-      if (Array.isArray(json)) {
-        data = json;
-      } else if (Array.isArray(json.data)) {
-        data = json.data;
-        version = safeStr(json.version || Date.now());
-      } else if (Array.isArray(json.assets)) {
-        // support alternate key
-        data = json.assets;
-        version = safeStr(json.version || Date.now());
-      } else {
-        // if server returns object of rows (rare), try to pull values
-        if (Array.isArray(Object.values(json))) {
-          // fallback: try to find first array inside
-          for (const v of Object.values(json)) {
-            if (Array.isArray(v)) {
-              data = v;
-              break;
-            }
-          }
-        }
-      }
-
-      // sanitize: keep only entries with any meaningful value
-      const filtered = data.filter((i) => Object.values(i || {}).some((v) => safeStr(v).trim()));
-
-      // store in session
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(filtered));
-      sessionStorage.setItem(VERSION_KEY, version);
-
-      // group and render
-      groupAssetsByPage(filtered);
-      // create first page content
-      createAssetCards(assetsByPage[1] || []);
-      if (typeof renderPage === "function") renderPage();
-      updateProgress(65);
-
-      // wait for images to decode (eager images) before hiding
-      await waitForRenderedImages(8000);
-      updateProgress(100);
-      await delay(200);
-      hidePreloader();
-    } catch (err) {
-      console.error("Error loading assets:", err);
-      if (!retry) return setTimeout(() => loadAssets(true), 1000);
-      showLoading("⚠ Failed to load assets.");
-      createAssetCards([]);
-      hidePreloader();
-    }
-  }
-
-  /* ---------------------------
-  checkForUpdate: fetch version & notify if changed
-  --------------------------- */
-  async function checkForUpdate(localVersion) {
-    try {
-      const res = await fetch(config.sheetUrl, { cache: "no-store" });
-      if (!res.ok) return;
-      const j = await res.json();
-      const remoteVersion = safeStr(j.version || Date.now());
-      if (remoteVersion !== localVersion) {
-        showToast("⚡ New update available! Refresh to rebuild assets.");
-      }
-    } catch (e) {
-      console.warn("Update check failed:", e);
-    }
-  }
-
-  /* ---------------------------
-  Live search across all pages (flattens)
-  --------------------------- */
-  function initLiveSearch() {
-    const input = dom.searchInput;
-    const btn = dom.searchBtn;
-    if (!input) return;
-
-    function applySearch() {
-      const query = safeStr(input.value).toLowerCase().trim();
-      if (!query) {
-        // clear search -> render current paging state
-        if (typeof renderPage === "function") renderPage();
+      if (cached && ver) {
+        const data = JSON.parse(cached);
+        groupAssetsByPage(data);
+        createAssetCards(assetsByPage[1]);
+        renderPage(1);
+        await waitForRenderedImages();
+        updateProgress(100);
+        hidePreloader();
+        checkForUpdate(ver);
         return;
       }
 
-      const all = allAssetsFlat.slice(); // current cached
-      const filtered = all.filter((a) => {
-        const t = safeStr(a.title).toLowerCase();
-        const auth = safeStr(a.author).toLowerCase();
-        return t.includes(query) || auth.includes(query);
-      });
+      const res = await fetch(config.sheetUrl, { cache: "no-store" });
+      const json = await res.json();
+      const version = safeStr(json.version || Date.now());
+      const data = Array.isArray(json.data || json.assets || json) ? (json.data || json.assets || json) : [];
 
-      // show filtered results as a single list (no paging)
-      createAssetCards(filtered);
-      if (dom.pageIndicator)
-        dom.pageIndicator.textContent = `Search: ${filtered.length} result${
-          filtered.length === 1 ? "" : "s"
-        }`;
+      const filtered = data.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(filtered));
+      sessionStorage.setItem(VERSION_KEY, version);
+
+      groupAssetsByPage(filtered);
+      createAssetCards(assetsByPage[1]);
+      renderPage(1);
+      await waitForRenderedImages();
+      updateProgress(100);
+      hidePreloader();
+    } catch (e) {
+      console.error("Asset load failed:", e);
+      if (!retry) setTimeout(() => loadAssets(true), 1000);
+      hidePreloader();
     }
-
-    input.addEventListener("input", debounce(applySearch, 180));
-    btn?.addEventListener("click", applySearch);
   }
 
   /* ---------------------------
-  Expose next/prev as globals (for inline onclick)
+  Version check
   --------------------------- */
-  function exposeNavigation() {
-    window.nextPage = function () {
-      // wrap-around navigation using grouped pages
-      const pages = Object.keys(assetsByPage)
-        .map((k) => +k)
-        .filter((n) => !isNaN(n))
-        .sort((a, b) => a - b);
-      if (!pages.length) return;
-      const idx = pages.indexOf(+currentPage);
-      const next = idx === -1 || idx === pages.length - 1 ? pages[0] : pages[idx + 1];
-      renderPage(next);
-    };
-
-    window.prevPage = function () {
-      const pages = Object.keys(assetsByPage)
-        .map((k) => +k)
-        .filter((n) => !isNaN(n))
-        .sort((a, b) => a - b);
-      if (!pages.length) return;
-      const idx = pages.indexOf(+currentPage);
-      const prev = idx <= 0 ? pages.at(-1) : pages[idx - 1];
-      renderPage(prev);
-    };
+  async function checkForUpdate(localVer) {
+    try {
+      const res = await fetch(config.sheetUrl, { cache: "no-store" });
+      const j = await res.json();
+      if (safeStr(j.version) !== localVer)
+        showToast("⚡ New update available! Refresh to rebuild assets.");
+    } catch {}
   }
 
   /* ---------------------------
   Bootstrap
   --------------------------- */
   document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      initElements();
-      initFavorites();
-      initPreloader();
-      initPopup();
-      initPaging(); // sets up renderPage/filterAssets handlers used below
-      exposeNavigation();
-
-      await loadAssets();
-
-      // prepare flattened cache for search after load
-      // allAssetsFlat already set in groupAssetsByPage
-      initLiveSearch();
-
-      // also wire the inline header arrow buttons (if you prefer DOM-bound)
-      dom.nextBtn?.addEventListener("click", () => window.nextPage());
-      dom.prevBtn?.addEventListener("click", () => window.prevPage());
-
-      // Optional: keyboard navigation (left/right)
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowLeft") window.prevPage && window.prevPage();
-        if (e.key === "ArrowRight") window.nextPage && window.nextPage();
-      });
-
-      console.log("✅ WannaSmile Loader Ready (v8)");
-    } catch (err) {
-      console.error("Initialization failed:", err);
-      showLoading("Initialization failed. Please reload.");
-      hidePreloader();
-    }
-  });
-
-  // ensure assets fetch happens after window load if needed (fallback)
-  window.addEventListener("load", () => {
-    if (typeof loadAssets === "function" && !allAssetsFlat.length)
-      setTimeout(() => loadAssets().catch(() => {}), 100);
+    initElements();
+    initFavorites();
+    initPreloader();
+    initPopup();
+    initPaging();
+    await loadAssets();
+    dom.nextBtn?.addEventListener("click", () => (currentPage++, renderPage(currentPage)));
+    dom.prevBtn?.addEventListener("click", () => (currentPage--, renderPage(currentPage)));
+    console.log("✅ WannaSmile Loader Ready (v9)");
   });
 })();
