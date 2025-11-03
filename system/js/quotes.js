@@ -14,21 +14,15 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastTime = null;
   let paused = false;
 
-  // --- Load quotes (with preloader integration) ---
+  // --- Load quotes (with optional preloader) ---
   async function loadQuotes() {
     showLoading?.("Loading quotes...");
-
     try {
       const res = await fetch(jsonPath);
       if (!res.ok) throw new Error(`Failed to fetch quotes: ${res.status}`);
       const data = await res.json();
 
-      if (Array.isArray(data) && data.length) {
-        quotes = data;
-      } else {
-        quotes = ["No quotes available."];
-      }
-
+      quotes = Array.isArray(data) && data.length ? data : ["No quotes available."];
       initQuotes();
       hidePreloader?.();
     } catch (err) {
@@ -44,8 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
     quoteBox.textContent = randomQuote;
 
-    // reset position to right of screen
-    position = wrapper.offsetWidth + 50;
+    // start just off the right edge of the wrapper
+    position = wrapper.offsetWidth + 10;
     quoteBox.style.transform = `translateX(${position}px)`;
   }
 
@@ -62,7 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
         quoteBox.style.transform = `translateX(${position}px)`;
       }
 
-      if (position + quoteBox.offsetWidth < 0) {
+      // Wait until the entire quote is *completely* offscreen
+      if (position < -quoteBox.offsetWidth - 20) {
         setRandomQuote();
       }
     }
@@ -71,15 +66,25 @@ document.addEventListener("DOMContentLoaded", () => {
     requestAnimationFrame(animate);
   }
 
-  // --- Controls ---
-  const hoverSlowdown = (m) => () => (targetMultiplier = m);
-  wrapper.addEventListener("mouseenter", hoverSlowdown(0.8));
-  wrapper.addEventListener("mouseleave", hoverSlowdown(1));
-  quoteBox.addEventListener("mouseenter", hoverSlowdown(0.4));
-  quoteBox.addEventListener("mouseleave", hoverSlowdown(1));
+  // --- Hover slowdowns ---
+  wrapper.addEventListener("mouseenter", () => (targetMultiplier = 0.8));
+  wrapper.addEventListener("mouseleave", () => (targetMultiplier = 1));
+  quoteBox.addEventListener("mouseenter", () => (targetMultiplier = 0.4));
+  quoteBox.addEventListener("mouseleave", () => (targetMultiplier = 1));
 
-  wrapper.addEventListener("mousedown", () => (paused = true));
-  window.addEventListener("mouseup", () => (paused = false));
+  // --- Mouse hold pauses ---
+  function pause() {
+    paused = true;
+    quoteBox.style.cursor = "grabbing";
+  }
+  function unpause() {
+    paused = false;
+    quoteBox.style.cursor = "grab";
+  }
+
+  wrapper.addEventListener("mousedown", pause);
+  quoteBox.addEventListener("mousedown", pause);
+  window.addEventListener("mouseup", unpause);
 
   // --- Initialize ---
   function initQuotes() {
