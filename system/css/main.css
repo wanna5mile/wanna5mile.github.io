@@ -513,3 +513,10 @@ footer {
   font-family: monospace;
   font-weight: bold;
 }
+/* ==========================================
+   Prevent overlap with Quotes Bar
+   ========================================== */
+#container,
+#container-discov {
+  margin-top: 40px; /* adjust as needed */
+}
