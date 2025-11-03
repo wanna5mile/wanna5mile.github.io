@@ -247,8 +247,8 @@ header img {
   padding: 20px;
   background-color: var(--main-bg);
   flex-grow: 1;
-  min-height: 0;            /* allows shrinkage when few cards */
-  align-content: start;     /* keeps grid tight to the top */
+  min-height: 0;
+  align-content: start;
 }
 
 /* ==========================================
@@ -272,7 +272,6 @@ header img {
   transform: scale(1.05);
 }
 
-/* --- UPDATED IMAGE LOGIC --- */
 #container div img,
 #container-discov div img {
   width: 180px;
@@ -290,35 +289,11 @@ header img {
   transform: scale(1.05);
 }
 
-/* Mobile responsive fallback */
 @media (max-width: 600px) {
   #container div img,
   #container-discov div img {
     width: 140px;
   }
-}
-
-/* Overlay for status (beta, soon, etc.) */
-.game-card {
-  position: relative;
-  display: inline-block;
-  overflow: hidden;
-}
-
-.status-overlay {
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  width: 80px;
-  height: auto;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.status-overlay.fixed {
-  top: 5px;
-  right: 5px;
-  left: auto;
 }
 
 /* ==========================================
@@ -479,7 +454,7 @@ footer {
 }
 
 /* ==========================================
-   FIX Status (Restored from Legacy, Realigned)
+   FIX Status
    ========================================== */
 .fix {
   position: relative;
@@ -493,7 +468,6 @@ footer {
   opacity: 0.7;
 }
 
-/* Centered and properly scaled overlay */
 .fix::after {
   content: "";
   position: absolute;
@@ -508,8 +482,33 @@ footer {
   transform: translateY(-4%);
 }
 
-/* Hover border styling */
 .fix:hover {
   border: 2px solid #ff0000;
   box-shadow: 0 0 10px #ff0000;
+}
+
+/* ==========================================
+   QUOTES BAR (Ticker)
+   ========================================== */
+#quoteWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 25px;
+  overflow: hidden;
+  background: #1D201F;
+  text-align: center;
+  user-select: none;
+}
+
+#quoteBox {
+  position: absolute;
+  white-space: nowrap;
+  font-size: 1em;
+  color: white;
+  text-decoration: none;
+  font-family: monospace;
+  font-weight: bold;
 }
