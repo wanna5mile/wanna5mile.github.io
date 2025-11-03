@@ -250,7 +250,7 @@ header img {
 }
 
 /* ==========================================
-   Game Cards
+   Asset Cards
    ========================================== */
 #container div,
 #container-discov div {
@@ -261,7 +261,6 @@ header img {
   border-radius: 20px; /* consistent, smooth radius */
   padding: 8px;
   overflow: hidden;
-  border: 2px solid transparent;
   transition: transform 0.2s ease, box-shadow 0.2s;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
