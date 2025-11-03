@@ -290,7 +290,7 @@ if (status === "soon" || status === "fix") {
         return;
       }
 
-      const saved = +localStorage.getItem("currentPage") || pages[0];
+      const saved = +sessionStorage.getItem("currentPage") || pages[0];
       if (!window._pageRestored) {
         window.currentPage = pages.includes(saved) ? saved : pages[0];
         window._pageRestored = true;
@@ -306,7 +306,7 @@ if (status === "soon" || status === "fix") {
       const idx = pages.indexOf(+window.currentPage);
       pageIndicator &&
         (pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`);
-      localStorage.setItem("currentPage", window.currentPage);
+      sessionStorage.setItem("currentPage", window.currentPage);
     };
 
     window.filterAssets = (q) => {
@@ -345,7 +345,7 @@ if (status === "soon" || status === "fix") {
       debounce(() => filterAssets(searchInput.value), 200)
     );
 
-    const saved = +localStorage.getItem("currentPage") || 1;
+    const saved = +sessionStorage.getItem("currentPage") || 1;
     window.currentPage = saved;
     renderPage();
   }
