@@ -519,4 +519,30 @@ if (status === "soon" || status === "fix") {
     if (typeof loadAssets === "function" && !window.assetsData)
       setTimeout(() => loadAssets().catch(() => {}), 100);
   });
+   
+     /* ---------------------------
+     Keyboard Page Flipping (Arrow Keys)
+     --------------------------- */
+  window.addEventListener("keydown", (e) => {
+    // Only run on index.html (or homepage without path)
+    const isIndex =
+      location.pathname.endsWith("index.html") ||
+      location.pathname === "/" ||
+      location.pathname === "";
+
+    if (!isIndex) return; // ignore on other pages
+
+    // Ignore if user is typing in an input/textarea
+    const activeTag = document.activeElement?.tagName?.toLowerCase();
+    if (activeTag === "input" || activeTag === "textarea") return;
+
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      if (typeof window.prevPage === "function") window.prevPage();
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      if (typeof window.nextPage === "function") window.nextPage();
+    }
+  });
+   
 })();
