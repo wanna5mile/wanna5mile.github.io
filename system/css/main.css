@@ -498,7 +498,6 @@ footer {
   height: 30px;
   overflow: hidden;
   background: var(--quote-bg);
-  color: var(--quote-text);
   text-align: center;
   user-select: none;
   border-top: 2px solid var(--accent-color);
@@ -510,7 +509,6 @@ footer {
   position: absolute;
   white-space: nowrap;
   font-size: 1em;
-  color: var(--quote-text);
   text-decoration: none;
   font-family: monospace;
   font-weight: bold;
