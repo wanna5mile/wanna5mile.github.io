@@ -399,117 +399,56 @@ if (status === "soon" || status === "fix") {
     window.stopPlaceholderCycle = () => (window._placeholderRunning = false);
   }
 
-/* ---------------------------
-   Update Popup (Persistent + Version-aware + YouTube Support)
-   --------------------------- */
-async function initUpdatePopup() {
-  const p = dom.updatePopup;
-  if (!p) return;
+  /* ---------------------------
+     Update Popup (Persistent)
+     --------------------------- */
+  function initUpdatePopup() {
+    const p = dom.updatePopup;
+    if (!p) return;
 
-  const CURRENT_VERSION = "1.0.0"; // <-- Update this to your current deployed version
-  const LS_HIDE = "ws_hideUpdate";
-  const LS_VER = "ws_lastVersion";
+    const CURRENT_VERSION = "1.0.0";
+    const LS_HIDE = "ws_hideUpdate";
+    const LS_VER = "ws_lastUpdateVersion";
 
-  const hideForever = localStorage.getItem(LS_HIDE) === "1";
-  const lastSeenVersion = localStorage.getItem(LS_VER) || "";
-  let shouldShow = !hideForever;
+    const hidePref = localStorage.getItem(LS_HIDE);
+    const lastVersion = localStorage.getItem(LS_VER);
+    const hideForSession = sessionStorage.getItem(LS_HIDE);
+    const shouldShow = (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
 
-  let versionMessage = "";
-  let sheetVersion = CURRENT_VERSION;
-  let trailerSrc = "";
+    if (!shouldShow) return;
 
-  try {
-    const res = await fetch(config.sheetUrl + "?fetch=version-data", { cache: "no-store" });
-    if (res.ok) {
-      const json = await res.json();
+    localStorage.setItem(LS_VER, CURRENT_VERSION);
+    if (dom.updateVideo && config.updateTrailerSrc)
+      dom.updateVideo.src = config.updateTrailerSrc;
 
-      // Handle array or object formats flexibly
-      const latest =
-        Array.isArray(json)
-          ? json[json.length - 1]
-          : json?.data?.[json.data.length - 1] || json;
+    setTimeout(() => p.classList.add("show"), 600);
 
-      sheetVersion =
-        latest?.version?.trim() ||
-        latest?.Version ||
-        CURRENT_VERSION;
-
-      versionMessage =
-        latest?.["version-message"] ||
-        latest?.versionMessage ||
-        latest?.message ||
-        "A new version is available!";
-
-      trailerSrc =
-        latest?.["video-link"] ||
-        latest?.videoLink ||
-        latest?.youtube ||
-        "";
-    } else {
-      console.warn("Sheet fetch failed:", res.status);
-      versionMessage = "A new version is available!";
-    }
-  } catch (err) {
-    console.warn("Version fetch error:", err);
-    versionMessage = "A new version is available!";
-  }
-
-  // Compare version numbers and decide to show popup
-  if (sheetVersion !== CURRENT_VERSION && sheetVersion !== lastSeenVersion) {
-    shouldShow = true;
-  } else if (hideForever) {
-    shouldShow = false;
-  }
-
-  if (!shouldShow) return;
-
-  // Save latest version
-  localStorage.setItem(LS_VER, sheetVersion);
-
-  // === Inject message ===
-  if (dom.updatePopupContent) dom.updatePopupContent.textContent = versionMessage;
-
-  // === Handle YouTube trailer ===
-  if (dom.updateVideo) {
-    if (trailerSrc.includes("youtube.com") || trailerSrc.includes("youtu.be")) {
-      dom.updateVideo.src = trailerSrc;
-      dom.updateVideo.style.display = "block";
-    } else {
-      dom.updateVideo.style.display = "none";
-    }
-  }
-
-  // Show popup after a short delay
-  setTimeout(() => p.classList.add("show"), 600);
-
-  // === Buttons ===
-  dom.viewUpdateBtn?.addEventListener("click", () => {
-    window.open(config.updateLink, "_self");
-    p.classList.remove("show");
-  });
-
-  dom.viewUpdateInfoBtn?.addEventListener("click", () =>
-    window.open(config.updateLink, "_blank")
-  );
-
-  dom.closeUpdateBtn?.addEventListener("click", () => {
-    sessionStorage.setItem("ws_hideUpdateSession", "1");
-    p.classList.remove("show");
-  });
-
-  dom.dontShowBtn?.addEventListener("click", () => {
-    localStorage.setItem(LS_HIDE, "1");
-    p.classList.remove("show");
-  });
-
-  // Clicking outside closes (session hide only)
-  p.addEventListener("click", (e) => {
-    if (e.target === p) {
-      sessionStorage.setItem("ws_hideUpdateSession", "1");
+    dom.viewUpdateBtn?.addEventListener("click", () => {
+      window.open(config.updateLink, "_self");
       p.classList.remove("show");
-    }
-  });
-}
+    });
+
+    dom.viewUpdateInfoBtn?.addEventListener("click", () =>
+      window.open(config.updateLink, "_blank")
+    );
+
+    dom.closeUpdateBtn?.addEventListener("click", () => {
+      sessionStorage.setItem(LS_HIDE, "1");
+      p.classList.remove("show");
+    });
+
+    dom.dontShowBtn?.addEventListener("click", () => {
+      localStorage.setItem(LS_HIDE, "1");
+      p.classList.remove("show");
+    });
+
+    p.addEventListener("click", (e) => {
+      if (e.target === p) {
+        sessionStorage.setItem(LS_HIDE, "1");
+        p.classList.remove("show");
+      }
+    });
+  }
 
   /* ---------------------------
      Asset Loader
