@@ -252,12 +252,13 @@ header img {
 }
 
 /* ==========================================
-   Asset Cards
+   Game Cards
    ========================================== */
 #container div,
 #container-discov div {
   width: 180px;
   min-height: 160px;
+  background: var(--card-bg);
   text-align: center;
   border-radius: 15%;
   padding: 8px;
