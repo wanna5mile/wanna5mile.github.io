@@ -2,7 +2,7 @@ let devConsole;
 let typedBuffer = "";
 const secretWord = "debugplz!";
 
-// === Detect "admin" typed anywhere ===
+// === Detect "debugplz!" typed anywhere ===
 document.addEventListener("keydown", (e) => {
   if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
     typedBuffer += e.key.toLowerCase();
@@ -19,29 +19,33 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// === Console spawn ===
+// === Spawn the admin console ===
 function spawnDevConsole() {
   devConsole = document.createElement("div");
   devConsole.id = "devConsole";
-  devConsole.style.position = "fixed";
-  devConsole.style.bottom = "10px";
-  devConsole.style.left = "50%";
-  devConsole.style.transform = "translateX(-50%)";
-  devConsole.style.background = "rgba(0,0,0,0.8)";
-  devConsole.style.padding = "10px";
-  devConsole.style.borderRadius = "8px";
-  devConsole.style.zIndex = "9999";
+  Object.assign(devConsole.style, {
+    position: "fixed",
+    bottom: "10px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    background: "rgba(0,0,0,0.8)",
+    padding: "10px",
+    borderRadius: "8px",
+    zIndex: "9999",
+  });
 
   const input = document.createElement("input");
   input.type = "text";
   input.placeholder = "Enter command…";
-  input.style.width = "300px";
-  input.style.padding = "6px";
-  input.style.fontFamily = "monospace";
-  input.style.color = "lime";
-  input.style.background = "black";
-  input.style.border = "1px solid lime";
-  input.style.outline = "none";
+  Object.assign(input.style, {
+    width: "300px",
+    padding: "6px",
+    fontFamily: "monospace",
+    color: "lime",
+    background: "black",
+    border: "1px solid lime",
+    outline: "none",
+  });
 
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
@@ -87,6 +91,9 @@ gif
 
 gif-flappy.gif:3,set-position:random;
   → Spawn 3 gifs randomly placed
+
+set:theme(name or number)
+  → Apply a theme manually from themes.css
 `);
     return;
   }
@@ -96,17 +103,53 @@ gif-flappy.gif:3,set-position:random;
     document.querySelectorAll(".overlay").forEach(el => el.remove());
     return;
   }
+
   if (input === ":clear-all:") {
     document.querySelectorAll(".overlay, #devConsole").forEach(el => el.remove());
     devConsole = null;
     return;
   }
 
-  // === CLOSE command (new) ===
+  // === CLOSE console ===
   if (input === "close") {
     if (devConsole) {
       devConsole.remove();
       devConsole = null;
+    }
+    return;
+  }
+
+  // === THEME SET COMMAND ===
+  if (input.startsWith("set:theme")) {
+    const themePart = input.match(/\(([^)]+)\)/);
+    let themeValue = themePart ? themePart[1].trim().toLowerCase() : input.split(":")[2]?.trim();
+
+    if (!themeValue) {
+      alert("Usage: set:theme(name) — Example: set:theme(classic) or set:theme(3)");
+      return;
+    }
+
+    // Map numbers to theme names
+    const themeMap = {
+      "1": "classic",
+      "2": "midnight",
+      "3": "neon",
+      "4": "sunset",
+      "5": "ocean",
+      "6": "retro",
+      "7": "forest",
+      "8": "void",
+      "9": "dream",
+      "10": "custom",
+    };
+
+    const themeName = themeMap[themeValue] || themeValue;
+
+    if (typeof setTheme === "function") {
+      setTheme(themeName);
+      console.log(`[Console] Theme manually set to "${themeName}".`);
+    } else {
+      alert("Theme function unavailable. Make sure settings.js is loaded first.");
     }
     return;
   }
@@ -137,17 +180,13 @@ gif-flappy.gif:3,set-position:random;
 
     settings.forEach(setting => {
       if (setting.includes("set-position")) {
-        if (setting.split(":")[1].trim() === "random") {
-          randomPos = true;
-        }
+        if (setting.split(":")[1].trim() === "random") randomPos = true;
       } else if (!isNaN(parseInt(setting))) {
         count = parseInt(setting);
       }
     });
 
-    for (let i = 0; i < count; i++) {
-      showGif(filename, randomPos);
-    }
+    for (let i = 0; i < count; i++) showGif(filename, randomPos);
     return;
   }
 
@@ -158,15 +197,17 @@ gif-flappy.gif:3,set-position:random;
 function showMarquee(text) {
   let wrapper = document.createElement("div");
   wrapper.className = "overlay marquee";
-  wrapper.style.position = "fixed";
-  wrapper.style.top = "0";
-  wrapper.style.left = "0";
-  wrapper.style.width = "100%";
-  wrapper.style.background = "rgba(0,0,0,0.8)";
-  wrapper.style.color = "yellow";
-  wrapper.style.fontFamily = "monospace";
-  wrapper.style.padding = "5px";
-  wrapper.style.zIndex = "9999";
+  Object.assign(wrapper.style, {
+    position: "fixed",
+    top: "0",
+    left: "0",
+    width: "100%",
+    background: "rgba(0,0,0,0.8)",
+    color: "yellow",
+    fontFamily: "monospace",
+    padding: "5px",
+    zIndex: "9999",
+  });
   wrapper.textContent = text;
   document.body.appendChild(wrapper);
 
@@ -183,23 +224,28 @@ function startCommandMarquee() {
   const wrapper = document.createElement("div");
   wrapper.id = "commandMarquee";
   wrapper.className = "overlay";
-  wrapper.style.position = "fixed";
-  wrapper.style.top = "0";
-  wrapper.style.left = "0";
-  wrapper.style.width = "100%";
-  wrapper.style.height = "40px";
-  wrapper.style.background = "rgba(0,0,0,0.8)";
-  wrapper.style.overflow = "hidden";
-  wrapper.style.zIndex = "9999";
-  wrapper.style.display = "flex";
-  wrapper.style.alignItems = "center";
+  Object.assign(wrapper.style, {
+    position: "fixed",
+    top: "0",
+    left: "0",
+    width: "100%",
+    height: "40px",
+    background: "rgba(0,0,0,0.8)",
+    overflow: "hidden",
+    zIndex: "9999",
+    display: "flex",
+    alignItems: "center",
+  });
 
   const quoteBox = document.createElement("div");
   quoteBox.id = "commandQuoteBox";
-  quoteBox.style.whiteSpace = "nowrap";
-  quoteBox.style.color = "yellow";
-  quoteBox.style.fontFamily = "monospace";
-  quoteBox.style.fontSize = "18px";
+  Object.assign(quoteBox.style, {
+    whiteSpace: "nowrap",
+    color: "yellow",
+    fontFamily: "monospace",
+    fontSize: "18px",
+  });
+
   wrapper.appendChild(quoteBox);
   document.body.appendChild(wrapper);
 
@@ -268,9 +314,11 @@ function showGif(filename, randomPos = false) {
   let el = document.createElement("img");
   el.className = "overlay gif";
   el.src = filename;
-  el.style.position = "fixed";
-  el.style.width = "100px";
-  el.style.zIndex = "9999";
+  Object.assign(el.style, {
+    position: "fixed",
+    width: "100px",
+    zIndex: "9999",
+  });
 
   if (randomPos) {
     el.style.left = Math.floor(Math.random() * (window.innerWidth - 100)) + "px";
