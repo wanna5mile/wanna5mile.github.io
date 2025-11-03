@@ -1,24 +1,18 @@
-#quoteWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 100vw;
-  height: 25px;
-  overflow: hidden;
-
-  background: #1D201F;
-  text-align: center;
-  user-select: none; /* stop text highlighting while dragging/holding */
-}
-
-#quoteBox {
-  position: absolute;
-  white-space: nowrap;
-  font-size: 1em;
-  color: white;
-  text-decoration: none;
-  font-family: monospace;
-  font-weight: bold;
-}
+    #quoteWrapper {
+      position: relative;
+      align-items:center;
+      width: 100vw;
+      height: 25px;
+      overflow: hidden;
+      background: #1D201F;
+      text-align: center;      user-select: none; /* stop text highlighting while dragging/holding */
+    }
+    #quoteBox {
+      position: absolute;
+      white-space: nowrap;
+      font-size: 1.0em;
+      color: white;
+      text-decoration: none;
+      font-family: monospace;
+      font-weight: bold;
+    }
