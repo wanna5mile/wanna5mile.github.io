@@ -236,7 +236,7 @@ header img {
 }
 
 /* ==========================================
-   Grid Layout
+   Grid Layout (Fixed Single Row Stretch)
    ========================================== */
 #container,
 #container-discov {
@@ -246,8 +246,9 @@ header img {
   gap: 20px;
   padding: 20px;
   background-color: var(--main-bg);
-  min-height: calc(100vh - 120px);
   flex-grow: 1;
+  min-height: 0;            /* allows shrinkage when few cards */
+  align-content: start;     /* keeps grid tight to the top */
 }
 
 /* ==========================================
