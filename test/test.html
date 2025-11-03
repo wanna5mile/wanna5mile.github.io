@@ -538,6 +538,65 @@ body.light {
   color: #111;
 }
     </style>
+	  <style>
+		      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    .preloader {
+      position: fixed;
+      top: 0; left: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100vh;
+      background: #000 url('load-bg.png') center/cover no-repeat;
+      z-index: 100000000;
+      transition: opacity 2s ease; /* fade effect */
+    }
+    .loader-gif img {
+      width: 300px;
+      image-rendering: pixelated;
+      height: auto;
+    }
+    .fade {
+      opacity: 0;
+      pointer-events: none;
+    }
+    /* hidden but still "running" counter */
+    .counter, .loading-text {
+      color: #000;
+      font-size: 0.1em; /* practically invisible */
+      font-weight: 700;
+      margin-top: 10px;
+      text-align: center;
+    }
+	  </style>
+	  <style>
+		      #quoteWrapper {
+      position: relative;
+      align-items:center
+      width: 100vw;
+      height: 25px;
+      overflow: hidden;
+      background: #1D201F;
+      text-align: center;      user-select: none; /* stop text highlighting while dragging/holding */
+    }
+    #quoteBox {
+      position: absolute;
+      white-space: nowrap;
+      font-size: 1.0em;
+      color: white;
+      text-decoration: none;
+      font-family: monospace;
+      font-weight: bold;
+    }
+	  </style>
     <script>
           const quotes = [
       "slackrr now bg.uhm",
