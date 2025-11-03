@@ -556,92 +556,94 @@ async function initUpdatePopup() {
     }
   }
 
-  /* ---------------------------
-     Quotes System
-     --------------------------- */
-  async function initQuotes() {
-    const { quoteWrapper: wrapper, quoteBox } = dom || {};
-    if (!wrapper || !quoteBox) return;
+/* ---------------------------
+   Quotes System (Improved Full-Screen Marquee)
+   --------------------------- */
+async function initQuotes() {
+  const wrapper = document.getElementById("quoteWrapper");
+  const quoteBox = document.getElementById("quoteBox");
+  if (!wrapper || !quoteBox) return;
 
-    const jsonPath = config.quotesPath;
-    let quotes = [];
+  const jsonPath = config.quotesPath;
+  let quotes = [];
 
-    let baseSpeed = 120;
-    let targetMultiplier = 1;
-    let currentMultiplier = 1;
-    let position;
-    let lastTime = null;
-    let paused = false;
+  const baseSpeed = 100; // pixels per second
+  let position = 0;
+  let lastTime = null;
+  let paused = false;
+  let currentMultiplier = 1;
+  let targetMultiplier = 1;
 
-    async function loadQuotes() {
-      showLoading?.("Loading quotes...");
-      try {
-        const res = await fetch(jsonPath);
-        if (!res.ok) throw new Error(`Failed to fetch quotes: ${res.status}`);
-        const data = await res.json();
-        quotes = Array.isArray(data) && data.length ? data : ["No quotes available."];
-        startQuotes();
-        hidePreloader?.();
-      } catch (err) {
-        console.error("Error loading quotes:", err);
-        quotes = ["⚠ Failed to load quotes."];
-        startQuotes();
-        hidePreloader?.(true);
-      }
+  async function loadQuotes() {
+    showLoading?.("Loading quotes...");
+    try {
+      const res = await fetch(jsonPath, { cache: "no-store" });
+      if (!res.ok) throw new Error(`Failed to fetch quotes: ${res.status}`);
+      const data = await res.json();
+      quotes = Array.isArray(data) && data.length ? data : ["No quotes available."];
+      startQuotes();
+      hidePreloader?.();
+    } catch (err) {
+      console.error("Error loading quotes:", err);
+      quotes = ["⚠ Failed to load quotes."];
+      startQuotes();
+      hidePreloader?.(true);
     }
-
-    function setRandomQuote() {
-      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      quoteBox.textContent = randomQuote;
-      position = wrapper.offsetWidth + 10;
-      quoteBox.style.transform = `translateX(${position}px)`;
-    }
-
-    function animate(timestamp) {
-      if (lastTime !== null) {
-        const delta = (timestamp - lastTime) / 1000;
-        const accel = 2;
-        currentMultiplier += (targetMultiplier - currentMultiplier) * accel * delta;
-
-        if (!paused) {
-          position -= baseSpeed * currentMultiplier * delta;
-          quoteBox.style.transform = `translateX(${position}px)`;
-        }
-
-        if (position < -quoteBox.offsetWidth - 20) {
-          setRandomQuote();
-        }
-      }
-
-      lastTime = timestamp;
-      requestAnimationFrame(animate);
-    }
-
-    wrapper.addEventListener("mouseenter", () => (targetMultiplier = 0.8));
-    wrapper.addEventListener("mouseleave", () => (targetMultiplier = 1));
-    quoteBox.addEventListener("mouseenter", () => (targetMultiplier = 0.4));
-    quoteBox.addEventListener("mouseleave", () => (targetMultiplier = 1));
-
-    function pause() {
-      paused = true;
-      quoteBox.style.cursor = "grabbing";
-    }
-    function unpause() {
-      paused = false;
-      quoteBox.style.cursor = "grab";
-    }
-
-    wrapper.addEventListener("mousedown", pause);
-    quoteBox.addEventListener("mousedown", pause);
-    window.addEventListener("mouseup", unpause);
-
-    function startQuotes() {
-      setRandomQuote();
-      requestAnimationFrame(animate);
-    }
-
-    loadQuotes();
   }
+
+  function setRandomQuote() {
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    quoteBox.textContent = randomQuote;
+
+    // Start fully off-screen on the right
+    position = wrapper.offsetWidth + 10;
+    quoteBox.style.transform = `translateX(${position}px)`;
+  }
+
+  function animate(timestamp) {
+    if (lastTime !== null) {
+      const delta = (timestamp - lastTime) / 1000;
+      const accel = 2; // smoother easing when speed changes
+      currentMultiplier += (targetMultiplier - currentMultiplier) * accel * delta;
+
+      if (!paused) {
+        position -= baseSpeed * currentMultiplier * delta;
+        quoteBox.style.transform = `translateX(${position}px)`;
+      }
+
+      // When quote fully leaves the screen, pick a new one
+      if (position < -quoteBox.offsetWidth - 10) {
+        // Wait until it's completely gone before swapping
+        setRandomQuote();
+      }
+    }
+
+    lastTime = timestamp;
+    requestAnimationFrame(animate);
+  }
+
+  // Hover & grab speed interactions
+  wrapper.addEventListener("mouseenter", () => (targetMultiplier = 0.8));
+  wrapper.addEventListener("mouseleave", () => (targetMultiplier = 1));
+  quoteBox.addEventListener("mouseenter", () => (targetMultiplier = 0.4));
+  quoteBox.addEventListener("mouseleave", () => (targetMultiplier = 1));
+
+  wrapper.addEventListener("mousedown", () => {
+    paused = true;
+    quoteBox.style.cursor = "grabbing";
+  });
+  window.addEventListener("mouseup", () => {
+    paused = false;
+    quoteBox.style.cursor = "grab";
+  });
+
+  function startQuotes() {
+    setRandomQuote();
+    requestAnimationFrame(animate);
+  }
+
+  loadQuotes();
+}
 
   /* ---------------------------
      DOM Bootstrap
