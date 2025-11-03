@@ -413,7 +413,8 @@ async function initUpdatePopup() {
   const hidePref = localStorage.getItem(LS_HIDE);
   const lastVersion = localStorage.getItem(LS_VER);
   const hideForSession = sessionStorage.getItem(LS_HIDE);
-  const shouldShow = (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
+  const shouldShow =
+    (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
 
   if (!shouldShow) return;
 
@@ -422,15 +423,38 @@ async function initUpdatePopup() {
   // === Fetch version message from Google Sheet ===
   let versionMessage = "";
   try {
-    const res = await fetch(config.sheetUrl + "?fetch=version-message", { cache: "no-store" });
+    const res = await fetch(config.sheetUrl + "?fetch=version-message", {
+      cache: "no-store",
+    });
     if (res.ok) {
       const json = await res.json();
-      // Try to detect message key (works if API returns an object or array)
-      versionMessage =
-        json["version-message"] ||
-        json.versionMessage ||
-        (Array.isArray(json) && json[0]?.["version-message"]) ||
-        "An update is available!";
+
+      // Handle any format (single object, array, or wrapped)
+      let msg = "";
+      if (Array.isArray(json)) {
+        // Take the last row’s version-message field if exists
+        const last = json[json.length - 1];
+        msg =
+          last?.["version-message"] ||
+          last?.versionMessage ||
+          last?.message ||
+          "";
+      } else if (json?.data && Array.isArray(json.data)) {
+        const last = json.data[json.data.length - 1];
+        msg =
+          last?.["version-message"] ||
+          last?.versionMessage ||
+          last?.message ||
+          "";
+      } else {
+        msg =
+          json["version-message"] ||
+          json.versionMessage ||
+          json.message ||
+          "";
+      }
+
+      versionMessage = msg || "New update is available!";
     } else {
       versionMessage = "New update is available!";
     }
