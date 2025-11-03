@@ -400,81 +400,89 @@ if (status === "soon" || status === "fix") {
   }
 
 /* ---------------------------
-   Update Popup (Persistent + Dynamic Message from Sheet)
+   Update Popup (Persistent + Version-aware + YouTube Support)
    --------------------------- */
 async function initUpdatePopup() {
   const p = dom.updatePopup;
   if (!p) return;
 
-  const CURRENT_VERSION = "1.0.0";
+  const CURRENT_VERSION = "1.0.0"; // <-- Update this to your current deployed version
   const LS_HIDE = "ws_hideUpdate";
-  const LS_VER = "ws_lastUpdateVersion";
+  const LS_VER = "ws_lastVersion";
 
-  const hidePref = localStorage.getItem(LS_HIDE);
-  const lastVersion = localStorage.getItem(LS_VER);
-  const hideForSession = sessionStorage.getItem(LS_HIDE);
-  const shouldShow =
-    (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
+  const hideForever = localStorage.getItem(LS_HIDE) === "1";
+  const lastSeenVersion = localStorage.getItem(LS_VER) || "";
+  let shouldShow = !hideForever;
 
-  if (!shouldShow) return;
-
-  localStorage.setItem(LS_VER, CURRENT_VERSION);
-
-  // === Fetch version message from Google Sheet ===
   let versionMessage = "";
+  let sheetVersion = CURRENT_VERSION;
+  let trailerSrc = "";
+
   try {
-    const res = await fetch(config.sheetUrl + "?fetch=version-message", {
-      cache: "no-store",
-    });
+    const res = await fetch(config.sheetUrl + "?fetch=version-data", { cache: "no-store" });
     if (res.ok) {
       const json = await res.json();
 
-      // Handle any format (single object, array, or wrapped)
-      let msg = "";
-      if (Array.isArray(json)) {
-        // Take the last row’s version-message field if exists
-        const last = json[json.length - 1];
-        msg =
-          last?.["version-message"] ||
-          last?.versionMessage ||
-          last?.message ||
-          "";
-      } else if (json?.data && Array.isArray(json.data)) {
-        const last = json.data[json.data.length - 1];
-        msg =
-          last?.["version-message"] ||
-          last?.versionMessage ||
-          last?.message ||
-          "";
-      } else {
-        msg =
-          json["version-message"] ||
-          json.versionMessage ||
-          json.message ||
-          "";
-      }
+      // Handle array or object formats flexibly
+      const latest =
+        Array.isArray(json)
+          ? json[json.length - 1]
+          : json?.data?.[json.data.length - 1] || json;
 
-      versionMessage = msg || "New update is available!";
+      sheetVersion =
+        latest?.version?.trim() ||
+        latest?.Version ||
+        CURRENT_VERSION;
+
+      versionMessage =
+        latest?.["version-message"] ||
+        latest?.versionMessage ||
+        latest?.message ||
+        "A new version is available!";
+
+      trailerSrc =
+        latest?.["video-link"] ||
+        latest?.videoLink ||
+        latest?.youtube ||
+        "";
     } else {
-      versionMessage = "New update is available!";
+      console.warn("Sheet fetch failed:", res.status);
+      versionMessage = "A new version is available!";
     }
   } catch (err) {
-    console.warn("Could not fetch version message:", err);
-    versionMessage = "New update is available!";
+    console.warn("Version fetch error:", err);
+    versionMessage = "A new version is available!";
   }
 
-  // === Inject the message into the popup content ===
-  if (dom.updatePopupContent) {
-    dom.updatePopupContent.textContent = versionMessage;
+  // Compare version numbers and decide to show popup
+  if (sheetVersion !== CURRENT_VERSION && sheetVersion !== lastSeenVersion) {
+    shouldShow = true;
+  } else if (hideForever) {
+    shouldShow = false;
   }
 
-  if (dom.updateVideo && config.updateTrailerSrc)
-    dom.updateVideo.src = config.updateTrailerSrc;
+  if (!shouldShow) return;
 
-  // Show the popup
+  // Save latest version
+  localStorage.setItem(LS_VER, sheetVersion);
+
+  // === Inject message ===
+  if (dom.updatePopupContent) dom.updatePopupContent.textContent = versionMessage;
+
+  // === Handle YouTube trailer ===
+  if (dom.updateVideo) {
+    if (trailerSrc.includes("youtube.com") || trailerSrc.includes("youtu.be")) {
+      dom.updateVideo.src = trailerSrc;
+      dom.updateVideo.style.display = "block";
+    } else {
+      dom.updateVideo.style.display = "none";
+    }
+  }
+
+  // Show popup after a short delay
   setTimeout(() => p.classList.add("show"), 600);
 
-  // === Button logic ===
+  // === Buttons ===
   dom.viewUpdateBtn?.addEventListener("click", () => {
     window.open(config.updateLink, "_self");
     p.classList.remove("show");
@@ -485,7 +493,7 @@ async function initUpdatePopup() {
   );
 
   dom.closeUpdateBtn?.addEventListener("click", () => {
-    sessionStorage.setItem(LS_HIDE, "1");
+    sessionStorage.setItem("ws_hideUpdateSession", "1");
     p.classList.remove("show");
   });
 
@@ -494,9 +502,10 @@ async function initUpdatePopup() {
     p.classList.remove("show");
   });
 
+  // Clicking outside closes (session hide only)
   p.addEventListener("click", (e) => {
     if (e.target === p) {
-      sessionStorage.setItem(LS_HIDE, "1");
+      sessionStorage.setItem("ws_hideUpdateSession", "1");
       p.classList.remove("show");
     }
   });
