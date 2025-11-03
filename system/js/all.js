@@ -399,56 +399,84 @@ if (status === "soon" || status === "fix") {
     window.stopPlaceholderCycle = () => (window._placeholderRunning = false);
   }
 
-  /* ---------------------------
-     Update Popup (Persistent)
-     --------------------------- */
-  function initUpdatePopup() {
-    const p = dom.updatePopup;
-    if (!p) return;
+/* ---------------------------
+   Update Popup (Persistent + Dynamic Message from Sheet)
+   --------------------------- */
+async function initUpdatePopup() {
+  const p = dom.updatePopup;
+  if (!p) return;
 
-    const CURRENT_VERSION = "1.0.0";
-    const LS_HIDE = "ws_hideUpdate";
-    const LS_VER = "ws_lastUpdateVersion";
+  const CURRENT_VERSION = "1.0.0";
+  const LS_HIDE = "ws_hideUpdate";
+  const LS_VER = "ws_lastUpdateVersion";
 
-    const hidePref = localStorage.getItem(LS_HIDE);
-    const lastVersion = localStorage.getItem(LS_VER);
-    const hideForSession = sessionStorage.getItem(LS_HIDE);
-    const shouldShow = (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
+  const hidePref = localStorage.getItem(LS_HIDE);
+  const lastVersion = localStorage.getItem(LS_VER);
+  const hideForSession = sessionStorage.getItem(LS_HIDE);
+  const shouldShow = (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
 
-    if (!shouldShow) return;
+  if (!shouldShow) return;
 
-    localStorage.setItem(LS_VER, CURRENT_VERSION);
-    if (dom.updateVideo && config.updateTrailerSrc)
-      dom.updateVideo.src = config.updateTrailerSrc;
+  localStorage.setItem(LS_VER, CURRENT_VERSION);
 
-    setTimeout(() => p.classList.add("show"), 600);
+  // === Fetch version message from Google Sheet ===
+  let versionMessage = "";
+  try {
+    const res = await fetch(config.sheetUrl + "?fetch=version-message", { cache: "no-store" });
+    if (res.ok) {
+      const json = await res.json();
+      // Try to detect message key (works if API returns an object or array)
+      versionMessage =
+        json["version-message"] ||
+        json.versionMessage ||
+        (Array.isArray(json) && json[0]?.["version-message"]) ||
+        "An update is available!";
+    } else {
+      versionMessage = "New update is available!";
+    }
+  } catch (err) {
+    console.warn("Could not fetch version message:", err);
+    versionMessage = "New update is available!";
+  }
 
-    dom.viewUpdateBtn?.addEventListener("click", () => {
-      window.open(config.updateLink, "_self");
-      p.classList.remove("show");
-    });
+  // === Inject the message into the popup content ===
+  if (dom.updatePopupContent) {
+    dom.updatePopupContent.textContent = versionMessage;
+  }
 
-    dom.viewUpdateInfoBtn?.addEventListener("click", () =>
-      window.open(config.updateLink, "_blank")
-    );
+  if (dom.updateVideo && config.updateTrailerSrc)
+    dom.updateVideo.src = config.updateTrailerSrc;
 
-    dom.closeUpdateBtn?.addEventListener("click", () => {
+  // Show the popup
+  setTimeout(() => p.classList.add("show"), 600);
+
+  // === Button logic ===
+  dom.viewUpdateBtn?.addEventListener("click", () => {
+    window.open(config.updateLink, "_self");
+    p.classList.remove("show");
+  });
+
+  dom.viewUpdateInfoBtn?.addEventListener("click", () =>
+    window.open(config.updateLink, "_blank")
+  );
+
+  dom.closeUpdateBtn?.addEventListener("click", () => {
+    sessionStorage.setItem(LS_HIDE, "1");
+    p.classList.remove("show");
+  });
+
+  dom.dontShowBtn?.addEventListener("click", () => {
+    localStorage.setItem(LS_HIDE, "1");
+    p.classList.remove("show");
+  });
+
+  p.addEventListener("click", (e) => {
+    if (e.target === p) {
       sessionStorage.setItem(LS_HIDE, "1");
       p.classList.remove("show");
-    });
-
-    dom.dontShowBtn?.addEventListener("click", () => {
-      localStorage.setItem(LS_HIDE, "1");
-      p.classList.remove("show");
-    });
-
-    p.addEventListener("click", (e) => {
-      if (e.target === p) {
-        sessionStorage.setItem(LS_HIDE, "1");
-        p.classList.remove("show");
-      }
-    });
-  }
+    }
+  });
+}
 
   /* ---------------------------
      Asset Loader
