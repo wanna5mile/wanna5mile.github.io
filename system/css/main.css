@@ -488,7 +488,7 @@ footer {
 }
 
 /* ==========================================
-   QUOTES BAR (Ticker)
+   QUOTES BAR
    ========================================== */
 #quoteWrapper {
   position: relative;
@@ -501,6 +501,7 @@ footer {
   background: #1D201F;
   text-align: center;
   user-select: none;
+  z-index: 2000;
 }
 
 #quoteBox {
