@@ -1,6 +1,6 @@
 let devConsole;
 let typedBuffer = "";
-const secretWord = "admin";
+const secretWord = "debugplz!";
 
 // === Detect "admin" typed anywhere ===
 document.addEventListener("keydown", (e) => {
