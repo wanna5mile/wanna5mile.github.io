@@ -220,18 +220,15 @@
       imagePromises.push({ promise: imgPromise, page: pageNum });
       a.appendChild(img);
 
-  // Apply visual status classes — CSS handles visuals for FIX + SOON
-if (status === "soon" || status === "fix") {
-  // Capitalize FIX to match your CSS selector `.FIX`
-  card.classList.add(status === "fix" ? "FIX" : "soon");
-} else if (["new", "updated"].includes(status)) {
-  // Optional: still allow animated GIF overlays for these
-  const overlay = document.createElement("img");
-  overlay.src = gifFile;
-  overlay.alt = `${status} badge`;
-  overlay.className = `status-gif status-${status}`;
-  a.appendChild(overlay);
-}
+      if (status === "soon" || status === "fix") {
+        card.classList.add(status === "fix" ? "FIX" : "soon");
+      } else if (["new", "updated"].includes(status)) {
+        const overlay = document.createElement("img");
+        overlay.src = gifFile;
+        overlay.alt = `${status} badge`;
+        overlay.className = `status-gif status-${status}`;
+        a.appendChild(overlay);
+      }
 
       const titleEl = document.createElement("h3");
       titleEl.textContent = title || "Untitled";
@@ -271,15 +268,27 @@ if (status === "soon" || status === "fix") {
     const { container, pageIndicator, searchInput, searchBtn } = dom || {};
     if (!container) return;
 
+    const quoteWrapper = document.getElementById("quoteWrapper");
     const getAllCards = () => [...container.querySelectorAll(".asset-card")];
     const getFilteredCards = () =>
       getAllCards().filter((c) => c.dataset.filtered === "true");
     const getPages = () =>
-      [...new Set(
-        getFilteredCards()
-          .map((c) => +c.dataset.page)
-          .filter((n) => !isNaN(n))
-      )].sort((a, b) => a - b);
+      [...new Set(getFilteredCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort((a, b) => a - b);
+
+    // ✅ Fix: consistent quote visibility and layout
+    function updateQuoteVisibility() {
+      if (!quoteWrapper) return;
+      const visibleCards = getFilteredCards().length;
+      if (visibleCards === 0) {
+        quoteWrapper.style.opacity = "1";
+        quoteWrapper.style.pointerEvents = "auto";
+        quoteWrapper.style.marginTop = "0";
+      } else {
+        quoteWrapper.style.opacity = "1";
+        quoteWrapper.style.pointerEvents = "none";
+        quoteWrapper.style.marginTop = "0";
+      }
+    }
 
     window.renderPage = () => {
       const pages = getPages();
@@ -287,6 +296,7 @@ if (status === "soon" || status === "fix") {
         window.currentPage = 1;
         getAllCards().forEach((c) => (c.style.display = "none"));
         pageIndicator && (pageIndicator.textContent = "No pages");
+        updateQuoteVisibility();
         return;
       }
 
@@ -307,6 +317,7 @@ if (status === "soon" || status === "fix") {
       pageIndicator &&
         (pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`);
       sessionStorage.setItem("currentPage", window.currentPage);
+      updateQuoteVisibility();
     };
 
     window.filterAssets = (q) => {
@@ -321,6 +332,7 @@ if (status === "soon" || status === "fix") {
       const pages = getPages();
       window.currentPage = pages[0] || 1;
       renderPage();
+      updateQuoteVisibility();
     };
 
     window.prevPage = () => {
@@ -340,10 +352,7 @@ if (status === "soon" || status === "fix") {
     };
 
     searchBtn?.addEventListener("click", () => filterAssets(searchInput.value));
-    searchInput?.addEventListener(
-      "input",
-      debounce(() => filterAssets(searchInput.value), 200)
-    );
+    searchInput?.addEventListener("input", debounce(() => filterAssets(searchInput.value), 200));
 
     const saved = +sessionStorage.getItem("currentPage") || 1;
     window.currentPage = saved;
@@ -356,8 +365,7 @@ if (status === "soon" || status === "fix") {
   function initPlaceholders() {
     const { searchInput } = dom || {};
     if (!searchInput) return;
-    const FADE = 400,
-      HOLD = 4000;
+    const FADE = 400, HOLD = 4000;
 
     const fadePlaceholder = (input, text, cb) => {
       input.classList.add("fade-out");
@@ -495,94 +503,84 @@ if (status === "soon" || status === "fix") {
     }
   }
 
-/* ---------------------------
-   Quotes System (Improved Full-Screen Marquee)
-   --------------------------- */
-async function initQuotes() {
-  const wrapper = document.getElementById("quoteWrapper");
-  const quoteBox = document.getElementById("quoteBox");
-  if (!wrapper || !quoteBox) return;
+  /* ---------------------------
+     Quotes System (Improved Full-Screen Marquee)
+     --------------------------- */
+  async function initQuotes() {
+    const wrapper = document.getElementById("quoteWrapper");
+    const quoteBox = document.getElementById("quoteBox");
+    if (!wrapper || !quoteBox) return;
 
-  const jsonPath = config.quotesPath;
-  let quotes = [];
+    const jsonPath = config.quotesPath;
+    let quotes = [];
 
-  const baseSpeed = 100; // pixels per second
-  let position = 0;
-  let lastTime = null;
-  let paused = false;
-  let currentMultiplier = 1;
-  let targetMultiplier = 1;
+    const baseSpeed = 100;
+    let position = 0;
+    let lastTime = null;
+    let paused = false;
+    let currentMultiplier = 1;
+    let targetMultiplier = 1;
 
-  async function loadQuotes() {
-    showLoading?.("Loading quotes...");
-    try {
-      const res = await fetch(jsonPath, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Failed to fetch quotes: ${res.status}`);
-      const data = await res.json();
-      quotes = Array.isArray(data) && data.length ? data : ["No quotes available."];
-      startQuotes();
-      hidePreloader?.();
-    } catch (err) {
-      console.error("Error loading quotes:", err);
-      quotes = ["⚠ Failed to load quotes."];
-      startQuotes();
-      hidePreloader?.(true);
-    }
-  }
-
-  function setRandomQuote() {
-    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-    quoteBox.textContent = randomQuote;
-
-    // Start fully off-screen on the right
-    position = wrapper.offsetWidth + 10;
-    quoteBox.style.transform = `translateX(${position}px)`;
-  }
-
-  function animate(timestamp) {
-    if (lastTime !== null) {
-      const delta = (timestamp - lastTime) / 1000;
-      const accel = 2; // smoother easing when speed changes
-      currentMultiplier += (targetMultiplier - currentMultiplier) * accel * delta;
-
-      if (!paused) {
-        position -= baseSpeed * currentMultiplier * delta;
-        quoteBox.style.transform = `translateX(${position}px)`;
-      }
-
-      // When quote fully leaves the screen, pick a new one
-      if (position < -quoteBox.offsetWidth - 10) {
-        // Wait until it's completely gone before swapping
-        setRandomQuote();
+    async function loadQuotes() {
+      showLoading?.("Loading quotes...");
+      try {
+        const res = await fetch(jsonPath, { cache: "no-store" });
+        if (!res.ok) throw new Error(`Failed to fetch quotes: ${res.status}`);
+        const data = await res.json();
+        quotes = Array.isArray(data) && data.length ? data : ["No quotes available."];
+        startQuotes();
+        hidePreloader?.();
+      } catch (err) {
+        console.error("Error loading quotes:", err);
+        quotes = ["⚠ Failed to load quotes."];
+        startQuotes();
+        hidePreloader?.(true);
       }
     }
 
-    lastTime = timestamp;
-    requestAnimationFrame(animate);
+    function setRandomQuote() {
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      quoteBox.textContent = randomQuote;
+      position = wrapper.offsetWidth + 10;
+      quoteBox.style.transform = `translateX(${position}px)`;
+    }
+
+    function animate(timestamp) {
+      if (lastTime !== null) {
+        const delta = (timestamp - lastTime) / 1000;
+        const accel = 2;
+        currentMultiplier += (targetMultiplier - currentMultiplier) * accel * delta;
+        if (!paused) {
+          position -= baseSpeed * currentMultiplier * delta;
+          quoteBox.style.transform = `translateX(${position}px)`;
+        }
+        if (position < -quoteBox.offsetWidth - 10) setRandomQuote();
+      }
+      lastTime = timestamp;
+      requestAnimationFrame(animate);
+    }
+
+    wrapper.addEventListener("mouseenter", () => (targetMultiplier = 0.8));
+    wrapper.addEventListener("mouseleave", () => (targetMultiplier = 1));
+    quoteBox.addEventListener("mouseenter", () => (targetMultiplier = 0.4));
+    quoteBox.addEventListener("mouseleave", () => (targetMultiplier = 1));
+
+    wrapper.addEventListener("mousedown", () => {
+      paused = true;
+      quoteBox.style.cursor = "grabbing";
+    });
+    window.addEventListener("mouseup", () => {
+      paused = false;
+      quoteBox.style.cursor = "grab";
+    });
+
+    function startQuotes() {
+      setRandomQuote();
+      requestAnimationFrame(animate);
+    }
+
+    loadQuotes();
   }
-
-  // Hover & grab speed interactions
-  wrapper.addEventListener("mouseenter", () => (targetMultiplier = 0.8));
-  wrapper.addEventListener("mouseleave", () => (targetMultiplier = 1));
-  quoteBox.addEventListener("mouseenter", () => (targetMultiplier = 0.4));
-  quoteBox.addEventListener("mouseleave", () => (targetMultiplier = 1));
-
-  wrapper.addEventListener("mousedown", () => {
-    paused = true;
-    quoteBox.style.cursor = "grabbing";
-  });
-  window.addEventListener("mouseup", () => {
-    paused = false;
-    quoteBox.style.cursor = "grab";
-  });
-
-  function startQuotes() {
-    setRandomQuote();
-    requestAnimationFrame(animate);
-  }
-
-  loadQuotes();
-}
 
   /* ---------------------------
      DOM Bootstrap
@@ -596,7 +594,7 @@ async function initQuotes() {
       initPlaceholders();
       initUpdatePopup();
       await loadAssets();
-      initQuotes(); // ✅ integrated here
+      initQuotes();
       console.log("✅ WannaSmile Loader + Quotes Ready");
     } catch (err) {
       console.error("Initialization failed:", err);
