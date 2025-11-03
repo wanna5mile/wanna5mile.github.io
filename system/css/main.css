@@ -260,11 +260,12 @@ header img {
   min-height: 160px;
   background: var(--card-bg);
   text-align: center;
-  border-radius: 15%;
+  border-radius: 20px; /* consistent, smooth radius */
   padding: 8px;
   overflow: hidden;
   border: 2px solid transparent;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 #container div:hover,
@@ -279,7 +280,7 @@ header img {
   height: auto;
   display: block;
   margin: 0 auto 8px;
-  border-radius: 12%;
+  border-radius: 14px; /* same rounding ratio for visual balance */
   object-fit: contain;
   transition: transform 0.3s ease;
 }
