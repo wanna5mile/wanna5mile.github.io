@@ -407,37 +407,67 @@
     window.stopPlaceholderCycle = () => (window._placeholderRunning = false);
   }
 
-  /* ---------------------------
-     Update Popup (Persistent)
-     --------------------------- */
-  function initUpdatePopup() {
-    const p = dom.updatePopup;
-    if (!p) return;
+/* ---------------------------
+   Update Popup (Live from Sheets)
+   --------------------------- */
+async function initUpdatePopup() {
+  const p = dom.updatePopup;
+  if (!p) return;
 
-    const CURRENT_VERSION = "1.0.0";
-    const LS_HIDE = "ws_hideUpdate";
-    const LS_VER = "ws_lastUpdateVersion";
+  const LS_HIDE = "ws_hideUpdate";
+  const LS_VER = "ws_lastUpdateVersion";
 
+  try {
+    // === 1️⃣ Fetch version-message sheet ===
+    const res = await fetch(`${config.sheetUrl}?mode=version-message`, { cache: "no-store" });
+    if (!res.ok) throw new Error("Version message fetch failed");
+
+    const data = await res.json();
+
+    // Expect data like [{ version: "1.2.0", message: "Added new games!", trailer: "...", link: "..." }]
+    const latest = Array.isArray(data) && data.length
+      ? data[data.length - 1]
+      : { version: "1.0.0", message: "New updates are live!", trailer: "", link: "" };
+
+    const CURRENT_VERSION = latest.version || "1.0.0";
+    const MESSAGE = latest.message || "Enjoy the latest update!";
+    const TRAILER = latest.trailer || "";
+    const LINK = latest.link || config.updateLink;
+
+    // === 2️⃣ Update popup content dynamically ===
+    const titleEl = p.querySelector("h2");
+    const msgEl = p.querySelector("p");
+    if (titleEl) titleEl.textContent = `Version ${CURRENT_VERSION} Update!`;
+    if (msgEl) msgEl.textContent = MESSAGE;
+
+    if (dom.updateVideo && TRAILER) dom.updateVideo.src = TRAILER;
+    config.updateLink = LINK;
+
+    // === 3️⃣ Local storage logic ===
     const hidePref = localStorage.getItem(LS_HIDE);
     const lastVersion = localStorage.getItem(LS_VER);
     const hideForSession = sessionStorage.getItem(LS_HIDE);
-    const shouldShow = (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
+    const shouldShow =
+      (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
+
+    // Update footer version text
+    const footerVersion = document.getElementById("footerVersion");
+    if (footerVersion) footerVersion.textContent = `Version ${CURRENT_VERSION}`;
 
     if (!shouldShow) return;
 
     localStorage.setItem(LS_VER, CURRENT_VERSION);
-    if (dom.updateVideo && config.updateTrailerSrc)
-      dom.updateVideo.src = config.updateTrailerSrc;
 
+    // === 4️⃣ Show popup ===
     setTimeout(() => p.classList.add("show"), 600);
 
     dom.viewUpdateBtn?.addEventListener("click", () => {
-      window.open(config.updateLink, "_self");
+      window.open(LINK, "_self");
       p.classList.remove("show");
     });
 
     dom.viewUpdateInfoBtn?.addEventListener("click", () =>
-      window.open(config.updateLink, "_blank")
+      window.open(LINK, "_blank")
     );
 
     dom.closeUpdateBtn?.addEventListener("click", () => {
@@ -456,7 +486,16 @@
         p.classList.remove("show");
       }
     });
+  } catch (err) {
+    console.warn("⚠ Version message fetch failed:", err);
+    // fallback to static version display
+    const fallbackVersion = "1.0.0";
+    const titleEl = p.querySelector("h2");
+    if (titleEl) titleEl.textContent = `Version ${fallbackVersion} Update!`;
+    const footerVersion = document.getElementById("footerVersion");
+    if (footerVersion) footerVersion.textContent = `Version ${fallbackVersion}`;
   }
+}
 
   /* ---------------------------
      Asset Loader
