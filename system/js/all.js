@@ -429,8 +429,8 @@ async function initUpdatePopup() {
       ? data[data.length - 1]
       : { version: "1.0.0", message: "New updates are live!", trailer: "", link: "" };
 
-    const CURRENT_VERSION = latest.version || "0.8";
-    const MESSAGE = latest.message || "NOVEMBER!!! game batches will be added every week! check them out on page 4!";
+    const CURRENT_VERSION = latest.version || "1.0.0";
+    const MESSAGE = latest.message || "Enjoy the latest update!";
     const TRAILER = latest.trailer || "";
     const LINK = latest.link || config.updateLink;
 
@@ -489,7 +489,7 @@ async function initUpdatePopup() {
   } catch (err) {
     console.warn("⚠ Version message fetch failed:", err);
     // fallback to static version display
-    const fallbackVersion = "0.7.5";
+    const fallbackVersion = "1.0.0";
     const titleEl = p.querySelector("h2");
     if (titleEl) titleEl.textContent = `Version ${fallbackVersion} Update!`;
     const footerVersion = document.getElementById("footerVersion");
