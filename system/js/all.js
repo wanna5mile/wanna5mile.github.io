@@ -64,7 +64,7 @@
     window.config = {
       fallbackImage:
         "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
-      fallbackLink: "https://wanna5mile.github.io/source/dino/",
+      fallbackLink: "https://wanna5mile.github.io./source/dino/",
       gifBase:
         "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
       sheetUrl:
