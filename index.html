@@ -1,3 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WannaSmile | Home</title>
+  <link rel="icon" href="system/images/favicons/logoo.png" />
+
+  <meta name="author" content="WannaSmile by Rhap5ody" />
+  <meta name="keywords" content="github, repository, source, library" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="system/css/themes.css" />
+  <link rel="stylesheet" href="system/css/main.css" />
+  <link rel="stylesheet" href="system/css/loading-screen.css" />
+  <link rel="stylesheet" href="system/css/quotes.css" />
+  <link rel="stylesheet" href="system/css/commands.css" />
+
+  <!-- Discord Widget -->
+  <script async defer src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3"></script>
+  <script>
+    window.addEventListener("load", () => {
+      if (typeof Crate !== "undefined") {
+        new Crate({
+          server: '1273329263923302430',
+          channel: '1329289920845713471'
+        });
+      }
+    });
+  </script>
+
+  <!-- Social Meta -->
+  <meta property="og:title" content="WannaSmile" />
+  <meta property="og:description" content="Welcome to WannaSmile — a library full of content! Enjoy it in your free time." />
+  <meta property="og:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
+  <meta property="og:url" content="https://vvannasmile.github.io/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WannaSmile.github.io" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="WannaSmile" />
+  <meta name="twitter:description" content="A fun, content-filled library to make you smile." />
+  <meta name="twitter:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
+
+  <!-- Inline custom styles -->
+<style>
+  /* === Update popup (neutral dark theme, no CSS variables) === */
+  .update-popup {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .update-popup.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .update-popup-content {
+    background: #111; /* black base */
+    border: 1px solid #333;
+    border-radius: 14px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    width: 90%;
+    max-width: 480px;
+    text-align: center;
+    padding: 24px;
+    color: #fff;
+    animation: popup-bounce 0.6s ease;
+    font-family: monospace;
+  }
+
+  .update-popup-content h2 {
+    margin-top: 0;
+    color: #fff;
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+  }
+
+  .update-popup-content p {
+    color: #ddd;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  .update-video-wrapper {
+    margin-bottom: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #222;
+  }
+
+  .update-video-wrapper iframe {
+    width: 100%;
+    height: 200px;
+    border: none;
+  }
+
+  .video-tooltip {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-top: 4px;
+  }
+
+  /* === Buttons === */
+  .update-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .update-buttons button {
+    background: #222;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-family: monospace;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+  }
+
+  .update-buttons button:hover {
+    color: #ff3b3b;
+    background: #1a1a1a;
+    transform: scale(1.05);
+  }
+
+  .update-buttons button:active {
+    transform: scale(0.97);
+  }
+
+  @keyframes popup-bounce {
+    0% { transform: scale(0.9); opacity: 0; }
+    60% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+/*
+  ================
+  quotes logic
+  ================*/
+    #quoteWrapper {
+      position: relative;
+      width: 100vw;
+      height: 30px;
+      overflow: hidden;
+      background: #1d201f;
+      display: flex;
+      align-items: center;
+    }
+    #quoteBox {
+      position: absolute;
+      white-space: nowrap;
+      font-weight: bold;
+    }
+</style>
+</head>
+
 <body theme="classic">
   <!-- Preloader -->
   <div id="preloader" class="preloader">
@@ -8,38 +177,34 @@
     <div id="loaderText" class="loading-text">Loading...</div>
   </div>
 
-  <!-- 🧱 Combined Header + Quotes Top Bar -->
-  <div id="topBar">
-    <!-- Header -->
-    <header>
-      <nav class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="favorites.html">Favorites</a>
-        <a href="system/pages/discovery.html">Discovery</a>
-        <a href="system/pages/settings.html">Settings</a>
-        <a href="system/pages/support.html">Support</a>
-        <a href="info.html">Info</a>
-        <div class="pages-anchor">
-          <button class="arrowleft" onclick="prevPage()"><img src="system/icons/left.png" alt="Previous page" /></button>
-          <span class="page-indicator">...</span>
-          <button class="arrowright" onclick="nextPage()"><img src="system/icons/right.png" alt="Next page" /></button>
-        </div>
-      </nav>
-
-      <div class="header-controls">
-        <div class="search-box">
-          <input id="searchInputHeader" type="text" placeholder="Search ϱames..." />
-          <button id="searchBtnHeader"><img src="system/icons/search.png" alt="Search" /></button>
-        </div>
-        <a href="system/pages/profile.html"><img id="pfp" src="system/icons/profile.png" alt="Profile" /></a>
-        <button id="dashboardBtn"><img src="system/icons/dashboard.png" alt="Dashboard" /></button>
+  <!-- Header -->
+  <header>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="favorites.html">Favorites</a>
+      <a href="system/pages/discovery.html">Discovery</a>
+      <a href="system/pages/settings.html">Settings</a>
+      <a href="system/pages/support.html">Support</a>
+      <a href="info.html">Info</a>
+      <div class="pages-anchor">
+        <button class="arrowleft" onclick="prevPage()"><img src="system/icons/left.png" alt="Previous page" /></button>
+        <span class="page-indicator">...</span>
+        <button class="arrowright" onclick="nextPage()"><img src="system/icons/right.png" alt="Next page" /></button>
       </div>
-    </header>
+    </nav>
 
-    <!-- Quotes (now part of topBar, always below header) -->
-    <div id="quoteWrapper">
-      <p id="quoteBox"></p>
+    <div class="header-controls">
+      <div class="search-box">
+        <input id="searchInputHeader" type="text" placeholder="Search ϱames..." />
+        <button id="searchBtnHeader"><img src="system/icons/search.png" alt="Search" /></button>
+      </div>
+      <a href="system/pages/profile.html"><img id="pfp" src="system/icons/profile.png" alt="Profile" /></a>
+      <button id="dashboardBtn"><img src="system/icons/dashboard.png" alt="Dashboard" /></button>
     </div>
+  </header>
+<!--quotes-->
+  <div id="quoteWrapper">
+    <p id="quoteBox"></p>
   </div>
 
   <!-- Dashboard -->
@@ -50,21 +215,16 @@
     <a href="system/pages/alt.html">Alternative Links</a>
   </aside>
 
-  <!-- 🆕 Update Popup (supports trailer + link) -->
+  <!-- Update Popup -->
   <div id="updatePopup" class="update-popup">
     <div class="update-popup-content">
       <h2>Version ... Update!</h2>
       <p>New games, smoother loading, and visual tweaks across the library!</p>
-
-      <!-- Trailer (auto hidden if no trailer link) -->
-      <div class="update-video-wrapper" id="updateVideoWrapper" style="display:none">
-        <iframe id="updateVideo" width="100%" height="200" src="" title="Update Trailer"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen></iframe>
+      <div class="update-video-wrapper">
+        <iframe id="updateVideo" width="100%" height="200" src="" title="v0.8 Update Trailer"
+          frameborder="0" allowfullscreen></iframe>
         <div class="video-tooltip">Press F or double click for full screen</div>
       </div>
-
       <div class="update-buttons">
         <button id="viewUpdateBtn">Check it out!</button>
         <button id="viewUpdateInfoBtn">More information</button>
@@ -78,7 +238,7 @@
   <main>
     <div id="container">Loading assets...</div>
   </main>
-
+  
   <button id="toTopBtn">⬆ Top</button>
 
   <footer>
@@ -90,22 +250,29 @@
     <a href="system/pages/version-log.html" id="footerVersion">Version loading...</a>
   </footer>
 
-  <!-- Scripts (relative paths kept, defer to preserve loader ordering) -->
-  <script src="system/js/settings.js" defer></script>
-  <script src="system/js/commands.js" defer></script>
-  <script src="system/js/main.js" defer></script>
-  <script src="system/js/searcherror.js" defer></script>
-  <script src="system/js/index.js" defer></script>
-  <script src="system/js/version.js" defer></script>
-  <script src="system/js/all.js" defer></script>
+<!-- JS: Core, UI, Quotes -->
+<!-- 1️⃣ Core / Settings -->
+<script src="system/js/settings.js" defer></script>
+<script src="system/js/commands.js" defer></script>
+<script src="system/js/main.js" defer></script>
 
-  <!-- Quotes script (unchanged except for corrected relative JSON path) -->
+<!-- 2️⃣ UI Logic -->
+<script src="system/js/searcherror.js" defer></script>
+<script src="system/js/index.js" defer></script>
+<script src="system/js/version.js" defer></script>
+
+<!-- 3️⃣ Quotes -->
+<script src="system/js/quotes.js" defer></script>
+
+<!-- 4️⃣ Main Loader (Preloader control) -->
+<!-- No defer here — runs last, after all deferred scripts are executed -->
+<script src="system/js/all.js" defer></script>
+<!-- quotes -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const wrapper = document.getElementById("quoteWrapper");
       const box = document.getElementById("quoteBox");
-      // <-- RELATIVE path (no leading slash) so it works inside subfolders like gh-pages
-      const jsonPath = "system/json/quotes.json";
+      const jsonPath = "../system/json/quotes.json";
 
       let quotes = [];
       let pos = 0;
@@ -114,7 +281,7 @@
 
       async function loadQuotes() {
         try {
-          const res = await fetch(jsonPath, { cache: 'no-store' });
+          const res = await fetch(jsonPath);
           const data = await res.json();
           quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
           start();
@@ -149,20 +316,6 @@
 
       loadQuotes();
     });
-
-    // Small helper: update popup trailer hide/show whenever initUpdatePopup sets the iframe src.
-    // Add this function to global scope so your initUpdatePopup() can call it after fetching `trailer`.
-    window._ws_updateVideoWrapper = function(trailerUrl) {
-      const wrapper = document.getElementById("updateVideoWrapper");
-      const iframe = document.getElementById("updateVideo");
-      if (!wrapper || !iframe) return;
-      if (trailerUrl && trailerUrl.trim()) {
-        iframe.src = trailerUrl;
-        wrapper.style.display = "";
-      } else {
-        iframe.src = "";
-        wrapper.style.display = "none";
-      }
-    };
   </script>
 </body>
+</html>
