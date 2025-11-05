@@ -1,7 +1,7 @@
 /* ==========================================================
    WannaSmile | Unified JS Loader & UI Logic
    Final Hardened & Optimized Version
-   (Favorites Page Filter + Paging + Progress Bar + Popup + Quotes)
+   (Favorites Page Filter + Paging + Progress Bar + Popup)
    ========================================================== */
 (() => {
   "use strict";
@@ -25,7 +25,7 @@
      Sort Mode Control
      --------------------------- */
   const getSortMode = () => localStorage.getItem("sortMode") || "sheet";
-  document.addEventListener("sortModeChanged", () => {
+  document.addEventListener("sortModeChanged", (e) => {
     if (window.assetsData && typeof window.refreshCards === "function") {
       window.refreshCards();
     }
@@ -262,7 +262,7 @@
   }
 
   /* ---------------------------
-     Paging + Search + Filter
+     Paging + Search + Filter (Optimized + Persistent)
      --------------------------- */
   function initPaging() {
     const { container, pageIndicator, searchInput, searchBtn } = dom || {};
@@ -273,10 +273,9 @@
     const getFilteredCards = () =>
       getAllCards().filter((c) => c.dataset.filtered === "true");
     const getPages = () =>
-      [...new Set(getFilteredCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort(
-        (a, b) => a - b
-      );
+      [...new Set(getFilteredCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort((a, b) => a - b);
 
+    // ✅ Fix: consistent quote visibility and layout
     function updateQuoteVisibility() {
       if (!quoteWrapper) return;
       const visibleCards = getFilteredCards().length;
@@ -408,81 +407,95 @@
     window.stopPlaceholderCycle = () => (window._placeholderRunning = false);
   }
 
-  /* ---------------------------
-     Update Popup (Live from Sheets)
-     --------------------------- */
-  async function initUpdatePopup() {
-    const p = dom.updatePopup;
-    if (!p) return;
+/* ---------------------------
+   Update Popup (Live from Sheets)
+   --------------------------- */
+async function initUpdatePopup() {
+  const p = dom.updatePopup;
+  if (!p) return;
 
-    const LS_HIDE = "ws_hideUpdate";
-    const LS_VER = "ws_lastUpdateVersion";
+  const LS_HIDE = "ws_hideUpdate";
+  const LS_VER = "ws_lastUpdateVersion";
 
-    try {
-      const res = await fetch(`${config.sheetUrl}?mode=version-message`, { cache: "no-store" });
-      if (!res.ok) throw new Error("Version message fetch failed");
+  try {
+    // === 1️⃣ Fetch version-message sheet ===
+    const res = await fetch(`${config.sheetUrl}?mode=version-message`, { cache: "no-store" });
+    if (!res.ok) throw new Error("Version message fetch failed");
 
-      const data = await res.json();
-      const latest = Array.isArray(data) && data.length
-        ? data[data.length - 1]
-        : { version: "1.0.0", message: "New updates are live!", trailer: "", link: "" };
+    const data = await res.json();
 
-      const CURRENT_VERSION = latest.version || "1.0.0";
-      const MESSAGE = latest.message || "Enjoy the latest update!";
-      const TRAILER = latest.trailer || "";
-      const LINK = latest.link || config.updateLink;
+    // Expect data like [{ version: "1.2.0", message: "Added new games!", trailer: "...", link: "..." }]
+    const latest = Array.isArray(data) && data.length
+      ? data[data.length - 1]
+      : { version: "1.0.0", message: "New updates are live!", trailer: "", link: "" };
 
-      const titleEl = p.querySelector("h2");
-      const msgEl = p.querySelector("p");
-      if (titleEl) titleEl.textContent = `Version ${CURRENT_VERSION} Update!`;
-      if (msgEl) msgEl.textContent = MESSAGE;
+    const CURRENT_VERSION = latest.version || "1.0.0";
+    const MESSAGE = latest.message || "Enjoy the latest update!";
+    const TRAILER = latest.trailer || "";
+    const LINK = latest.link || config.updateLink;
 
-      if (dom.updateVideo && TRAILER) dom.updateVideo.src = TRAILER;
-      config.updateLink = LINK;
+    // === 2️⃣ Update popup content dynamically ===
+    const titleEl = p.querySelector("h2");
+    const msgEl = p.querySelector("p");
+    if (titleEl) titleEl.textContent = `Version ${CURRENT_VERSION} Update!`;
+    if (msgEl) msgEl.textContent = MESSAGE;
 
-      const hidePref = localStorage.getItem(LS_HIDE);
-      const lastVersion = localStorage.getItem(LS_VER);
-      const hideForSession = sessionStorage.getItem(LS_HIDE);
-      const shouldShow =
-        (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
+    if (dom.updateVideo && TRAILER) dom.updateVideo.src = TRAILER;
+    config.updateLink = LINK;
 
-      const footerVersion = document.getElementById("footerVersion");
-      if (footerVersion) footerVersion.textContent = `Version ${CURRENT_VERSION}`;
+    // === 3️⃣ Local storage logic ===
+    const hidePref = localStorage.getItem(LS_HIDE);
+    const lastVersion = localStorage.getItem(LS_VER);
+    const hideForSession = sessionStorage.getItem(LS_HIDE);
+    const shouldShow =
+      (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
 
-      if (!shouldShow) return;
+    // Update footer version text
+    const footerVersion = document.getElementById("footerVersion");
+    if (footerVersion) footerVersion.textContent = `Version ${CURRENT_VERSION}`;
 
-      localStorage.setItem(LS_VER, CURRENT_VERSION);
+    if (!shouldShow) return;
 
-      setTimeout(() => p.classList.add("show"), 600);
+    localStorage.setItem(LS_VER, CURRENT_VERSION);
 
-      dom.viewUpdateBtn?.addEventListener("click", () => {
-        window.open(LINK, "_self");
-        p.classList.remove("show");
-      });
-      dom.viewUpdateInfoBtn?.addEventListener("click", () => window.open(LINK, "_blank"));
-      dom.closeUpdateBtn?.addEventListener("click", () => {
+    // === 4️⃣ Show popup ===
+    setTimeout(() => p.classList.add("show"), 600);
+
+    dom.viewUpdateBtn?.addEventListener("click", () => {
+      window.open(LINK, "_self");
+      p.classList.remove("show");
+    });
+
+    dom.viewUpdateInfoBtn?.addEventListener("click", () =>
+      window.open(LINK, "_blank")
+    );
+
+    dom.closeUpdateBtn?.addEventListener("click", () => {
+      sessionStorage.setItem(LS_HIDE, "1");
+      p.classList.remove("show");
+    });
+
+    dom.dontShowBtn?.addEventListener("click", () => {
+      localStorage.setItem(LS_HIDE, "1");
+      p.classList.remove("show");
+    });
+
+    p.addEventListener("click", (e) => {
+      if (e.target === p) {
         sessionStorage.setItem(LS_HIDE, "1");
         p.classList.remove("show");
-      });
-      dom.dontShowBtn?.addEventListener("click", () => {
-        localStorage.setItem(LS_HIDE, "1");
-        p.classList.remove("show");
-      });
-      p.addEventListener("click", (e) => {
-        if (e.target === p) {
-          sessionStorage.setItem(LS_HIDE, "1");
-          p.classList.remove("show");
-        }
-      });
-    } catch (err) {
-      console.warn("⚠ Version message fetch failed:", err);
-      const fallbackVersion = "1.0.0";
-      const titleEl = p.querySelector("h2");
-      if (titleEl) titleEl.textContent = `Version ${fallbackVersion} Update!`;
-      const footerVersion = document.getElementById("footerVersion");
-      if (footerVersion) footerVersion.textContent = `Version ${fallbackVersion}`;
-    }
+      }
+    });
+  } catch (err) {
+    console.warn("⚠ Version message fetch failed:", err);
+    // fallback to static version display
+    const fallbackVersion = "1.0.0";
+    const titleEl = p.querySelector("h2");
+    if (titleEl) titleEl.textContent = `Version ${fallbackVersion} Update!`;
+    const footerVersion = document.getElementById("footerVersion");
+    if (footerVersion) footerVersion.textContent = `Version ${fallbackVersion}`;
   }
+}
 
   /* ---------------------------
      Asset Loader
@@ -507,144 +520,145 @@
           : [];
       }
 
-      createAssetCards(filtered).forEach(({ promise }, i, arr) => {
-        promise.then(() => updateProgress(35 + (i + 1) / arr.length * 55));
-      });
+      const promises = createAssetCards(filtered);
+      updateProgress(55);
+      await Promise.allSettled(promises.map((p) => p.promise));
+      updateProgress(80);
 
+      if (typeof renderPage === "function") renderPage();
+
+      if (isFavPage && !filtered.length && dom.container)
+        dom.container.innerHTML =
+          "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
+
+      updateProgress(100);
+      await delay(350);
+      hidePreloader(true);
+    } catch (err) {
+      console.error("Error loading assets:", err);
+      if (!retry) return setTimeout(() => loadAssets(true), 1000);
+      showLoading("⚠ Failed to load assets.");
+      hidePreloader(true);
+    }
+  }
+
+  /* ---------------------------
+     DOM Bootstrap
+     --------------------------- */
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      initElements();
+      initFavorites();
+      initPreloader();
       initPaging();
       initPlaceholders();
-      hidePreloader();
+      initUpdatePopup();
+      await loadAssets();
+      initQuotes();
+      console.log("✅ WannaSmile Loader + Quotes Ready");
     } catch (err) {
-      console.error("⚠ Asset fetch failed:", err);
-      if (!retry) {
-        await delay(1200);
-        loadAssets(true);
-      } else hidePreloader();
+      console.error("Initialization failed:", err);
+      showLoading("Initialization failed. Please reload.");
+      hidePreloader(true);
+    }
+  });
+
+  window.addEventListener("load", () => {
+    if (typeof loadAssets === "function" && !window.assetsData)
+      setTimeout(() => loadAssets().catch(() => {}), 100);
+  });
+
+  window.addEventListener("keydown", (e) => {
+    const isIndex =
+      location.pathname.endsWith("index.html") ||
+      location.pathname === "/" ||
+      location.pathname === "";
+    if (!isIndex) return;
+    const activeTag = document.activeElement?.tagName?.toLowerCase();
+    if (activeTag === "input" || activeTag === "textarea") return;
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      window.prevPage?.();
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      window.nextPage?.();
+    }
+  });
+/* ---------------------------
+   Quotes (Fixed — Smooth Marquee + Proper Hover Hold + No Premature Reset)
+   --------------------------- */
+function initQuotes() {
+  const wrapper = document.getElementById("quoteWrapper");
+  const box = document.getElementById("quoteBox");
+  if (!wrapper || !box) return;
+
+  const jsonPath = "../system/json/quotes.json";
+  let quotes = [];
+  let pos = 0;
+  let baseSpeed = 90; // normal px/sec
+  let targetSpeed = baseSpeed;
+  let speed = baseSpeed;
+  let paused = false;
+  let lastTime = null;
+
+  // === Fetch Quotes ===
+  async function loadQuotes() {
+    try {
+      const res = await fetch(jsonPath, { cache: "no-store" });
+      const data = await res.json();
+      quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
+      start();
+    } catch {
+      quotes = ["⚠ Error loading quotes"];
+      start();
     }
   }
 
-  /* ---------------------------
-     Quotes (Robust Marquee)
-     --------------------------- */
-  function initQuotes() {
-    const wrapper = document.getElementById("quoteWrapper");
-    const box = document.getElementById("quoteBox");
-    if (!wrapper || !box) return;
+  // === Pick and place next quote ===
+  function nextQuote() {
+    const quote = quotes[Math.floor(Math.random() * quotes.length)];
+    box.textContent = quote;
+    pos = wrapper.offsetWidth;
+    box.style.transform = `translateX(${pos}px)`;
+  }
 
-    const jsonPath = "../system/json/quotes.json";
-    let quotes = [];
-    let pos = 0;
-    const baseSpeed = 90; // px/sec
-    let targetSpeed = baseSpeed;
-    let speed = baseSpeed;
-    let paused = false;
-    let lastTime = null;
-    let rafId = null;
-    let started = false;
-    const START_MARGIN = 8;
-
-    function measureWidths() {
-      const wrapW = Math.max(0, wrapper.getBoundingClientRect().width || 0);
-      const boxW = Math.max(0, box.getBoundingClientRect().width || 0);
-      return { wrapW, boxW };
-    }
-
-    function nextQuote() {
-      if (!quotes || !quotes.length) box.textContent = "No quotes found";
-      else box.textContent = quotes[Math.floor(Math.random() * quotes.length)];
-
-      requestAnimationFrame(() => {
-        const { wrapW, boxW } = measureWidths();
-        pos = wrapW + START_MARGIN;
-        box.style.transform = `translateX(${pos}px)`;
-      });
-    }
-
-    function animate(now) {
-      if (lastTime == null) lastTime = now;
-      const dt = Math.min(0.05, (now - lastTime) / 1000);
-      speed += (targetSpeed - speed) * 0.15;
-
-      if (!paused) {
-        pos -= speed * dt;
-        box.style.transform = `translateX(${pos}px)`;
-        const { boxW } = measureWidths();
-        if (pos + boxW < 0) nextQuote();
-      }
-
-      lastTime = now;
-      rafId = requestAnimationFrame(animate);
-    }
-
-    function start() {
-      if (started) return;
-      started = true;
-      nextQuote();
-      rafId = requestAnimationFrame(animate);
-    }
-
-    let pointerIsDown = false;
-    wrapper.addEventListener("pointerenter", () => (targetSpeed = Math.max(10, baseSpeed * 0.28)), { passive: true });
-    wrapper.addEventListener("pointerleave", () => {
-      if (!pointerIsDown) targetSpeed = baseSpeed;
-    }, { passive: true });
-    wrapper.addEventListener("pointerdown", (e) => {
-      if (e.button !== 0) return;
-      pointerIsDown = true;
-      paused = true;
-      targetSpeed = 0;
-      e.preventDefault?.();
-    });
-    document.addEventListener("pointerup", () => {
-      pointerIsDown = false;
-      paused = false;
-      targetSpeed = wrapper.matches(":hover") ? Math.max(10, baseSpeed * 0.28) : baseSpeed;
-    });
-    wrapper.addEventListener("touchstart", (e) => {
-      pointerIsDown = true;
-      paused = true;
-      targetSpeed = 0;
-      e.preventDefault?.();
-    }, { passive: false });
-    document.addEventListener("touchend", () => {
-      pointerIsDown = false;
-      paused = false;
-      targetSpeed = wrapper.matches(":hover") ? Math.max(10, baseSpeed * 0.28) : baseSpeed;
-    }, { passive: true });
-
-    window.addEventListener("resize", debounce(() => {
-      const { wrapW, boxW } = measureWidths();
-      if (pos > wrapW + boxW) pos = wrapW + START_MARGIN;
+  // === Main loop ===
+  function animate(t) {
+    if (lastTime !== null && !paused) {
+      const dt = (t - lastTime) / 1000;
+      speed += (targetSpeed - speed) * 0.15; // smoother easing
+      pos -= speed * dt;
       box.style.transform = `translateX(${pos}px)`;
-    }, 120));
 
-    async function loadQuotes() {
-      try {
-        const res = await fetch(jsonPath, { cache: "no-store" });
-        const data = await res.json();
-        quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
-      } catch {
-        quotes = ["⚠ Error loading quotes"];
-      } finally {
-        start();
-      }
+      // Wait until fully offscreen before resetting
+      if (pos + box.offsetWidth < 0) nextQuote();
     }
-
-    loadQuotes();
+    lastTime = t;
+    requestAnimationFrame(animate);
   }
 
-  /* ---------------------------
-     Main Init
-     --------------------------- */
-  function init() {
-    initElements();
-    initFavorites();
-    initPreloader();
-    initQuotes();
-    initUpdatePopup();
-    loadAssets();
+  // === Hover & Hold Controls ===
+  wrapper.addEventListener("mouseenter", () => {
+    targetSpeed = 25; // slow down gently
+  });
+  wrapper.addEventListener("mouseleave", () => {
+    targetSpeed = baseSpeed;
+    paused = false; // ensure resume
+  });
+  wrapper.addEventListener("mousedown", () => {
+    paused = true; // stop entirely
+  });
+  wrapper.addEventListener("mouseup", () => {
+    paused = false; // resume on release
+  });
+
+  // === Start ===
+  function start() {
+    nextQuote();
+    requestAnimationFrame(animate);
   }
 
-  // bootstrap
-  document.addEventListener("DOMContentLoaded", init);
+  loadQuotes();
+}
+//end
 })();
