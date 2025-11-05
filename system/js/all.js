@@ -584,8 +584,8 @@ async function initUpdatePopup() {
       window.nextPage?.();
     }
   });
-   /* ---------------------------
-   Quotes (Stable Marquee — Smooth Hover + Hold + Reset Fix)
+/* ---------------------------
+   Quotes (Fixed — Smooth Marquee + Proper Hover Hold + No Premature Reset)
    --------------------------- */
 function initQuotes() {
   const wrapper = document.getElementById("quoteWrapper");
@@ -594,12 +594,12 @@ function initQuotes() {
 
   const jsonPath = "../system/json/quotes.json";
   let quotes = [];
-  let x = 0;
-  let speed = 90; // base px/sec
-  let targetSpeed = 90;
+  let pos = 0;
+  let baseSpeed = 90; // normal px/sec
+  let targetSpeed = baseSpeed;
+  let speed = baseSpeed;
   let paused = false;
-  let width = 0;
-  let last = null;
+  let lastTime = null;
 
   // === Fetch Quotes ===
   async function loadQuotes() {
@@ -608,58 +608,54 @@ function initQuotes() {
       const data = await res.json();
       quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
       start();
-    } catch (err) {
-      console.warn("⚠ Quote load failed:", err);
+    } catch {
       quotes = ["⚠ Error loading quotes"];
       start();
     }
   }
 
-  // === Setup next quote ===
+  // === Pick and place next quote ===
   function nextQuote() {
-    const q = quotes[Math.floor(Math.random() * quotes.length)];
-    box.textContent = q;
-    wrapper.style.overflow = "hidden";
-    width = box.offsetWidth;
-    x = wrapper.offsetWidth;
-    box.style.transform = `translateX(${x}px)`;
+    const quote = quotes[Math.floor(Math.random() * quotes.length)];
+    box.textContent = quote;
+    pos = wrapper.offsetWidth;
+    box.style.transform = `translateX(${pos}px)`;
   }
 
-  // === Main Animation Loop ===
-  function tick(t) {
-    if (last !== null && !paused) {
-      const dt = (t - last) / 1000;
-      speed += (targetSpeed - speed) * 0.1; // smooth easing
-      x -= speed * dt;
-      box.style.transform = `translateX(${x}px)`;
+  // === Main loop ===
+  function animate(t) {
+    if (lastTime !== null && !paused) {
+      const dt = (t - lastTime) / 1000;
+      speed += (targetSpeed - speed) * 0.15; // smoother easing
+      pos -= speed * dt;
+      box.style.transform = `translateX(${pos}px)`;
 
-      // Only reset once fully offscreen
-      if (x + width < 0) nextQuote();
+      // Wait until fully offscreen before resetting
+      if (pos + box.offsetWidth < 0) nextQuote();
     }
-    last = t;
-    requestAnimationFrame(tick);
+    lastTime = t;
+    requestAnimationFrame(animate);
   }
 
-  // === Event Controls ===
+  // === Hover & Hold Controls ===
   wrapper.addEventListener("mouseenter", () => {
-    targetSpeed = 25; // slow down nicely
+    targetSpeed = 25; // slow down gently
   });
   wrapper.addEventListener("mouseleave", () => {
-    targetSpeed = 90; // restore
+    targetSpeed = baseSpeed;
+    paused = false; // ensure resume
   });
   wrapper.addEventListener("mousedown", () => {
-    paused = true;
+    paused = true; // stop entirely
   });
   wrapper.addEventListener("mouseup", () => {
-    paused = false;
-  });
-  wrapper.addEventListener("mouseleave", () => {
-    paused = false;
+    paused = false; // resume on release
   });
 
+  // === Start ===
   function start() {
     nextQuote();
-    requestAnimationFrame(tick);
+    requestAnimationFrame(animate);
   }
 
   loadQuotes();
