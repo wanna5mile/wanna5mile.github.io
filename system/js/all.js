@@ -584,4 +584,79 @@ async function initUpdatePopup() {
       window.nextPage?.();
     }
   });
+     /* ---------------------------
+     Quotes (Marquee-Style with Hover + Pause + Resume)
+     --------------------------- */
+  function initQuotes() {
+    const wrapper = document.getElementById("quoteWrapper");
+    const box = document.getElementById("quoteBox");
+    if (!wrapper || !box) return;
+
+    const jsonPath = "../system/json/quotes.json";
+    let quotes = [];
+    let pos = 0;
+    let speed = 120; // px/sec
+    let targetSpeed = 120;
+    let lastTime = null;
+    let isPaused = false;
+
+    async function loadQuotes() {
+      try {
+        const res = await fetch(jsonPath);
+        const data = await res.json();
+        quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
+        start();
+      } catch (err) {
+        console.warn("⚠ Failed to load quotes:", err);
+        quotes = ["⚠ Error loading quotes"];
+        start();
+      }
+    }
+
+    function setQuote() {
+      const quote = quotes[Math.floor(Math.random() * quotes.length)];
+      box.textContent = quote;
+      pos = wrapper.offsetWidth;
+      box.style.transform = `translateX(${pos}px)`;
+    }
+
+    function animate(t) {
+      if (lastTime !== null && !isPaused) {
+        const dt = (t - lastTime) / 1000;
+        // Smoothly lerp speed toward targetSpeed
+        speed += (targetSpeed - speed) * 0.1;
+        pos -= speed * dt;
+        box.style.transform = `translateX(${pos}px)`;
+
+        // Reset only after fully exiting
+        if (pos + box.offsetWidth < 0) setQuote();
+      }
+      lastTime = t;
+      requestAnimationFrame(animate);
+    }
+
+    function start() {
+      setQuote();
+      requestAnimationFrame(animate);
+    }
+
+    // --- Hover + Mouse Controls ---
+    wrapper.addEventListener("mouseenter", () => {
+      targetSpeed = 40; // Slow down smoothly
+    });
+    wrapper.addEventListener("mouseleave", () => {
+      targetSpeed = 120; // Resume normal speed
+    });
+    wrapper.addEventListener("mousedown", () => {
+      isPaused = true;
+    });
+    wrapper.addEventListener("mouseup", () => {
+      isPaused = false;
+    });
+    wrapper.addEventListener("mouseleave", () => {
+      isPaused = false;
+    });
+
+    loadQuotes();
+  }
 })();
