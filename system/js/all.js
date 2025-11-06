@@ -595,62 +595,63 @@ function initQuotes() {
   const jsonPath = "../system/json/quotes.json";
   let quotes = [];
   let pos = 0;
-  const baseSpeed = 90;
-  let speed = baseSpeed;
+  let baseSpeed = 90; // normal px/sec
   let targetSpeed = baseSpeed;
+  let speed = baseSpeed;
   let paused = false;
   let lastTime = null;
 
+  // === Fetch Quotes ===
   async function loadQuotes() {
     try {
       const res = await fetch(jsonPath, { cache: "no-store" });
-      quotes = (await res.json()) || [];
-      if (!quotes.length) quotes = ["No quotes available"];
+      const data = await res.json();
+      quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
+      start();
     } catch {
       quotes = ["⚠ Error loading quotes"];
+      start();
     }
-    start();
   }
 
+  // === Pick and place next quote ===
   function nextQuote() {
     const quote = quotes[Math.floor(Math.random() * quotes.length)];
     box.textContent = quote;
-    pos = wrapper.offsetWidth; // start fully off right
+    pos = wrapper.offsetWidth;
     box.style.transform = `translateX(${pos}px)`;
   }
 
+  // === Main loop ===
   function animate(t) {
-    if (lastTime && !paused) {
+    if (lastTime !== null && !paused) {
       const dt = (t - lastTime) / 1000;
-      speed += (targetSpeed - speed) * 0.1; // smoother easing
+      speed += (targetSpeed - speed) * 0.15; // smoother easing
       pos -= speed * dt;
       box.style.transform = `translateX(${pos}px)`;
 
-      // ✅ Only reset when quote is FULLY out of view
-      if (pos + box.offsetWidth <= 0) {
-        nextQuote();
-      }
+      // Wait until fully offscreen before resetting
+      if (pos + box.offsetWidth < 0) nextQuote();
     }
     lastTime = t;
     requestAnimationFrame(animate);
   }
 
-  // Hover + Hold
-  wrapper.addEventListener("mouseenter", () => (targetSpeed = baseSpeed / 3));
+  // === Hover & Hold Controls ===
+  wrapper.addEventListener("mouseenter", () => {
+    targetSpeed = 25; // slow down gently
+  });
   wrapper.addEventListener("mouseleave", () => {
     targetSpeed = baseSpeed;
-    paused = false;
+    paused = false; // ensure resume
   });
-  wrapper.addEventListener("mousedown", () => (paused = true));
-  wrapper.addEventListener("mouseup", () => (paused = false));
+  wrapper.addEventListener("mousedown", () => {
+    paused = true; // stop entirely
+  });
+  wrapper.addEventListener("mouseup", () => {
+    paused = false; // resume on release
+  });
 
-  function start() {
-    nextQuote();
-    requestAnimationFrame(animate);
-  }
-
-  loadQuotes();
-}
   // === Start ===
   function start() {
     nextQuote();
