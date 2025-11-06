@@ -518,9 +518,10 @@ footer {
   flex-shrink: 0;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
-
 #quoteBox {
   position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   white-space: nowrap;
   font-size: 1em;
   text-decoration: none;
