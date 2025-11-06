@@ -1,7 +1,7 @@
 /* ==========================================================
    WannaSmile | Unified JS Loader & UI Logic
    Final Hardened & Optimized Version
-   (Favorites Page Filter + Paging + Progress Bar + Popup)
+   (Favorites Page Filter + Paging + Progress Bar + Popup + Quotes)
    ========================================================== */
 (() => {
   "use strict";
@@ -71,6 +71,8 @@
         "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
       updateTrailerSrc: "",
       updateLink: "system/pages/version-log.html",
+      quotesJson:
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/json/quotes.json",
     };
   }
 
@@ -153,6 +155,70 @@
     };
   }
 
+  /* ---------------------------
+     Quotes Scroller (JSON-Fetched)
+     --------------------------- */
+  async function initQuotes() {
+    const wrapper = document.getElementById("quoteWrapper");
+    const quoteBox = document.getElementById("quoteBox");
+    if (!wrapper || !quoteBox) return;
+
+    try {
+      const res = await fetch(config.quotesJson, { cache: "no-store" });
+      if (!res.ok) throw new Error("Failed to fetch quotes JSON");
+      const quotes = await res.json();
+
+      if (!Array.isArray(quotes) || !quotes.length) throw new Error("Invalid quotes format");
+
+      let baseSpeed = 120;
+      let targetMultiplier = 1;
+      let currentMultiplier = 1;
+      let position;
+      let lastTime = null;
+      let paused = false;
+
+      function setRandomQuote() {
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        quoteBox.textContent = randomQuote;
+        position = wrapper.offsetWidth + 50;
+        quoteBox.style.transform = `translateX(${position}px)`;
+      }
+
+      function animate(timestamp) {
+        if (lastTime !== null) {
+          const delta = (timestamp - lastTime) / 1000;
+          const accel = 2;
+          currentMultiplier += (targetMultiplier - currentMultiplier) * accel * delta;
+
+          if (!paused) {
+            position -= baseSpeed * currentMultiplier * delta;
+            quoteBox.style.transform = `translateX(${position}px)`;
+          }
+
+          if (position + quoteBox.offsetWidth < 0) setRandomQuote();
+        }
+        lastTime = timestamp;
+        requestAnimationFrame(animate);
+      }
+
+      wrapper.addEventListener("mouseenter", () => (targetMultiplier = 0.8));
+      wrapper.addEventListener("mouseleave", () => (targetMultiplier = 1));
+      quoteBox.addEventListener("mouseenter", () => (targetMultiplier = 0.4));
+      quoteBox.addEventListener("mouseleave", () => (targetMultiplier = 1));
+
+      const pause = () => (paused = true);
+      const unpause = () => (paused = false);
+      wrapper.addEventListener("mousedown", pause);
+      quoteBox.addEventListener("mousedown", pause);
+      window.addEventListener("mouseup", unpause);
+
+      setRandomQuote();
+      requestAnimationFrame(animate);
+      console.log("✅ Quotes loaded successfully");
+    } catch (err) {
+      console.warn("⚠ Quotes init failed:", err);
+    }
+  }
   /* ---------------------------
      Asset Card Builder
      --------------------------- */
@@ -541,7 +607,6 @@ async function initUpdatePopup() {
       hidePreloader(true);
     }
   }
-
   /* ---------------------------
      DOM Bootstrap
      --------------------------- */
@@ -554,7 +619,7 @@ async function initUpdatePopup() {
       initPlaceholders();
       initUpdatePopup();
       await loadAssets();
-      initQuotes();
+      await initQuotes(); // ✅ Added here
       console.log("✅ WannaSmile Loader + Quotes Ready");
     } catch (err) {
       console.error("Initialization failed:", err);
@@ -562,7 +627,7 @@ async function initUpdatePopup() {
       hidePreloader(true);
     }
   });
-
+   
   window.addEventListener("load", () => {
     if (typeof loadAssets === "function" && !window.assetsData)
       setTimeout(() => loadAssets().catch(() => {}), 100);
