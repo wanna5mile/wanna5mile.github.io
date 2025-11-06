@@ -268,11 +268,27 @@
     const { container, pageIndicator, searchInput, searchBtn } = dom || {};
     if (!container) return;
 
+    const quoteWrapper = document.getElementById("quoteWrapper");
     const getAllCards = () => [...container.querySelectorAll(".asset-card")];
     const getFilteredCards = () =>
       getAllCards().filter((c) => c.dataset.filtered === "true");
     const getPages = () =>
       [...new Set(getFilteredCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort((a, b) => a - b);
+
+    // ✅ Fix: consistent quote visibility and layout
+    function updateQuoteVisibility() {
+      if (!quoteWrapper) return;
+      const visibleCards = getFilteredCards().length;
+      if (visibleCards === 0) {
+        quoteWrapper.style.opacity = "1";
+        quoteWrapper.style.pointerEvents = "auto";
+        quoteWrapper.style.marginTop = "0";
+      } else {
+        quoteWrapper.style.opacity = "1";
+        quoteWrapper.style.pointerEvents = "none";
+        quoteWrapper.style.marginTop = "0";
+      }
+    }
 
     window.renderPage = () => {
       const pages = getPages();
@@ -280,6 +296,7 @@
         window.currentPage = 1;
         getAllCards().forEach((c) => (c.style.display = "none"));
         pageIndicator && (pageIndicator.textContent = "No pages");
+        updateQuoteVisibility();
         return;
       }
 
@@ -300,6 +317,7 @@
       pageIndicator &&
         (pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`);
       sessionStorage.setItem("currentPage", window.currentPage);
+      updateQuoteVisibility();
     };
 
     window.filterAssets = (q) => {
@@ -314,6 +332,7 @@
       const pages = getPages();
       window.currentPage = pages[0] || 1;
       renderPage();
+      updateQuoteVisibility();
     };
 
     window.prevPage = () => {
@@ -388,88 +407,95 @@
     window.stopPlaceholderCycle = () => (window._placeholderRunning = false);
   }
 
-  /* ---------------------------
-     Update Popup (Live from Sheets)
-     --------------------------- */
-  async function initUpdatePopup() {
-    const p = dom.updatePopup;
-    if (!p) return;
+/* ---------------------------
+   Update Popup (Live from Sheets)
+   --------------------------- */
+async function initUpdatePopup() {
+  const p = dom.updatePopup;
+  if (!p) return;
 
-    const LS_HIDE = "ws_hideUpdate";
-    const LS_VER = "ws_lastUpdateVersion";
+  const LS_HIDE = "ws_hideUpdate";
+  const LS_VER = "ws_lastUpdateVersion";
 
-    try {
-      const res = await fetch(`${config.sheetUrl}?mode=version-message`, { cache: "no-store" });
-      if (!res.ok) throw new Error("Version message fetch failed");
+  try {
+    // === 1️⃣ Fetch version-message sheet ===
+    const res = await fetch(`${config.sheetUrl}?mode=version-message`, { cache: "no-store" });
+    if (!res.ok) throw new Error("Version message fetch failed");
 
-      const data = await res.json();
+    const data = await res.json();
 
-      const latest = Array.isArray(data) && data.length
-        ? data[data.length - 1]
-        : { version: "1.0.0", message: "New updates are live!", trailer: "", link: "" };
+    // Expect data like [{ version: "1.2.0", message: "Added new games!", trailer: "...", link: "..." }]
+    const latest = Array.isArray(data) && data.length
+      ? data[data.length - 1]
+      : { version: "1.0.0", message: "New updates are live!", trailer: "", link: "" };
 
-      const CURRENT_VERSION = latest.version || "1.0.0";
-      const MESSAGE = latest.message || "Enjoy the latest update!";
-      const TRAILER = latest.trailer || "";
-      const LINK = latest.link || config.updateLink;
+    const CURRENT_VERSION = latest.version || "1.0.0";
+    const MESSAGE = latest.message || "Enjoy the latest update!";
+    const TRAILER = latest.trailer || "";
+    const LINK = latest.link || config.updateLink;
 
-      const titleEl = p.querySelector("h2");
-      const msgEl = p.querySelector("p");
-      if (titleEl) titleEl.textContent = `Version ${CURRENT_VERSION} Update!`;
-      if (msgEl) msgEl.textContent = MESSAGE;
+    // === 2️⃣ Update popup content dynamically ===
+    const titleEl = p.querySelector("h2");
+    const msgEl = p.querySelector("p");
+    if (titleEl) titleEl.textContent = `Version ${CURRENT_VERSION} Update!`;
+    if (msgEl) msgEl.textContent = MESSAGE;
 
-      if (dom.updateVideo && TRAILER) dom.updateVideo.src = TRAILER;
-      config.updateLink = LINK;
+    if (dom.updateVideo && TRAILER) dom.updateVideo.src = TRAILER;
+    config.updateLink = LINK;
 
-      const hidePref = localStorage.getItem(LS_HIDE);
-      const lastVersion = localStorage.getItem(LS_VER);
-      const hideForSession = sessionStorage.getItem(LS_HIDE);
-      const shouldShow =
-        (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
+    // === 3️⃣ Local storage logic ===
+    const hidePref = localStorage.getItem(LS_HIDE);
+    const lastVersion = localStorage.getItem(LS_VER);
+    const hideForSession = sessionStorage.getItem(LS_HIDE);
+    const shouldShow =
+      (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
 
-      const footerVersion = document.getElementById("footerVersion");
-      if (footerVersion) footerVersion.textContent = `Version ${CURRENT_VERSION}`;
+    // Update footer version text
+    const footerVersion = document.getElementById("footerVersion");
+    if (footerVersion) footerVersion.textContent = `Version ${CURRENT_VERSION}`;
 
-      if (!shouldShow) return;
+    if (!shouldShow) return;
 
-      localStorage.setItem(LS_VER, CURRENT_VERSION);
+    localStorage.setItem(LS_VER, CURRENT_VERSION);
 
-      setTimeout(() => p.classList.add("show"), 600);
+    // === 4️⃣ Show popup ===
+    setTimeout(() => p.classList.add("show"), 600);
 
-      dom.viewUpdateBtn?.addEventListener("click", () => {
-        window.open(LINK, "_self");
-        p.classList.remove("show");
-      });
+    dom.viewUpdateBtn?.addEventListener("click", () => {
+      window.open(LINK, "_self");
+      p.classList.remove("show");
+    });
 
-      dom.viewUpdateInfoBtn?.addEventListener("click", () =>
-        window.open(LINK, "_blank")
-      );
+    dom.viewUpdateInfoBtn?.addEventListener("click", () =>
+      window.open(LINK, "_blank")
+    );
 
-      dom.closeUpdateBtn?.addEventListener("click", () => {
+    dom.closeUpdateBtn?.addEventListener("click", () => {
+      sessionStorage.setItem(LS_HIDE, "1");
+      p.classList.remove("show");
+    });
+
+    dom.dontShowBtn?.addEventListener("click", () => {
+      localStorage.setItem(LS_HIDE, "1");
+      p.classList.remove("show");
+    });
+
+    p.addEventListener("click", (e) => {
+      if (e.target === p) {
         sessionStorage.setItem(LS_HIDE, "1");
         p.classList.remove("show");
-      });
-
-      dom.dontShowBtn?.addEventListener("click", () => {
-        localStorage.setItem(LS_HIDE, "1");
-        p.classList.remove("show");
-      });
-
-      p.addEventListener("click", (e) => {
-        if (e.target === p) {
-          sessionStorage.setItem(LS_HIDE, "1");
-          p.classList.remove("show");
-        }
-      });
-    } catch (err) {
-      console.warn("⚠ Version message fetch failed:", err);
-      const fallbackVersion = "1.0.0";
-      const titleEl = p.querySelector("h2");
-      if (titleEl) titleEl.textContent = `Version ${fallbackVersion} Update!`;
-      const footerVersion = document.getElementById("footerVersion");
-      if (footerVersion) footerVersion.textContent = `Version ${fallbackVersion}`;
-    }
+      }
+    });
+  } catch (err) {
+    console.warn("⚠ Version message fetch failed:", err);
+    // fallback to static version display
+    const fallbackVersion = "1.0.0";
+    const titleEl = p.querySelector("h2");
+    if (titleEl) titleEl.textContent = `Version ${fallbackVersion} Update!`;
+    const footerVersion = document.getElementById("footerVersion");
+    if (footerVersion) footerVersion.textContent = `Version ${fallbackVersion}`;
   }
+}
 
   /* ---------------------------
      Asset Loader
@@ -511,25 +537,51 @@
     } catch (err) {
       console.error("Error loading assets:", err);
       if (!retry) return setTimeout(() => loadAssets(true), 1000);
-      showLoading("⚠ Failed to load assets");
-      updateProgress(0);
-      hidePreloader();
+      showLoading("⚠ Failed to load assets.");
+      hidePreloader(true);
     }
   }
 
   /* ---------------------------
-     Initialization Flow
+     DOM Bootstrap
      --------------------------- */
-  async function init() {
-    initElements();
-    initFavorites();
-    initPreloader();
-    initPaging();
-    initPlaceholders();
-    await initUpdatePopup();
-    await loadAssets();
-    initQuotes();
-  }
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      initElements();
+      initFavorites();
+      initPreloader();
+      initPaging();
+      initPlaceholders();
+      initUpdatePopup();
+      await loadAssets();
+      initQuotes();
+      console.log("✅ WannaSmile Loader + Quotes Ready");
+    } catch (err) {
+      console.error("Initialization failed:", err);
+      showLoading("Initialization failed. Please reload.");
+      hidePreloader(true);
+    }
+  });
 
-  document.addEventListener("DOMContentLoaded", init);
+  window.addEventListener("load", () => {
+    if (typeof loadAssets === "function" && !window.assetsData)
+      setTimeout(() => loadAssets().catch(() => {}), 100);
+  });
+
+  window.addEventListener("keydown", (e) => {
+    const isIndex =
+      location.pathname.endsWith("index.html") ||
+      location.pathname === "/" ||
+      location.pathname === "";
+    if (!isIndex) return;
+    const activeTag = document.activeElement?.tagName?.toLowerCase();
+    if (activeTag === "input" || activeTag === "textarea") return;
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      window.prevPage?.();
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      window.nextPage?.();
+    }
+  });
 })();
