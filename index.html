@@ -269,53 +269,90 @@
 <script src="system/js/all.js" defer></script>
 <!-- quotes -->
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const wrapper = document.getElementById("quoteWrapper");
-      const box = document.getElementById("quoteBox");
-      const jsonPath = "../system/json/quotes.json";
+document.addEventListener("DOMContentLoaded", () => {
+  const wrapper = document.getElementById("quoteWrapper");
+  const quoteBox = document.getElementById("quoteBox");
 
-      let quotes = [];
-      let pos = 0;
-      let speed = 120;
-      let lastTime = null;
+  const jsonPath = "system/json/quotes.json"; // or adjust path
+  let quotes = [];
 
-      async function loadQuotes() {
-        try {
-          const res = await fetch(jsonPath);
-          const data = await res.json();
-          quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
-          start();
-        } catch {
-          quotes = ["⚠ Error loading quotes"];
-          start();
-        }
+  let baseSpeed = 120; // px per second
+  let targetMultiplier = 1; // where we WANT to go
+  let currentMultiplier = 1; // where we ARE now
+  let position;
+  let lastTime = null;
+  let paused = false;
+
+  // Fetch quotes.json
+  async function loadQuotes() {
+    try {
+      const res = await fetch(jsonPath);
+      if (!res.ok) throw new Error(`Failed to fetch quotes: ${res.status}`);
+      quotes = await res.json();
+
+      if (!Array.isArray(quotes) || quotes.length === 0) {
+        quotes = ["No quotes available."];
       }
 
-      function setQuote() {
-        const quote = quotes[Math.floor(Math.random() * quotes.length)];
-        box.textContent = quote;
-        pos = wrapper.offsetWidth;
-        box.style.transform = `translateX(${pos}px)`;
+      initQuotes();
+    } catch (err) {
+      console.error("Error loading quotes:", err);
+      quotes = ["⚠ Failed to load quotes."];
+      initQuotes();
+    }
+  }
+
+  // Set random quote
+  function setRandomQuote() {
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    quoteBox.textContent = randomQuote;
+    position = wrapper.offsetWidth + 50; // start off-screen right
+    quoteBox.style.transform = `translateX(${position}px)`;
+  }
+
+  // Animation loop
+  function animate(timestamp) {
+    if (lastTime !== null) {
+      const delta = (timestamp - lastTime) / 1000;
+
+      const accel = 2; // higher = faster adjustment
+      currentMultiplier += (targetMultiplier - currentMultiplier) * accel * delta;
+
+      if (!paused) {
+        position -= baseSpeed * currentMultiplier * delta;
+        quoteBox.style.transform = `translateX(${position}px)`;
       }
 
-      function animate(t) {
-        if (lastTime !== null) {
-          const dt = (t - lastTime) / 1000;
-          pos -= speed * dt;
-          box.style.transform = `translateX(${pos}px)`;
-          if (pos + box.offsetWidth < 0) setQuote();
-        }
-        lastTime = t;
-        requestAnimationFrame(animate);
+      if (position + quoteBox.offsetWidth < 0) {
+        setRandomQuote();
       }
+    }
+    lastTime = timestamp;
+    requestAnimationFrame(animate);
+  }
 
-      function start() {
-        setQuote();
-        requestAnimationFrame(animate);
-      }
+  // Hover and pause controls
+  wrapper.addEventListener("mouseenter", () => { targetMultiplier = 0.8; });
+  wrapper.addEventListener("mouseleave", () => { targetMultiplier = 1; });
+  quoteBox.addEventListener("mouseenter", () => { targetMultiplier = 0.4; });
+  quoteBox.addEventListener("mouseleave", () => { targetMultiplier = 1; });
 
-      loadQuotes();
-    });
+  function pause() { paused = true; }
+  function unpause() { paused = false; }
+
+  wrapper.addEventListener("mousedown", pause);
+  quoteBox.addEventListener("mousedown", pause);
+  window.addEventListener("mouseup", unpause);
+
+  // Initialize once quotes load
+  function initQuotes() {
+    setRandomQuote();
+    requestAnimationFrame(animate);
+  }
+
+  // Start it all
+  loadQuotes();
+});
   </script>
 </body>
 </html>
