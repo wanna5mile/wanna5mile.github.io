@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>bg.uhm old test achieve</title>
-    <link rel="icon" href="system/images/bguhm.png" />
+    <link rel="icon" href="../system/images/favicons/logoo.png" />
     <link rel="stylesheet" href="css/loading-screen.css" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/quote.css" />
@@ -2035,153 +2035,155 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 </script>
 	  <!--settings or sum-->
-  <script>
-    // Helper: set favicon
-    function setFavicon(url) {
-      let link = document.querySelector("link[rel~='icon']");
-      if (!link) {
-        link = document.createElement("link");
-        link.rel = "icon";
-        document.head.appendChild(link);
-      }
-      link.href = url;
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  /* ==========================================================
+     Helper Functions
+  ========================================================== */
+
+  // Set favicon dynamically
+  function setFavicon(url) {
+    let link = document.querySelector("link[rel~='icon']");
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "icon";
+      document.head.appendChild(link);
+    }
+    link.href = url;
+  }
+
+  // Setup a generic toggle with localStorage persistence
+  function setupToggle(id, callback) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    // Restore saved state
+    const saved = localStorage.getItem(id);
+    if (saved === "on") {
+      el.classList.add("on");
+      el.textContent = "ON";
+    } else {
+      el.textContent = "OFF";
     }
 
-    // Generic toggle setup with localStorage
-    function setupToggle(id, callback) {
-      const el = document.getElementById(id);
+    // Apply initial state via callback
+    if (callback) callback(el.classList.contains("on"));
 
-      // Restore saved state
-      const saved = localStorage.getItem(id);
-      if (saved === "on") {
-        el.classList.add("on");
-        el.textContent = "ON";
-      }
+    // Listen for clicks
+    el.addEventListener("click", () => {
+      el.classList.toggle("on");
+      const isOn = el.classList.contains("on");
+      el.textContent = isOn ? "ON" : "OFF";
+      localStorage.setItem(id, isOn ? "on" : "off");
+      if (callback) callback(isOn);
+    });
+  }
 
-      // Apply initial state
-      if (callback) callback(el.classList.contains("on"));
+  /* ==========================================================
+     Toggles
+  ========================================================== */
 
-      el.addEventListener("click", () => {
-        el.classList.toggle("on");
-        const isOn = el.classList.contains("on");
-        el.textContent = isOn ? "ON" : "OFF";
-
-        // Save state
-        localStorage.setItem(id, isOn ? "on" : "off");
-
-        // Run feature change
-        if (callback) callback(isOn);
-      });
+  // Cloak Mode toggle
+  setupToggle("cloakToggle", (active) => {
+    if (active) {
+      document.title = "Google Docs";
+      setFavicon("icons/docs.png");
+    } else {
+      document.title = "Bguhm.GuiHub.io";
+      setFavicon("icons/default.png");
     }
+  });
 
-    // Cloak Mode toggle
-    if setupToggle("cloakToggle", (active) => {
-      if (active) {
-        document.title = "Google Docs";
-        setFavicon("icons/docs.png");
-      } else {
-        document.title = "Bguhm.GuiHub.io";
-        setFavicon("icons/default.png");
-      }
-    });
+  // Dark Theme toggle
+  setupToggle("themeToggle", (active) => {
+    if (active) {
+      document.body.style.background = "#1e1e1e";
+      document.body.style.color = "#f4f4f4";
+    } else {
+      document.body.style.background = "#f4f4f4";
+      document.body.style.color = "#111";
+    }
+  });
 
-    // Dark Theme toggle
-    if setupToggle("themeToggle", (active) => {
-      if (active) {
-        document.body.style.background = "#1e1e1e";
-        document.body.style.color = "#f4f4f4";
-      } else {
-        document.body.style.background = "#f4f4f4";
-        document.body.style.color = "#111";
-      }
-    });
+  // Background Image toggle
+  setupToggle("bgToggle", (active) => {
+    document.body.style.backgroundImage = active
+      ? "url('images/bg1.jpg')"
+      : "none";
+  });
 
-    // Background Image toggle
-    setupToggle("bgToggle", (active) => {
-      document.body.style.backgroundImage = active 
-        ? "url('images/bg1.jpg')" 
-        : "none";
-    });
-  </script>
-	  <script>
-		  document.addEventListener("DOMContentLoaded", () => {
+  /* ==========================================================
+     Paging System
+  ========================================================== */
+
   const totalPages = 10; // adjust if needed
   const pageIndicator = document.querySelector(".page-indicator");
-
-  // Load saved page for this session, or default to 1
   let currentPage = parseInt(sessionStorage.getItem("currentPage")) || 1;
 
   function showPage(pageNum) {
     const allItems = document.querySelectorAll('[class*="page-"]');
-
-    allItems.forEach(item => {
-      if (item.classList.contains(`page-${pageNum}`)) {
-        item.style.display = "block"; // visible
-      } else {
-        item.style.display = "none"; // hidden
-      }
+    allItems.forEach((item) => {
+      item.style.display = item.classList.contains(`page-${pageNum}`)
+        ? "block"
+        : "none";
     });
-
-    // Update span text
-    pageIndicator.textContent = `Page ${pageNum}`;
-
-    // Save page for this session only
+    if (pageIndicator) pageIndicator.textContent = `Page ${pageNum}`;
     sessionStorage.setItem("currentPage", pageNum);
   }
 
-  // Expose controls to HTML buttons
-  window.nextPage = function () {
+  window.nextPage = () => {
     currentPage = currentPage >= totalPages ? 1 : currentPage + 1;
     showPage(currentPage);
   };
 
-  window.prevPage = function () {
+  window.prevPage = () => {
     currentPage = currentPage <= 1 ? totalPages : currentPage - 1;
     showPage(currentPage);
   };
 
-  // Show the stored (or first) page
   showPage(currentPage);
-});
-	  </script>
-	  <script>
-		      const quotes = [
-      "slackrr now bg.uhm",
-      "jouyuss now bg.uhm",
-      "v1 release on sept 26th 2025",
-      "POKEMON NOW WORKING!!!",
-      "join the discord! https://discord.gg/vskTb44F5j",
-      "Support Selenite and contributors on Sources/credits page or Github!",
-      "one for all.",
-      "all for one.",
-      "24 songs, 76 projects.",
-      "i make music too!",
-      "smash karts is working fine idk what jayden is on about.",
-      "cloak is gonna be fixed soon...",
-      "genizy genius",
-      "click the arrows to view more projects!",
-      "page 2 is gonna be added on friday!",
-      "no way its a week before release T-T",
-      "im so cooked bro.",
-      "page one is finished!",
-      "ddlc soon??",
-      "pokemon green version soon??",
-      "login and sign up is NOT gonna happen any time soon ✌",
-      "you think v1 gonna come out on time?",
-      "should probably get more people to help me on the website..",
-      "choppy orc da best music",
-      "MUSIC NOW WORKING!!",
-      "fixed music page :D",
-      "math aint make no sense. oh wait nvm i think i get it.",
-      "dont search blank you will find a mob of angry git octocats!"
-    ];
 
-    const wrapper = document.getElementById("quoteWrapper");
-    const quoteBox = document.getElementById("quoteBox");
+  /* ==========================================================
+     Quotes Scroller
+  ========================================================== */
 
+  const quotes = [
+    "slackrr now bg.uhm",
+    "jouyuss now bg.uhm",
+    "v1 release on sept 26th 2025",
+    "POKEMON NOW WORKING!!!",
+    "join the discord! https://discord.gg/vskTb44F5j",
+    "Support Selenite and contributors on Sources/credits page or Github!",
+    "one for all.",
+    "all for one.",
+    "24 songs, 76 projects.",
+    "i make music too!",
+    "smash karts is working fine idk what jayden is on about.",
+    "cloak is gonna be fixed soon...",
+    "genizy genius",
+    "click the arrows to view more projects!",
+    "page 2 is gonna be added on friday!",
+    "no way its a week before release T-T",
+    "im so cooked bro.",
+    "page one is finished!",
+    "ddlc soon??",
+    "pokemon green version soon??",
+    "login and sign up is NOT gonna happen any time soon ✌",
+    "you think v1 gonna come out on time?",
+    "should probably get more people to help me on the website..",
+    "choppy orc da best music",
+    "MUSIC NOW WORKING!!",
+    "fixed music page :D",
+    "math aint make no sense. oh wait nvm i think i get it.",
+    "dont search blank you will find a mob of angry git octocats!"
+  ];
+
+  const wrapper = document.getElementById("quoteWrapper");
+  const quoteBox = document.getElementById("quoteBox");
+  if (wrapper && quoteBox) {
     let baseSpeed = 120; // px per second
-    let targetMultiplier = 1; // where we WANT to go
-    let currentMultiplier = 1; // where we ARE now
+    let targetMultiplier = 1;
+    let currentMultiplier = 1;
     let position;
     let lastTime = null;
     let paused = false;
@@ -2189,7 +2191,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function setRandomQuote() {
       const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
       quoteBox.textContent = randomQuote;
-      // Start off-screen right (plus extra for long text)
       position = wrapper.offsetWidth + 50;
       quoteBox.style.transform = `translateX(${position}px)`;
     }
@@ -2197,9 +2198,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function animate(timestamp) {
       if (lastTime !== null) {
         const delta = (timestamp - lastTime) / 1000;
-
-        // Smoothly ease currentMultiplier toward targetMultiplier
-        const accel = 2; // higher = faster adjustment
+        const accel = 2; // easing speed
         currentMultiplier += (targetMultiplier - currentMultiplier) * accel * delta;
 
         if (!paused) {
@@ -2207,32 +2206,30 @@ document.addEventListener("DOMContentLoaded", () => {
           quoteBox.style.transform = `translateX(${position}px)`;
         }
 
-        // Reset when fully left
-        if (position + quoteBox.offsetWidth < 0) {
-          setRandomQuote();
-        }
+        if (position + quoteBox.offsetWidth < 0) setRandomQuote();
       }
       lastTime = timestamp;
       requestAnimationFrame(animate);
     }
 
-// Hover effects
-wrapper.addEventListener("mouseenter", () => { targetMultiplier = 0.8; }); // 20% slower
-wrapper.addEventListener("mouseleave", () => { targetMultiplier = 1; });   // normal
-quoteBox.addEventListener("mouseenter", () => { targetMultiplier = 0.4; }); // 80% slower
-quoteBox.addEventListener("mouseleave", () => { targetMultiplier = 1; });   // back to normal
+    // Hover slowdowns
+    wrapper.addEventListener("mouseenter", () => (targetMultiplier = 0.8));
+    wrapper.addEventListener("mouseleave", () => (targetMultiplier = 1));
+    quoteBox.addEventListener("mouseenter", () => (targetMultiplier = 0.4));
+    quoteBox.addEventListener("mouseleave", () => (targetMultiplier = 1));
 
-    // Pause on hold (mousedown/up)
-    function pause() { paused = true; }
-    function unpause() { paused = false; }
-
+    // Pause on hold
+    const pause = () => (paused = true);
+    const unpause = () => (paused = false);
     wrapper.addEventListener("mousedown", pause);
     quoteBox.addEventListener("mousedown", pause);
     window.addEventListener("mouseup", unpause);
 
-    // Init
+    // Init animation
     setRandomQuote();
     requestAnimationFrame(animate);
-	  </script>
+  }
+});
+</script>
   </body>
 </html>
