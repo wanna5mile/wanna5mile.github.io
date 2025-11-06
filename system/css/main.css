@@ -521,7 +521,6 @@ footer {
 #quoteBox {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
   white-space: nowrap;
   font-size: 1em;
   text-decoration: none;
