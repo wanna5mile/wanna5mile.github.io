@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Smooth Quote Scroll</title>
 <style>
   body {
@@ -11,7 +11,7 @@
     background: #111;
   }
 
-  #quoteBox {
+  #quoteWrapper {
     position: relative;
     width: 100vw;
     height: 30px;
@@ -21,83 +21,114 @@
     align-items: center;
   }
 
-  #quoteText {
+  #quoteBox {
     position: absolute;
     white-space: nowrap;
     font-size: 20px;
     color: white;
+    transform: translateX(100%);
   }
 </style>
 </head>
 <body>
-  <div id="quoteBox">
-    <div id="quoteText">Loading...</div>
+  <div id="quoteWrapper">
+    <div id="quoteBox">Loading...</div>
   </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
+  const wrapper = document.getElementById("quoteWrapper");
   const box = document.getElementById("quoteBox");
-  const text = document.getElementById("quoteText");
-  const jsonPath = "system/json/quotes.json";
+  const jsonPath = "../system/json/quotes.json"; // your JSON file
 
-  // Load quotes
-  try {
-    const res = await fetch(jsonPath);
-    const data = await res.json();
-    const quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
-    text.textContent = quotes[Math.floor(Math.random() * quotes.length)];
-  } catch {
-    text.textContent = "⚠ Error loading quotes";
+  let quotes = [];
+  let pos = 0;
+  let speed = 120; // px/sec
+  let lastTime = null;
+
+  // Speed scaling factors
+  const baseSpeed = 120;
+  const slowSpeed = baseSpeed * 0.5;
+  const slowerSpeed = baseSpeed * 0.25;
+
+  let isHoveringWrapper = false;
+  let isHoveringText = false;
+  let isMouseDown = false;
+
+  async function loadQuotes() {
+    try {
+      const res = await fetch(jsonPath);
+      const data = await res.json();
+      quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
+      start();
+    } catch {
+      quotes = ["⚠ Error loading quotes"];
+      start();
+    }
   }
 
-  // Wait a frame to ensure width is known
-  requestAnimationFrame(() => {
-    // Scroll variables
-    let pos = box.offsetWidth; // start just outside the right edge
-    let lastTime = null;
+  function setQuote() {
+    const quote = quotes[Math.floor(Math.random() * quotes.length)];
+    box.textContent = quote;
+    // start just offscreen right
+    pos = wrapper.offsetWidth;
+  }
 
-    const baseSpeed = 80;   // px/sec
-    const slowSpeed = 40;   // slower
-    const slowerSpeed = 20; // even slower
+  function updateSpeed() {
+    if (isMouseDown) speed = 0;
+    else if (isHoveringText) speed = slowerSpeed;
+    else if (isHoveringWrapper) speed = slowSpeed;
+    else speed = baseSpeed;
+  }
 
-    let currentSpeed = baseSpeed;
-    let isHoveringBox = false;
-    let isHoveringText = false;
-    let isMouseDown = false;
+  function animate(time) {
+    if (lastTime !== null) {
+      const dt = (time - lastTime) / 1000;
+      pos -= speed * dt;
+      box.style.transform = `translateX(${pos}px)`;
 
-    function updateSpeed() {
-      if (isMouseDown) currentSpeed = 0;
-      else if (isHoveringText) currentSpeed = slowerSpeed;
-      else if (isHoveringBox) currentSpeed = slowSpeed;
-      else currentSpeed = baseSpeed;
-    }
-
-    function animate(time) {
-      if (lastTime != null) {
-        const dt = (time - lastTime) / 1000; // seconds since last frame
-        pos -= currentSpeed * dt;
-        text.style.transform = `translateX(${pos}px)`;
-
-        // When fully off left, reset just past right edge
-        if (pos + text.offsetWidth < 0) {
-          pos = box.offsetWidth;
-        }
+      // reset when fully off left
+      if (pos + box.offsetWidth < 0) {
+        setQuote();
       }
-      lastTime = time;
-      requestAnimationFrame(animate);
     }
-
-    // Hover + mouse events
-    box.addEventListener("mouseenter", () => { isHoveringBox = true; updateSpeed(); });
-    box.addEventListener("mouseleave", () => { isHoveringBox = false; isHoveringText = false; updateSpeed(); });
-    text.addEventListener("mouseenter", () => { isHoveringText = true; updateSpeed(); });
-    text.addEventListener("mouseleave", () => { isHoveringText = false; updateSpeed(); });
-    box.addEventListener("mousedown", () => { isMouseDown = true; updateSpeed(); });
-    box.addEventListener("mouseup", () => { isMouseDown = false; updateSpeed(); });
-
-    // Start animation
+    lastTime = time;
     requestAnimationFrame(animate);
+  }
+
+  function start() {
+    setQuote();
+    requestAnimationFrame(animate);
+  }
+
+  // Event listeners
+  wrapper.addEventListener("mouseenter", () => {
+    isHoveringWrapper = true;
+    updateSpeed();
   });
+  wrapper.addEventListener("mouseleave", () => {
+    isHoveringWrapper = false;
+    isHoveringText = false;
+    updateSpeed();
+  });
+  box.addEventListener("mouseenter", () => {
+    isHoveringText = true;
+    updateSpeed();
+  });
+  box.addEventListener("mouseleave", () => {
+    isHoveringText = false;
+    updateSpeed();
+  });
+  wrapper.addEventListener("mousedown", () => {
+    isMouseDown = true;
+    updateSpeed();
+  });
+  wrapper.addEventListener("mouseup", () => {
+    isMouseDown = false;
+    updateSpeed();
+  });
+
+  loadQuotes();
 });
 </script>
 </body>
