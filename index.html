@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WannaSmile | Home</title>
   <link rel="icon" href="system/images/favicons/logoo.png" />
-
   <meta name="author" content="WannaSmile by Rhap5ody" />
   <meta name="keywords" content="github, repository, source, library" />
 
@@ -13,7 +12,6 @@
   <link rel="stylesheet" href="system/css/themes.css" />
   <link rel="stylesheet" href="system/css/main.css" />
   <link rel="stylesheet" href="system/css/loading-screen.css" />
-  <link rel="stylesheet" href="system/css/quotes.css" />
   <link rel="stylesheet" href="system/css/commands.css" />
 
   <!-- Discord Widget -->
@@ -42,8 +40,8 @@
   <meta name="twitter:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
 
   <!-- Inline custom styles -->
-<style>
-  /* === Update popup (neutral dark theme, no CSS variables) === */
+  <style>
+  /* === Update popup === */
   .update-popup {
     position: fixed;
     inset: 0;
@@ -61,9 +59,8 @@
     opacity: 1;
     pointer-events: all;
   }
-
   .update-popup-content {
-    background: #111; /* black base */
+    background: #111;
     border: 1px solid #333;
     border-radius: 14px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
@@ -75,96 +72,46 @@
     animation: popup-bounce 0.6s ease;
     font-family: monospace;
   }
-
-  .update-popup-content h2 {
-    margin-top: 0;
-    color: #fff;
-    font-size: 1.6rem;
-    margin-bottom: 12px;
-  }
-
-  .update-popup-content p {
-    color: #ddd;
-    font-size: 1rem;
-    margin-bottom: 20px;
-    line-height: 1.4;
-  }
-
-  .update-video-wrapper {
-    margin-bottom: 20px;
-    border-radius: 10px;
-    overflow: hidden;
-    background: #222;
-  }
-
-  .update-video-wrapper iframe {
-    width: 100%;
-    height: 200px;
-    border: none;
-  }
-
-  .video-tooltip {
-    font-size: 0.8rem;
-    color: #aaa;
-    margin-top: 4px;
-  }
-
-  /* === Buttons === */
-  .update-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
-  }
-
-  .update-buttons button {
-    background: #222;
-    border: 1px solid #333;
-    border-radius: 8px;
-    color: #fff;
-    font-family: monospace;
-    font-size: 0.95rem;
-    font-weight: 600;
-    padding: 10px 18px;
-    cursor: pointer;
-    transition: color 0.25s ease, background 0.25s ease, transform 0.25s ease;
-  }
-
-  .update-buttons button:hover {
-    color: #ff3b3b;
-    background: #1a1a1a;
-    transform: scale(1.05);
-  }
-
-  .update-buttons button:active {
-    transform: scale(0.97);
-  }
-
   @keyframes popup-bounce {
     0% { transform: scale(0.9); opacity: 0; }
     60% { transform: scale(1.05); opacity: 1; }
     100% { transform: scale(1); }
   }
-/*
-  ================
-  quotes logic
-  ================*/
-    #quoteWrapper {
-      position: relative;
-      width: 100vw;
-      height: 30px;
-      overflow: hidden;
-      background: #1d201f;
-      display: flex;
-      align-items: center;
-    }
-    #quoteBox {
-      position: absolute;
-      white-space: nowrap;
-      font-weight: bold;
-    }
-</style>
+
+  /* ============================
+     QUOTES BAR (INLINE VERSION)
+     ============================ */
+  #quoteWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 32px;
+    overflow: hidden;
+    background: #1d201f;
+    text-align: center;
+    user-select: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    z-index: 20;
+    flex-shrink: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  #quoteBox {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    font-size: 1em;
+    text-decoration: none;
+    font-family: monospace;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    will-change: transform;
+  }
+  </style>
 </head>
 
 <body theme="classic">
@@ -202,7 +149,8 @@
       <button id="dashboardBtn"><img src="system/icons/dashboard.png" alt="Dashboard" /></button>
     </div>
   </header>
-<!--quotes-->
+
+  <!-- Quotes Bar -->
   <div id="quoteWrapper">
     <p id="quoteBox"></p>
   </div>
@@ -215,31 +163,10 @@
     <a href="system/pages/alt.html">Alternative Links</a>
   </aside>
 
-  <!-- Update Popup -->
-  <div id="updatePopup" class="update-popup">
-    <div class="update-popup-content">
-      <h2>Version ... Update!</h2>
-      <p>New games, smoother loading, and visual tweaks across the library!</p>
-      <div class="update-video-wrapper">
-        <iframe id="updateVideo" width="100%" height="200" src="" title="v0.8 Update Trailer"
-          frameborder="0" allowfullscreen></iframe>
-        <div class="video-tooltip">Press F or double click for full screen</div>
-      </div>
-      <div class="update-buttons">
-        <button id="viewUpdateBtn">Check it out!</button>
-        <button id="viewUpdateInfoBtn">More information</button>
-        <button id="closeUpdateBtn">Close</button>
-        <button id="dontShowBtn">Don’t show again</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Main -->
   <main>
     <div id="container">Loading assets...</div>
   </main>
-  
-  <button id="toTopBtn">⬆ Top</button>
 
   <footer>
     <a href="system/pages/sources.html">Sources</a>
@@ -250,89 +177,73 @@
     <a href="system/pages/version-log.html" id="footerVersion">Version loading...</a>
   </footer>
 
-<!-- JS: Core, UI, Quotes -->
-<!-- 1️⃣ Core / Settings -->
-<script src="system/js/settings.js" defer></script>
-<script src="system/js/commands.js" defer></script>
-<script src="system/js/main.js" defer></script>
-
-<!-- 2️⃣ UI Logic -->
-<script src="system/js/searcherror.js" defer></script>
-<script src="system/js/index.js" defer></script>
-<script src="system/js/version.js" defer></script>
-
-<!-- 3️⃣ Quotes -->
-<script src="system/js/quotes.js" defer></script>
-
-<!-- 4️⃣ Main Loader (Preloader control) -->
-<!-- No defer here — runs last, after all deferred scripts are executed -->
-<script src="system/js/all.js" defer></script>
-<!-- quotes -->
+  <!-- Inline Quotes Script -->
   <script>
-  /* ---------------------------
-     Quotes Scroller (JSON-Fetched)
-     --------------------------- */
   async function initQuotes() {
     const wrapper = document.getElementById("quoteWrapper");
     const quoteBox = document.getElementById("quoteBox");
     if (!wrapper || !quoteBox) return;
 
-    try {
-      const res = await fetch(config.quotesJson, { cache: "no-store" });
-      if (!res.ok) throw new Error("Failed to fetch quotes JSON");
-      const quotes = await res.json();
+    // Local fallback quotes (remove if fetching JSON externally)
+    const quotes = [
+      "Welcome to WannaSmile!",
+      "Join our Discord: discord.gg/vskTb44F5j",
+      "v1 release — September 26th, 2025",
+      "POKEMON NOW WORKING!",
+      "Support Selenite and contributors ❤️",
+      "slackrr now bg.uhm",
+      "jouyuss now bg.uhm"
+    ];
 
-      if (!Array.isArray(quotes) || !quotes.length) throw new Error("Invalid quotes format");
+    let baseSpeed = 120;
+    let targetMultiplier = 1;
+    let currentMultiplier = 1;
+    let position = 0;
+    let lastTime = null;
+    let paused = false;
 
-      let baseSpeed = 120;
-      let targetMultiplier = 1;
-      let currentMultiplier = 1;
-      let position;
-      let lastTime = null;
-      let paused = false;
-
-      function setRandomQuote() {
-        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        quoteBox.textContent = randomQuote;
-        position = wrapper.offsetWidth + 50;
-        quoteBox.style.transform = `translateX(${position}px)`;
-      }
-
-      function animate(timestamp) {
-        if (lastTime !== null) {
-          const delta = (timestamp - lastTime) / 1000;
-          const accel = 2;
-          currentMultiplier += (targetMultiplier - currentMultiplier) * accel * delta;
-
-          if (!paused) {
-            position -= baseSpeed * currentMultiplier * delta;
-            quoteBox.style.transform = `translateX(${position}px)`;
-          }
-
-          if (position + quoteBox.offsetWidth < 0) setRandomQuote();
-        }
-        lastTime = timestamp;
-        requestAnimationFrame(animate);
-      }
-
-      wrapper.addEventListener("mouseenter", () => (targetMultiplier = 0.8));
-      wrapper.addEventListener("mouseleave", () => (targetMultiplier = 1));
-      quoteBox.addEventListener("mouseenter", () => (targetMultiplier = 0.4));
-      quoteBox.addEventListener("mouseleave", () => (targetMultiplier = 1));
-
-      const pause = () => (paused = true);
-      const unpause = () => (paused = false);
-      wrapper.addEventListener("mousedown", pause);
-      quoteBox.addEventListener("mousedown", pause);
-      window.addEventListener("mouseup", unpause);
-
-      setRandomQuote();
-      requestAnimationFrame(animate);
-      console.log("✅ Quotes loaded successfully");
-    } catch (err) {
-      console.warn("⚠ Quotes init failed:", err);
+    function setRandomQuote() {
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      quoteBox.textContent = randomQuote;
+      requestAnimationFrame(() => {
+        const offset = 50 + Math.random() * 100;
+        position = wrapper.offsetWidth + offset;
+        quoteBox.style.transform = `translate(${position}px, -50%)`;
+      });
     }
+
+    function animate(timestamp) {
+      if (lastTime !== null) {
+        const delta = (timestamp - lastTime) / 1000;
+        const accel = 5;
+        const target = paused ? 0 : targetMultiplier;
+        currentMultiplier += (target - currentMultiplier) * accel * delta;
+
+        if (!paused && currentMultiplier > 0.001) {
+          position -= baseSpeed * currentMultiplier * delta;
+          quoteBox.style.transform = `translate(${position}px, -50%)`;
+        }
+
+        if (position + quoteBox.offsetWidth < -100) setRandomQuote();
+      }
+      lastTime = timestamp;
+      requestAnimationFrame(animate);
+    }
+
+    wrapper.addEventListener("mouseenter", () => (targetMultiplier = 0.5));
+    wrapper.addEventListener("mouseleave", () => (targetMultiplier = 1));
+    quoteBox.addEventListener("mouseenter", () => (targetMultiplier = 0.25));
+    quoteBox.addEventListener("mouseleave", () => (targetMultiplier = 1));
+
+    wrapper.addEventListener("mousedown", () => { paused = true; currentMultiplier = 0; });
+    window.addEventListener("mouseup", () => (paused = false));
+
+    setRandomQuote();
+    requestAnimationFrame(animate);
   }
+
+  // Initialize after page loads
+  window.addEventListener("DOMContentLoaded", initQuotes);
   </script>
 </body>
 </html>
