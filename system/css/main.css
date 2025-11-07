@@ -483,18 +483,3 @@ footer {
   border: 2px solid #ff0000;
   box-shadow: 0 0 10px #ff0000;
 }
-
-/* ==========================================
-   Top Bar (Header + Quotes unified fix)
-   ========================================== */
-#topBar {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  z-index: 20;
-  background: var(--header-bg); /* unified base background */
-}
-
-#topBar header {
-  z-index: 21;
-}
