@@ -42,7 +42,7 @@
   <!-- Inline custom styles -->
 <style>
   /* ==========================================
-     Top Bar (Header + Quotes unified fix)
+     Top Bar (Header + Quotes unified)
      ========================================== */
   #topBar {
     display: flex;
@@ -64,8 +64,7 @@
     overflow: hidden;
     background: #1d201f;
     display: flex;
-    align-items: center;       /* Vertical center */
-    justify-content: center;   /* Horizontal center baseline (used for centering fallback) */
+    align-items: center;
   }
 
   #quoteBox {
@@ -74,9 +73,9 @@
     font-weight: bold;
     font-size: 16px;
     color: #fff;
-    left: 100%; /* start fully off-screen to the right */
-    transform: translateY(-50%);
-    top: 50%;   /* vertically center absolute element */
+    transform: translateX(100%);
+    user-select: none;
+    cursor: default;
   }
 </style>
 </head>
@@ -91,38 +90,38 @@
     <div id="loaderText" class="loading-text">Loading...</div>
   </div>
   
-  <div class="topBar">
-  <!-- Header -->
-  <header>
-    <nav class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="favorites.html">Favorites</a>
-      <a href="system/pages/discovery.html">Discovery</a>
-      <a href="system/pages/settings.html">Settings</a>
-      <a href="system/pages/support.html">Support</a>
-      <a href="info.html">Info</a>
-      <div class="pages-anchor">
-        <button class="arrowleft" onclick="prevPage()"><img src="system/icons/left.png" alt="Previous page" /></button>
-        <span class="page-indicator">...</span>
-        <button class="arrowright" onclick="nextPage()"><img src="system/icons/right.png" alt="Next page" /></button>
-      </div>
-    </nav>
+  <div id="topBar">
+    <!-- Header -->
+    <header>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="favorites.html">Favorites</a>
+        <a href="system/pages/discovery.html">Discovery</a>
+        <a href="system/pages/settings.html">Settings</a>
+        <a href="system/pages/support.html">Support</a>
+        <a href="info.html">Info</a>
+        <div class="pages-anchor">
+          <button class="arrowleft" onclick="prevPage()"><img src="system/icons/left.png" alt="Previous page" /></button>
+          <span class="page-indicator">...</span>
+          <button class="arrowright" onclick="nextPage()"><img src="system/icons/right.png" alt="Next page" /></button>
+        </div>
+      </nav>
 
-    <div class="header-controls">
-      <div class="search-box">
-        <input id="searchInputHeader" type="text" placeholder="Search ϱames..." />
-        <button id="searchBtnHeader"><img src="system/icons/search.png" alt="Search" /></button>
+      <div class="header-controls">
+        <div class="search-box">
+          <input id="searchInputHeader" type="text" placeholder="Search ϱames..." />
+          <button id="searchBtnHeader"><img src="system/icons/search.png" alt="Search" /></button>
+        </div>
+        <a href="system/pages/profile.html"><img id="pfp" src="system/icons/profile.png" alt="Profile" /></a>
+        <button id="dashboardBtn"><img src="system/icons/dashboard.png" alt="Dashboard" /></button>
       </div>
-      <a href="system/pages/profile.html"><img id="pfp" src="system/icons/profile.png" alt="Profile" /></a>
-      <button id="dashboardBtn"><img src="system/icons/dashboard.png" alt="Dashboard" /></button>
+    </header>
+
+    <!-- Quotes Bar -->
+    <div id="quoteWrapper">
+      <p id="quoteBox">Loading...</p>
     </div>
-  </header>
-
-  <!-- Quotes Bar -->
-  <div id="quoteWrapper">
-    <p id="quoteBox"></p>
   </div>
-</div>
     
   <!-- Dashboard -->
   <aside id="dashboardMenu" class="dashboard-menu">
@@ -145,38 +144,35 @@
     <a href="system/pages/contact.html">Socials</a>
     <a href="system/pages/version-log.html" id="footerVersion">Version loading...</a>
   </footer>
-<!-- JS: Core, UI, Quotes -->
-<!-- 1️⃣ Core / Settings -->
-<script src="system/js/settings.js" defer></script>
-<script src="system/js/commands.js" defer></script>
-<script src="system/js/main.js" defer></script>
 
-<!-- 2️⃣ UI Logic -->
-<script src="system/js/searcherror.js" defer></script>
-<script src="system/js/index.js" defer></script>
-<script src="system/js/version.js" defer></script>
+  <!-- JS: Core, UI -->
+  <script src="system/js/settings.js" defer></script>
+  <script src="system/js/commands.js" defer></script>
+  <script src="system/js/main.js" defer></script>
+  <script src="system/js/searcherror.js" defer></script>
+  <script src="system/js/index.js" defer></script>
+  <script src="system/js/version.js" defer></script>
+  <script src="system/js/all.js" defer></script>
 
-<!-- 3️⃣ Quotes -->
-<script src="system/js/quotes.js" defer></script>
-
-<!-- 4️⃣ Main Loader (Preloader control) -->
-<!-- No defer here — runs last, after all deferred scripts are executed -->
-<script src="system/js/all.js" defer></script>
-<!-- 3️⃣ Quotes -->
-<script>
+  <!-- Quotes Scroll (merged) -->
+  <script>
   document.addEventListener("DOMContentLoaded", () => {
     const wrapper = document.getElementById("quoteWrapper");
     const box = document.getElementById("quoteBox");
-    const jsonPath = "system/json/quotes.json"; // fixed relative path
+    const jsonPath = "../system/json/quotes.json";
 
     let quotes = [];
     let pos = 0;
-    const baseSpeed = 80; // base scroll speed (px/sec)
-    let currentSpeed = baseSpeed;
     let lastTime = null;
 
-    // States
-    let isHoveringWrapper = false;
+    // Base speeds (px/sec)
+    const baseSpeed = 120;
+    const slowSpeed = 70;
+    const slowerSpeed = 30;
+
+    // State flags
+    let currentSpeed = baseSpeed;
+    let isHoveringBox = false;
     let isHoveringText = false;
     let isMouseDown = false;
 
@@ -195,15 +191,14 @@
     function setQuote() {
       const quote = quotes[Math.floor(Math.random() * quotes.length)];
       box.textContent = quote;
-      // Start fully off the right edge of the wrapper
       pos = wrapper.offsetWidth;
-      box.style.transform = `translate(${pos}px, -50%)`;
+      box.style.transform = `translateX(${pos}px)`;
     }
 
     function updateSpeed() {
       if (isMouseDown) currentSpeed = 0;
-      else if (isHoveringText) currentSpeed = baseSpeed * 0.25;
-      else if (isHoveringWrapper) currentSpeed = baseSpeed * 0.5;
+      else if (isHoveringText) currentSpeed = slowerSpeed;
+      else if (isHoveringBox) currentSpeed = slowSpeed;
       else currentSpeed = baseSpeed;
     }
 
@@ -211,12 +206,8 @@
       if (lastTime !== null) {
         const dt = (time - lastTime) / 1000;
         pos -= currentSpeed * dt;
-        box.style.transform = `translate(${pos}px, -50%)`;
-
-        // Only reset AFTER it's fully gone off the left
-        if (pos + box.offsetWidth < 0) {
-          setQuote();
-        }
+        box.style.transform = `translateX(${pos}px)`;
+        if (pos + box.offsetWidth < 0) setQuote();
       }
       lastTime = time;
       requestAnimationFrame(animate);
@@ -227,42 +218,16 @@
       requestAnimationFrame(animate);
     }
 
-    // -------------------
-    // Event Listeners
-    // -------------------
-    wrapper.addEventListener("mouseenter", () => {
-      isHoveringWrapper = true;
-      updateSpeed();
-    });
-
-    wrapper.addEventListener("mouseleave", () => {
-      isHoveringWrapper = false;
-      isHoveringText = false; // reset text hover state
-      updateSpeed();
-    });
-
-    box.addEventListener("mouseenter", () => {
-      isHoveringText = true;
-      updateSpeed();
-    });
-
-    box.addEventListener("mouseleave", () => {
-      isHoveringText = false;
-      updateSpeed();
-    });
-
-    wrapper.addEventListener("mousedown", () => {
-      isMouseDown = true;
-      updateSpeed();
-    });
-
-    wrapper.addEventListener("mouseup", () => {
-      isMouseDown = false;
-      updateSpeed();
-    });
+    // Hover + click logic
+    wrapper.addEventListener("mouseenter", () => { isHoveringBox = true; updateSpeed(); });
+    wrapper.addEventListener("mouseleave", () => { isHoveringBox = false; isHoveringText = false; updateSpeed(); });
+    box.addEventListener("mouseenter", () => { isHoveringText = true; updateSpeed(); });
+    box.addEventListener("mouseleave", () => { isHoveringText = false; updateSpeed(); });
+    wrapper.addEventListener("mousedown", () => { isMouseDown = true; updateSpeed(); });
+    wrapper.addEventListener("mouseup", () => { isMouseDown = false; updateSpeed(); });
 
     loadQuotes();
   });
-</script>
+  </script>
 </body>
 </html>
