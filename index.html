@@ -139,6 +139,8 @@
     <div id="container">Loading assets...</div>
   </main>
 
+      <button id="toTopBtn">⬆ Top</button>
+
   <footer>
     <a href="system/pages/sources.html">Sources</a>
     <a href="system/pages/contributors.html">Contribute</a>
@@ -232,5 +234,26 @@
     loadQuotes();
   });
   </script>
+
+      <script>
+      const toTopBtn = document.getElementById("toTopBtn");
+
+      // Show button when scrolled down 200px
+      window.onscroll = function () {
+        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 200) {
+          toTopBtn.style.display = "block";
+        } else {
+          toTopBtn.style.display = "none";
+        }
+      };
+
+      // Scroll smoothly to top on click
+      toTopBtn.onclick = function () {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      };
+    </script>
 </body>
 </html>
