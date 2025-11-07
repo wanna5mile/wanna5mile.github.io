@@ -1,5 +1,5 @@
 /* ==========================================================
-   Quotes Scroller (JSON-Fetched, Smoothed & Fixed)
+   Quotes Scroller (JSON-Fetched, Smoothed & Centered)
    ========================================================== */
 async function initQuotes() {
   const wrapper = document.getElementById("quoteWrapper");
@@ -31,7 +31,7 @@ async function initQuotes() {
       requestAnimationFrame(() => {
         const offset = 50 + Math.random() * 100; // slight random delay offscreen
         position = wrapper.offsetWidth + offset;
-        quoteBox.style.transform = `translateX(${position}px)`;
+        quoteBox.style.transform = `translate(${position}px, -50%)`;
       });
     }
 
@@ -44,7 +44,7 @@ async function initQuotes() {
 
         if (!paused) {
           position -= baseSpeed * currentMultiplier * delta;
-          quoteBox.style.transform = `translateX(${position}px)`;
+          quoteBox.style.transform = `translate(${position}px, -50%)`;
         }
 
         // ✅ Wait until fully off-screen before resetting
