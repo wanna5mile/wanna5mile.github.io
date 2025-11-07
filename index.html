@@ -176,7 +176,23 @@
     <a href="system/pages/contact.html">Socials</a>
     <a href="system/pages/version-log.html" id="footerVersion">Version loading...</a>
   </footer>
+<!-- JS: Core, UI, Quotes -->
+<!-- 1️⃣ Core / Settings -->
+<script src="system/js/settings.js" defer></script>
+<script src="system/js/commands.js" defer></script>
+<script src="system/js/main.js" defer></script>
 
+<!-- 2️⃣ UI Logic -->
+<script src="system/js/searcherror.js" defer></script>
+<script src="system/js/index.js" defer></script>
+<script src="system/js/version.js" defer></script>
+
+<!-- 3️⃣ Quotes -->
+<script src="system/js/quotes.js" defer></script>
+
+<!-- 4️⃣ Main Loader (Preloader control) -->
+<!-- No defer here — runs last, after all deferred scripts are executed -->
+<script src="system/js/all.js" defer></script>
   <!-- Inline Quotes Script -->
   <script>
   async function initQuotes() {
