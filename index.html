@@ -189,30 +189,25 @@
 <script src="system/js/version.js" defer></script>
 
 <!-- 3️⃣ Quotes -->
-<script src="system/js/quotes.js" defer></script>
-
-<!-- 4️⃣ Main Loader (Preloader control) -->
-<!-- No defer here — runs last, after all deferred scripts are executed -->
-<script src="system/js/all.js" defer></script>
-  <!-- Inline Quotes Script -->
-  <script>
-  async function initQuotes() {
+<script>
+async function initQuotes() {
   const wrapper = document.getElementById("quoteWrapper");
   const quoteBox = document.getElementById("quoteBox");
   if (!wrapper || !quoteBox) return;
 
   const quotes = [
-    "ts not working",
-    "not working."
+    "Not Working",
+    "Not Working"
   ];
 
-  let speed = 100;             // base pixels per second
-  let direction = -1;          // -1 = left, 1 = right
-  let position = 0;            // current translateX
+  let speed = 100;          // pixels per second
+  let direction = -1;       // -1 = left, 1 = right
+  let position = 0;
   let lastTime = null;
   let paused = false;
   let currentQuote = "";
 
+  // Pick a new random quote, different from the last one
   function pickQuote(except = "") {
     let newQuote;
     do {
@@ -222,23 +217,38 @@
     currentQuote = newQuote;
   }
 
+  function resetPosition() {
+    const boxWidth = quoteBox.offsetWidth;
+    const wrapWidth = wrapper.offsetWidth;
+
+    // If moving right, start just off the left edge
+    if (direction === 1) {
+      position = -wrapWidth / 2 - boxWidth / 2;
+    }
+    // If moving left, start just off the right edge
+    else {
+      position = wrapWidth / 2 + boxWidth / 2;
+    }
+    quoteBox.style.transform = `translate(${position}px, -50%)`;
+  }
+
   function animate(timestamp) {
-    if (lastTime != null) {
+    if (lastTime !== null) {
       const delta = (timestamp - lastTime) / 1000;
       if (!paused) position += direction * speed * delta;
 
       const boxWidth = quoteBox.offsetWidth;
       const wrapWidth = wrapper.offsetWidth;
 
-      // Right edge
-      if (direction === 1 && position + boxWidth / 2 > wrapWidth / 2 + 100) {
-        direction = -1;
-        pickQuote(currentQuote);
-      }
-      // Left edge
-      else if (direction === -1 && position - boxWidth / 2 < -wrapWidth / 2 - 100) {
+      // When quote fully exits one side, flip direction and change quote
+      if (direction === -1 && position + boxWidth / 2 < -wrapWidth / 2) {
         direction = 1;
         pickQuote(currentQuote);
+        resetPosition();
+      } else if (direction === 1 && position - boxWidth / 2 > wrapWidth / 2) {
+        direction = -1;
+        pickQuote(currentQuote);
+        resetPosition();
       }
 
       quoteBox.style.transform = `translate(${position}px, -50%)`;
@@ -247,15 +257,15 @@
     requestAnimationFrame(animate);
   }
 
-  // --- Hover control ---
+  // --- Hover controls ---
   wrapper.addEventListener("mouseenter", () => (speed = 40));
   wrapper.addEventListener("mouseleave", () => (speed = 100));
   quoteBox.addEventListener("mousedown", () => (paused = true));
   window.addEventListener("mouseup", () => (paused = false));
 
-  // Center start position
+  // Start first quote
   pickQuote();
-  position = 0;
+  resetPosition();
   requestAnimationFrame(animate);
 }
 
