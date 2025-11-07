@@ -171,8 +171,14 @@
 
     let quotes = [];
     let pos = 0;
-    const speed = 80; // pixels per second
+    const baseSpeed = 80; // base scroll speed (px/sec)
+    let currentSpeed = baseSpeed;
     let lastTime = null;
+
+    // States
+    let isHoveringWrapper = false;
+    let isHoveringText = false;
+    let isMouseDown = false;
 
     async function loadQuotes() {
       try {
@@ -194,10 +200,17 @@
       box.style.transform = `translate(${pos}px, -50%)`;
     }
 
+    function updateSpeed() {
+      if (isMouseDown) currentSpeed = 0;
+      else if (isHoveringText) currentSpeed = baseSpeed * 0.25;
+      else if (isHoveringWrapper) currentSpeed = baseSpeed * 0.5;
+      else currentSpeed = baseSpeed;
+    }
+
     function animate(time) {
       if (lastTime !== null) {
         const dt = (time - lastTime) / 1000;
-        pos -= speed * dt;
+        pos -= currentSpeed * dt;
         box.style.transform = `translate(${pos}px, -50%)`;
 
         // Only reset AFTER it's fully gone off the left
@@ -213,6 +226,40 @@
       setQuote();
       requestAnimationFrame(animate);
     }
+
+    // -------------------
+    // Event Listeners
+    // -------------------
+    wrapper.addEventListener("mouseenter", () => {
+      isHoveringWrapper = true;
+      updateSpeed();
+    });
+
+    wrapper.addEventListener("mouseleave", () => {
+      isHoveringWrapper = false;
+      isHoveringText = false; // reset text hover state
+      updateSpeed();
+    });
+
+    box.addEventListener("mouseenter", () => {
+      isHoveringText = true;
+      updateSpeed();
+    });
+
+    box.addEventListener("mouseleave", () => {
+      isHoveringText = false;
+      updateSpeed();
+    });
+
+    wrapper.addEventListener("mousedown", () => {
+      isMouseDown = true;
+      updateSpeed();
+    });
+
+    wrapper.addEventListener("mouseup", () => {
+      isMouseDown = false;
+      updateSpeed();
+    });
 
     loadQuotes();
   });
