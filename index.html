@@ -194,11 +194,29 @@ async function initQuotes() {
   const quoteBox = document.getElementById("quoteBox");
   if (!wrapper || !quoteBox) return;
 
-  const quotes = [
-    "Not Working",
-    "Not Working"
-  ];
+  // ✅ You can replace this with your actual JSON file path if config is unavailable
+  const quotesUrl = (typeof config !== "undefined" && config.quotesJson)
+    ? config.quotesJson
+    : "system/data/quotes.json";
 
+  let quotes = [];
+  try {
+    const res = await fetch(quotesUrl, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Failed to load quotes (${res.status})`);
+    quotes = await res.json();
+
+    if (!Array.isArray(quotes) || quotes.length === 0)
+      throw new Error("Invalid quotes format or empty array");
+  } catch (err) {
+    console.warn("⚠ Quotes fetch failed, using fallback quotes:", err);
+    quotes = [
+      "Welcome to WannaSmile!",
+      "Join the Discord! https://discord.gg/vskTb44F5j",
+      "Support Selenite and contributors ❤️"
+    ];
+  }
+
+  // --- Motion setup ---
   let speed = 100;          // pixels per second
   let direction = -1;       // -1 = left, 1 = right
   let position = 0;
@@ -206,7 +224,6 @@ async function initQuotes() {
   let paused = false;
   let currentQuote = "";
 
-  // Pick a new random quote, different from the last one
   function pickQuote(except = "") {
     let newQuote;
     do {
@@ -219,13 +236,9 @@ async function initQuotes() {
   function resetPosition() {
     const boxWidth = quoteBox.offsetWidth;
     const wrapWidth = wrapper.offsetWidth;
-
-    // If moving right, start just off the left edge
     if (direction === 1) {
       position = -wrapWidth / 2 - boxWidth / 2;
-    }
-    // If moving left, start just off the right edge
-    else {
+    } else {
       position = wrapWidth / 2 + boxWidth / 2;
     }
     quoteBox.style.transform = `translate(${position}px, -50%)`;
@@ -239,7 +252,7 @@ async function initQuotes() {
       const boxWidth = quoteBox.offsetWidth;
       const wrapWidth = wrapper.offsetWidth;
 
-      // When quote fully exits one side, flip direction and change quote
+      // Flip when off-screen & pick new quote
       if (direction === -1 && position + boxWidth / 2 < -wrapWidth / 2) {
         direction = 1;
         pickQuote(currentQuote);
@@ -256,13 +269,13 @@ async function initQuotes() {
     requestAnimationFrame(animate);
   }
 
-  // --- Hover controls ---
+  // --- Hover & click behavior ---
   wrapper.addEventListener("mouseenter", () => (speed = 40));
   wrapper.addEventListener("mouseleave", () => (speed = 100));
   quoteBox.addEventListener("mousedown", () => (paused = true));
   window.addEventListener("mouseup", () => (paused = false));
 
-  // Start first quote
+  // --- Start loop ---
   pickQuote();
   resetPosition();
   requestAnimationFrame(animate);
