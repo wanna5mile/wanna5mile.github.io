@@ -41,77 +41,20 @@
 
   <!-- Inline custom styles -->
   <style>
-  /* === Update popup === */
-  .update-popup {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(6px);
-    z-index: 9999;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease;
-  }
-  .update-popup.show {
-    opacity: 1;
-    pointer-events: all;
-  }
-  .update-popup-content {
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 14px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
-    width: 90%;
-    max-width: 480px;
-    text-align: center;
-    padding: 24px;
-    color: #fff;
-    animation: popup-bounce 0.6s ease;
-    font-family: monospace;
-  }
-  @keyframes popup-bounce {
-    0% { transform: scale(0.9); opacity: 0; }
-    60% { transform: scale(1.05); opacity: 1; }
-    100% { transform: scale(1); }
-  }
-
-  /* ============================
-     QUOTES BAR (INLINE VERSION)
-     ============================ */
-  #quoteWrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 32px;
-    overflow: hidden;
-    background: #1d201f;
-    text-align: center;
-    user-select: none;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-    z-index: 20;
-    flex-shrink: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  #quoteBox {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    white-space: nowrap;
-    font-size: 1em;
-    text-decoration: none;
-    font-family: monospace;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-    text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
-    will-change: transform;
-    color: white; /* makes text white */
-  }
+    #quoteWrapper {
+      position: relative;
+      width: 100vw;
+      height: 30px;
+      overflow: hidden;
+      background: #1d201f;
+      display: flex;
+      align-items: center;
+    }
+    #quoteBox {
+      position: absolute;
+      white-space: nowrap;
+      font-weight: bold;
+    }
   </style>
 </head>
 
@@ -188,100 +131,54 @@
 <script src="system/js/index.js" defer></script>
 <script src="system/js/version.js" defer></script>
 <!-- 3️⃣ Quotes -->
-<script>
-async function initQuotes() {
-  const wrapper = document.getElementById("quoteWrapper");
-  const quoteBox = document.getElementById("quoteBox");
-  if (!wrapper || !quoteBox) return;
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const wrapper = document.getElementById("quoteWrapper");
+      const box = document.getElementById("quoteBox");
+      const jsonPath = "../system/json/quotes.json";
 
-  // ✅ You can replace this with your actual JSON file path if config is unavailable
-  const quotesUrl = (typeof config !== "undefined" && config.quotesJson)
-    ? config.quotesJson
-    : "system/data/quotes.json";
+      let quotes = [];
+      let pos = 0;
+      let speed = 120;
+      let lastTime = null;
 
-  let quotes = [];
-  try {
-    const res = await fetch(quotesUrl, { cache: "no-store" });
-    if (!res.ok) throw new Error(`Failed to load quotes (${res.status})`);
-    quotes = await res.json();
-
-    if (!Array.isArray(quotes) || quotes.length === 0)
-      throw new Error("Invalid quotes format or empty array");
-  } catch (err) {
-    console.warn("⚠ Quotes fetch failed, using fallback quotes:", err);
-    quotes = [
-      "Welcome to WannaSmile!",
-      "Join the Discord! https://discord.gg/vskTb44F5j",
-      "Support Selenite and contributors ❤️"
-    ];
-  }
-
-  // --- Motion setup ---
-  let speed = 100;          // pixels per second
-  let direction = -1;       // -1 = left, 1 = right
-  let position = 0;
-  let lastTime = null;
-  let paused = false;
-  let currentQuote = "";
-
-  function pickQuote(except = "") {
-    let newQuote;
-    do {
-      newQuote = quotes[Math.floor(Math.random() * quotes.length)];
-    } while (newQuote === except && quotes.length > 1);
-    quoteBox.textContent = newQuote;
-    currentQuote = newQuote;
-  }
-
-  function resetPosition() {
-    const boxWidth = quoteBox.offsetWidth;
-    const wrapWidth = wrapper.offsetWidth;
-    if (direction === 1) {
-      position = -wrapWidth / 2 - boxWidth / 2;
-    } else {
-      position = wrapWidth / 2 + boxWidth / 2;
-    }
-    quoteBox.style.transform = `translate(${position}px, -50%)`;
-  }
-
-  function animate(timestamp) {
-    if (lastTime !== null) {
-      const delta = (timestamp - lastTime) / 1000;
-      if (!paused) position += direction * speed * delta;
-
-      const boxWidth = quoteBox.offsetWidth;
-      const wrapWidth = wrapper.offsetWidth;
-
-      // Flip when off-screen & pick new quote
-      if (direction === -1 && position + boxWidth / 2 < -wrapWidth / 2) {
-        direction = 1;
-        pickQuote(currentQuote);
-        resetPosition();
-      } else if (direction === 1 && position - boxWidth / 2 > wrapWidth / 2) {
-        direction = -1;
-        pickQuote(currentQuote);
-        resetPosition();
+      async function loadQuotes() {
+        try {
+          const res = await fetch(jsonPath);
+          const data = await res.json();
+          quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
+          start();
+        } catch {
+          quotes = ["⚠ Error loading quotes"];
+          start();
+        }
       }
 
-      quoteBox.style.transform = `translate(${position}px, -50%)`;
-    }
-    lastTime = timestamp;
-    requestAnimationFrame(animate);
-  }
+      function setQuote() {
+        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        box.textContent = quote;
+        pos = wrapper.offsetWidth;
+        box.style.transform = `translateX(${pos}px)`;
+      }
 
-  // --- Hover & click behavior ---
-  wrapper.addEventListener("mouseenter", () => (speed = 40));
-  wrapper.addEventListener("mouseleave", () => (speed = 100));
-  quoteBox.addEventListener("mousedown", () => (paused = true));
-  window.addEventListener("mouseup", () => (paused = false));
+      function animate(t) {
+        if (lastTime !== null) {
+          const dt = (t - lastTime) / 1000;
+          pos -= speed * dt;
+          box.style.transform = `translateX(${pos}px)`;
+          if (pos + box.offsetWidth < 0) setQuote();
+        }
+        lastTime = t;
+        requestAnimationFrame(animate);
+      }
 
-  // --- Start loop ---
-  pickQuote();
-  resetPosition();
-  requestAnimationFrame(animate);
-}
+      function start() {
+        setQuote();
+        requestAnimationFrame(animate);
+      }
 
-window.addEventListener("DOMContentLoaded", initQuotes);
-</script>
+      loadQuotes();
+    });
+  </script>
 </body>
 </html>
