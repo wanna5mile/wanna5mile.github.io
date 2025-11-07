@@ -41,6 +41,20 @@
 
   <!-- Inline custom styles -->
   <style>
+    /* ==========================================
+   Top Bar (Header + Quotes unified fix)
+   ========================================== */
+#topBar {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 20;
+  background: var(--header-bg); /* unified base background */
+}
+
+#topBar header {
+  z-index: 21;
+}
     #quoteWrapper {
       position: relative;
       width: 100vw;
@@ -67,7 +81,8 @@
     <div class="load-progress-bar"><div id="progressBar" class="load-progress-fill"></div></div>
     <div id="loaderText" class="loading-text">Loading...</div>
   </div>
-
+  
+  <div class="topBar">
   <!-- Header -->
   <header>
     <nav class="nav-links">
@@ -98,7 +113,8 @@
   <div id="quoteWrapper">
     <p id="quoteBox"></p>
   </div>
-
+</div>
+    
   <!-- Dashboard -->
   <aside id="dashboardMenu" class="dashboard-menu">
     <a href="https://bguhm.github.io/music-player.html">Music Player</a>
