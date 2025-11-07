@@ -40,40 +40,45 @@
   <meta name="twitter:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
 
   <!-- Inline custom styles -->
-  <style>
-    /* ==========================================
-   Top Bar (Header + Quotes unified fix)
-   ========================================== */
-#topBar {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  z-index: 20;
-  background: var(--header-bg); /* unified base background */
-}
+<style>
+  /* ==========================================
+     Top Bar (Header + Quotes unified fix)
+     ========================================== */
+  #topBar {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 20;
+    background: var(--header-bg);
+  }
 
-#topBar header {
-  z-index: 21;
-}
-    #quoteWrapper {
-      font-family:monospace;
-      color:white;
-      position: relative;
-      width: 100vw;
-      height: 30px;
-      overflow: hidden;
-      background: #1d201f;
-      display: flex;
-      align-items: center;
-    }
-    #quoteBox {
-      font-family:monospace;
-      color:white;
-      position: absolute;
-      white-space: nowrap;
-      font-weight: bold;
-    }
-  </style>
+  #topBar header {
+    z-index: 21;
+  }
+
+  /* Quotes Bar */
+  #quoteWrapper {
+    position: relative;
+    width: 100vw;
+    height: 40px;
+    overflow: hidden;
+    background: #1d201f;
+    display: flex;
+    align-items: center;       /* Vertical center */
+    justify-content: center;   /* Horizontal center baseline (used for centering fallback) */
+  }
+
+  #quoteBox {
+    position: absolute;
+    white-space: nowrap;
+    font-weight: bold;
+    font-size: 16px;
+    color: #fff;
+    left: 100%; /* start fully off-screen to the right */
+    transform: translateY(-50%);
+    top: 50%;   /* vertically center absolute element */
+  }
+</style>
 </head>
 
 <body theme="classic">
@@ -158,54 +163,59 @@
 <!-- No defer here — runs last, after all deferred scripts are executed -->
 <script src="system/js/all.js" defer></script>
 <!-- 3️⃣ Quotes -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const wrapper = document.getElementById("quoteWrapper");
-      const box = document.getElementById("quoteBox");
-      const jsonPath = "../system/json/quotes.json";
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const wrapper = document.getElementById("quoteWrapper");
+    const box = document.getElementById("quoteBox");
+    const jsonPath = "system/json/quotes.json"; // fixed relative path
 
-      let quotes = [];
-      let pos = 0;
-      let speed = 120;
-      let lastTime = null;
+    let quotes = [];
+    let pos = 0;
+    const speed = 80; // pixels per second
+    let lastTime = null;
 
-      async function loadQuotes() {
-        try {
-          const res = await fetch(jsonPath);
-          const data = await res.json();
-          quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
-          start();
-        } catch {
-          quotes = ["⚠ Error loading quotes"];
-          start();
+    async function loadQuotes() {
+      try {
+        const res = await fetch(jsonPath);
+        const data = await res.json();
+        quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
+        start();
+      } catch {
+        quotes = ["⚠ Error loading quotes"];
+        start();
+      }
+    }
+
+    function setQuote() {
+      const quote = quotes[Math.floor(Math.random() * quotes.length)];
+      box.textContent = quote;
+      // Start fully off the right edge of the wrapper
+      pos = wrapper.offsetWidth;
+      box.style.transform = `translate(${pos}px, -50%)`;
+    }
+
+    function animate(time) {
+      if (lastTime !== null) {
+        const dt = (time - lastTime) / 1000;
+        pos -= speed * dt;
+        box.style.transform = `translate(${pos}px, -50%)`;
+
+        // Only reset AFTER it's fully gone off the left
+        if (pos + box.offsetWidth < 0) {
+          setQuote();
         }
       }
+      lastTime = time;
+      requestAnimationFrame(animate);
+    }
 
-      function setQuote() {
-        const quote = quotes[Math.floor(Math.random() * quotes.length)];
-        box.textContent = quote;
-        pos = wrapper.offsetWidth;
-        box.style.transform = `translateX(${pos}px)`;
-      }
+    function start() {
+      setQuote();
+      requestAnimationFrame(animate);
+    }
 
-      function animate(t) {
-        if (lastTime !== null) {
-          const dt = (t - lastTime) / 1000;
-          pos -= speed * dt;
-          box.style.transform = `translateX(${pos}px)`;
-          if (pos + box.offsetWidth < 0) setQuote();
-        }
-        lastTime = t;
-        requestAnimationFrame(animate);
-      }
-
-      function start() {
-        setQuote();
-        requestAnimationFrame(animate);
-      }
-
-      loadQuotes();
-    });
-  </script>
+    loadQuotes();
+  });
+</script>
 </body>
 </html>
