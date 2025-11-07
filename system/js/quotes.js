@@ -1,5 +1,5 @@
 /* ==========================================================
-   Quotes Scroller (JSON-Fetched, Smoothed & Centered)
+   Quotes Scroller (JSON-Fetched, Smoothed, Centered & Fixed)
    ========================================================== */
 async function initQuotes() {
   const wrapper = document.getElementById("quoteWrapper");
@@ -39,10 +39,14 @@ async function initQuotes() {
     function animate(timestamp) {
       if (lastTime !== null) {
         const delta = (timestamp - lastTime) / 1000; // seconds since last frame
-        const accel = 2; // smoothing factor for transitions
-        currentMultiplier += (targetMultiplier - currentMultiplier) * accel * delta;
+        const accel = 5; // faster response for hover transitions
 
-        if (!paused) {
+        // Smoothly interpolate only if not paused
+        const target = paused ? 0 : targetMultiplier;
+        currentMultiplier += (target - currentMultiplier) * accel * delta;
+
+        // Only move if not paused
+        if (!paused && currentMultiplier > 0.001) {
           position -= baseSpeed * currentMultiplier * delta;
           quoteBox.style.transform = `translate(${position}px, -50%)`;
         }
@@ -58,14 +62,20 @@ async function initQuotes() {
     }
 
     // --- Hover speed adjustments ---
-    wrapper.addEventListener("mouseenter", () => (targetMultiplier = 0.8));
+    wrapper.addEventListener("mouseenter", () => (targetMultiplier = 0.5));
     wrapper.addEventListener("mouseleave", () => (targetMultiplier = 1));
-    quoteBox.addEventListener("mouseenter", () => (targetMultiplier = 0.4));
+    quoteBox.addEventListener("mouseenter", () => (targetMultiplier = 0.25));
     quoteBox.addEventListener("mouseleave", () => (targetMultiplier = 1));
 
     // --- Pause/resume on mousedown ---
-    const pause = () => (paused = true);
-    const unpause = () => (paused = false);
+    const pause = () => {
+      paused = true;
+      currentMultiplier = 0; // instantly stop motion
+    };
+    const unpause = () => {
+      paused = false;
+    };
+
     wrapper.addEventListener("mousedown", pause);
     quoteBox.addEventListener("mousedown", pause);
     window.addEventListener("mouseup", unpause);
