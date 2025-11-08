@@ -261,8 +261,12 @@ registerBtn.onclick = () => {
     return message("Username already exists", "error");
 
   saveUser({ username, password, email, recovery });
-  message("Registered! You can log in now.", "success");
-  setTimeout(() => flipTo("login"), 800);
+  localStorage.setItem("currentUser", username); // ✅ remember logged-in user
+  message("Account created! Redirecting...", "success");
+
+  setTimeout(() => {
+    window.location.href = "profile.html"; // ✅ redirect to profile page
+  }, 1200);
 };
 
 /* Login */
@@ -270,10 +274,16 @@ loginBtn.onclick=()=>{
   const username = loginUser.value.trim();
   const password = loginPass.value;
   const user = loadUser(username);
+
   if(!user) return message("User not found","error");
   if(user.password!==password) return message("Wrong password","error");
-  userDisplay.textContent=username;
-  flipTo("account");
+
+  localStorage.setItem("currentUser", username); // ✅ remember logged-in user
+  message("Login successful! Redirecting...", "success");
+
+  setTimeout(() => {
+    window.location.href = "profile.html"; // ✅ redirect to profile page
+  }, 1000);
 };
 
 /* Recover */
@@ -292,7 +302,10 @@ recoverBtn.onclick=()=>{
 };
 
 /* Other */
-logoutBtn.onclick=()=>flipTo("login");
+logoutBtn.onclick=()=>{
+  localStorage.removeItem("currentUser"); // ✅ clear session
+  flipTo("login");
+};
 showLogin.onclick=()=>flipTo("login");
 showRegister.onclick=()=>flipTo("register");
 showRecover.onclick=()=>flipTo("recover");
@@ -324,5 +337,6 @@ themeToggle.onclick=()=>{
   localStorage.setItem("theme",newTheme);
 };
 </script>
+
 </body>
 </html>
