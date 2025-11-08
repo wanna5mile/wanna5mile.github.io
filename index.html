@@ -235,6 +235,39 @@
   });
   </script>
 
+  <script>
+  /* ==========================================================
+     LOAD USER PROFILE PREVIEW (Persistent Small PFP)
+     ========================================================== */
+  document.addEventListener("DOMContentLoaded", () => {
+    const pfp = document.getElementById("pfp");
+    const defaultPic = "system/icons/profile.png";
+
+    const currentUser = localStorage.getItem("currentUser");
+    if (!currentUser) {
+      pfp.src = defaultPic;
+      return;
+    }
+
+    // Try to load user data
+    const userData = JSON.parse(localStorage.getItem("user_" + currentUser) || "{}");
+    const profileData = JSON.parse(localStorage.getItem("profile_" + currentUser) || "{}");
+
+    // Resolve preferred image (profileData first, fallback to default)
+    const userPic = profileData.pic || defaultPic;
+
+    // Update small header PFP
+    pfp.src = userPic;
+
+    // Optionally store a mini cache so other pages load faster
+    const cachedPreview = {
+      username: userData.username || profileData.nickname || currentUser,
+      pic: userPic
+    };
+    localStorage.setItem("preview_" + currentUser, JSON.stringify(cachedPreview));
+  });
+</script>
+
       <script>
       const toTopBtn = document.getElementById("toTopBtn");
 
