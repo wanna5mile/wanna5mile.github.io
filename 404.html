@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html class="sl-theme-dark" lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>404</title>
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <!-- externals -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.9.0/cdn/themes/dark.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.9.0/cdn/shoelace-autoloader.js"></script>
+
+    <!-- site styles -->
+    <link rel="stylesheet" href="/themes.css" />
+    <link rel="stylesheet" href="/style.css" />
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000; /* force black background */
+  font-family: monospace;
+  color: white;
+  text-align: center;
+}
+  
+      .error-wrapper {
+        max-width: 600px;
+        padding: 1rem;
+      }
+
+      .error-wrapper h1 {
+        font-size: 1.5rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        transition: color 0.3s, text-decoration-color 0.3s;
+      }
+
+      .error-wrapper h1:hover {
+        color: red;
+        text-decoration: underline;
+        text-decoration-color: red;
+      }
+
+      .error-wrapper a {
+        color: red;
+        text-decoration: underline;
+        text-decoration-color: red;
+        transition: color 0.3s, text-decoration-color 0.3s;
+      }
+
+      .error-wrapper a:hover {
+        color: yellow;
+        text-decoration-color: yellow;
+      }
+
+      .error-wrapper img {
+        width: 200px;
+        image-rendering: pixelated;
+        margin-top: 1rem;
+      }
+</style>
+  </head>
+  <body id="noscroll">
+    <main id="main" class="noscroll">
+      <div class="error-wrapper">
+        <h1>
+          Oops! Looks like you found a page that doesn't exist! <br />
+          Want to return to the main page?
+          <a href="/">click here</a>! or 
+          <a href="/support.html">report a bug</a>.
+        </h1>
+        <img src="https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/ded.gif" alt="Ded">
+      </div>
+    </main>
+  </body>
+</html>
