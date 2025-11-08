@@ -542,6 +542,43 @@ async function initUpdatePopup() {
       hidePreloader(true);
     }
   }
+   /* ---------------------------
+   Mobile Swipe Support for Paging
+   --------------------------- */
+function initMobilePaging() {
+  const { container } = dom || {};
+  if (!container) return;
+
+  let startX = 0;
+  let startY = 0;
+  let isSwipe = false;
+
+  container.addEventListener("touchstart", (e) => {
+    if (!e.touches || e.touches.length !== 1) return;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    isSwipe = true;
+  });
+
+  container.addEventListener("touchmove", (e) => {
+    if (!isSwipe) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (Math.abs(dx) > Math.abs(dy)) e.preventDefault(); // horizontal swipe only
+  }, { passive: false });
+
+  container.addEventListener("touchend", (e) => {
+    if (!isSwipe) return;
+    const endX = e.changedTouches[0].clientX;
+    const dx = endX - startX;
+
+    if (Math.abs(dx) > 50) { // threshold for swipe
+      if (dx > 0) window.prevPage?.();
+      else window.nextPage?.();
+    }
+    isSwipe = false;
+  });
+}
   /* ---------------------------
      DOM Bootstrap
      --------------------------- */
