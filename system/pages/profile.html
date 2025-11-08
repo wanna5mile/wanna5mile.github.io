@@ -249,22 +249,26 @@
      AUTH CHECK + USER LOAD
   ========================================== */
   const currentUser = localStorage.getItem("currentUser");
+
+  // If user is NOT logged in, redirect to authorization
   if (!currentUser) {
-    // Not logged in — redirect to login/register page
-    window.location.href = "system/pages/authorize.html"; // adjust this filename to your actual login page
+    window.location.href = "system/pages/authorize.html"; // adjust this to your login file
+  } else {
+    const userData = localStorage.getItem("user_" + currentUser);
+    if (!userData) {
+      // Account data missing — reset login and redirect
+      localStorage.removeItem("currentUser");
+      window.location.href = "system/pages/authorize.html";
+    }
   }
 
-  let user = JSON.parse(localStorage.getItem("user_" + currentUser) || "null");
-  if (!user) {
-    localStorage.removeItem("currentUser");
-    window.location.href = "/auth.html";
-  }
+  const user = JSON.parse(localStorage.getItem("user_" + currentUser) || "{}");
 
-  // Load user + profile info
+  // Load profile data after DOM is ready
   window.addEventListener("DOMContentLoaded", () => {
     const savedProfile = JSON.parse(localStorage.getItem("profile_" + currentUser) || "{}");
     const finalPic = savedProfile.pic || defaultPic;
-    const finalName = savedProfile.nickname || user.username;
+    const finalName = savedProfile.nickname || user.username || "User";
 
     profilePic.src = finalPic;
     preview.src = finalPic;
