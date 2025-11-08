@@ -498,87 +498,60 @@ async function initUpdatePopup() {
   }
 }
 
-  /* ---------------------------
-     Asset Loader
-     --------------------------- */
-  async function loadAssets(retry = false) {
-    showLoading("Loading assets...");
-    updateProgress(5);
-
-    try {
-      const res = await fetch(config.sheetUrl, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
-      const raw = await res.json();
-      const data = raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
-      window.assetsData = data;
-      updateProgress(35);
-
-      const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
-      let filtered = data;
-      if (isFavPage) {
-        filtered = [...window.favorites]
-          ? data.filter((a) => window.favorites.has(safeStr(a.title).toLowerCase()))
-          : [];
-      }
-
-      const promises = createAssetCards(filtered);
-      updateProgress(55);
-      await Promise.allSettled(promises.map((p) => p.promise));
-      updateProgress(80);
-
-      if (typeof renderPage === "function") renderPage();
-
-      if (isFavPage && !filtered.length && dom.container)
-        dom.container.innerHTML =
-          "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
-
-      updateProgress(100);
-      await delay(350);
-      hidePreloader(true);
-    } catch (err) {
-      console.error("Error loading assets:", err);
-      if (!retry) return setTimeout(() => loadAssets(true), 1000);
-      showLoading("⚠ Failed to load assets.");
-      hidePreloader(true);
-    }
-  }
-   /* ---------------------------
-   Mobile Swipe Support for Paging
+/* ---------------------------
+   Asset Loader (Updated to skip empty status)
    --------------------------- */
-function initMobilePaging() {
-  const { container } = dom || {};
-  if (!container) return;
+async function loadAssets(retry = false) {
+  showLoading("Loading assets...");
+  updateProgress(5);
 
-  let startX = 0;
-  let startY = 0;
-  let isSwipe = false;
+  try {
+    const res = await fetch(config.sheetUrl, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
 
-  container.addEventListener("touchstart", (e) => {
-    if (!e.touches || e.touches.length !== 1) return;
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-    isSwipe = true;
-  });
+    const raw = await res.json();
 
-  container.addEventListener("touchmove", (e) => {
-    if (!isSwipe) return;
-    const dx = e.touches[0].clientX - startX;
-    const dy = e.touches[0].clientY - startY;
-    if (Math.abs(dx) > Math.abs(dy)) e.preventDefault(); // horizontal swipe only
-  }, { passive: false });
+    // ✅ Only include rows that have any non-empty data
+    const data = raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
 
-  container.addEventListener("touchend", (e) => {
-    if (!isSwipe) return;
-    const endX = e.changedTouches[0].clientX;
-    const dx = endX - startX;
+    // ✅ Ignore any assets with an empty status
+    const visibleData = data.filter((i) => safeStr(i.status).trim() !== "");
 
-    if (Math.abs(dx) > 50) { // threshold for swipe
-      if (dx > 0) window.prevPage?.();
-      else window.nextPage?.();
+    window.assetsData = visibleData;
+    updateProgress(35);
+
+    const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
+    let filtered = visibleData;
+    if (isFavPage) {
+      filtered = [...window.favorites].length
+        ? visibleData.filter((a) =>
+            window.favorites.has(safeStr(a.title).toLowerCase())
+          )
+        : [];
     }
-    isSwipe = false;
-  });
+
+    const promises = createAssetCards(filtered);
+    updateProgress(55);
+    await Promise.allSettled(promises.map((p) => p.promise));
+    updateProgress(80);
+
+    if (typeof renderPage === "function") renderPage();
+
+    if (isFavPage && !filtered.length && dom.container)
+      dom.container.innerHTML =
+        "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
+
+    updateProgress(100);
+    await delay(350);
+    hidePreloader(true);
+  } catch (err) {
+    console.error("Error loading assets:", err);
+    if (!retry) return setTimeout(() => loadAssets(true), 1000);
+    showLoading("⚠ Failed to load assets.");
+    hidePreloader(true);
+  }
 }
+
   /* ---------------------------
      DOM Bootstrap
      --------------------------- */
