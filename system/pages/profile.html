@@ -251,7 +251,7 @@
   const currentUser = localStorage.getItem("currentUser");
   if (!currentUser) {
     // Not logged in — redirect to login/register page
-    window.location.href = "/auth.html"; // adjust this filename to your actual login page
+    window.location.href = "system/pages/authorize.html"; // adjust this filename to your actual login page
   }
 
   let user = JSON.parse(localStorage.getItem("user_" + currentUser) || "null");
