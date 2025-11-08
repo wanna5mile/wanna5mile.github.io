@@ -37,19 +37,26 @@
       align-items: center;
     }
 
+    /* === Scrolling Credits === */
     .credits-scroll {
-      position: absolute;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      animation: scrollUp 35s linear infinite;
+      animation: scrollLoop 40s linear infinite;
       will-change: transform;
     }
 
-    @keyframes scrollUp {
+    /* Smooth infinite upward scroll */
+    @keyframes scrollLoop {
       from { transform: translateY(0); }
-      to { transform: translateY(-100%); }
+      to { transform: translateY(-50%); }
+    }
+
+    .credits-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     /* === Typography === */
@@ -69,7 +76,7 @@
       bottom: 2rem;
       left: 50%;
       transform: translateX(-50%);
-      background: #c62828; /* red */
+      background: #c62828;
       color: #fff;
       font-family: "JetBrains Mono", monospace;
       font-size: 0.95rem;
@@ -79,6 +86,7 @@
       text-decoration: none;
       cursor: pointer;
       transition: background 0.25s ease, transform 0.2s ease;
+      z-index: 3;
     }
 
     .return-btn:hover {
@@ -125,62 +133,64 @@
   <div class="credits-container">
     <div class="fade-overlay fade-top"></div>
 
-    <!-- Scroll 1 -->
-    <div class="credits-scroll" style="top: 0%;">
-      <h1>Credits & Contributors</h1>
+    <div class="credits-scroll" id="creditsScroll">
+      <!-- First copy -->
+      <div class="credits-content">
+        <h1>Credits & Contributors</h1>
 
-      <h3>WilardzySenpai</h3>
-      <p>Original template for the loading screen.</p>
+        <h3>WilardzySenpai</h3>
+        <p>Original template for the loading screen.</p>
 
-      <h3>skys the limit</h3>
-      <p>Asset library and main inspiration.</p>
+        <h3>skys the limit</h3>
+        <p>Asset library and main inspiration.</p>
 
-      <h3>genizy</h3>
-      <p>Webports and text templates.</p>
+        <h3>genizy</h3>
+        <p>Webports and text templates.</p>
 
-      <h3>tw31122007</h3>
-      <p>Asset links and game data.</p>
+        <h3>tw31122007</h3>
+        <p>Asset links and game data.</p>
 
-      <h3>kaizhelam</h3>
-      <p>Music player structure.</p>
+        <h3>kaizhelam</h3>
+        <p>Music player structure.</p>
 
-      <h3>Ubg83</h3>
-      <p>Blumgi asset support.</p>
+        <h3>Ubg83</h3>
+        <p>Blumgi asset support.</p>
 
-      <h3>rhap5ody</h3>
-      <p>Main web designer and API integrator.</p>
+        <h3>rhap5ody</h3>
+        <p>Main web designer and API integrator.</p>
 
-      <h3>RGP ϱames</h3>
-      <p>Contributor of versions v0.1 through v0.3.</p>
-    </div>
+        <h3>RGP ϱames</h3>
+        <p>Contributor of versions v0.1 through v0.3.</p>
+      </div>
 
-    <!-- Scroll 2 for seamless loop -->
-    <div class="credits-scroll" style="top: 100%;">
-      <h1>Credits & Contributors</h1>
+      <!-- Duplicate copy for seamless loop -->
+      <div class="credits-content">
+        <h1>Credits & Contributors</h1>
 
-      <h3>WilardzySenpai</h3>
-      <p>Original template for the loading screen.</p>
+        <h3>WilardzySenpai</h3>
+        <p>Original template for the loading screen.</p>
 
-      <h3>skys the limit</h3>
-      <p>Asset library and main inspiration.</p>
+        <h3>skys the limit</h3>
+        <p>Asset library and main inspiration.</p>
 
-      <h3>genizy</h3>
-      <p>Webports and text templates.</p>
+        <h3>genizy</h3>
+        <p>Webports and text templates.</p>
 
-      <h3>tw31122007</h3>
-      <p>Asset links and game data.</p>
+        <h3>tw31122007</h3>
+        <p>Asset links and game data.</p>
 
-      <h3>kaizhelam</h3>
-      <p>Music player structure.</p>
+        <h3>kaizhelam</h3>
+        <p>Music player structure.</p>
 
-      <h3>Ubg83</h3>
-      <p>Blumgi asset support.</p>
+        <h3>Ubg83</h3>
+        <p>Blumgi asset support.</p>
 
-      <h3>rhap5ody</h3>
-      <p>Main web designer and API integrator.</p>
+        <h3>rhap5ody</h3>
+        <p>Main web designer and API integrator.</p>
 
-      <h3>RGP ϱames</h3>
-      <p>Contributor of versions v0.1 through v0.3.</p>
+        <h3>RGP ϱames</h3>
+        <p>Contributor of versions v0.1 through v0.3.</p>
+      </div>
     </div>
 
     <div class="fade-overlay fade-bottom"></div>
