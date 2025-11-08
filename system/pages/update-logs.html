@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WannaSmile | Update Log</title>
+  <link rel="icon" href="../system/images/favicons/logoo.png" />
+  <link rel="stylesheet" href="../system/css/main.css" />
+  <style>
+    body {
+      background: var(--main-bg, #0e0f10);
+      color: var(--text-color, #fff);
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 40px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.6em;
+      margin-bottom: 30px;
+      letter-spacing: 2px;
+    }
+    .version-list {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .version-card {
+      border: 2px solid #333;
+      background: #181a1b;
+      border-radius: 12px;
+      padding: 18px 22px;
+      transition: all 0.2s ease;
+    }
+    .version-card:hover {
+      border-color: #00c9a7;
+      background: #202324;
+      transform: translateY(-2px);
+    }
+    .version-title {
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #00c9a7;
+      margin-bottom: 6px;
+    }
+    .version-msg {
+      font-size: 0.95em;
+      color: #ccc;
+      margin-bottom: 8px;
+    }
+    .version-links a {
+      color: #66b3ff;
+      text-decoration: none;
+      margin-right: 10px;
+      font-size: 0.9em;
+    }
+    .version-links a:hover {
+      text-decoration: underline;
+    }
+    footer {
+      margin-top: auto;
+      text-align: center;
+      color: #888;
+      font-size: 0.8em;
+      padding-top: 30px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>WannaSmile | Version Log</h1>
+  <div class="version-list" id="versionList">
+    <p style="text-align:center; color:#888;">Fetching version history...</p>
+  </div>
+
+  <footer>
+    <p>© WannaSmile by Rhap5ody — <a href="../index.html" style="color:#66b3ff;">Back Home</a></p>
+  </footer>
+
+  <script>
+    const sheetUrl =
+      "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec";
+
+    async function loadVersions() {
+      const list = document.getElementById("versionList");
+      try {
+        const res = await fetch(sheetUrl + "?mode=version-message", { cache: "no-store" });
+        if (!res.ok) throw new Error("Bad response");
+        const data = await res.json();
+
+        if (!Array.isArray(data) || !data.length) {
+          list.innerHTML = `<p style="text-align:center;color:#999;">No version data found.</p>`;
+          return;
+        }
+
+        list.innerHTML = "";
+
+        data.reverse().forEach((item) => {
+          const card = document.createElement("div");
+          card.className = "version-card";
+
+          const title = document.createElement("div");
+          title.className = "version-title";
+          title.textContent = `Version ${item.version || "?"}`;
+
+          const msg = document.createElement("div");
+          msg.className = "version-msg";
+          msg.textContent = item.message || "No message available.";
+
+          const links = document.createElement("div");
+          links.className = "version-links";
+
+          if (item.trailer)
+            links.innerHTML += `<a href="${item.trailer}" target="_blank">🎬 Trailer</a>`;
+          if (item.link)
+            links.innerHTML += `<a href="${item.link}" target="_blank">🔗 More Info</a>`;
+
+          card.append(title, msg, links);
+          list.appendChild(card);
+        });
+      } catch (err) {
+        list.innerHTML = `<p style="text-align:center;color:#f88;">⚠ Error loading version data.</p>`;
+        console.error("Version fetch error:", err);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadVersions);
+  </script>
+</body>
+</html>
