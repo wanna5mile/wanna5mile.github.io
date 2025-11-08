@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Auth Demo — Register / Login (Static)</title>
+<style>
+  :root {
+    --accent:#5eead4;
+    --danger:#ff6b6b;
+    --muted:#9aa4b2;
+    --glass-dark:rgba(15,23,36,0.6);
+    --glass-light:rgba(255,255,255,0.6);
+    --text-dark:#e6eef6;
+    --text-light:#0d0f1a;
+  }
+
+  *{box-sizing:border-box}
+  body {
+    margin:0;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background 0.6s ease, color 0.6s ease;
+    background-size:cover;
+    background-position:center;
+    color:var(--text-dark);
+  }
+
+  /* backgrounds (desktop) */
+  body.dark { background-image:url('system/images/backgrounds/desktop-dark.jpg'); }
+  body.light { background-image:url('system/images/backgrounds/desktop-light.jpg'); color:var(--text-light); }
+
+  /* backgrounds (mobile) */
+  @media (max-width:600px) {
+    body.dark { background-image:url('system/images/backgrounds/mobile-dark.jpg'); }
+    body.light { background-image:url('system/images/backgrounds/mobile-light.jpg'); }
+  }
+
+  /* theme toggle button */
+  .theme-toggle {
+    position:fixed; top:14px; right:14px;
+    width:42px; height:42px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:50%; cursor:pointer;
+    font-size:18px; backdrop-filter:blur(6px);
+    transition:background 0.3s ease, transform 0.3s ease;
+    z-index:99;
+  }
+  body.dark .theme-toggle {
+    background:rgba(255,255,255,0.1); color:#fff;
+    border:1px solid rgba(255,255,255,0.1);
+  }
+  body.light .theme-toggle {
+    background:rgba(255,255,255,0.6); color:#111;
+    border:1px solid rgba(0,0,0,0.1);
+  }
+  .theme-toggle:hover { transform:scale(1.1); }
+
+  /* card */
+  .flip-wrapper { perspective:1000px; }
+  .card {
+    width:90%; max-width:360px;
+    background:var(--glass-dark);
+    color:var(--text-dark);
+    border-radius:16px;
+    padding:24px;
+    box-shadow:0 6px 40px rgba(0,0,0,0.4);
+    border:1px solid rgba(255,255,255,0.08);
+    backdrop-filter:blur(14px) saturate(160%);
+    backface-visibility:hidden;
+    transform-style:preserve-3d;
+    transition:transform 0.6s ease, background 0.6s ease, color 0.6s ease;
+  }
+  body.light .card {
+    background:var(--glass-light);
+    color:var(--text-light);
+    border:1px solid rgba(0,0,0,0.05);
+    box-shadow:0 4px 20px rgba(0,0,0,0.2);
+  }
+
+  .flip { transform:rotateY(180deg); }
+
+  h1 {font-size:20px; margin:0 0 10px; text-align:center;}
+  label {display:block; font-size:13px; color:var(--muted); margin-top:10px;}
+
+  .input-wrap { position:relative; }
+  input {
+    width:100%; padding:10px 36px 10px 12px; margin-top:6px;
+    border-radius:8px; border:1px solid rgba(255,255,255,0.08);
+    background:rgba(0,0,0,0.1); color:inherit; outline:none;
+    transition:background 0.3s ease, color 0.3s ease;
+  }
+  input:focus { border-color:var(--accent); }
+  body.light input { background:rgba(255,255,255,0.6); border:1px solid rgba(0,0,0,0.1); }
+
+  .toggle-pass {
+    position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    cursor:pointer; font-size:13px; color:var(--muted); user-select:none;
+  }
+
+  .btn {
+    display:inline-block; width:100%; padding:12px; margin-top:16px;
+    border-radius:8px; border:none; cursor:pointer;
+    background:linear-gradient(90deg,#06b6d4,#7c3aed); color:#021124; font-weight:600;
+  }
+  .ghost {
+    background:transparent; border:1px solid rgba(255,255,255,0.15); color:var(--muted);
+  }
+
+  .muted { font-size:13px; color:var(--muted); margin-top:10px; text-align:center; }
+  .link { color:var(--accent); cursor:pointer; text-decoration:underline; }
+  .hidden { display:none; }
+  .socials { display:flex; gap:8px; margin-top:12px; }
+  .social {
+    flex:1; padding:8px; border-radius:8px;
+    text-align:center; cursor:pointer; font-weight:600;
+    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(255,255,255,0.05);
+  }
+  body.light .social { background:rgba(255,255,255,0.8); border:1px solid rgba(0,0,0,0.05); }
+
+  .danger {color:var(--danger); font-weight:600;}
+  .success {color:#9be7c4;}
+  .center{text-align:center;}
+
+  @media (max-width:480px){
+    .card { padding:18px; font-size:15px; }
+    .btn { padding:12px; font-size:15px; }
+  }
+</style>
+</head>
+<body class="dark">
+  <div class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</div>
+
+  <div class="flip-wrapper">
+    <div class="card" id="app">
+      <h1 id="title">Create account</h1>
+
+      <!-- REGISTER -->
+      <div id="registerView">
+        <label>Username</label>
+        <input id="regUser" placeholder="e.g. sunday" />
+        <label>Email (optional)</label>
+        <input id="regEmail" placeholder="e.g. you@example.com" />
+        <label>Password</label>
+        <div class="input-wrap">
+          <input id="regPass" type="password" placeholder="••••••" />
+          <span class="toggle-pass" data-target="regPass">👁</span>
+        </div>
+        <label>Recovery code (optional, min 6 letters/numbers)</label>
+        <input id="regCode" type="text" placeholder="e.g. A1B2C3" maxlength="32" />
+        <button class="btn" id="registerBtn">Register</button>
+        <div class="socials">
+          <div class="social">Google</div>
+          <div class="social">Apple</div>
+        </div>
+        <div class="muted">Already have an account? <span class="link" id="showLogin">Login</span></div>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="loginView" class="hidden">
+        <label>Username</label>
+        <input id="loginUser" placeholder="Your username" />
+        <label>Password</label>
+        <div class="input-wrap">
+          <input id="loginPass" type="password" placeholder="••••••" />
+          <span class="toggle-pass" data-target="loginPass">👁</span>
+        </div>
+        <button class="btn" id="loginBtn">Login</button>
+        <div class="socials">
+          <div class="social">Google</div>
+          <div class="social">Apple</div>
+        </div>
+        <div class="muted">Forgot password? <span class="link" id="showRecover">Recover</span></div>
+        <div class="muted">No account? <span class="link" id="showRegister">Register</span></div>
+      </div>
+
+      <!-- RECOVER -->
+      <div id="recoverView" class="hidden">
+        <label>Username</label>
+        <input id="recUser" placeholder="Your username" />
+        <label>Recovery code</label>
+        <input id="recCode" type="text" placeholder="Your code" />
+        <label>New password</label>
+        <div class="input-wrap">
+          <input id="recNew" type="password" placeholder="New password" />
+          <span class="toggle-pass" data-target="recNew">👁</span>
+        </div>
+        <button class="btn" id="recoverBtn">Reset password</button>
+        <div class="muted"><span class="link" id="backToLogin">Back to login</span></div>
+      </div>
+
+      <!-- ACCOUNT -->
+      <div id="accountView" class="hidden center">
+        <h1>Welcome <span id="userDisplay"></span>!</h1>
+        <p class="muted">Your account is saved locally in this browser.</p>
+        <button class="btn ghost" id="logoutBtn">Log out</button>
+      </div>
+
+      <div id="message" class="muted center"></div>
+    </div>
+  </div>
+
+<script>
+const views = ["register","login","recover","account"];
+const title = document.getElementById("title");
+const msg = document.getElementById("message");
+const card = document.getElementById("app");
+let currentView = "register";
+
+function show(view){
+  views.forEach(v=>{
+    document.getElementById(v+"View").classList.toggle("hidden",v!==view);
+  });
+  msg.textContent = "";
+  title.textContent =
+    view==="register" ? "Create account" :
+    view==="login" ? "Sign in" :
+    view==="recover" ? "Recover password" : "Account";
+}
+function flipTo(target){
+  if(currentView===target) return;
+  card.classList.add("flip");
+  setTimeout(()=>{
+    show(target);
+    card.classList.remove("flip");
+  },300);
+  currentView = target;
+}
+
+function saveUser(user){ localStorage.setItem("user_"+user.username,JSON.stringify(user)); }
+function loadUser(username){ return JSON.parse(localStorage.getItem("user_"+username) || "null"); }
+function message(txt,type="normal"){
+  msg.textContent = txt;
+  msg.className = "muted center " + (type==="error"?"danger":type==="success"?"success":"");
+}
+
+/* Register */
+registerBtn.onclick=()=>{
+  const username = regUser.value.trim();
+  const password = regPass.value;
+  const email = regEmail.value.trim();
+  const recovery = regCode.value.trim();
+  if(!username || !password) return message("Username and password required","error");
+  if(recovery && recovery.length < 6) return message("Recovery code must be at least 6 characters","error");
+  if(loadUser(username)) return message("Username already exists","error");
+  saveUser({username,password,email,recovery});
+  message("Registered! You can log in now.","success");
+  setTimeout(()=>flipTo("login"),800);
+};
+
+/* Login */
+loginBtn.onclick=()=>{
+  const username = loginUser.value.trim();
+  const password = loginPass.value;
+  const user = loadUser(username);
+  if(!user) return message("User not found","error");
+  if(user.password!==password) return message("Wrong password","error");
+  userDisplay.textContent=username;
+  flipTo("account");
+};
+
+/* Recover */
+recoverBtn.onclick=()=>{
+  const username = recUser.value.trim();
+  const code = recCode.value.trim();
+  const newpass = recNew.value;
+  const user = loadUser(username);
+  if(!user) return message("User not found","error");
+  if(!user.recovery) return message("This user has no recovery code set","error");
+  if(user.recovery!==code) return message("Invalid recovery code","error");
+  user.password=newpass;
+  saveUser(user);
+  message("Password reset successful","success");
+  setTimeout(()=>flipTo("login"),800);
+};
+
+/* Other */
+logoutBtn.onclick=()=>flipTo("login");
+showLogin.onclick=()=>flipTo("login");
+showRegister.onclick=()=>flipTo("register");
+showRecover.onclick=()=>flipTo("recover");
+backToLogin.onclick=()=>flipTo("login");
+
+/* Password toggle */
+document.querySelectorAll(".toggle-pass").forEach(btn=>{
+  btn.onclick=()=>{
+    const field=document.getElementById(btn.dataset.target);
+    const show=field.type==="password";
+    field.type=show?"text":"password";
+    btn.textContent=show?"🙈":"👁";
+  };
+});
+
+/* Theme Switch */
+const body=document.body;
+const themeToggle=document.getElementById("themeToggle");
+const saved=localStorage.getItem("theme")||"dark";
+body.classList.remove("dark","light");
+body.classList.add(saved);
+themeToggle.textContent=saved==="dark"?"🌙":"☀️";
+
+themeToggle.onclick=()=>{
+  const newTheme=body.classList.contains("dark")?"light":"dark";
+  body.classList.remove("dark","light");
+  body.classList.add(newTheme);
+  themeToggle.textContent=newTheme==="dark"?"🌙":"☀️";
+  localStorage.setItem("theme",newTheme);
+};
+</script>
+</body>
+</html>
