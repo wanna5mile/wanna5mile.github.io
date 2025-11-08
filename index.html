@@ -291,25 +291,39 @@
     </script>
 <script>
 /* ==========================================================
-   SAFE 404 REDIRECT (GitHub Pages Compatible)
+   INTERACTIVE 404 CHECK (GitHub Pages Safe)
+   ----------------------------------------------------------
+   Only triggers when a user clicks a link.
+   Prevents redirects on initial page load.
    ========================================================== */
-(function() {
-  // Redirect only if the page truly doesn't exist
-  // (works when GitHub Pages serves your 404.html with status 200)
-  fetch(window.location.href, { method: "HEAD" })
-    .then(res => {
-      if (!res.ok && res.status !== 200) {
-        // Only redirect if it’s actually a broken route
-        console.warn("Page not found:", window.location.href);
-        window.location.replace("/404.html");
-      }
-    })
-    .catch(() => {
-      // If fetch itself fails (bad domain, offline, etc.), ignore
-      console.warn("Network issue or invalid path, staying on current page.");
-    });
-})();
-</script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Capture all internal <a> link clicks
+  document.body.addEventListener("click", async (e) => {
+    const a = e.target.closest("a");
+    if (!a) return;
 
+    const href = a.getAttribute("href");
+    if (!href || href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:")) return;
+
+    // Construct absolute URL
+    const url = new URL(href, window.location.origin);
+
+    try {
+      // Try a HEAD request to check if file exists
+      const res = await fetch(url.href, { method: "HEAD" });
+
+      // If not found, prevent navigation and go to 404
+      if (!res.ok) {
+        e.preventDefault();
+        console.warn(`⚠ Broken link detected: ${url.href}`);
+        window.location.href = "/404.html";
+      }
+    } catch (err) {
+      // If network fails, still navigate normally
+      console.warn(`Network error checking ${url.href}:`, err);
+    }
+  });
+});
+</script>
 </body>
 </html>
