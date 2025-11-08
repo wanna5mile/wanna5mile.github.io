@@ -483,3 +483,25 @@ footer {
   border: 2px solid #ff0000;
   box-shadow: 0 0 10px #ff0000;
 }
+
+/* ==========================================
+   Disable Text Selection & Focus Highlights
+   ========================================== */
+* {
+  -webkit-user-select: none; /* Chrome, Safari, Edge */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE 10+ */
+  user-select: none;         /* Standard */
+  -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
+}
+
+input, textarea {
+  -webkit-user-select: text; /* Allow typing and selecting inside inputs */
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+a, button, input, textarea {
+  outline: none !important;
+}
