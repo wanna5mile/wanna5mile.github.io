@@ -289,29 +289,26 @@
         });
       };
     </script>
-  <script>
+<script>
 /* ==========================================================
-   AUTO 404 REDIRECT HANDLER
+   SAFE 404 REDIRECT (GitHub Pages Compatible)
    ========================================================== */
-window.addEventListener("error", function (e) {
-  // Catch missing HTML or JS files (only those requested by the site)
-  if (e.target.tagName === "SCRIPT" || e.target.tagName === "LINK") {
-    console.warn("Missing asset detected:", e.target.src || e.target.href);
-    window.location.href = "/404.html";
-  }
-}, true);
-
-// Fallback: check if page content failed to load
-document.addEventListener("DOMContentLoaded", () => {
-  // Example: if the main container is still "Loading assets..." after 5s, assume failure
-  const container = document.getElementById("container");
-  setTimeout(() => {
-    if (container && container.textContent.includes("Loading assets")) {
-      console.warn("Main content failed to load — redirecting to 404.");
-      window.location.href = "/404.html";
-    }
-  }, 5000);
-});
+(function() {
+  // Redirect only if the page truly doesn't exist
+  // (works when GitHub Pages serves your 404.html with status 200)
+  fetch(window.location.href, { method: "HEAD" })
+    .then(res => {
+      if (!res.ok && res.status !== 200) {
+        // Only redirect if it’s actually a broken route
+        console.warn("Page not found:", window.location.href);
+        window.location.replace("/404.html");
+      }
+    })
+    .catch(() => {
+      // If fetch itself fails (bad domain, offline, etc.), ignore
+      console.warn("Network issue or invalid path, staying on current page.");
+    });
+})();
 </script>
 
 </body>
