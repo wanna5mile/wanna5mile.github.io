@@ -289,5 +289,30 @@
         });
       };
     </script>
+  <script>
+/* ==========================================================
+   AUTO 404 REDIRECT HANDLER
+   ========================================================== */
+window.addEventListener("error", function (e) {
+  // Catch missing HTML or JS files (only those requested by the site)
+  if (e.target.tagName === "SCRIPT" || e.target.tagName === "LINK") {
+    console.warn("Missing asset detected:", e.target.src || e.target.href);
+    window.location.href = "/404.html";
+  }
+}, true);
+
+// Fallback: check if page content failed to load
+document.addEventListener("DOMContentLoaded", () => {
+  // Example: if the main container is still "Loading assets..." after 5s, assume failure
+  const container = document.getElementById("container");
+  setTimeout(() => {
+    if (container && container.textContent.includes("Loading assets")) {
+      console.warn("Main content failed to load — redirecting to 404.");
+      window.location.href = "/404.html";
+    }
+  }, 5000);
+});
+</script>
+
 </body>
 </html>
