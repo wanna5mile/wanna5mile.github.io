@@ -214,131 +214,169 @@
   <!-- Cropper.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 
-  <script>
-    const defaultPic = "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/system/images/profile.png";
-    const profileCard = document.getElementById("profileCard");
-    const editCard = document.getElementById("editCard");
+<script>
+  const defaultPic = "https://raw.githubusercontent.com/bguhm/bguhm.github.io/main/system/images/profile.png";
+  const profileCard = document.getElementById("profileCard");
+  const editCard = document.getElementById("editCard");
 
-    const profilePic = document.getElementById("profilePic");
-    const usernameDisplay = document.getElementById("username");
-    const editBtn = document.getElementById("editBtn");
+  const profilePic = document.getElementById("profilePic");
+  const usernameDisplay = document.getElementById("username");
+  const editBtn = document.getElementById("editBtn");
 
-    const preview = document.getElementById("profilePreview");
-    const usernameInput = document.getElementById("usernameInput");
-    const fileInput = document.getElementById("profilePicInput");
-    const removeBtn = document.getElementById("removePicBtn");
-    const form = document.getElementById("editForm");
+  const preview = document.getElementById("profilePreview");
+  const usernameInput = document.getElementById("usernameInput");
+  const fileInput = document.getElementById("profilePicInput");
+  const removeBtn = document.getElementById("removePicBtn");
+  const form = document.getElementById("editForm");
 
-    const followBtn = document.getElementById("followBtn");
-    const likeBtn = document.getElementById("likeBtn");
+  const followBtn = document.getElementById("followBtn");
+  const likeBtn = document.getElementById("likeBtn");
 
-    // Crop elements
-    const cropContainer = document.getElementById("cropContainer");
-    const cropPreview = document.getElementById("cropPreview");
-    const cropConfirm = document.getElementById("cropConfirm");
-    const cropCancel = document.getElementById("cropCancel");
-    let cropper = null;
-    let croppedImageData = null;
+  // Crop elements
+  const cropContainer = document.getElementById("cropContainer");
+  const cropPreview = document.getElementById("cropPreview");
+  const cropConfirm = document.getElementById("cropConfirm");
+  const cropCancel = document.getElementById("cropCancel");
+  let cropper = null;
+  let croppedImageData = null;
 
-    // Return button
-    document.getElementById("returnBtn").addEventListener("click", () => {
-      window.location.href = window.location.origin + "/index.html";
-    });
+  // Return button
+  document.getElementById("returnBtn").addEventListener("click", () => {
+    window.location.href = "/index.html";
+  });
 
-    // Load saved info
-    window.addEventListener("DOMContentLoaded", () => {
-      const savedPic = localStorage.getItem("profilePic");
-      const savedName = localStorage.getItem("nickname");
+  /* ==========================================
+     AUTH CHECK + USER LOAD
+  ========================================== */
+  const currentUser = localStorage.getItem("currentUser");
+  if (!currentUser) {
+    // Not logged in — redirect to login/register page
+    window.location.href = "/auth.html"; // adjust this filename to your actual login page
+  }
 
-      profilePic.src = savedPic || defaultPic;
-      preview.src = savedPic || defaultPic;
-      usernameDisplay.textContent = savedName || "Nickname";
-      usernameInput.value = savedName || "";
+  let user = JSON.parse(localStorage.getItem("user_" + currentUser) || "null");
+  if (!user) {
+    localStorage.removeItem("currentUser");
+    window.location.href = "/auth.html";
+  }
 
-      if (localStorage.getItem("isFollowing") === "true") {
-        followBtn.textContent = "Following";
-        followBtn.classList.add("following");
-      }
-      if (localStorage.getItem("isLiked") === "true") {
-        likeBtn.classList.add("liked");
-      }
-    });
+  // Load user + profile info
+  window.addEventListener("DOMContentLoaded", () => {
+    const savedProfile = JSON.parse(localStorage.getItem("profile_" + currentUser) || "{}");
+    const finalPic = savedProfile.pic || defaultPic;
+    const finalName = savedProfile.nickname || user.username;
 
-    editBtn.addEventListener("click", () => {
-      profileCard.style.display = "none";
-      editCard.style.display = "block";
-    });
+    profilePic.src = finalPic;
+    preview.src = finalPic;
+    usernameDisplay.textContent = finalName;
+    usernameInput.value = finalName;
 
-    removeBtn.addEventListener("click", () => {
-      preview.src = defaultPic;
-      localStorage.setItem("profilePic", defaultPic);
-    });
+    if (savedProfile.isFollowing) {
+      followBtn.textContent = "Following";
+      followBtn.classList.add("following");
+    }
+    if (savedProfile.isLiked) {
+      likeBtn.classList.add("liked");
+    }
+  });
 
-    // Handle file input + cropping
-    fileInput.addEventListener("change", (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          cropContainer.style.display = "block";
-          cropPreview.src = e.target.result;
+  /* ==========================================
+     EDIT PROFILE
+  ========================================== */
+  editBtn.addEventListener("click", () => {
+    profileCard.style.display = "none";
+    editCard.style.display = "block";
+  });
 
-          if (cropper) cropper.destroy();
-          cropper = new Cropper(cropPreview, {
-            aspectRatio: 1,
-            viewMode: 1,
-            background: false,
-            dragMode: "move",
-            cropBoxResizable: true,
-          });
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+  removeBtn.addEventListener("click", () => {
+    preview.src = defaultPic;
+    croppedImageData = defaultPic;
+  });
 
-    cropConfirm.addEventListener("click", () => {
-      const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
-      croppedImageData = canvas.toDataURL("image/png");
-      preview.src = croppedImageData;
-      cropContainer.style.display = "none";
-      cropper.destroy();
-      cropper = null;
-    });
+  // File input + cropper
+  fileInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        cropContainer.style.display = "block";
+        cropPreview.src = e.target.result;
 
-    cropCancel.addEventListener("click", () => {
-      cropContainer.style.display = "none";
-      if (cropper) cropper.destroy();
-      cropper = null;
-      fileInput.value = "";
-    });
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(cropPreview, {
+          aspectRatio: 1,
+          viewMode: 1,
+          background: false,
+          dragMode: "move",
+          cropBoxResizable: true,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  });
 
-    // Save profile
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const username = usernameInput.value.trim();
-      if (username) {
-        localStorage.setItem("nickname", username);
-        usernameDisplay.textContent = username;
-      }
+  cropConfirm.addEventListener("click", () => {
+    const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+    croppedImageData = canvas.toDataURL("image/png");
+    preview.src = croppedImageData;
+    cropContainer.style.display = "none";
+    cropper.destroy();
+    cropper = null;
+  });
 
-      const finalImage = croppedImageData || preview.src || defaultPic;
-      localStorage.setItem("profilePic", finalImage);
-      profilePic.src = finalImage;
+  cropCancel.addEventListener("click", () => {
+    cropContainer.style.display = "none";
+    if (cropper) cropper.destroy();
+    cropper = null;
+    fileInput.value = "";
+  });
 
-      editCard.style.display = "none";
-      profileCard.style.display = "block";
-    });
+  /* ==========================================
+     SAVE PROFILE
+  ========================================== */
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const nickname = usernameInput.value.trim() || user.username;
+    const finalImage = croppedImageData || preview.src || defaultPic;
 
-    followBtn.addEventListener("click", () => {
-      const following = followBtn.classList.toggle("following");
-      followBtn.textContent = following ? "Following" : "Follow";
-      localStorage.setItem("isFollowing", following);
-    });
+    const profileData = {
+      nickname,
+      pic: finalImage,
+      isFollowing: followBtn.classList.contains("following"),
+      isLiked: likeBtn.classList.contains("liked")
+    };
 
-    likeBtn.addEventListener("click", () => {
-      likeBtn.classList.toggle("liked");
-      localStorage.setItem("isLiked", likeBtn.classList.contains("liked"));
-    });
-  </script>
+    localStorage.setItem("profile_" + currentUser, JSON.stringify(profileData));
+
+    // Update visible info
+    usernameDisplay.textContent = nickname;
+    profilePic.src = finalImage;
+
+    editCard.style.display = "none";
+    profileCard.style.display = "block";
+  });
+
+  /* ==========================================
+     FOLLOW / LIKE
+  ========================================== */
+  followBtn.addEventListener("click", () => {
+    const following = followBtn.classList.toggle("following");
+    followBtn.textContent = following ? "Following" : "Follow";
+    saveStatus();
+  });
+
+  likeBtn.addEventListener("click", () => {
+    likeBtn.classList.toggle("liked");
+    saveStatus();
+  });
+
+  function saveStatus() {
+    const savedProfile = JSON.parse(localStorage.getItem("profile_" + currentUser) || "{}");
+    savedProfile.isFollowing = followBtn.classList.contains("following");
+    savedProfile.isLiked = likeBtn.classList.contains("liked");
+    localStorage.setItem("profile_" + currentUser, JSON.stringify(savedProfile));
+  }
+</script>
+
 </body>
 </html>
