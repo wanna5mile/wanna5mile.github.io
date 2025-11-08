@@ -142,7 +142,7 @@
       <!-- REGISTER -->
       <div id="registerView">
         <label>Username</label>
-        <input id="regUser" placeholder="e.g. sunday" />
+        <input id="regUser" placeholder="e.g. sunday" maxlength="26" />
         <label>Email (optional)</label>
         <input id="regEmail" placeholder="e.g. you@example.com" />
         <label>Password</label>
@@ -239,17 +239,30 @@ function message(txt,type="normal"){
 }
 
 /* Register */
-registerBtn.onclick=()=>{
+registerBtn.onclick = () => {
   const username = regUser.value.trim();
   const password = regPass.value;
   const email = regEmail.value.trim();
   const recovery = regCode.value.trim();
-  if(!username || !password) return message("Username and password required","error");
-  if(recovery && recovery.length < 6) return message("Recovery code must be at least 6 characters","error");
-  if(loadUser(username)) return message("Username already exists","error");
-  saveUser({username,password,email,recovery});
-  message("Registered! You can log in now.","success");
-  setTimeout(()=>flipTo("login"),800);
+
+  if (!username || !password)
+    return message("Username and password required", "error");
+
+  if (username.length < 3)
+    return message("Username must be at least 3 characters long", "error");
+
+  if (username.length > 26)
+    return message("Username cannot be longer than 26 characters", "error");
+
+  if (recovery && recovery.length < 6)
+    return message("Recovery code must be at least 6 characters", "error");
+
+  if (loadUser(username))
+    return message("Username already exists", "error");
+
+  saveUser({ username, password, email, recovery });
+  message("Registered! You can log in now.", "success");
+  setTimeout(() => flipTo("login"), 800);
 };
 
 /* Login */
