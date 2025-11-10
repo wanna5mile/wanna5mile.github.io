@@ -8,10 +8,6 @@
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/wilardly.svg">
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/genizy.svg">
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/tw.svg">
-  <img src="https://contrib.rocks/image?repo=WilardzySenpai/WilardzySenpai" />
-  <img src="https://contrib.rocks/image?repo=genizy/genizy.github.io" />
-  <img src="https://contrib.rocks/image?repo=tw31122007/HTML-Games-V2" />
-  <img src="https://contrib.rocks/image?repo=selenite-cc/selenite" />
   <img src="https://contrib.rocks/image?repo=kaizhelam/Music-Player" />
   <img src="https://contrib.rocks/image?repo=sl4ckrr/sl4ckrr.github.io" />
     <!--<img src="https://avatars.githubusercontent.com/u/88230219?v=4"/>-->
