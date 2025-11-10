@@ -221,15 +221,36 @@
       imagePromises.push({ promise: imgPromise, page: pageNum });
       a.appendChild(img);
 
-      if (status === "soon" || status === "fix") {
-        card.classList.add(status === "fix" ? "FIX" : "soon");
-      } else if (["new", "updated"].includes(status)) {
-        const overlay = document.createElement("img");
-        overlay.src = gifFile;
-        overlay.alt = `${status} badge`;
-        overlay.className = `status-gif status-${status}`;
-        a.appendChild(overlay);
-      }
+// --- Status Overlay Logic ---
+if (status === "soon" || status === "fix") {
+  card.classList.add(status === "fix" ? "FIX" : "soon");
+} else {
+  let overlaySrc = "";
+
+  // ✅ Choose overlay based on status
+  switch (status) {
+    case "new":
+      overlaySrc = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png";
+      break;
+    case "fixed":
+      overlaySrc = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png";
+      break;
+    case "featured":
+      overlaySrc = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png";
+      break;
+    default:
+      overlaySrc = "";
+  }
+
+  // ✅ Apply overlay if matching status
+  if (overlaySrc) {
+    const overlay = document.createElement("img");
+    overlay.src = overlaySrc;
+    overlay.alt = `${status} badge`;
+    overlay.className = `status-overlay status-${status}`;
+    a.appendChild(overlay);
+  }
+}
 
       const titleEl = document.createElement("h3");
       titleEl.textContent = title || "Untitled";
