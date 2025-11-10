@@ -7,7 +7,7 @@
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/bguhm.svg">
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/wilardly.svg">
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/genizy.svg">
-  <img src="https://contrib.rocks/image?repo=bguhm/bguhm.github.io" />
+  <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/tw.svg">
   <img src="https://contrib.rocks/image?repo=WilardzySenpai/WilardzySenpai" />
   <img src="https://contrib.rocks/image?repo=genizy/genizy.github.io" />
   <img src="https://contrib.rocks/image?repo=tw31122007/HTML-Games-V2" />
