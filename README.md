@@ -7,6 +7,7 @@
 ![preview here](preview-0.8.png)
 
 # Contributors:
+<p align="left">
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/rhap5ody.svg">
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/bguhm.svg">
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/wilardly.svg">
@@ -15,7 +16,6 @@
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/xg4321-64x64.png">
   <img src="https://contrib.rocks/image?repo=kaizhelam/Music-Player" />
   <img src="https://contrib.rocks/image?repo=sl4ckrr/sl4ckrr.github.io" />
-    <!--<img src="https://avatars.githubusercontent.com/u/88230219?v=4"/>-->
 </p>
 
 # credits
