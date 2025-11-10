@@ -3,6 +3,7 @@
 - final version (v1) will contain 750 assets.
 - check out archived versions and downloads to open it up locally. \
 # Contributors
+  <a>
   <img src="https://contrib.rocks/image?repo=sl4ckrr/sl4ckrr.github.io" />
   <img src="https://contrib.rocks/image?repo=bguhm/bguhm.github.io" />
 </a>
