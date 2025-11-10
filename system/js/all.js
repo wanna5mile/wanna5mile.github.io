@@ -154,153 +154,138 @@
       setTimeout(() => (preloader.style.display = "none"), 500);
     };
   }
-  /* ---------------------------
-     Asset Card Builder
-     --------------------------- */
-  function createAssetCards(data) {
-    const { container } = dom || {};
-    if (!container) return [];
+/* ---------------------------
+   Asset Card Builder
+   --------------------------- */
+function createAssetCards(data) {
+  const { container } = dom || {};
+  if (!container) return [];
 
-    container.innerHTML = "";
-    const imagePromises = [];
-    const frag = document.createDocumentFragment();
-    const sortMode = getSortMode();
-    const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
+  container.innerHTML = "";
+  const imagePromises = [];
+  const frag = document.createDocumentFragment();
+  const sortMode = getSortMode();
+  const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
 
-    let sorted = Array.isArray(data) ? [...data] : [];
-    if (sortMode === "alphabetical") {
-      sorted.sort((a, b) =>
-        safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
-          numeric: true,
-          sensitivity: "base",
-        })
-      );
-    }
-
-    for (const asset of sorted) {
-      const title = safeStr(asset.title).trim();
-      const author = safeStr(asset.author).trim();
-      const imageSrc = safeStr(asset.image) || config.fallbackImage;
-      const link = safeStr(asset.link) || config.fallbackLink;
-      const pageNum = Number(asset.page) || 1;
-      // --- Handle multi-column status fields (I=featured, J=new, K=fixed)
-      const isFeatured = safeStr(asset.featured).toLowerCase() === "true" || safeStr(asset.featured).toLowerCase() === "yes" || safeStr(asset.featured).toLowerCase() === "1";
-      const isNew = safeStr(asset.new).toLowerCase() === "true" || safeStr(asset.new).toLowerCase() === "yes" || safeStr(asset.new).toLowerCase() === "1";
-      const isFixed = safeStr(asset.fixed).toLowerCase() === "true" || safeStr(asset.fixed).toLowerCase() === "yes" || safeStr(asset.fixed).toLowerCase() === "1";
-      const gifFile = `${config.gifBase}${status}.gif`;
-
-      const card = document.createElement("div");
-      card.className = "asset-card";
-      Object.assign(card.dataset, {
-        title: title.toLowerCase(),
-        author: author.toLowerCase(),
-        page: String(pageNum),
-        filtered: "true",
-      });
-
-      const a = document.createElement("a");
-      a.href = link;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.className = "asset-link";
-
-      const img = document.createElement("img");
-      img.alt = title;
-      img.loading = "eager";
-
-      const imgPromise = new Promise((resolve) => {
-        const tmp = new Image();
-        tmp.onload = () => {
-          img.src = imageSrc;
-          resolve();
-        };
-        tmp.onerror = () => {
-          img.src = config.fallbackImage;
-          resolve();
-        };
-        tmp.src = imageSrc;
-      });
-
-      imagePromises.push({ promise: imgPromise, page: pageNum });
-      a.appendChild(img);
-
-// --- Status Overlay Logic (Multi-column I=featured, J=new, K=fixed) ---
-const isFeatured =
-  safeStr(asset.featured).toLowerCase() === "true" ||
-  safeStr(asset.featured).toLowerCase() === "yes" ||
-  safeStr(asset.featured).toLowerCase() === "1";
-
-const isNew =
-  safeStr(asset.new).toLowerCase() === "true" ||
-  safeStr(asset.new).toLowerCase() === "yes" ||
-  safeStr(asset.new).toLowerCase() === "1";
-
-const isFixed =
-  safeStr(asset.fixed).toLowerCase() === "true" ||
-  safeStr(asset.fixed).toLowerCase() === "yes" ||
-  safeStr(asset.fixed).toLowerCase() === "1";
-
-// --- Regular "soon" or "fix" styles still apply ---
-if (status === "soon" || status === "fix") {
-  card.classList.add(status === "fix" ? "FIX" : "soon");
-} else {
-  // ✅ Apply overlay(s) based on flags
-  const overlays = [];
-
-  if (isFeatured)
-    overlays.push(
-      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png"
+  // --- Sort alphabetically if needed
+  let sorted = Array.isArray(data) ? [...data] : [];
+  if (sortMode === "alphabetical") {
+    sorted.sort((a, b) =>
+      safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
+        numeric: true,
+        sensitivity: "base",
+      })
     );
-  if (isNew)
-    overlays.push(
-      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png"
-    );
-  if (isFixed)
-    overlays.push(
-      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png"
-    );
-
-  // ✅ Append overlays (support multiple true flags)
-  overlays.forEach((src, i) => {
-    const overlay = document.createElement("img");
-    overlay.src = src;
-    overlay.alt = "status badge";
-    overlay.className = `status-overlay overlay-${i}`;
-    a.appendChild(overlay);
-  });
-}
-
-
-      const titleEl = document.createElement("h3");
-      titleEl.textContent = title || "Untitled";
-      const authorEl = document.createElement("p");
-      authorEl.textContent = author || "";
-
-      const star = document.createElement("button");
-      star.className = "favorite-star";
-      star.textContent = isFav(title) ? "★" : "☆";
-      Object.assign(star.style, {
-        background: "transparent",
-        border: "none",
-        cursor: "pointer",
-      });
-      star.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const key = title.toLowerCase();
-        if (window.favorites.has(key)) window.favorites.delete(key);
-        else window.favorites.add(key);
-        saveFavorites();
-        star.textContent = window.favorites.has(key) ? "★" : "☆";
-      });
-
-      card.append(a, titleEl, authorEl, star);
-      frag.appendChild(card);
-    }
-
-    container.appendChild(frag);
-    return imagePromises;
   }
+
+  for (const asset of sorted) {
+    const title = safeStr(asset.title).trim();
+    const author = safeStr(asset.author).trim();
+    const imageSrc = safeStr(asset.image) || config.fallbackImage;
+    const link = safeStr(asset.link) || config.fallbackLink;
+    const pageNum = Number(asset.page) || 1;
+
+    // --- Columns I, J, K: featured / new / fixed (values = "yes" or "no")
+    const isFeatured = safeStr(asset.featured).toLowerCase() === "yes";
+    const isNew = safeStr(asset.new).toLowerCase() === "yes";
+    const isFixed = safeStr(asset.fixed).toLowerCase() === "yes";
+
+    // --- Create asset card container
+    const card = document.createElement("div");
+    card.className = "asset-card";
+    Object.assign(card.dataset, {
+      title: title.toLowerCase(),
+      author: author.toLowerCase(),
+      page: String(pageNum),
+      filtered: "true",
+    });
+
+    // --- Link wrapper
+    const a = document.createElement("a");
+    a.href = link;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.className = "asset-link";
+
+    // --- Image loader
+    const img = document.createElement("img");
+    img.alt = title;
+    img.loading = "eager";
+
+    const imgPromise = new Promise((resolve) => {
+      const tmp = new Image();
+      tmp.onload = () => {
+        img.src = imageSrc;
+        resolve();
+      };
+      tmp.onerror = () => {
+        img.src = config.fallbackImage;
+        resolve();
+      };
+      tmp.src = imageSrc;
+    });
+
+    imagePromises.push({ promise: imgPromise, page: pageNum });
+    a.appendChild(img);
+
+    // --- Status Overlay Logic (I=featured, J=new, K=fixed)
+    const overlays = [];
+    if (isFeatured)
+      overlays.push(
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png"
+      );
+    if (isNew)
+      overlays.push(
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png"
+      );
+    if (isFixed)
+      overlays.push(
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png"
+      );
+
+    // ✅ Add overlays (can show multiple)
+    overlays.forEach((src, i) => {
+      const overlay = document.createElement("img");
+      overlay.src = src;
+      overlay.alt = "status badge";
+      overlay.className = `status-overlay overlay-${i}`;
+      a.appendChild(overlay);
+    });
+
+    // --- Title and author
+    const titleEl = document.createElement("h3");
+    titleEl.textContent = title || "Untitled";
+    const authorEl = document.createElement("p");
+    authorEl.textContent = author || "";
+
+    // --- Favorite star
+    const star = document.createElement("button");
+    star.className = "favorite-star";
+    star.textContent = isFav(title) ? "★" : "☆";
+    Object.assign(star.style, {
+      background: "transparent",
+      border: "none",
+      cursor: "pointer",
+    });
+
+    star.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const key = title.toLowerCase();
+      if (window.favorites.has(key)) window.favorites.delete(key);
+      else window.favorites.add(key);
+      saveFavorites();
+      star.textContent = window.favorites.has(key) ? "★" : "☆";
+    });
+
+    // --- Append all parts
+    card.append(a, titleEl, authorEl, star);
+    frag.appendChild(card);
+  }
+
+  container.appendChild(frag);
+  return imagePromises;
+}
 
   /* ---------------------------
      Paging + Search + Filter (Optimized + Persistent)
