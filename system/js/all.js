@@ -183,7 +183,10 @@
       const imageSrc = safeStr(asset.image) || config.fallbackImage;
       const link = safeStr(asset.link) || config.fallbackLink;
       const pageNum = Number(asset.page) || 1;
-      const status = safeStr(asset.status).toLowerCase();
+      // --- Handle multi-column status fields (I=featured, J=new, K=fixed)
+      const isFeatured = safeStr(asset.featured).toLowerCase() === "true" || safeStr(asset.featured).toLowerCase() === "yes" || safeStr(asset.featured).toLowerCase() === "1";
+      const isNew = safeStr(asset.new).toLowerCase() === "true" || safeStr(asset.new).toLowerCase() === "yes" || safeStr(asset.new).toLowerCase() === "1";
+      const isFixed = safeStr(asset.fixed).toLowerCase() === "true" || safeStr(asset.fixed).toLowerCase() === "yes" || safeStr(asset.fixed).toLowerCase() === "1";
       const gifFile = `${config.gifBase}${status}.gif`;
 
       const card = document.createElement("div");
@@ -221,36 +224,52 @@
       imagePromises.push({ promise: imgPromise, page: pageNum });
       a.appendChild(img);
 
-// --- Status Overlay Logic ---
+// --- Status Overlay Logic (Multi-column I=featured, J=new, K=fixed) ---
+const isFeatured =
+  safeStr(asset.featured).toLowerCase() === "true" ||
+  safeStr(asset.featured).toLowerCase() === "yes" ||
+  safeStr(asset.featured).toLowerCase() === "1";
+
+const isNew =
+  safeStr(asset.new).toLowerCase() === "true" ||
+  safeStr(asset.new).toLowerCase() === "yes" ||
+  safeStr(asset.new).toLowerCase() === "1";
+
+const isFixed =
+  safeStr(asset.fixed).toLowerCase() === "true" ||
+  safeStr(asset.fixed).toLowerCase() === "yes" ||
+  safeStr(asset.fixed).toLowerCase() === "1";
+
+// --- Regular "soon" or "fix" styles still apply ---
 if (status === "soon" || status === "fix") {
   card.classList.add(status === "fix" ? "FIX" : "soon");
 } else {
-  let overlaySrc = "";
+  // ✅ Apply overlay(s) based on flags
+  const overlays = [];
 
-  // ✅ Choose overlay based on status
-  switch (status) {
-    case "new":
-      overlaySrc = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png";
-      break;
-    case "fixed":
-      overlaySrc = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png";
-      break;
-    case "featured":
-      overlaySrc = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png";
-      break;
-    default:
-      overlaySrc = "";
-  }
+  if (isFeatured)
+    overlays.push(
+      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png"
+    );
+  if (isNew)
+    overlays.push(
+      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png"
+    );
+  if (isFixed)
+    overlays.push(
+      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png"
+    );
 
-  // ✅ Apply overlay if matching status
-  if (overlaySrc) {
+  // ✅ Append overlays (support multiple true flags)
+  overlays.forEach((src, i) => {
     const overlay = document.createElement("img");
-    overlay.src = overlaySrc;
-    overlay.alt = `${status} badge`;
-    overlay.className = `status-overlay status-${status}`;
+    overlay.src = src;
+    overlay.alt = "status badge";
+    overlay.className = `status-overlay overlay-${i}`;
     a.appendChild(overlay);
-  }
+  });
 }
+
 
       const titleEl = document.createElement("h3");
       titleEl.textContent = title || "Untitled";
