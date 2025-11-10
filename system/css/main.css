@@ -505,3 +505,28 @@ input, textarea {
 a, button, input, textarea {
   outline: none !important;
 }
+
+/* ==========================================
+Asset card covers (fixed, new, featured)
+========================================== */
+.asset-link {
+  position: relative;
+  display: inline-block;
+}
+
+.asset-link img.status-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  opacity: 0.85;
+  transition: opacity 0.25s ease;
+  border-radius: inherit;
+}
+
+.asset-link:hover img.status-overlay {
+  opacity: 1;
+}
