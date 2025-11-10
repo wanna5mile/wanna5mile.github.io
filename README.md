@@ -25,6 +25,9 @@
 - @genizy for the ports <3 
 - @WilardzySenpai for the loading screen
 - @tw31122007 for source Library!
+- bguhm & sl4ckrr & slackerish are all accounts under the ownership of rhap5ody. (wanna5mile)
+
+check out socials <a href="">HERE</a>
 
 ## License
 ```
