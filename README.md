@@ -5,6 +5,7 @@
   # Contributors:
 <p align="center">
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/bguhm.svg">
+  <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/wilardly.svg">
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/genizy.svg">
   <img src="https://contrib.rocks/image?repo=bguhm/bguhm.github.io" />
   <img src="https://contrib.rocks/image?repo=WilardzySenpai/WilardzySenpai" />
