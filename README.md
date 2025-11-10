@@ -2,7 +2,8 @@
 - uses google sheets api for asset block building
 - final version (v1) will contain 750 assets.
 - check out archived versions and downloads to open it up locally.
-  # Contributors:
+
+# Contributors:
 <p align="left">
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/bguhm.svg">
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/wilardly.svg">
