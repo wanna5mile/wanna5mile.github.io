@@ -20,7 +20,7 @@
 </p>
 
 # credits
-- @skysethelimit for the library (400+ projects) \
+- @skysethelimit for the library (400+ projects) 
   CHECK OUT SELENITE HERE: [selenite.cc](https://selenite.cc)
   Join their [discord server](https://discord.gg/WDZhkdFyF4) to support selenite :)
 - @genizy for the ports <3 
