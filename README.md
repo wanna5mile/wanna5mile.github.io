@@ -16,11 +16,11 @@
   <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/xg4321-64x64.png">
   <img src="https://contrib.rocks/image?repo=kaizhelam/Music-Player" />
   <img src="https://contrib.rocks/image?repo=sl4ckrr/sl4ckrr.github.io" />
-  <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/rgp-pocket-size.svg">
+  <img src="https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/contributors/rgp-pocket-size.png">
 </p>
 
 # credits
-- @skysethelimit for the library (400+ projects) 
+- @skysethelimit for the library (400+ projects) \
   CHECK OUT SELENITE HERE: [selenite.cc](https://selenite.cc)
   Join their [discord server](https://discord.gg/WDZhkdFyF4) to support selenite :)
 - @genizy for the ports <3 
