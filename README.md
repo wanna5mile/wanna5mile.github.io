@@ -6,5 +6,5 @@
   <a>
   <img src="https://contrib.rocks/image?repo=sl4ckrr/sl4ckrr.github.io" />
   <img src="https://contrib.rocks/image?repo=bguhm/bguhm.github.io" />
-  <img src="https://contrib.rocks/image?repo=/xg4321/xg4321.github.io"/>
+  <img src="https://avatars.githubusercontent.com/u/88230219?v=4"/>
 </a>
