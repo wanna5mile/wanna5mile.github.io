@@ -524,23 +524,23 @@ async function initUpdatePopup() {
 }
 
 /* ---------------------------
-   Asset Loader (Updated to skip empty status)
+   Asset Loader (fixed; don't require `status`)
    --------------------------- */
 async function loadAssets(retry = false) {
-  showLoading("Loading assets...");
-  updateProgress(5);
-
   try {
+    showLoading("Loading assets...");
+    updateProgress(5);
+
     const res = await fetch(config.sheetUrl, { cache: "no-store" });
     if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
 
     const raw = await res.json();
 
-    // ✅ Only include rows that have any non-empty data
+    // Only include rows that have any non-empty data (keeps rows even if `status` is empty)
     const data = raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
 
-    // ✅ Ignore any assets with an empty status
-    const visibleData = data.filter((i) => safeStr(i.status).trim() !== "");
+    // Use all non-empty rows (we no longer require a single 'status' field)
+    const visibleData = data;
 
     window.assetsData = visibleData;
     updateProgress(35);
@@ -549,15 +549,15 @@ async function loadAssets(retry = false) {
     let filtered = visibleData;
     if (isFavPage) {
       filtered = [...window.favorites].length
-        ? visibleData.filter((a) =>
-            window.favorites.has(safeStr(a.title).toLowerCase())
-          )
+        ? visibleData.filter((a) => window.favorites.has(safeStr(a.title).toLowerCase()))
         : [];
     }
 
-    const promises = createAssetCards(filtered);
+    const promises = createAssetCards(filtered || []);
     updateProgress(55);
-    await Promise.allSettled(promises.map((p) => p.promise));
+
+    // wait for images to settle, but tolerate failures
+    await Promise.allSettled((promises || []).map((p) => p.promise));
     updateProgress(80);
 
     if (typeof renderPage === "function") renderPage();
@@ -571,52 +571,39 @@ async function loadAssets(retry = false) {
     hidePreloader(true);
   } catch (err) {
     console.error("Error loading assets:", err);
-    if (!retry) return setTimeout(() => loadAssets(true), 1000);
+
+    // If first attempt failed, try once more after a short delay
+    if (!retry) {
+      setTimeout(() => loadAssets(true).catch(() => {}), 1000);
+      return;
+    }
+
     showLoading("⚠ Failed to load assets.");
     hidePreloader(true);
   }
 }
 
-  /* ---------------------------
-     DOM Bootstrap
-     --------------------------- */
-  document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      initElements();
-      initFavorites();
-      initPreloader();
-      initPaging();
-      initPlaceholders();
-      initUpdatePopup();
-      await loadAssets();
-      await initQuotes(); // ✅ Added here
-      console.log("✅ WannaSmile Loader + Quotes Ready");
-    } catch (err) {
-      console.error("Initialization failed:", err);
-      showLoading("Initialization failed. Please reload.");
-      hidePreloader(true);
-    }
-  });
-   
-  window.addEventListener("load", () => {
-    if (typeof loadAssets === "function" && !window.assetsData)
-      setTimeout(() => loadAssets().catch(() => {}), 100);
-  });
+/* ---------------------------
+   DOM Bootstrap (guard initQuotes)
+   --------------------------- */
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    initElements();
+    initFavorites();
+    initPreloader();
+    initPaging();
+    initPlaceholders();
+    initUpdatePopup();
 
-  window.addEventListener("keydown", (e) => {
-    const isIndex =
-      location.pathname.endsWith("index.html") ||
-      location.pathname === "/" ||
-      location.pathname === "";
-    if (!isIndex) return;
-    const activeTag = document.activeElement?.tagName?.toLowerCase();
-    if (activeTag === "input" || activeTag === "textarea") return;
-    if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      window.prevPage?.();
-    } else if (e.key === "ArrowRight") {
-      e.preventDefault();
-      window.nextPage?.();
-    }
-  });
-})();
+    await loadAssets();
+
+    // Only call initQuotes if it's defined (prevents crash if missing)
+    if (typeof initQuotes === "function") await initQuotes();
+
+    console.log("✅ WannaSmile Loader + Quotes Ready");
+  } catch (err) {
+    console.error("Initialization failed:", err);
+    showLoading("Initialization failed. Please reload.");
+    hidePreloader(true);
+  }
+});
