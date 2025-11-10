@@ -155,7 +155,7 @@
     };
   }
 /* ---------------------------
-   Asset Card Builder
+   Asset Card Builder (Hybrid Fix)
    --------------------------- */
 function createAssetCards(data) {
   const { container } = dom || {};
@@ -167,7 +167,6 @@ function createAssetCards(data) {
   const sortMode = getSortMode();
   const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
 
-  // --- Sort alphabetically if needed
   let sorted = Array.isArray(data) ? [...data] : [];
   if (sortMode === "alphabetical") {
     sorted.sort((a, b) =>
@@ -185,12 +184,15 @@ function createAssetCards(data) {
     const link = safeStr(asset.link) || config.fallbackLink;
     const pageNum = Number(asset.page) || 1;
 
-    // --- Columns I, J, K: featured / new / fixed (values = "yes" or "no")
+    // ✅ Backward compatible status logic
+    const status = safeStr(asset.status).toLowerCase();
+    const gifFile = `${config.gifBase}${status}.gif`;
+
+    // ✅ Optional new logic (featured/new/fixed)
     const isFeatured = safeStr(asset.featured).toLowerCase() === "yes";
     const isNew = safeStr(asset.new).toLowerCase() === "yes";
     const isFixed = safeStr(asset.fixed).toLowerCase() === "yes";
 
-    // --- Create asset card container
     const card = document.createElement("div");
     card.className = "asset-card";
     Object.assign(card.dataset, {
@@ -200,14 +202,12 @@ function createAssetCards(data) {
       filtered: "true",
     });
 
-    // --- Link wrapper
     const a = document.createElement("a");
     a.href = link;
     a.target = "_blank";
     a.rel = "noopener noreferrer";
     a.className = "asset-link";
 
-    // --- Image loader
     const img = document.createElement("img");
     img.alt = title;
     img.loading = "eager";
@@ -228,22 +228,26 @@ function createAssetCards(data) {
     imagePromises.push({ promise: imgPromise, page: pageNum });
     a.appendChild(img);
 
-    // --- Status Overlay Logic (I=featured, J=new, K=fixed)
+    // ✅ Hybrid overlay logic
+    if (status === "soon" || status === "fix") {
+      card.classList.add(status === "fix" ? "FIX" : "soon");
+    } else if (["new", "updated"].includes(status)) {
+      const overlay = document.createElement("img");
+      overlay.src = gifFile;
+      overlay.alt = `${status} badge`;
+      overlay.className = `status-gif status-${status}`;
+      a.appendChild(overlay);
+    }
+
+    // ✅ Also apply new optional overlay images
     const overlays = [];
     if (isFeatured)
-      overlays.push(
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png"
-      );
+      overlays.push("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png");
     if (isNew)
-      overlays.push(
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png"
-      );
+      overlays.push("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png");
     if (isFixed)
-      overlays.push(
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png"
-      );
+      overlays.push("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png");
 
-    // ✅ Add overlays (can show multiple)
     overlays.forEach((src, i) => {
       const overlay = document.createElement("img");
       overlay.src = src;
@@ -252,13 +256,11 @@ function createAssetCards(data) {
       a.appendChild(overlay);
     });
 
-    // --- Title and author
     const titleEl = document.createElement("h3");
     titleEl.textContent = title || "Untitled";
     const authorEl = document.createElement("p");
     authorEl.textContent = author || "";
 
-    // --- Favorite star
     const star = document.createElement("button");
     star.className = "favorite-star";
     star.textContent = isFav(title) ? "★" : "☆";
@@ -267,7 +269,6 @@ function createAssetCards(data) {
       border: "none",
       cursor: "pointer",
     });
-
     star.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -278,7 +279,6 @@ function createAssetCards(data) {
       star.textContent = window.favorites.has(key) ? "★" : "☆";
     });
 
-    // --- Append all parts
     card.append(a, titleEl, authorEl, star);
     frag.appendChild(card);
   }
