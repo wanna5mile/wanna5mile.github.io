@@ -2,6 +2,9 @@
 - uses google sheets api for asset block building
 - final version (v1) will contain 750 assets.
 - check out archived versions and downloads to open it up locally.
+  
+## Preview v0.8
+![preview here](preview-0.8.png)
 
 # Contributors:
 <p align="left">
