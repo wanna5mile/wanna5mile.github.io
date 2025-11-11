@@ -506,25 +506,8 @@ a, button, input, textarea {
   outline: none !important;
 }
 /* ==========================================
-   Asset Link Wrapper
+   Status Overlays: Featured / New / Fixed
    ========================================== */
-.asset-link {
-  position: relative;
-  display: inline-block;
-  border-radius: 14px; /* match asset img rounding */
-  overflow: hidden;    /* clip overlays to image shape */
-  transition: transform 0.3s ease;
-}
-
-.asset-link img.asset-img {
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-  border-radius: inherit;
-}
-
 .asset-link img.status-overlay {
   position: absolute;
   top: 0;
@@ -533,15 +516,52 @@ a, button, input, textarea {
   height: 100%;
   object-fit: cover;
   pointer-events: none;
-  opacity: 0.85;
-  transition: opacity 0.25s ease, transform 0.3s ease;
+  opacity: 0.85; /* keep default opacity */
+  transition: opacity 0.25s ease; /* remove transform scaling */
   border-radius: inherit;
 }
 
-.asset-link:hover {
-  transform: scale(1.05); /* scales both image and overlay together */
+.asset-link:hover img.status-overlay {
+  opacity: 0.55; /* slightly less visible on hover */
+  transform: none; /* ensure it doesn't scale */
 }
 
-.asset-link:hover img.status-overlay {
-  opacity: 1;
+/* Optional: fix new/fixed/featured overlay z-index if needed */
+.asset-link img.status-overlay.overlay-featured,
+.asset-link img.status-overlay.overlay-new,
+.asset-link img.status-overlay.overlay-fixed {
+  z-index: 2;
+}
+
+/* ==========================================
+   SOON Status Centering Fix
+   ========================================== */
+.soon::after {
+  content: "COMING SOON";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* exact center */
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 4px #000;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Keep overlay image grayscale & opacity for 'soon' assets */
+.soon img {
+  filter: grayscale(100%);
+  opacity: 0.7;
+  transition: opacity 0.25s ease;
+}
+
+.soon:hover img {
+  opacity: 0.55; /* fade more when hovered */
 }
