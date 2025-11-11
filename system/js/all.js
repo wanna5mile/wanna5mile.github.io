@@ -155,9 +155,9 @@
     };
   }
 
-  /* ---------------------------
-     Asset Card Builder
-  --------------------------- */
+/* ---------------------------
+   Asset Card Builder
+--------------------------- */
 function createAssetCards(data) {
   const { container } = dom || {};
   if (!container) return [];
@@ -186,6 +186,8 @@ function createAssetCards(data) {
       "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png",
     fixed:
       "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png",
+    fix:
+      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixing.png",
   };
 
   for (const asset of sorted) {
@@ -217,7 +219,7 @@ function createAssetCards(data) {
     a.rel = "noopener noreferrer";
     a.className = "asset-link";
 
-    // Image wrapper for overlays
+    // Image wrapper
     const wrapper = document.createElement("div");
     wrapper.className = "asset-img-wrapper";
     wrapper.style.position = "relative";
@@ -225,13 +227,12 @@ function createAssetCards(data) {
     wrapper.style.borderRadius = "14px";
     wrapper.style.overflow = "hidden";
 
-    // Main asset image
+    // Main image
     const img = document.createElement("img");
     img.alt = title;
     img.loading = "eager";
     img.className = "asset-img";
 
-    // Track image load
     const imgPromise = new Promise((resolve) => {
       const tmp = new Image();
       tmp.onload = () => {
@@ -245,15 +246,24 @@ function createAssetCards(data) {
       tmp.src = imageSrc;
     });
     imagePromises.push({ promise: imgPromise, page: pageNum });
-
     wrapper.appendChild(img);
 
     // Helper to add overlay
-    const addOverlay = (src, alt, cls) => {
+    const addOverlay = (src, alt, cls, fullCover = false) => {
       const o = document.createElement("img");
       o.src = src;
       o.alt = alt;
       o.className = `status-overlay ${cls}`;
+      Object.assign(o.style, {
+        position: "absolute",
+        top: "0",
+        left: "0",
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        pointerEvents: "none",
+        zIndex: fullCover ? "10" : "5",
+      });
       wrapper.appendChild(o);
     };
 
@@ -262,20 +272,25 @@ function createAssetCards(data) {
     if (isNew) addOverlay(badgeMap.new, "new badge", "overlay-new");
     if (isFixed) addOverlay(badgeMap.fixed, "fixed badge", "overlay-fixed");
 
-    // Add GIF status for 'new' or 'updated'
+    // GIF overlays for "new"/"updated"
     if (status && ["new", "updated"].includes(status)) {
       addOverlay(`${config.gifBase}${status}.gif`, `${status} badge`, `status-gif status-${status}`);
     }
 
-    // Add "soon" or "fix" class to card
-    if (status === "soon" || status === "fix") {
-      card.classList.add(status === "fix" ? "FIX" : "soon");
+    // If status is "fix", add full cover overlay
+    if (status === "fix") {
+      addOverlay(badgeMap.fix, "fixing overlay", "overlay-fix", true);
+      card.classList.add("fix");
     }
 
-    // Append image wrapper to link
+    // If status is "soon", mark it
+    if (status === "soon") {
+      card.classList.add("soon");
+    }
+
+    // Assemble card
     a.appendChild(wrapper);
 
-    // Title & author
     const titleEl = document.createElement("h3");
     titleEl.textContent = title || "Untitled";
 
@@ -297,7 +312,6 @@ function createAssetCards(data) {
       star.textContent = window.favorites.has(key) ? "★" : "☆";
     });
 
-    // Append everything to card
     card.append(a, titleEl, authorEl, star);
     frag.appendChild(card);
   }
