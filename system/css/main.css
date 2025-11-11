@@ -505,13 +505,24 @@ input, textarea {
 a, button, input, textarea {
   outline: none !important;
 }
-
 /* ==========================================
-Asset card covers (fixed, new, featured)
-========================================== */
+   Asset Link Wrapper
+   ========================================== */
 .asset-link {
   position: relative;
   display: inline-block;
+  border-radius: 14px; /* match asset img rounding */
+  overflow: hidden;    /* clip overlays to image shape */
+  transition: transform 0.3s ease;
+}
+
+.asset-link img.asset-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  border-radius: inherit;
 }
 
 .asset-link img.status-overlay {
@@ -523,17 +534,12 @@ Asset card covers (fixed, new, featured)
   object-fit: cover;
   pointer-events: none;
   opacity: 0.85;
+  transition: opacity 0.25s ease, transform 0.3s ease;
   border-radius: inherit;
-  transition: opacity 0.25s ease;
 }
 
-.asset-link img.overlay-1 {
-  opacity: 0.7;
-  mix-blend-mode: multiply;
-}
-.asset-link img.overlay-2 {
-  opacity: 0.5;
-  mix-blend-mode: lighten;
+.asset-link:hover {
+  transform: scale(1.05); /* scales both image and overlay together */
 }
 
 .asset-link:hover img.status-overlay {
