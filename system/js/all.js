@@ -158,143 +158,154 @@
   /* ---------------------------
      Asset Card Builder
   --------------------------- */
-  function createAssetCards(data) {
-    const { container } = dom || {};
-    if (!container) return [];
+function createAssetCards(data) {
+  const { container } = dom || {};
+  if (!container) return [];
 
-    container.innerHTML = "";
-    const imagePromises = [];
-    const frag = document.createDocumentFragment();
-    const sortMode = getSortMode();
-    const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
+  container.innerHTML = "";
+  const imagePromises = [];
+  const frag = document.createDocumentFragment();
+  const sortMode = getSortMode();
+  const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
 
-    let sorted = Array.isArray(data) ? [...data] : [];
-    if (sortMode === "alphabetical") {
-      sorted.sort((a, b) =>
-        safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
-          numeric: true,
-          sensitivity: "base",
-        })
-      );
+  let sorted = Array.isArray(data) ? [...data] : [];
+  if (sortMode === "alphabetical") {
+    sorted.sort((a, b) =>
+      safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
+        numeric: true,
+        sensitivity: "base",
+      })
+    );
+  }
+
+  // Badge URLs
+  const badgeMap = {
+    featured:
+      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png",
+    new:
+      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png",
+    fixed:
+      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png",
+  };
+
+  for (const asset of sorted) {
+    const title = safeStr(asset.title).trim();
+    const author = safeStr(asset.author).trim();
+    const imageSrc = safeStr(asset.image) || config.fallbackImage;
+    const link = safeStr(asset.link) || config.fallbackLink;
+    const pageNum = Number(asset.page) || 1;
+    const status = safeStr(asset.status).toLowerCase();
+
+    const isFeatured = safeStr(asset.featured).toLowerCase() === "yes";
+    const isNew = safeStr(asset.new).toLowerCase() === "yes";
+    const isFixed = safeStr(asset.fixed).toLowerCase() === "yes";
+
+    // Card wrapper
+    const card = document.createElement("div");
+    card.className = "asset-card";
+    Object.assign(card.dataset, {
+      title: title.toLowerCase(),
+      author: author.toLowerCase(),
+      page: String(pageNum),
+      filtered: "true",
+    });
+
+    // Link wrapper
+    const a = document.createElement("a");
+    a.href = link;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.className = "asset-link";
+
+    // Image wrapper for overlays
+    const wrapper = document.createElement("div");
+    wrapper.className = "asset-img-wrapper";
+    wrapper.style.position = "relative";
+    wrapper.style.display = "inline-block";
+    wrapper.style.borderRadius = "14px";
+    wrapper.style.overflow = "hidden";
+
+    // Main asset image
+    const img = document.createElement("img");
+    img.alt = title;
+    img.loading = "eager";
+    img.className = "asset-img";
+
+    // Track image load
+    const imgPromise = new Promise((resolve) => {
+      const tmp = new Image();
+      tmp.onload = () => {
+        img.src = imageSrc;
+        resolve();
+      };
+      tmp.onerror = () => {
+        img.src = config.fallbackImage;
+        resolve();
+      };
+      tmp.src = imageSrc;
+    });
+    imagePromises.push({ promise: imgPromise, page: pageNum });
+
+    wrapper.appendChild(img);
+
+    // Helper to add overlay
+    const addOverlay = (src, alt, cls) => {
+      const o = document.createElement("img");
+      o.src = src;
+      o.alt = alt;
+      o.className = `status-overlay ${cls}`;
+      wrapper.appendChild(o);
+    };
+
+    // Add badges
+    if (isFeatured) addOverlay(badgeMap.featured, "featured badge", "overlay-featured");
+    if (isNew) addOverlay(badgeMap.new, "new badge", "overlay-new");
+    if (isFixed) addOverlay(badgeMap.fixed, "fixed badge", "overlay-fixed");
+
+    // Add GIF status for 'new' or 'updated'
+    if (status && ["new", "updated"].includes(status)) {
+      addOverlay(`${config.gifBase}${status}.gif`, `${status} badge`, `status-gif status-${status}`);
     }
 
-    for (const asset of sorted) {
-      const title = safeStr(asset.title).trim();
-      const author = safeStr(asset.author).trim();
-      const imageSrc = safeStr(asset.image) || config.fallbackImage;
-      const link = safeStr(asset.link) || config.fallbackLink;
-      const pageNum = Number(asset.page) || 1;
-      const status = safeStr(asset.status).toLowerCase();
-
-      const isFeatured = safeStr(asset.featured).toLowerCase() === "yes";
-      const isNew = safeStr(asset.new).toLowerCase() === "yes";
-      const isFixed = safeStr(asset.fixed).toLowerCase() === "yes";
-
-      const card = document.createElement("div");
-      card.className = "asset-card";
-      Object.assign(card.dataset, {
-        title: title.toLowerCase(),
-        author: author.toLowerCase(),
-        page: String(pageNum),
-        filtered: "true",
-      });
-
-      const a = document.createElement("a");
-      a.href = link;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.className = "asset-link";
-
-      const img = document.createElement("img");
-      img.alt = title;
-      img.loading = "eager";
-
-      const imgPromise = new Promise((resolve) => {
-        const tmp = new Image();
-        tmp.onload = () => {
-          img.src = imageSrc;
-          resolve();
-        };
-        tmp.onerror = () => {
-          img.src = config.fallbackImage;
-          resolve();
-        };
-        tmp.src = imageSrc;
-      });
-
-      imagePromises.push({ promise: imgPromise, page: pageNum });
-      a.appendChild(img);
-
-// --- Status & Badge Overlay
-const status = safeStr(asset.status).toLowerCase();
-const badgeMap = {
-  featured: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png",
-  new: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png",
-  fixed: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png",
-};
-
-// Only add status/badges if asset has a status or any new-style flags
-if (status || isFeatured || isNew || isFixed) {
-  if (status) {
+    // Add "soon" or "fix" class to card
     if (status === "soon" || status === "fix") {
       card.classList.add(status === "fix" ? "FIX" : "soon");
-    } else if (["new", "updated"].includes(status)) {
-      const overlay = document.createElement("img");
-      overlay.src = `${config.gifBase}${status}.gif`;
-      overlay.alt = `${status} badge`;
-      overlay.className = `status-gif status-${status}`;
-      a.appendChild(overlay);
     }
+
+    // Append image wrapper to link
+    a.appendChild(wrapper);
+
+    // Title & author
+    const titleEl = document.createElement("h3");
+    titleEl.textContent = title || "Untitled";
+
+    const authorEl = document.createElement("p");
+    authorEl.textContent = author || "";
+
+    // Favorite star
+    const star = document.createElement("button");
+    star.className = "favorite-star";
+    star.textContent = isFav(title) ? "★" : "☆";
+    Object.assign(star.style, { background: "transparent", border: "none", cursor: "pointer" });
+    star.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const key = title.toLowerCase();
+      if (window.favorites.has(key)) window.favorites.delete(key);
+      else window.favorites.add(key);
+      saveFavorites();
+      star.textContent = window.favorites.has(key) ? "★" : "☆";
+    });
+
+    // Append everything to card
+    card.append(a, titleEl, authorEl, star);
+    frag.appendChild(card);
   }
 
-  if (isFeatured) {
-    const overlay = document.createElement("img");
-    overlay.src = badgeMap.featured;
-    overlay.alt = "featured badge";
-    overlay.className = "status-overlay overlay-featured";
-    a.appendChild(overlay);
-  }
-  if (isNew) {
-    const overlay = document.createElement("img");
-    overlay.src = badgeMap.new;
-    overlay.alt = "new badge";
-    overlay.className = "status-overlay overlay-new";
-    a.appendChild(overlay);
-  }
-  if (isFixed) {
-    const overlay = document.createElement("img");
-    overlay.src = badgeMap.fixed;
-    overlay.alt = "fixed badge";
-    overlay.className = "status-overlay overlay-fixed";
-    a.appendChild(overlay);
-  }
+  container.appendChild(frag);
+  return imagePromises;
 }
 
-// --- Title, Author, Favorite Button
-const titleEl = document.createElement("h3");
-titleEl.textContent = title || "Untitled";
-
-const authorEl = document.createElement("p");
-authorEl.textContent = author || "";
-
-const star = document.createElement("button");
-star.className = "favorite-star";
-star.textContent = isFav(title) ? "★" : "☆";
-Object.assign(star.style, { background: "transparent", border: "none", cursor: "pointer" });
-star.addEventListener("click", (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  const key = title.toLowerCase();
-  if (window.favorites.has(key)) window.favorites.delete(key);
-  else window.favorites.add(key);
-  saveFavorites();
-  star.textContent = window.favorites.has(key) ? "★" : "☆";
-});
-
-// --- Append all elements to the card and fragment
-card.append(a, titleEl, authorEl, star);
-frag.appendChild(card);
-}
   /* ---------------------------
      Paging + Search + Filter
   --------------------------- */
