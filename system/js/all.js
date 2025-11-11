@@ -477,54 +477,80 @@ window.filterAssets = (q) => {
   /* ---------------------------
      Update Popup
   --------------------------- */
-  async function initUpdatePopup() {
-    const p = dom.updatePopup;
-    if (!p) return;
+async function initUpdatePopup() {
+  const p = dom.updatePopup;
+  if (!p) return;
 
-    const LS_HIDE = "ws_hideUpdate";
-    const LS_VER = "ws_lastUpdateVersion";
+  const LS_HIDE = "ws_hideUpdate";
+  const LS_VER = "ws_lastUpdateVersion";
 
-    try {
-      const res = await fetch(`${config.sheetUrl}?mode=version-message`, { cache: "no-store" });
-      const data = await res.json();
-      const latest = Array.isArray(data) && data.length ? data[data.length - 1] : { version: "1.0.0", message: "New updates!", trailer: "", link: "" };
+  try {
+    const res = await fetch(`${config.sheetUrl}?mode=version-message`, { cache: "no-store" });
+    const data = await res.json();
+    const latest = Array.isArray(data) && data.length ? data[data.length - 1] : { version: "1.0.0", message: "New updates!", trailer: "", link: "" };
 
-      const CURRENT_VERSION = latest.version || "1.0.0";
-      const MESSAGE = latest.message || "Enjoy the latest update!";
-      const TRAILER = latest.trailer || "";
-      const LINK = latest.link || config.updateLink;
+    const CURRENT_VERSION = latest.version || "1.0.0";
+    const MESSAGE = latest.message || "Enjoy the latest update!";
+    const TRAILER = latest.trailer || "";
+    const LINK = latest.link || config.updateLink;
 
-      const titleEl = p.querySelector("h2");
-      const msgEl = p.querySelector("p");
-      if (titleEl) titleEl.textContent = `Version ${CURRENT_VERSION} Update!`;
-      if (msgEl) msgEl.textContent = MESSAGE;
-      if (dom.updateVideo && TRAILER) dom.updateVideo.src = TRAILER;
-      config.updateLink = LINK;
+    // Update DOM content
+    const titleEl = p.querySelector("h2");
+    const msgEl = p.querySelector("p");
+    if (titleEl) titleEl.textContent = `Version ${CURRENT_VERSION} Update!`;
+    if (msgEl) msgEl.textContent = MESSAGE;
+    if (dom.updateVideo && TRAILER) dom.updateVideo.src = TRAILER;
+    config.updateLink = LINK;
 
-      const hidePref = localStorage.getItem(LS_HIDE);
-      const lastVersion = localStorage.getItem(LS_VER);
-      const hideForSession = sessionStorage.getItem(LS_HIDE);
-      const shouldShow = (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
+    const footerVersion = document.getElementById("footerVersion");
+    if (footerVersion) footerVersion.textContent = `Version ${CURRENT_VERSION}`;
 
-      const footerVersion = document.getElementById("footerVersion");
-      if (footerVersion) footerVersion.textContent = `Version ${CURRENT_VERSION}`;
-      if (!shouldShow) return;
+    // Retrieve last version & hide state
+    const lastVersion = localStorage.getItem(LS_VER);
+    const hidePref = localStorage.getItem(LS_HIDE);
+    const hideForSession = sessionStorage.getItem(LS_HIDE);
 
-      localStorage.setItem(LS_VER, CURRENT_VERSION);
-      setTimeout(() => p.classList.add("show"), 600);
-
-      dom.viewUpdateBtn?.addEventListener("click", () => {
-        window.open(LINK, "_self");
-        p.classList.remove("show");
-      });
-      dom.viewUpdateInfoBtn?.addEventListener("click", () => window.open(LINK, "_blank"));
-      dom.closeUpdateBtn?.addEventListener("click", () => { sessionStorage.setItem(LS_HIDE, "1"); p.classList.remove("show"); });
-      dom.dontShowBtn?.addEventListener("click", () => { localStorage.setItem(LS_HIDE, "1"); p.classList.remove("show"); });
-      p.addEventListener("click", (e) => { if (e.target === p) { sessionStorage.setItem(LS_HIDE, "1"); p.classList.remove("show"); } });
-    } catch (err) {
-      console.warn("⚠ Version message fetch failed:", err);
+    // Reset hide flag if version has changed
+    if (lastVersion !== CURRENT_VERSION) {
+      localStorage.removeItem(LS_HIDE);
+      sessionStorage.removeItem(LS_HIDE);
     }
+
+    // Update stored version to current
+    localStorage.setItem(LS_VER, CURRENT_VERSION);
+
+    // Determine if popup should show
+    const shouldShow = !localStorage.getItem(LS_HIDE) && !sessionStorage.getItem(LS_HIDE);
+
+    if (!shouldShow) return; // do not show
+
+    // Show popup
+    setTimeout(() => p.classList.add("show"), 600);
+
+    // Button events
+    dom.viewUpdateBtn?.addEventListener("click", () => {
+      window.open(LINK, "_self");
+      p.classList.remove("show");
+    });
+    dom.viewUpdateInfoBtn?.addEventListener("click", () => window.open(LINK, "_blank"));
+    dom.closeUpdateBtn?.addEventListener("click", () => {
+      sessionStorage.setItem(LS_HIDE, "1");
+      p.classList.remove("show");
+    });
+    dom.dontShowBtn?.addEventListener("click", () => {
+      localStorage.setItem(LS_HIDE, "1");
+      p.classList.remove("show");
+    });
+    p.addEventListener("click", (e) => {
+      if (e.target === p) {
+        sessionStorage.setItem(LS_HIDE, "1");
+        p.classList.remove("show");
+      }
+    });
+  } catch (err) {
+    console.warn("⚠ Version message fetch failed:", err);
   }
+}
 
 /* ---------------------------
      Asset Loader (Smooth Progress)
