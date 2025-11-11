@@ -451,37 +451,37 @@ footer {
 }
 
 /* ==========================================
-   FIX Status
+   FIX Status (Grey Base + Transparent Overlay)
    ========================================== */
 .fix {
   position: relative;
-  opacity: 0.8;
-  filter: grayscale(100%);
   pointer-events: none;
+  filter: grayscale(100%);
+  opacity: 0.8;
 }
 
 .fix img {
-  filter: invert(100%);
-  opacity: 0.7;
+  filter: grayscale(100%);
+  opacity: 0.9;
+  background-color: #808080; /* grey base */
+  mix-blend-mode: multiply;  /* makes the grey blend smoothly */
 }
 
+/* Transparent overlay */
 .fix::after {
   content: "";
   position: absolute;
   inset: 0;
-  margin: auto;
-  width: 50%;
-  height: 50%;
-  background: url("images/status/progress.jpeg") center/contain no-repeat;
-  opacity: 0.85;
+  background: rgba(128, 128, 128, 0.2); /* ~20% transparent grey overlay */
+  border-radius: inherit;
   pointer-events: none;
   z-index: 3;
-  transform: translateY(-4%);
 }
 
+/* Optional hover feedback (red border for visibility) */
 .fix:hover {
   border: 2px solid #ff0000;
-  box-shadow: 0 0 10px #ff0000;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
 }
 
 /* ==========================================
