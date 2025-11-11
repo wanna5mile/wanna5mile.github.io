@@ -154,8 +154,8 @@
       setTimeout(() => (preloader.style.display = "none"), 500);
     };
   }
-   /* ---------------------------
-   Asset Card Builder (auto overlays for featured/new/fixed)
+/* ---------------------------
+   Asset Card Builder (Unified Legacy + Sheet Flags)
    --------------------------- */
 function createAssetCards(data) {
   const { container } = dom || {};
@@ -167,6 +167,7 @@ function createAssetCards(data) {
   const sortMode = getSortMode();
   const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
 
+  // --- Sorting
   let sorted = Array.isArray(data) ? [...data] : [];
   if (sortMode === "alphabetical") {
     sorted.sort((a, b) =>
@@ -185,6 +186,12 @@ function createAssetCards(data) {
     const pageNum = Number(asset.page) || 1;
     const status = safeStr(asset.status).toLowerCase();
 
+    // --- Multi-column flags (I=featured, J=new, K=fixed)
+    const isFeatured = safeStr(asset.featured).toLowerCase() === "yes";
+    const isNew = safeStr(asset.new).toLowerCase() === "yes";
+    const isFixed = safeStr(asset.fixed).toLowerCase() === "yes";
+
+    // --- Card wrapper
     const card = document.createElement("div");
     card.className = "asset-card";
     Object.assign(card.dataset, {
@@ -200,6 +207,7 @@ function createAssetCards(data) {
     a.rel = "noopener noreferrer";
     a.className = "asset-link";
 
+    // --- Image loader
     const img = document.createElement("img");
     img.alt = title;
     img.loading = "eager";
@@ -220,28 +228,48 @@ function createAssetCards(data) {
     imagePromises.push({ promise: imgPromise, page: pageNum });
     a.appendChild(img);
 
-    // --- Legacy "soon"/"fix" tag support
+    /* -----------------------------------
+       Status Overlay Logic (Unified)
+       ----------------------------------- */
+
+    // --- 1️⃣ Legacy "soon" and "fix" support
     if (status === "soon" || status === "fix") {
       card.classList.add(status === "fix" ? "FIX" : "soon");
     }
 
-    // --- New dynamic overlays (I=featured, J=new, K=fixed)
-    const badges = {
+    // --- 2️⃣ Legacy status GIF overlays (from config.gifBase)
+    if (status && !["soon", "fix"].includes(status)) {
+      const gifPath = `${config.gifBase}${status}.gif`;
+      const overlay = document.createElement("img");
+      overlay.src = gifPath;
+      overlay.alt = `${status} badge`;
+      overlay.className = `status-overlay gif-${status}`;
+      a.appendChild(overlay);
+    }
+
+    // --- 3️⃣ Spreadsheet-based overlays (I=featured, J=new, K=fixed)
+    const badgeMap = {
       featured: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png",
       new: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png",
-      fixed: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png"
+      fixed: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png",
     };
 
-    ["featured", "new", "fixed"].forEach(flag => {
-      if (safeStr(asset[flag]).toLowerCase() === "yes") {
-        const overlay = document.createElement("img");
-        overlay.src = badges[flag];
-        overlay.alt = `${flag} badge`;
-        overlay.className = `status-overlay status-${flag}`;
-        a.appendChild(overlay);
-      }
+    const activeBadges = [];
+    if (isFeatured) activeBadges.push(badgeMap.featured);
+    if (isNew) activeBadges.push(badgeMap.new);
+    if (isFixed) activeBadges.push(badgeMap.fixed);
+
+    activeBadges.forEach((src, i) => {
+      const overlay = document.createElement("img");
+      overlay.src = src;
+      overlay.alt = "status badge";
+      overlay.className = `status-overlay overlay-${i}`;
+      a.appendChild(overlay);
     });
 
+    /* -----------------------------------
+       Title, Author, Favorite Button
+       ----------------------------------- */
     const titleEl = document.createElement("h3");
     titleEl.textContent = title || "Untitled";
     const authorEl = document.createElement("p");
@@ -265,6 +293,7 @@ function createAssetCards(data) {
       star.textContent = window.favorites.has(key) ? "★" : "☆";
     });
 
+    // --- Append
     card.append(a, titleEl, authorEl, star);
     frag.appendChild(card);
   }
