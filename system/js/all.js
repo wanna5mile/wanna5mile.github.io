@@ -154,138 +154,124 @@
       setTimeout(() => (preloader.style.display = "none"), 500);
     };
   }
+   /* ---------------------------
+   Asset Card Builder (auto overlays for featured/new/fixed)
+   --------------------------- */
+function createAssetCards(data) {
+  const { container } = dom || {};
+  if (!container) return [];
 
-  /* ---------------------------
-     Asset Card Builder (with I/J/K flags)
-     --------------------------- */
-  function createAssetCards(data) {
-    const { container } = dom || {};
-    if (!container) return [];
+  container.innerHTML = "";
+  const imagePromises = [];
+  const frag = document.createDocumentFragment();
+  const sortMode = getSortMode();
+  const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
 
-    container.innerHTML = "";
-    const imagePromises = [];
-    const frag = document.createDocumentFragment();
-    const sortMode = getSortMode();
-    const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
-
-    let sorted = Array.isArray(data) ? [...data] : [];
-    if (sortMode === "alphabetical") {
-      sorted.sort((a, b) =>
-        safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
-          numeric: true,
-          sensitivity: "base",
-        })
-      );
-    }
-
-    for (const asset of sorted) {
-      const title = safeStr(asset.title).trim();
-      const author = safeStr(asset.author).trim();
-      const imageSrc = safeStr(asset.image) || config.fallbackImage;
-      const link = safeStr(asset.link) || config.fallbackLink;
-      const pageNum = Number(asset.page) || 1;
-      const status = safeStr(asset.status).toLowerCase();
-
-      // ✅ read I/J/K columns (Featured, New, Fixed)
-      const isFeatured = safeStr(asset.featured).toLowerCase() === "yes";
-      const isNew = safeStr(asset.new).toLowerCase() === "yes";
-      const isFixed = safeStr(asset.fixed).toLowerCase() === "yes";
-
-      const card = document.createElement("div");
-      card.className = "asset-card";
-      Object.assign(card.dataset, {
-        title: title.toLowerCase(),
-        author: author.toLowerCase(),
-        page: String(pageNum),
-        filtered: "true",
-      });
-
-      const a = document.createElement("a");
-      a.href = link;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.className = "asset-link";
-
-      const img = document.createElement("img");
-      img.alt = title;
-      img.loading = "eager";
-
-      const imgPromise = new Promise((resolve) => {
-        const tmp = new Image();
-        tmp.onload = () => {
-          img.src = imageSrc;
-          resolve();
-        };
-        tmp.onerror = () => {
-          img.src = config.fallbackImage;
-          resolve();
-        };
-        tmp.src = imageSrc;
-      });
-
-      imagePromises.push({ promise: imgPromise, page: pageNum });
-      a.appendChild(img);
-
-      // --- Status Overlay (for legacy "soon"/"fix")
-      if (status === "soon" || status === "fix") {
-        card.classList.add(status === "fix" ? "FIX" : "soon");
-      }
-
-      // --- Apply overlays from I/J/K flags
-      if (isFeatured) {
-        const o = document.createElement("img");
-        o.src = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png";
-        o.alt = "Featured badge";
-        o.className = "status-overlay status-featured";
-        a.appendChild(o);
-      }
-
-      if (isNew) {
-        const o = document.createElement("img");
-        o.src = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png";
-        o.alt = "New badge";
-        o.className = "status-overlay status-new";
-        a.appendChild(o);
-      }
-
-      if (isFixed) {
-        const o = document.createElement("img");
-        o.src = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png";
-        o.alt = "Fixed badge";
-        o.className = "status-overlay status-fixed";
-        a.appendChild(o);
-      }
-
-      const titleEl = document.createElement("h3");
-      titleEl.textContent = title || "Untitled";
-      const authorEl = document.createElement("p");
-      authorEl.textContent = author || "";
-
-      const star = document.createElement("button");
-      star.className = "favorite-star";
-      star.textContent = isFav(title) ? "★" : "☆";
-      Object.assign(star.style, {
-        background: "transparent",
-        border: "none",
-        cursor: "pointer",
-      });
-      star.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const key = title.toLowerCase();
-        if (window.favorites.has(key)) window.favorites.delete(key);
-        else window.favorites.add(key);
-        saveFavorites();
-        star.textContent = window.favorites.has(key) ? "★" : "☆";
-      });
-
-      card.append(a, titleEl, authorEl, star);
-      frag.appendChild(card);
-    }
-
-    container.appendChild(frag);
-    return imagePromises;
+  let sorted = Array.isArray(data) ? [...data] : [];
+  if (sortMode === "alphabetical") {
+    sorted.sort((a, b) =>
+      safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
+        numeric: true,
+        sensitivity: "base",
+      })
+    );
   }
+
+  for (const asset of sorted) {
+    const title = safeStr(asset.title).trim();
+    const author = safeStr(asset.author).trim();
+    const imageSrc = safeStr(asset.image) || config.fallbackImage;
+    const link = safeStr(asset.link) || config.fallbackLink;
+    const pageNum = Number(asset.page) || 1;
+    const status = safeStr(asset.status).toLowerCase();
+
+    const card = document.createElement("div");
+    card.className = "asset-card";
+    Object.assign(card.dataset, {
+      title: title.toLowerCase(),
+      author: author.toLowerCase(),
+      page: String(pageNum),
+      filtered: "true",
+    });
+
+    const a = document.createElement("a");
+    a.href = link;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.className = "asset-link";
+
+    const img = document.createElement("img");
+    img.alt = title;
+    img.loading = "eager";
+
+    const imgPromise = new Promise((resolve) => {
+      const tmp = new Image();
+      tmp.onload = () => {
+        img.src = imageSrc;
+        resolve();
+      };
+      tmp.onerror = () => {
+        img.src = config.fallbackImage;
+        resolve();
+      };
+      tmp.src = imageSrc;
+    });
+
+    imagePromises.push({ promise: imgPromise, page: pageNum });
+    a.appendChild(img);
+
+    // --- Legacy "soon"/"fix" tag support
+    if (status === "soon" || status === "fix") {
+      card.classList.add(status === "fix" ? "FIX" : "soon");
+    }
+
+    // --- New dynamic overlays (I=featured, J=new, K=fixed)
+    const badges = {
+      featured: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png",
+      new: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png",
+      fixed: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png"
+    };
+
+    ["featured", "new", "fixed"].forEach(flag => {
+      if (safeStr(asset[flag]).toLowerCase() === "yes") {
+        const overlay = document.createElement("img");
+        overlay.src = badges[flag];
+        overlay.alt = `${flag} badge`;
+        overlay.className = `status-overlay status-${flag}`;
+        a.appendChild(overlay);
+      }
+    });
+
+    const titleEl = document.createElement("h3");
+    titleEl.textContent = title || "Untitled";
+    const authorEl = document.createElement("p");
+    authorEl.textContent = author || "";
+
+    const star = document.createElement("button");
+    star.className = "favorite-star";
+    star.textContent = isFav(title) ? "★" : "☆";
+    Object.assign(star.style, {
+      background: "transparent",
+      border: "none",
+      cursor: "pointer",
+    });
+    star.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const key = title.toLowerCase();
+      if (window.favorites.has(key)) window.favorites.delete(key);
+      else window.favorites.add(key);
+      saveFavorites();
+      star.textContent = window.favorites.has(key) ? "★" : "☆";
+    });
+
+    card.append(a, titleEl, authorEl, star);
+    frag.appendChild(card);
+  }
+
+  container.appendChild(frag);
+  return imagePromises;
+}
 
   /* ---------------------------
      Paging + Search + Filter (Optimized + Persistent)
