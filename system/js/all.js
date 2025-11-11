@@ -389,6 +389,46 @@ function createAssetCards(data) {
     window.currentPage = +sessionStorage.getItem("currentPage") || 1;
     renderPage();
   }
+// Auto-reset page if current page has no assets
+function autoResetEmptyPage() {
+  const { container } = dom || {};
+  if (!container) return;
+
+  const allCards = [...container.querySelectorAll(".asset-card")];
+  const filteredCards = allCards.filter((c) => c.dataset.filtered === "true");
+
+  if (!filteredCards.length) {
+    // No assets at all, reset to page 1
+    window.currentPage = 1;
+    renderPage();
+    return;
+  }
+
+  // Check if current page has no visible cards
+  const currentPageCards = filteredCards.filter((c) => +c.dataset.page === +window.currentPage);
+  if (!currentPageCards.length) {
+    // Current page empty, reset to first available page
+    const pages = [...new Set(filteredCards.map((c) => +c.dataset.page))].sort((a, b) => a - b);
+    window.currentPage = pages[0] || 1;
+    renderPage();
+  }
+}
+
+// Example: call this right after filtering or building cards
+window.filterAssets = (q) => {
+  const query = safeStr(q).toLowerCase().trim();
+  const allCards = [...dom.container.querySelectorAll(".asset-card")];
+
+  allCards.forEach((c) => {
+    c.dataset.filtered =
+      !query || c.dataset.title.includes(query) || c.dataset.author.includes(query)
+        ? "true"
+        : "false";
+  });
+
+  // Auto-reset page if current page ends up empty
+  autoResetEmptyPage();
+};
 
   /* ---------------------------
      Placeholder Cycle
