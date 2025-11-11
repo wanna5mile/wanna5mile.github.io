@@ -154,223 +154,475 @@
       setTimeout(() => (preloader.style.display = "none"), 500);
     };
   }
+/* ---------------------------
+   Asset Card Builder (Unified Legacy + Sheet Flags)
+   --------------------------- */
+function createAssetCards(data) {
+  const { container } = dom || {};
+  if (!container) return [];
 
-  /* ---------------------------
-     Asset Card Builder
-     --------------------------- */
-  function createAssetCards(data) {
-    const { container } = dom || {};
-    if (!container) return [];
+  container.innerHTML = "";
+  const imagePromises = [];
+  const frag = document.createDocumentFragment();
+  const sortMode = getSortMode();
+  const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
 
-    container.innerHTML = "";
-    const imagePromises = [];
-    const frag = document.createDocumentFragment();
-    const sortMode = getSortMode();
-    const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
-
-    let sorted = Array.isArray(data) ? [...data] : [];
-    if (sortMode === "alphabetical") {
-      sorted.sort((a, b) =>
-        safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
-          numeric: true,
-          sensitivity: "base",
-        })
-      );
-    }
-
-    for (const asset of sorted) {
-      const title = safeStr(asset.title).trim();
-      const author = safeStr(asset.author).trim();
-      const imageSrc = safeStr(asset.image) || config.fallbackImage;
-      const link = safeStr(asset.link) || config.fallbackLink;
-      const pageNum = Number(asset.page) || 1;
-      const status = safeStr(asset.status).toLowerCase();
-      const isFeatured = safeStr(asset.featured).toLowerCase() === "yes";
-      const isNew = safeStr(asset.new).toLowerCase() === "yes";
-      const isFixed = safeStr(asset.fixed).toLowerCase() === "yes";
-
-      const card = document.createElement("div");
-      card.className = "asset-card";
-      Object.assign(card.dataset, {
-        title: title.toLowerCase(),
-        author: author.toLowerCase(),
-        page: String(pageNum),
-        filtered: "true",
-      });
-
-      const a = document.createElement("a");
-      a.href = link;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.className = "asset-link";
-
-      const img = document.createElement("img");
-      img.alt = title;
-      img.loading = "eager";
-
-      const imgPromise = new Promise((resolve) => {
-        const tmp = new Image();
-        tmp.onload = () => {
-          img.src = imageSrc;
-          resolve();
-        };
-        tmp.onerror = () => {
-          img.src = config.fallbackImage;
-          resolve();
-        };
-        tmp.src = imageSrc;
-      });
-      imagePromises.push({ promise: imgPromise, page: pageNum });
-      a.appendChild(img);
-
-      if (status === "soon" || status === "fix") {
-        card.classList.add(status === "fix" ? "FIX" : "soon");
-      }
-      if (status && !["soon", "fix"].includes(status)) {
-        const gifPath = `${config.gifBase}${status}.gif`;
-        const overlay = document.createElement("img");
-        overlay.src = gifPath;
-        overlay.alt = `${status} badge`;
-        overlay.className = `status-overlay gif-${status}`;
-        a.appendChild(overlay);
-      }
-
-      const badgeMap = {
-        featured:
-          "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png",
-        new: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png",
-        fixed:
-          "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png",
-      };
-
-      const activeBadges = [];
-      if (isFeatured) activeBadges.push(badgeMap.featured);
-      if (isNew) activeBadges.push(badgeMap.new);
-      if (isFixed) activeBadges.push(badgeMap.fixed);
-
-      activeBadges.forEach((src, i) => {
-        const overlay = document.createElement("img");
-        overlay.src = src;
-        overlay.alt = "status badge";
-        overlay.className = `status-overlay overlay-${i}`;
-        a.appendChild(overlay);
-      });
-
-      const titleEl = document.createElement("h3");
-      titleEl.textContent = title || "Untitled";
-      const authorEl = document.createElement("p");
-      authorEl.textContent = author || "";
-
-      const star = document.createElement("button");
-      star.className = "favorite-star";
-      star.textContent = isFav(title) ? "★" : "☆";
-      Object.assign(star.style, {
-        background: "transparent",
-        border: "none",
-        cursor: "pointer",
-      });
-      star.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const key = title.toLowerCase();
-        if (window.favorites.has(key)) window.favorites.delete(key);
-        else window.favorites.add(key);
-        saveFavorites();
-        star.textContent = window.favorites.has(key) ? "★" : "☆";
-      });
-
-      card.append(a, titleEl, authorEl, star);
-      frag.appendChild(card);
-    }
-
-    container.appendChild(frag);
-    return imagePromises;
+  // --- Sorting
+  let sorted = Array.isArray(data) ? [...data] : [];
+  if (sortMode === "alphabetical") {
+    sorted.sort((a, b) =>
+      safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
+        numeric: true,
+        sensitivity: "base",
+      })
+    );
   }
 
+  for (const asset of sorted) {
+    const title = safeStr(asset.title).trim();
+    const author = safeStr(asset.author).trim();
+    const imageSrc = safeStr(asset.image) || config.fallbackImage;
+    const link = safeStr(asset.link) || config.fallbackLink;
+    const pageNum = Number(asset.page) || 1;
+    const status = safeStr(asset.status).toLowerCase();
+
+    // --- Multi-column flags (I=featured, J=new, K=fixed)
+    const isFeatured = safeStr(asset.featured).toLowerCase() === "yes";
+    const isNew = safeStr(asset.new).toLowerCase() === "yes";
+    const isFixed = safeStr(asset.fixed).toLowerCase() === "yes";
+
+    // --- Card wrapper
+    const card = document.createElement("div");
+    card.className = "asset-card";
+    Object.assign(card.dataset, {
+      title: title.toLowerCase(),
+      author: author.toLowerCase(),
+      page: String(pageNum),
+      filtered: "true",
+    });
+
+    const a = document.createElement("a");
+    a.href = link;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.className = "asset-link";
+
+    // --- Image loader
+    const img = document.createElement("img");
+    img.alt = title;
+    img.loading = "eager";
+
+    const imgPromise = new Promise((resolve) => {
+      const tmp = new Image();
+      tmp.onload = () => {
+        img.src = imageSrc;
+        resolve();
+      };
+      tmp.onerror = () => {
+        img.src = config.fallbackImage;
+        resolve();
+      };
+      tmp.src = imageSrc;
+    });
+
+    imagePromises.push({ promise: imgPromise, page: pageNum });
+    a.appendChild(img);
+
+/* -----------------------------------
+   Status Overlay Logic (Final Clean)
+   ----------------------------------- */
+
+// --- Handle legacy statuses (no overlays)
+if (status === "soon") {
+  card.classList.add("soon");
+} else if (status === "fix") {
+  card.classList.add("FIX");
+} else if (status === "ok" || !status) {
+  // do nothing
+}
+
+// --- Spreadsheet-based overlays (I=featured, J=new, K=fixed)
+const badgeMap = {
+  featured: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png",
+  new: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png",
+  fixed: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png",
+};
+
+if (isFeatured) {
+  const overlay = document.createElement("img");
+  overlay.src = badgeMap.featured;
+  overlay.alt = "featured badge";
+  overlay.className = "status-overlay overlay-featured";
+  a.appendChild(overlay);
+}
+
+if (isNew) {
+  const overlay = document.createElement("img");
+  overlay.src = badgeMap.new;
+  overlay.alt = "new badge";
+  overlay.className = "status-overlay overlay-new";
+  a.appendChild(overlay);
+}
+
+if (isFixed) {
+  const overlay = document.createElement("img");
+  overlay.src = badgeMap.fixed;
+  overlay.alt = "fixed badge";
+  overlay.className = "status-overlay overlay-fixed";
+  a.appendChild(overlay);
+}
+    /* -----------------------------------
+       Title, Author, Favorite Button
+       ----------------------------------- */
+    const titleEl = document.createElement("h3");
+    titleEl.textContent = title || "Untitled";
+    const authorEl = document.createElement("p");
+    authorEl.textContent = author || "";
+
+    const star = document.createElement("button");
+    star.className = "favorite-star";
+    star.textContent = isFav(title) ? "★" : "☆";
+    Object.assign(star.style, {
+      background: "transparent",
+      border: "none",
+      cursor: "pointer",
+    });
+    star.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const key = title.toLowerCase();
+      if (window.favorites.has(key)) window.favorites.delete(key);
+      else window.favorites.add(key);
+      saveFavorites();
+      star.textContent = window.favorites.has(key) ? "★" : "☆";
+    });
+
+    // --- Append
+    card.append(a, titleEl, authorEl, star);
+    frag.appendChild(card);
+  }
+
+  container.appendChild(frag);
+  return imagePromises;
+}
+
   /* ---------------------------
-     Paging + Search + Filter
+     Paging + Search + Filter (Optimized + Persistent)
      --------------------------- */
-  function initPaging() { /* unchanged */ }
+  function initPaging() {
+    const { container, pageIndicator, searchInput, searchBtn } = dom || {};
+    if (!container) return;
+
+    const quoteWrapper = document.getElementById("quoteWrapper");
+    const getAllCards = () => [...container.querySelectorAll(".asset-card")];
+    const getFilteredCards = () =>
+      getAllCards().filter((c) => c.dataset.filtered === "true");
+    const getPages = () =>
+      [...new Set(getFilteredCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort((a, b) => a - b);
+
+    // ✅ Fix: consistent quote visibility and layout
+    function updateQuoteVisibility() {
+      if (!quoteWrapper) return;
+      const visibleCards = getFilteredCards().length;
+      if (visibleCards === 0) {
+        quoteWrapper.style.opacity = "1";
+        quoteWrapper.style.pointerEvents = "auto";
+        quoteWrapper.style.marginTop = "0";
+      } else {
+        quoteWrapper.style.opacity = "1";
+        quoteWrapper.style.pointerEvents = "none";
+        quoteWrapper.style.marginTop = "0";
+      }
+    }
+
+    window.renderPage = () => {
+      const pages = getPages();
+      if (!pages.length) {
+        window.currentPage = 1;
+        getAllCards().forEach((c) => (c.style.display = "none"));
+        pageIndicator && (pageIndicator.textContent = "No pages");
+        updateQuoteVisibility();
+        return;
+      }
+
+      const saved = +sessionStorage.getItem("currentPage") || pages[0];
+      if (!window._pageRestored) {
+        window.currentPage = pages.includes(saved) ? saved : pages[0];
+        window._pageRestored = true;
+      }
+
+      getAllCards().forEach((c) => {
+        const visible =
+          +c.dataset.page === +window.currentPage &&
+          c.dataset.filtered === "true";
+        c.style.display = visible ? "" : "none";
+      });
+
+      const idx = pages.indexOf(+window.currentPage);
+      pageIndicator &&
+        (pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`);
+      sessionStorage.setItem("currentPage", window.currentPage);
+      updateQuoteVisibility();
+    };
+
+    window.filterAssets = (q) => {
+      const query = safeStr(q).toLowerCase().trim();
+      getAllCards().forEach((c) => {
+        const match =
+          !query ||
+          c.dataset.title.includes(query) ||
+          c.dataset.author.includes(query);
+        c.dataset.filtered = match ? "true" : "false";
+      });
+      const pages = getPages();
+      window.currentPage = pages[0] || 1;
+      renderPage();
+      updateQuoteVisibility();
+    };
+
+    window.prevPage = () => {
+      const pages = getPages();
+      if (!pages.length) return;
+      const i = pages.indexOf(+window.currentPage);
+      window.currentPage = i <= 0 ? pages.at(-1) : pages[i - 1];
+      renderPage();
+    };
+
+    window.nextPage = () => {
+      const pages = getPages();
+      if (!pages.length) return;
+      const i = pages.indexOf(+window.currentPage);
+      window.currentPage = i === -1 || i === pages.length - 1 ? pages[0] : pages[i + 1];
+      renderPage();
+    };
+
+    searchBtn?.addEventListener("click", () => filterAssets(searchInput.value));
+    searchInput?.addEventListener("input", debounce(() => filterAssets(searchInput.value), 200));
+
+    const saved = +sessionStorage.getItem("currentPage") || 1;
+    window.currentPage = saved;
+    renderPage();
+  }
 
   /* ---------------------------
      Placeholder Cycle
      --------------------------- */
-  function initPlaceholders() { /* unchanged */ }
+  function initPlaceholders() {
+    const { searchInput } = dom || {};
+    if (!searchInput) return;
+    const FADE = 400, HOLD = 4000;
 
-  /* ---------------------------
-     Update Popup
-     --------------------------- */
-  async function initUpdatePopup() { /* unchanged */ }
+    const fadePlaceholder = (input, text, cb) => {
+      input.classList.add("fade-out");
+      setTimeout(() => {
+        input.placeholder = text;
+        input.classList.remove("fade-out");
+        input.classList.add("fade-in");
+        setTimeout(() => {
+          input.classList.remove("fade-in");
+          cb?.();
+        }, FADE);
+      }, FADE);
+    };
 
-  /* ---------------------------
-     Asset Loader
-     --------------------------- */
-  async function loadAssets(retry = false) {
-    try {
-      showLoading("Loading assets...");
-      updateProgress(5);
+    window.startPlaceholderCycle = () => {
+      if (window._placeholderRunning) return;
+      window._placeholderRunning = true;
+      const loop = async () => {
+        try {
+          const visible = document.querySelectorAll(
+            `.asset-card[data-filtered="true"][data-page="${window.currentPage}"]`
+          ).length;
+          await new Promise((r) =>
+            fadePlaceholder(searchInput, `${visible} assets on this page`, r)
+          );
+          await delay(HOLD);
+          await new Promise((r) =>
+            fadePlaceholder(searchInput, "Search assets...", r)
+          );
+          await delay(HOLD);
+          if (window._placeholderRunning) loop();
+        } catch {
+          window._placeholderRunning = false;
+        }
+      };
+      loop();
+    };
 
-      const res = await fetch(config.sheetUrl, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
-      const raw = await res.json();
-      const data = raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
-      const visibleData = data;
-      window.assetsData = visibleData;
-      updateProgress(35);
-
-      const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
-      let filtered = visibleData;
-      if (isFavPage) {
-        filtered = [...window.favorites].length
-          ? visibleData.filter((a) =>
-              window.favorites.has(safeStr(a.title).toLowerCase())
-            )
-          : [];
-      }
-
-      const promises = createAssetCards(filtered || []);
-      updateProgress(55);
-      await Promise.allSettled((promises || []).map((p) => p.promise));
-      updateProgress(80);
-
-      if (typeof renderPage === "function") renderPage();
-
-      if (isFavPage && !filtered.length && dom.container)
-        dom.container.innerHTML =
-          "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
-
-      updateProgress(100);
-      await delay(350);
-      hidePreloader(true);
-    } catch (err) {
-      console.error("Error loading assets:", err);
-      if (!retry) {
-        setTimeout(() => loadAssets(true).catch(() => {}), 1000);
-        return;
-      }
-      showLoading("⚠ Failed to load assets.");
-      hidePreloader(true);
-    }
+    window.stopPlaceholderCycle = () => (window._placeholderRunning = false);
   }
 
-  /* ---------------------------
-     DOM Bootstrap (corrected order)
-     --------------------------- */
-  document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      initElements();
-      initFavorites();
-      initPreloader();
-      await loadAssets();          // ✅ build DOM first
-      initPaging();                // ✅ now cards exist
-      initPlaceholders();          // ✅ needs search input
-      await initUpdatePopup();     // ✅ after assets loaded
-      if (typeof initQuotes === "function") await initQuotes();
-      console.log("✅ WannaSmile Loader + Quotes Ready");
-    } catch (err) {
-      console.error("Initialization failed:", err);
-      showLoading("Initialization failed. Please reload.");
-      hidePreloader(true);
+/* ---------------------------
+   Update Popup (Live from Sheets)
+   --------------------------- */
+async function initUpdatePopup() {
+  const p = dom.updatePopup;
+  if (!p) return;
+
+  const LS_HIDE = "ws_hideUpdate";
+  const LS_VER = "ws_lastUpdateVersion";
+
+  try {
+    // === 1️⃣ Fetch version-message sheet ===
+    const res = await fetch(`${config.sheetUrl}?mode=version-message`, { cache: "no-store" });
+    if (!res.ok) throw new Error("Version message fetch failed");
+
+    const data = await res.json();
+
+    // Expect data like [{ version: "1.2.0", message: "Added new games!", trailer: "...", link: "..." }]
+    const latest = Array.isArray(data) && data.length
+      ? data[data.length - 1]
+      : { version: "1.0.0", message: "New updates are live!", trailer: "", link: "" };
+
+    const CURRENT_VERSION = latest.version || "1.0.0";
+    const MESSAGE = latest.message || "Enjoy the latest update!";
+    const TRAILER = latest.trailer || "";
+    const LINK = latest.link || config.updateLink;
+
+    // === 2️⃣ Update popup content dynamically ===
+    const titleEl = p.querySelector("h2");
+    const msgEl = p.querySelector("p");
+    if (titleEl) titleEl.textContent = `Version ${CURRENT_VERSION} Update!`;
+    if (msgEl) msgEl.textContent = MESSAGE;
+
+    if (dom.updateVideo && TRAILER) dom.updateVideo.src = TRAILER;
+    config.updateLink = LINK;
+
+    // === 3️⃣ Local storage logic ===
+    const hidePref = localStorage.getItem(LS_HIDE);
+    const lastVersion = localStorage.getItem(LS_VER);
+    const hideForSession = sessionStorage.getItem(LS_HIDE);
+    const shouldShow =
+      (!hidePref && !hideForSession) || lastVersion !== CURRENT_VERSION;
+
+    // Update footer version text
+    const footerVersion = document.getElementById("footerVersion");
+    if (footerVersion) footerVersion.textContent = `Version ${CURRENT_VERSION}`;
+
+    if (!shouldShow) return;
+
+    localStorage.setItem(LS_VER, CURRENT_VERSION);
+
+    // === 4️⃣ Show popup ===
+    setTimeout(() => p.classList.add("show"), 600);
+
+    dom.viewUpdateBtn?.addEventListener("click", () => {
+      window.open(LINK, "_self");
+      p.classList.remove("show");
+    });
+
+    dom.viewUpdateInfoBtn?.addEventListener("click", () =>
+      window.open(LINK, "_blank")
+    );
+
+    dom.closeUpdateBtn?.addEventListener("click", () => {
+      sessionStorage.setItem(LS_HIDE, "1");
+      p.classList.remove("show");
+    });
+
+    dom.dontShowBtn?.addEventListener("click", () => {
+      localStorage.setItem(LS_HIDE, "1");
+      p.classList.remove("show");
+    });
+
+    p.addEventListener("click", (e) => {
+      if (e.target === p) {
+        sessionStorage.setItem(LS_HIDE, "1");
+        p.classList.remove("show");
+      }
+    });
+  } catch (err) {
+    console.warn("⚠ Version message fetch failed:", err);
+    // fallback to static version display
+    const fallbackVersion = "1.0.0";
+    const titleEl = p.querySelector("h2");
+    if (titleEl) titleEl.textContent = `Version ${fallbackVersion} Update!`;
+    const footerVersion = document.getElementById("footerVersion");
+    if (footerVersion) footerVersion.textContent = `Version ${fallbackVersion}`;
+  }
+}
+
+/* ---------------------------
+   Asset Loader (fixed; don't require `status`)
+   --------------------------- */
+async function loadAssets(retry = false) {
+  try {
+    showLoading("Loading assets...");
+    updateProgress(5);
+
+    const res = await fetch(config.sheetUrl, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
+
+    const raw = await res.json();
+
+    // Only include rows that have any non-empty data (keeps rows even if `status` is empty)
+    const data = raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
+
+    // Use all non-empty rows (we no longer require a single 'status' field)
+    const visibleData = data;
+
+    window.assetsData = visibleData;
+    updateProgress(35);
+
+    const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
+    let filtered = visibleData;
+    if (isFavPage) {
+      filtered = [...window.favorites].length
+        ? visibleData.filter((a) => window.favorites.has(safeStr(a.title).toLowerCase()))
+        : [];
     }
-  });
-})();
+
+    const promises = createAssetCards(filtered || []);
+    updateProgress(55);
+
+    // wait for images to settle, but tolerate failures
+    await Promise.allSettled((promises || []).map((p) => p.promise));
+    updateProgress(80);
+
+    if (typeof renderPage === "function") renderPage();
+
+    if (isFavPage && !filtered.length && dom.container)
+      dom.container.innerHTML =
+        "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
+
+    updateProgress(100);
+    await delay(350);
+    hidePreloader(true);
+  } catch (err) {
+    console.error("Error loading assets:", err);
+
+    // If first attempt failed, try once more after a short delay
+    if (!retry) {
+      setTimeout(() => loadAssets(true).catch(() => {}), 1000);
+      return;
+    }
+
+    showLoading("⚠ Failed to load assets.");
+    hidePreloader(true);
+  }
+}
+
+/* ---------------------------
+   DOM Bootstrap (guard initQuotes)
+   --------------------------- */
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    initElements();
+    initFavorites();
+    initPreloader();
+    initPaging();
+    initPlaceholders();
+    initUpdatePopup();
+
+    await loadAssets();
+
+    // Only call initQuotes if it's defined (prevents crash if missing)
+    if (typeof initQuotes === "function") await initQuotes();
+
+    console.log("✅ WannaSmile Loader + Quotes Ready");
+  } catch (err) {
+    console.error("Initialization failed:", err);
+    showLoading("Initialization failed. Please reload.");
+    hidePreloader(true);
+  }
+});
