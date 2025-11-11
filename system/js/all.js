@@ -225,63 +225,76 @@
       imagePromises.push({ promise: imgPromise, page: pageNum });
       a.appendChild(img);
 
-      // --- Status Overlay
-      const badgeMap = {
-        featured: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png",
-        new: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png",
-        fixed: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png",
-      };
+// --- Status & Badge Overlay
+const status = safeStr(asset.status).toLowerCase();
+const badgeMap = {
+  featured: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png",
+  new: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png",
+  fixed: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png",
+};
 
-      if (isFeatured) {
-        const overlay = document.createElement("img");
-        overlay.src = badgeMap.featured;
-        overlay.alt = "featured badge";
-        overlay.className = "status-overlay overlay-featured";
-        a.appendChild(overlay);
-      }
-      if (isNew) {
-        const overlay = document.createElement("img");
-        overlay.src = badgeMap.new;
-        overlay.alt = "new badge";
-        overlay.className = "status-overlay overlay-new";
-        a.appendChild(overlay);
-      }
-      if (isFixed) {
-        const overlay = document.createElement("img");
-        overlay.src = badgeMap.fixed;
-        overlay.alt = "fixed badge";
-        overlay.className = "status-overlay overlay-fixed";
-        a.appendChild(overlay);
-      }
-
-      // --- Title, Author, Favorite
-      const titleEl = document.createElement("h3");
-      titleEl.textContent = title || "Untitled";
-      const authorEl = document.createElement("p");
-      authorEl.textContent = author || "";
-
-      const star = document.createElement("button");
-      star.className = "favorite-star";
-      star.textContent = isFav(title) ? "★" : "☆";
-      Object.assign(star.style, { background: "transparent", border: "none", cursor: "pointer" });
-      star.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const key = title.toLowerCase();
-        if (window.favorites.has(key)) window.favorites.delete(key);
-        else window.favorites.add(key);
-        saveFavorites();
-        star.textContent = window.favorites.has(key) ? "★" : "☆";
-      });
-
-      card.append(a, titleEl, authorEl, star);
-      frag.appendChild(card);
+// Only add status/badges if asset has a status or any new-style flags
+if (status || isFeatured || isNew || isFixed) {
+  if (status) {
+    if (status === "soon" || status === "fix") {
+      card.classList.add(status === "fix" ? "FIX" : "soon");
+    } else if (["new", "updated"].includes(status)) {
+      const overlay = document.createElement("img");
+      overlay.src = `${config.gifBase}${status}.gif`;
+      overlay.alt = `${status} badge`;
+      overlay.className = `status-gif status-${status}`;
+      a.appendChild(overlay);
     }
-
-    container.appendChild(frag);
-    return imagePromises;
   }
 
+  if (isFeatured) {
+    const overlay = document.createElement("img");
+    overlay.src = badgeMap.featured;
+    overlay.alt = "featured badge";
+    overlay.className = "status-overlay overlay-featured";
+    a.appendChild(overlay);
+  }
+  if (isNew) {
+    const overlay = document.createElement("img");
+    overlay.src = badgeMap.new;
+    overlay.alt = "new badge";
+    overlay.className = "status-overlay overlay-new";
+    a.appendChild(overlay);
+  }
+  if (isFixed) {
+    const overlay = document.createElement("img");
+    overlay.src = badgeMap.fixed;
+    overlay.alt = "fixed badge";
+    overlay.className = "status-overlay overlay-fixed";
+    a.appendChild(overlay);
+  }
+}
+
+// --- Title, Author, Favorite Button
+const titleEl = document.createElement("h3");
+titleEl.textContent = title || "Untitled";
+
+const authorEl = document.createElement("p");
+authorEl.textContent = author || "";
+
+const star = document.createElement("button");
+star.className = "favorite-star";
+star.textContent = isFav(title) ? "★" : "☆";
+Object.assign(star.style, { background: "transparent", border: "none", cursor: "pointer" });
+star.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  const key = title.toLowerCase();
+  if (window.favorites.has(key)) window.favorites.delete(key);
+  else window.favorites.add(key);
+  saveFavorites();
+  star.textContent = window.favorites.has(key) ? "★" : "☆";
+});
+
+// --- Append all elements to the card and fragment
+card.append(a, titleEl, authorEl, star);
+frag.appendChild(card);
+}
   /* ---------------------------
      Paging + Search + Filter
   --------------------------- */
