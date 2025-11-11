@@ -462,42 +462,88 @@
     }
   }
 
-  /* ---------------------------
-     Asset Loader
-  --------------------------- */
-  async function loadAssets(retry = false) {
-    try {
-      showLoading("Loading assets...");
-      updateProgress(5);
-      const res = await fetch(config.sheetUrl, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
-      const raw = await res.json();
-      const data = raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
-      window.assetsData = data;
-      updateProgress(35);
+/* ---------------------------
+     Asset Loader (Smooth Progress)
+--------------------------- */
+async function loadAssets(retry = false) {
+  try {
+    showLoading("Loading assets...");
 
-      const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
-      const filtered = isFavPage ? data.filter((a) => window.favorites.has(safeStr(a.title).toLowerCase())) : data;
+    let currentProgress = 0;
+    const setProgress = (target) => {
+      return new Promise((resolve) => {
+        const step = () => {
+          currentProgress += (target - currentProgress) * 0.08; // smooth easing
+          if (Math.abs(target - currentProgress) < 0.5) {
+            currentProgress = target;
+            updateProgress(currentProgress);
+            resolve();
+          } else {
+            updateProgress(currentProgress);
+            requestAnimationFrame(step);
+          }
+        };
+        step();
+      });
+    };
 
-      const promises = createAssetCards(filtered || []);
-      updateProgress(55);
-      await Promise.allSettled((promises || []).map((p) => p.promise));
-      updateProgress(80);
+    await setProgress(5); // initial start
 
-      if (typeof renderPage === "function") renderPage();
-      if (isFavPage && !filtered.length && dom.container)
-        dom.container.innerHTML = "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
+    // Fetch JSON
+    const res = await fetch(config.sheetUrl, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
+    const raw = await res.json();
+    const data = raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
+    window.assetsData = data;
 
-      updateProgress(100);
-      await delay(350);
-      hidePreloader(true);
-    } catch (err) {
-      console.error("Error loading assets:", err);
-      if (!retry) { setTimeout(() => loadAssets(true).catch(() => {}), 1000); return; }
-      showLoading("⚠ Failed to load assets.");
-      hidePreloader(true);
+    await setProgress(20);
+
+    const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
+    const filtered = isFavPage
+      ? data.filter((a) => window.favorites.has(safeStr(a.title).toLowerCase()))
+      : data;
+
+    // Create asset cards & track image loading
+    const promises = createAssetCards(filtered || []);
+    const totalImages = promises.length;
+    let loadedImages = 0;
+
+    if (totalImages) {
+      for (const p of promises) {
+        p.promise.then(() => {
+          loadedImages++;
+        });
+      }
+
+      // Smooth progress loop
+      while (loadedImages < totalImages) {
+        const target = 20 + (loadedImages / totalImages) * 70; // 20-90%
+        currentProgress += (target - currentProgress) * 0.08;
+        updateProgress(currentProgress);
+        await rafAsync();
+      }
     }
+
+    await setProgress(90);
+
+    if (typeof renderPage === "function") renderPage();
+    if (isFavPage && !filtered.length && dom.container)
+      dom.container.innerHTML =
+        "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
+
+    await setProgress(100);
+    await delay(350);
+    hidePreloader(true);
+  } catch (err) {
+    console.error("Error loading assets:", err);
+    if (!retry) {
+      setTimeout(() => loadAssets(true).catch(() => {}), 1000);
+      return;
+    }
+    showLoading("⚠ Failed to load assets.");
+    hidePreloader(true);
   }
+}
 
   /* ---------------------------
      DOM Bootstrap
