@@ -289,41 +289,50 @@
         });
       };
     </script>
-<!--<script>
+<script>
 /* ==========================================================
-   INTERACTIVE 404 CHECK (GitHub Pages Safe)
+   INTERACTIVE 404 CHECK + CUSTOM DOMAIN FIX
    ----------------------------------------------------------
-   Only triggers when a user clicks a link.
-   Prevents redirects on initial page load.
+   - Checks links when clicked.
+   - If link contains "https://wanna5mile.github.io/", 
+     it replaces with "https://wanna5mile.github.io./".
+   - Still includes 404 safety check for relative links.
    ========================================================== */
 document.addEventListener("DOMContentLoaded", () => {
-  // Capture all internal <a> link clicks
   document.body.addEventListener("click", async (e) => {
     const a = e.target.closest("a");
     if (!a) return;
 
-    const href = a.getAttribute("href");
-    if (!href || href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:")) return;
+    let href = a.getAttribute("href");
+    if (!href) return;
 
-    // Construct absolute URL
+    // --- 🔍 Handle the custom domain correction ---
+    if (href.includes("https://wanna5mile.github.io/")) {
+      e.preventDefault(); // stop default navigation
+      const fixed = href.replace("https://wanna5mile.github.io/", "https://wanna5mile.github.io./");
+      window.open(fixed, a.target || "_blank"); // open in new tab (or same if target specified)
+      return;
+    }
+
+    // --- 🧭 Skip external or special links ---
+    if (href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:")) return;
+
+    // --- 📄 Construct absolute URL for 404 check ---
     const url = new URL(href, window.location.origin);
 
     try {
-      // Try a HEAD request to check if file exists
       const res = await fetch(url.href, { method: "HEAD" });
 
-      // If not found, prevent navigation and go to 404
       if (!res.ok) {
         e.preventDefault();
         console.warn(`⚠ Broken link detected: ${url.href}`);
         window.location.href = "/404.html";
       }
     } catch (err) {
-      // If network fails, still navigate normally
       console.warn(`Network error checking ${url.href}:`, err);
     }
   });
 });
-</script> -->
+</script>
 </body>
 </html>
