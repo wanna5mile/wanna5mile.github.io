@@ -321,7 +321,7 @@ function createAssetCards(data) {
 }
 
 /* ---------------------------
-   Paging + Search + Filter (Enhanced)
+   Paging + Search + Filter (Enhanced + Pixel Error GIF)
 --------------------------- */
 function initPaging() {
   const { container, pageIndicator, searchInput, searchBtn } = dom || {};
@@ -334,19 +334,24 @@ function initPaging() {
   if (!errorGif) {
     errorGif = document.createElement("img");
     errorGif.id = "noResultsGif";
-    errorGif.src = "system/images/GIF/404.gif"; // ← change to your GIF path
+    errorGif.src = "assets/img/error.gif"; // ← your error gif path
     errorGif.alt = "No results found";
+
     Object.assign(errorGif.style, {
       display: "none",
       position: "absolute",
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
-      maxWidth: "300px",
-      opacity: "0.8",
+      width: "96px", // 64px × 1.5 (50% bigger)
+      height: "96px",
+      imageRendering: "pixelated", // force pixel style
+      opacity: "0",
+      transition: "opacity 0.25s ease",
       pointerEvents: "none",
       zIndex: "1000",
     });
+
     container.parentElement.appendChild(errorGif);
   }
 
@@ -359,9 +364,13 @@ function initPaging() {
     const visibleCards = getFilteredCards().length;
     if (visibleCards === 0) {
       errorGif.style.display = "block";
+      requestAnimationFrame(() => (errorGif.style.opacity = "1"));
       quoteWrapper && (quoteWrapper.style.opacity = "0.5");
     } else {
-      errorGif.style.display = "none";
+      errorGif.style.opacity = "0";
+      setTimeout(() => {
+        if (parseFloat(errorGif.style.opacity) === 0) errorGif.style.display = "none";
+      }, 250);
       quoteWrapper && (quoteWrapper.style.opacity = "1");
     }
   }
@@ -393,20 +402,18 @@ function initPaging() {
     updateVisibility();
   };
 
-  // ✅ Improved search filter
+  // ✅ Improved search filter (case-insensitive + partial match)
   window.filterAssets = (q) => {
     const query = safeStr(q).toLowerCase().trim();
-    const words = query.split(/\s+/).filter(Boolean); // split into words
+    const words = query.split(/\s+/).filter(Boolean);
     const allCards = getAllCards();
 
     allCards.forEach((c) => {
       const title = (c.dataset.title || "").toLowerCase();
       const author = (c.dataset.author || "").toLowerCase();
 
-      // true if ANY word is included in title OR author
       const matches =
-        !query ||
-        words.some((w) => title.includes(w) || author.includes(w));
+        !query || words.some((w) => title.includes(w) || author.includes(w));
 
       c.dataset.filtered = matches ? "true" : "false";
     });
