@@ -343,8 +343,8 @@ function initPaging() {
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
-      width: "96px", // 64px × 1.5 (50% bigger)
-      height: "96px",
+      width: "128px", // 64px × 2 (100% bigger)
+      height: "128px",
       imageRendering: "pixelated", // force pixel style
       opacity: "0",
       transition: "opacity 0.25s ease",
