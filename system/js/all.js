@@ -334,7 +334,7 @@ function initPaging() {
   if (!errorGif) {
     errorGif = document.createElement("img");
     errorGif.id = "noResultsGif";
-    errorGif.src = "assets/img/error.gif"; // ← your error gif path
+    errorGif.src = "system/images/GIF/searching.gif"; // ← your error gif path
     errorGif.alt = "No results found";
 
     Object.assign(errorGif.style, {
