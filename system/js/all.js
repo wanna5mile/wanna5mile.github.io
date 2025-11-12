@@ -321,7 +321,7 @@ function createAssetCards(data) {
 }
 
 /* ---------------------------
-   Paging + Search + Filter (Enhanced + Pixel Error GIF)
+   Paging + Search + Filter (Enhanced + Pixel Error GIF + Smart Match)
 --------------------------- */
 function initPaging() {
   const { container, pageIndicator, searchInput, searchBtn } = dom || {};
@@ -334,7 +334,7 @@ function initPaging() {
   if (!errorGif) {
     errorGif = document.createElement("img");
     errorGif.id = "noResultsGif";
-    errorGif.src = "system/images/GIF/searching.gif"; // ← your error gif path
+    errorGif.src = "system/images/GIF/searching.gif";
     errorGif.alt = "No results found";
 
     Object.assign(errorGif.style, {
@@ -343,9 +343,9 @@ function initPaging() {
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
-      width: "128px", // 64px × 2 (100% bigger)
+      width: "128px",
       height: "128px",
-      imageRendering: "pixelated", // force pixel style
+      imageRendering: "pixelated",
       opacity: "0",
       transition: "opacity 0.25s ease",
       pointerEvents: "none",
@@ -402,7 +402,7 @@ function initPaging() {
     updateVisibility();
   };
 
-  // ✅ Improved search filter (case-insensitive + partial match)
+  // ✅ Smart Search Filter (case-insensitive + partial + flexible)
   window.filterAssets = (q) => {
     const query = safeStr(q).toLowerCase().trim();
     const words = query.split(/\s+/).filter(Boolean);
@@ -412,8 +412,15 @@ function initPaging() {
       const title = (c.dataset.title || "").toLowerCase();
       const author = (c.dataset.author || "").toLowerCase();
 
+      // match if:
+      // - query is empty, OR
+      // - ANY word matches part of title/author, OR
+      // - full query string matches part of title/author
       const matches =
-        !query || words.some((w) => title.includes(w) || author.includes(w));
+        !query ||
+        words.some((w) => title.includes(w) || author.includes(w)) ||
+        title.includes(query) ||
+        author.includes(query);
 
       c.dataset.filtered = matches ? "true" : "false";
     });
