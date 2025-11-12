@@ -320,129 +320,124 @@ function createAssetCards(data) {
   return imagePromises;
 }
 
-  /* ---------------------------
-     Paging + Search + Filter
-  --------------------------- */
-  function initPaging() {
-    const { container, pageIndicator, searchInput, searchBtn } = dom || {};
-    if (!container) return;
-
-    const quoteWrapper = document.getElementById("quoteWrapper");
-    const getAllCards = () => [...container.querySelectorAll(".asset-card")];
-    const getFilteredCards = () => getAllCards().filter((c) => c.dataset.filtered === "true");
-    const getPages = () =>
-      [...new Set(getFilteredCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort((a, b) => a - b);
-
-    function updateQuoteVisibility() {
-      if (!quoteWrapper) return;
-      const visibleCards = getFilteredCards().length;
-      quoteWrapper.style.opacity = visibleCards === 0 ? "1" : "1";
-      quoteWrapper.style.pointerEvents = visibleCards === 0 ? "auto" : "none";
-      quoteWrapper.style.marginTop = "0";
-    }
-
-    window.renderPage = () => {
-      const pages = getPages();
-      if (!pages.length) {
-        window.currentPage = 1;
-        getAllCards().forEach((c) => (c.style.display = "none"));
-        pageIndicator && (pageIndicator.textContent = "No pages");
-        updateQuoteVisibility();
-        return;
-      }
-
-      const saved = +sessionStorage.getItem("currentPage") || pages[0];
-      if (!window._pageRestored) {
-        window.currentPage = pages.includes(saved) ? saved : pages[0];
-        window._pageRestored = true;
-      }
-
-      getAllCards().forEach((c) => {
-        const visible = +c.dataset.page === +window.currentPage && c.dataset.filtered === "true";
-        c.style.display = visible ? "" : "none";
-      });
-
-      const idx = pages.indexOf(+window.currentPage);
-      pageIndicator && (pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`);
-      sessionStorage.setItem("currentPage", window.currentPage);
-      updateQuoteVisibility();
-    };
-
-    window.filterAssets = (q) => {
-      const query = safeStr(q).toLowerCase().trim();
-      getAllCards().forEach((c) => {
-        c.dataset.filtered =
-          !query || c.dataset.title.includes(query) || c.dataset.author.includes(query)
-            ? "true"
-            : "false";
-      });
-      window.currentPage = getPages()[0] || 1;
-      renderPage();
-      updateQuoteVisibility();
-    };
-
-    window.prevPage = () => {
-      const pages = getPages();
-      if (!pages.length) return;
-      const i = pages.indexOf(+window.currentPage);
-      window.currentPage = i <= 0 ? pages.at(-1) : pages[i - 1];
-      renderPage();
-    };
-
-    window.nextPage = () => {
-      const pages = getPages();
-      if (!pages.length) return;
-      const i = pages.indexOf(+window.currentPage);
-      window.currentPage = i === -1 || i === pages.length - 1 ? pages[0] : pages[i + 1];
-      renderPage();
-    };
-
-    searchBtn?.addEventListener("click", () => filterAssets(searchInput.value));
-    searchInput?.addEventListener("input", debounce(() => filterAssets(searchInput.value), 200));
-
-    window.currentPage = +sessionStorage.getItem("currentPage") || 1;
-    renderPage();
-  }
-// Auto-reset page if current page has no assets
-function autoResetEmptyPage() {
-  const { container } = dom || {};
+/* ---------------------------
+   Paging + Search + Filter (Enhanced)
+--------------------------- */
+function initPaging() {
+  const { container, pageIndicator, searchInput, searchBtn } = dom || {};
   if (!container) return;
 
-  const allCards = [...container.querySelectorAll(".asset-card")];
-  const filteredCards = allCards.filter((c) => c.dataset.filtered === "true");
+  const quoteWrapper = document.getElementById("quoteWrapper");
 
-  if (!filteredCards.length) {
-    // No assets at all, reset to page 1
-    window.currentPage = 1;
-    renderPage();
-    return;
+  // Create or find error GIF element
+  let errorGif = document.getElementById("noResultsGif");
+  if (!errorGif) {
+    errorGif = document.createElement("img");
+    errorGif.id = "noResultsGif";
+    errorGif.src = "system/images/GIF/404.gif"; // ← change to your GIF path
+    errorGif.alt = "No results found";
+    Object.assign(errorGif.style, {
+      display: "none",
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      maxWidth: "300px",
+      opacity: "0.8",
+      pointerEvents: "none",
+      zIndex: "1000",
+    });
+    container.parentElement.appendChild(errorGif);
   }
 
-  // Check if current page has no visible cards
-  const currentPageCards = filteredCards.filter((c) => +c.dataset.page === +window.currentPage);
-  if (!currentPageCards.length) {
-    // Current page empty, reset to first available page
-    const pages = [...new Set(filteredCards.map((c) => +c.dataset.page))].sort((a, b) => a - b);
-    window.currentPage = pages[0] || 1;
-    renderPage();
+  const getAllCards = () => [...container.querySelectorAll(".asset-card")];
+  const getFilteredCards = () => getAllCards().filter((c) => c.dataset.filtered === "true");
+  const getPages = () =>
+    [...new Set(getFilteredCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort((a, b) => a - b);
+
+  function updateVisibility() {
+    const visibleCards = getFilteredCards().length;
+    if (visibleCards === 0) {
+      errorGif.style.display = "block";
+      quoteWrapper && (quoteWrapper.style.opacity = "0.5");
+    } else {
+      errorGif.style.display = "none";
+      quoteWrapper && (quoteWrapper.style.opacity = "1");
+    }
   }
+
+  window.renderPage = () => {
+    const pages = getPages();
+    if (!pages.length) {
+      window.currentPage = 1;
+      getAllCards().forEach((c) => (c.style.display = "none"));
+      pageIndicator && (pageIndicator.textContent = "No pages");
+      updateVisibility();
+      return;
+    }
+
+    const saved = +sessionStorage.getItem("currentPage") || pages[0];
+    if (!window._pageRestored) {
+      window.currentPage = pages.includes(saved) ? saved : pages[0];
+      window._pageRestored = true;
+    }
+
+    getAllCards().forEach((c) => {
+      const visible = +c.dataset.page === +window.currentPage && c.dataset.filtered === "true";
+      c.style.display = visible ? "" : "none";
+    });
+
+    const idx = pages.indexOf(+window.currentPage);
+    pageIndicator && (pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`);
+    sessionStorage.setItem("currentPage", window.currentPage);
+    updateVisibility();
+  };
+
+  // ✅ Improved search filter
+  window.filterAssets = (q) => {
+    const query = safeStr(q).toLowerCase().trim();
+    const words = query.split(/\s+/).filter(Boolean); // split into words
+    const allCards = getAllCards();
+
+    allCards.forEach((c) => {
+      const title = (c.dataset.title || "").toLowerCase();
+      const author = (c.dataset.author || "").toLowerCase();
+
+      // true if ANY word is included in title OR author
+      const matches =
+        !query ||
+        words.some((w) => title.includes(w) || author.includes(w));
+
+      c.dataset.filtered = matches ? "true" : "false";
+    });
+
+    const firstPage = getPages()[0] || 1;
+    window.currentPage = firstPage;
+    renderPage();
+  };
+
+  window.prevPage = () => {
+    const pages = getPages();
+    if (!pages.length) return;
+    const i = pages.indexOf(+window.currentPage);
+    window.currentPage = i <= 0 ? pages.at(-1) : pages[i - 1];
+    renderPage();
+  };
+
+  window.nextPage = () => {
+    const pages = getPages();
+    if (!pages.length) return;
+    const i = pages.indexOf(+window.currentPage);
+    window.currentPage = i === -1 || i === pages.length - 1 ? pages[0] : pages[i + 1];
+    renderPage();
+  };
+
+  searchBtn?.addEventListener("click", () => filterAssets(searchInput.value));
+  searchInput?.addEventListener("input", debounce(() => filterAssets(searchInput.value), 200));
+
+  window.currentPage = +sessionStorage.getItem("currentPage") || 1;
+  renderPage();
 }
-
-// Example: call this right after filtering or building cards
-window.filterAssets = (q) => {
-  const query = safeStr(q).toLowerCase().trim();
-  const allCards = [...dom.container.querySelectorAll(".asset-card")];
-
-  allCards.forEach((c) => {
-    c.dataset.filtered =
-      !query || c.dataset.title.includes(query) || c.dataset.author.includes(query)
-        ? "true"
-        : "false";
-  });
-
-  // Auto-reset page if current page ends up empty
-  autoResetEmptyPage();
-};
 
   /* ---------------------------
      Placeholder Cycle
