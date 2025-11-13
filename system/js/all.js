@@ -358,7 +358,7 @@ function initPaging() {
   const getAllCards = () => [...container.querySelectorAll(".asset-card")];
   const getFilteredCards = () => getAllCards().filter((c) => c.dataset.filtered === "true");
   const getPages = () =>
-    [...new Set(getFilteredCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort((a, b) => a - b);
+    [...new Set(getAllCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort((a, b) => a - b);
 
   function updateVisibility() {
     const visibleCards = getFilteredCards().length;
@@ -377,13 +377,7 @@ function initPaging() {
 
   window.renderPage = () => {
     const pages = getPages();
-    if (!pages.length) {
-      window.currentPage = 1;
-      getAllCards().forEach((c) => (c.style.display = "none"));
-      pageIndicator && (pageIndicator.textContent = "No pages");
-      updateVisibility();
-      return;
-    }
+    if (!pages.length) return;
 
     const saved = +sessionStorage.getItem("currentPage") || pages[0];
     if (!window._pageRestored) {
@@ -391,13 +385,18 @@ function initPaging() {
       window._pageRestored = true;
     }
 
+    const filteredCards = getFilteredCards();
     getAllCards().forEach((c) => {
       const visible = +c.dataset.page === +window.currentPage && c.dataset.filtered === "true";
       c.style.display = visible ? "" : "none";
     });
 
+    // Keep the current page indicator, even if no cards are visible
     const idx = pages.indexOf(+window.currentPage);
-    pageIndicator && (pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`);
+    if (pageIndicator) {
+      pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`;
+    }
+
     sessionStorage.setItem("currentPage", window.currentPage);
     updateVisibility();
   };
@@ -413,27 +412,16 @@ function initPaging() {
       const author = (c.dataset.author || "").toLowerCase();
       const haystack = `${title} ${author}`;
 
-      // Flexible scoring: full query, word-by-word, partials
+      // Weighted flexible matching
       let score = 0;
-
-      // Full query match (strong)
       if (haystack.includes(query)) score += 3;
-
-      // Each word match (medium)
-      for (const w of words) {
-        if (haystack.includes(w)) score += 2;
-      }
-
-      // Partial/approximate (if query partially overlaps any word)
-      if (words.length && words.some(w => haystack.split(/\s+/).some(h => h.startsWith(w) || h.endsWith(w)))) {
+      for (const w of words) if (haystack.includes(w)) score += 2;
+      if (words.length && words.some((w) => haystack.split(/\s+/).some(h => h.startsWith(w) || h.endsWith(w))))
         score += 1;
-      }
 
       c.dataset.filtered = score > 0 || !query ? "true" : "false";
     });
 
-    const firstPage = getPages()[0] || 1;
-    window.currentPage = firstPage;
     renderPage();
   };
 
