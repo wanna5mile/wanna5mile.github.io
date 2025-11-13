@@ -402,7 +402,7 @@ function initPaging() {
     updateVisibility();
   };
 
-  // ✅ Smart Search Filter (case-insensitive + partial + flexible)
+  // ✅ Smart Search Filter (partial, multi-word, weighted match)
   window.filterAssets = (q) => {
     const query = safeStr(q).toLowerCase().trim();
     const words = query.split(/\s+/).filter(Boolean);
@@ -411,18 +411,25 @@ function initPaging() {
     allCards.forEach((c) => {
       const title = (c.dataset.title || "").toLowerCase();
       const author = (c.dataset.author || "").toLowerCase();
+      const haystack = `${title} ${author}`;
 
-      // match if:
-      // - query is empty, OR
-      // - ANY word matches part of title/author, OR
-      // - full query string matches part of title/author
-      const matches =
-        !query ||
-        words.some((w) => title.includes(w) || author.includes(w)) ||
-        title.includes(query) ||
-        author.includes(query);
+      // Flexible scoring: full query, word-by-word, partials
+      let score = 0;
 
-      c.dataset.filtered = matches ? "true" : "false";
+      // Full query match (strong)
+      if (haystack.includes(query)) score += 3;
+
+      // Each word match (medium)
+      for (const w of words) {
+        if (haystack.includes(w)) score += 2;
+      }
+
+      // Partial/approximate (if query partially overlaps any word)
+      if (words.length && words.some(w => haystack.split(/\s+/).some(h => h.startsWith(w) || h.endsWith(w)))) {
+        score += 1;
+      }
+
+      c.dataset.filtered = score > 0 || !query ? "true" : "false";
     });
 
     const firstPage = getPages()[0] || 1;
