@@ -1,11 +1,10 @@
 /* ==========================================================
-   WannaSmile | Advanced Custom Cursor System (Stable v3)
+   WannaSmile | Advanced Custom Cursor System (Stable v4)
    ----------------------------------------------------------
-   - Fully hides native cursor globally
-   - Adds proper "cursordown" & flipped fallback support
-   - Detects real grab/drag vs normal click
-   - Fixes delayed jump during grab
-   - Context-sensitive hover mapping
+   - Full cursor hide
+   - Proper grab, click, mousedown, and focus logic
+   - Prevents stuck grab after drop
+   - Context-sensitive hover detection
    ========================================================== */
 (() => {
   "use strict";
@@ -15,26 +14,29 @@
   const CURSORS = {
     normal: {
       cursor: "normal_cursor.png",
-      cursordown: "normal_cursordown.png",
+      click: "normal_click.png",
+      mousedown: "normal_mousedown.png",
       grab: "normal_grab.png",
       point: "normal_point.png",
     },
     flipped: {
       cursor: "flipped_cursor.png",
-      cursordown: "flipped_cursordown.png",
+      click: "flipped_click.png",
+      mousedown: "flipped_mousedown.png",
       grab: "flipped_grab.png",
       point: "flipped_point.png",
     },
     universal: {
       ibeam: "universal_ibeam.png",
       sizeall: "universal_sizeall.png",
-      noselect: "universal_noselect.png",
+      noselect: "universal_noselect1.png",
     },
   };
 
-  const SWITCH_THRESHOLD = 0.05; // screen buffer (5%)
-  const UPDATE_DELAY = 50; // ms cooldown
+  const SWITCH_THRESHOLD = 0.05;
+  const UPDATE_DELAY = 50;
   const CURSOR_SIZE = 32;
+  const CLICK_HOLD_TIME = 1000; // 1s threshold between click and mousedown
 
   // === DESKTOP DETECTION ===
   const isDesktop = !/Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(
@@ -42,7 +44,7 @@
   );
   if (!isDesktop) return;
 
-  // === GLOBAL CURSOR HIDE ===
+  // === HIDE SYSTEM CURSOR ===
   const style = document.createElement("style");
   style.textContent = `
     * { cursor: none !important; }
@@ -73,8 +75,10 @@
   let lastSwitch = 0;
   let isMouseDown = false;
   let isDragging = false;
+  let mouseDownTime = 0;
+  let clickTimer = null;
 
-  // === SET CURSOR SAFELY ===
+  // === UTILITY ===
   const setCursor = (type = "cursor") => {
     const cursorSet = lastFlip === "left" ? CURSORS.flipped : CURSORS.normal;
     let filename =
@@ -83,10 +87,8 @@
       cursorSet.cursor ||
       CURSORS.normal.cursor;
 
-    // fallback for missing cursordown images
-    if (type === "cursordown" && !cursorSet.cursordown) {
-      filename = cursorSet.cursor || CURSORS.normal.cursor;
-    }
+    // Fallback if missing
+    if (!filename) filename = CURSORS.normal.cursor;
 
     if (!cursorEl.src.endsWith(filename)) {
       cursorEl.src = CURSOR_PATH + filename;
@@ -95,10 +97,14 @@
     }
   };
 
+  const updateCursor = (type) => {
+    if (type !== currentType) setCursor(type);
+  };
+
   // === INITIAL ===
   setCursor("cursor");
 
-  // === TRACK MOVEMENT ===
+  // === MOVEMENT ===
   document.addEventListener("mousemove", (e) => {
     cursorEl.style.opacity = "1";
     cursorEl.style.top = e.clientY + "px";
@@ -125,14 +131,11 @@
   document.addEventListener("mouseleave", () => (cursorEl.style.opacity = "0"));
   document.addEventListener("mouseenter", () => (cursorEl.style.opacity = "1"));
 
-  // === CONTEXT-AWARE HOVER ===
-  const updateCursor = (type) => {
-    if (type !== currentType) setCursor(type);
-  };
-
-  // === MOUSE INTERACTIONS ===
+  // === MOUSE LOGIC ===
   document.addEventListener("mousedown", (e) => {
     isMouseDown = true;
+    isDragging = false;
+    mouseDownTime = Date.now();
 
     const tag = e.target.tagName.toLowerCase();
     const style = getComputedStyle(e.target);
@@ -143,22 +146,48 @@
       tag === "img" ||
       tag === "canvas";
 
+    // Start click timer
+    clearTimeout(clickTimer);
+    clickTimer = setTimeout(() => {
+      if (isMouseDown) {
+        // Held longer than 1s → focused press
+        updateCursor("mousedown");
+      }
+    }, CLICK_HOLD_TIME);
+
     if (draggable) {
       isDragging = true;
       updateCursor("grab");
     } else {
-      updateCursor("cursordown");
+      updateCursor("click");
     }
   });
 
   document.addEventListener("mouseup", () => {
+    clearTimeout(clickTimer);
+    const heldTime = Date.now() - mouseDownTime;
+
     isMouseDown = false;
-    isDragging = false;
-    updateCursor("cursor");
+
+    // Reset grab state
+    if (isDragging) {
+      isDragging = false;
+      updateCursor("cursor");
+      return;
+    }
+
+    // Short click release → return to normal
+    if (heldTime < CLICK_HOLD_TIME) {
+      updateCursor("cursor");
+    } else {
+      // Held >1s then released → return smoothly
+      updateCursor("cursor");
+    }
   });
 
+  // === HOVER CONTEXT ===
   document.addEventListener("mouseover", (e) => {
-    if (isMouseDown) return; // don't override active state
+    if (isMouseDown) return; // Don’t override active hold state
 
     const tag = e.target.tagName.toLowerCase();
     const style = getComputedStyle(e.target);
