@@ -492,9 +492,9 @@ function initPaging() {
     window.stopPlaceholderCycle = () => (window._placeholderRunning = false);
   }
 
-  /* ---------------------------
-     Update Popup
-  --------------------------- */
+/* ---------------------------
+   Update Popup (Auto-version Compare + Sheet Fallback)
+--------------------------- */
 async function initUpdatePopup() {
   const p = dom.updatePopup;
   if (!p) return;
@@ -503,49 +503,70 @@ async function initUpdatePopup() {
   const LS_VER = "ws_lastUpdateVersion";
 
   try {
+    // Fetch sheet data (force no cache)
     const res = await fetch(`${config.sheetUrl}?mode=version-message`, { cache: "no-store" });
-    const data = await res.json();
-    const latest = Array.isArray(data) && data.length ? data[data.length - 1] : { version: "1.0.0", message: "New updates!", trailer: "", link: "" };
+    const raw = await res.json();
 
-    const CURRENT_VERSION = latest.version || "1.0.0";
+    // ✅ Determine latest version entry (supports both array-of-objects and flat row format)
+    let latest = null;
+    if (Array.isArray(raw)) {
+      // If rows have `version` and `version-message`
+      if (raw[0]?.version && raw[0]?.["version-message"]) {
+        latest = raw.filter(r => r.version && r["version-message"]).at(-1);
+        latest = {
+          version: latest.version,
+          message: latest["version-message"],
+          trailer: latest.trailer || "",
+          link: latest.link || config.updateLink,
+        };
+      } else if (raw.at(-1)?.version) {
+        // if array of {version, message, ...}
+        latest = raw.at(-1);
+      }
+    }
+
+    if (!latest) {
+      latest = { version: "0.0.0", message: "Welcome to WannaSmile!", trailer: "", link: config.updateLink };
+    }
+
+    const CURRENT_VERSION = latest.version || "0.0.0";
     const MESSAGE = latest.message || "Enjoy the latest update!";
     const TRAILER = latest.trailer || "";
     const LINK = latest.link || config.updateLink;
 
-    // Update DOM content
+    // 📝 Update popup text
     const titleEl = p.querySelector("h2");
     const msgEl = p.querySelector("p");
     if (titleEl) titleEl.textContent = `Version ${CURRENT_VERSION} Update!`;
     if (msgEl) msgEl.textContent = MESSAGE;
     if (dom.updateVideo && TRAILER) dom.updateVideo.src = TRAILER;
-    config.updateLink = LINK;
 
     const footerVersion = document.getElementById("footerVersion");
     if (footerVersion) footerVersion.textContent = `Version ${CURRENT_VERSION}`;
 
-    // Retrieve last version & hide state
+    // 🧠 Memory system: compare stored version
     const lastVersion = localStorage.getItem(LS_VER);
     const hidePref = localStorage.getItem(LS_HIDE);
-    const hideForSession = sessionStorage.getItem(LS_HIDE);
 
-    // Reset hide flag if version has changed
+    // Reset hide flag if new version
     if (lastVersion !== CURRENT_VERSION) {
       localStorage.removeItem(LS_HIDE);
       sessionStorage.removeItem(LS_HIDE);
     }
 
-    // Update stored version to current
+    // Save current version
     localStorage.setItem(LS_VER, CURRENT_VERSION);
 
-    // Determine if popup should show
-    const shouldShow = !localStorage.getItem(LS_HIDE) && !sessionStorage.getItem(LS_HIDE);
+    // Should show popup even if "Don't show again" was checked — but only for new versions
+    const isNewVersion = lastVersion !== CURRENT_VERSION;
+    const shouldShow = isNewVersion || (!hidePref && !sessionStorage.getItem(LS_HIDE));
 
-    if (!shouldShow) return; // do not show
+    if (!shouldShow) return;
 
-    // Show popup
+    // 🎬 Show popup
     setTimeout(() => p.classList.add("show"), 600);
 
-    // Button events
+    // 🖱 Button handlers
     dom.viewUpdateBtn?.addEventListener("click", () => {
       window.open(LINK, "_self");
       p.classList.remove("show");
