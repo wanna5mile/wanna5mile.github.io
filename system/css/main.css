@@ -13,7 +13,6 @@ html, body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  cursor: url('cursor.png') 4 4, auto;
 }
 
 /* ==========================================
