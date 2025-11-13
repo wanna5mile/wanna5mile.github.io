@@ -1,10 +1,11 @@
 /* ==========================================================
-   WannaSmile | Advanced Custom Cursor System (Stable v2)
+   WannaSmile | Advanced Custom Cursor System (Stable v3)
    ----------------------------------------------------------
-   - Fully hides native cursor
-   - Correctly switches between flipped/normal sets
-   - Context-aware (pointer, grab, text, move, etc.)
-   - Flicker-proof & fast
+   - Fully hides native cursor globally
+   - Adds proper "cursordown" & flipped fallback support
+   - Detects real grab/drag vs normal click
+   - Fixes delayed jump during grab
+   - Context-sensitive hover mapping
    ========================================================== */
 (() => {
   "use strict";
@@ -14,11 +15,13 @@
   const CURSORS = {
     normal: {
       cursor: "normal_cursor.png",
+      cursordown: "normal_cursordown.png",
       grab: "normal_grab.png",
       point: "normal_point.png",
     },
     flipped: {
       cursor: "flipped_cursor.png",
+      cursordown: "flipped_cursordown.png",
       grab: "flipped_grab.png",
       point: "flipped_point.png",
     },
@@ -29,8 +32,8 @@
     },
   };
 
-  const SWITCH_THRESHOLD = 0.05; // 5% horizontal buffer
-  const UPDATE_DELAY = 50; // faster switching
+  const SWITCH_THRESHOLD = 0.05; // screen buffer (5%)
+  const UPDATE_DELAY = 50; // ms cooldown
   const CURSOR_SIZE = 32;
 
   // === DESKTOP DETECTION ===
@@ -40,14 +43,14 @@
   if (!isDesktop) return;
 
   // === GLOBAL CURSOR HIDE ===
-  const globalHideStyle = document.createElement("style");
-  globalHideStyle.textContent = `
+  const style = document.createElement("style");
+  style.textContent = `
     * { cursor: none !important; }
     html, body { cursor: none !important; }
   `;
-  document.head.appendChild(globalHideStyle);
+  document.head.appendChild(style);
 
-  // === CUSTOM CURSOR ELEMENT ===
+  // === CREATE CUSTOM CURSOR ===
   const cursorEl = document.createElement("img");
   Object.assign(cursorEl.style, {
     position: "fixed",
@@ -60,7 +63,7 @@
     transform: "translate(-50%, -50%)",
     imageRendering: "pixelated",
     opacity: "0",
-    transition: "opacity 0.1s ease",
+    transition: "opacity 0.08s ease",
   });
   document.body.appendChild(cursorEl);
 
@@ -68,36 +71,44 @@
   let lastFlip = "right";
   let currentType = "cursor";
   let lastSwitch = 0;
+  let isMouseDown = false;
+  let isDragging = false;
 
-  // === SET CURSOR IMAGE ===
+  // === SET CURSOR SAFELY ===
   const setCursor = (type = "cursor") => {
-    const now = Date.now();
     const cursorSet = lastFlip === "left" ? CURSORS.flipped : CURSORS.normal;
-    const filename =
-      cursorSet[type] || CURSORS.universal[type] || CURSORS.normal.cursor;
+    let filename =
+      cursorSet[type] ||
+      CURSORS.universal[type] ||
+      cursorSet.cursor ||
+      CURSORS.normal.cursor;
 
-    if (cursorEl.src.endsWith(filename)) return; // prevent redundant flicker
+    // fallback for missing cursordown images
+    if (type === "cursordown" && !cursorSet.cursordown) {
+      filename = cursorSet.cursor || CURSORS.normal.cursor;
+    }
 
-    cursorEl.src = CURSOR_PATH + filename;
-    currentType = type;
-    lastSwitch = now;
+    if (!cursorEl.src.endsWith(filename)) {
+      cursorEl.src = CURSOR_PATH + filename;
+      currentType = type;
+      lastSwitch = Date.now();
+    }
   };
 
-  // Initial cursor
+  // === INITIAL ===
   setCursor("cursor");
 
-  // === MOVE TRACKING ===
+  // === TRACK MOVEMENT ===
   document.addEventListener("mousemove", (e) => {
     cursorEl.style.opacity = "1";
     cursorEl.style.top = e.clientY + "px";
     cursorEl.style.left = e.clientX + "px";
 
     const now = Date.now();
-    const mid = window.innerWidth / 2;
-    const buffer = window.innerWidth * SWITCH_THRESHOLD;
-
     if (now - lastSwitch < UPDATE_DELAY) return;
 
+    const mid = window.innerWidth / 2;
+    const buffer = window.innerWidth * SWITCH_THRESHOLD;
     const side =
       e.clientX < mid - buffer
         ? "left"
@@ -114,15 +125,41 @@
   document.addEventListener("mouseleave", () => (cursorEl.style.opacity = "0"));
   document.addEventListener("mouseenter", () => (cursorEl.style.opacity = "1"));
 
-  // === CONTEXT-AWARE CURSOR LOGIC ===
+  // === CONTEXT-AWARE HOVER ===
   const updateCursor = (type) => {
     if (type !== currentType) setCursor(type);
   };
 
-  document.addEventListener("mousedown", () => updateCursor("grab"));
-  document.addEventListener("mouseup", () => updateCursor("cursor"));
+  // === MOUSE INTERACTIONS ===
+  document.addEventListener("mousedown", (e) => {
+    isMouseDown = true;
+
+    const tag = e.target.tagName.toLowerCase();
+    const style = getComputedStyle(e.target);
+    const draggable =
+      e.target.draggable ||
+      style.cursor === "grab" ||
+      style.cursor === "grabbing" ||
+      tag === "img" ||
+      tag === "canvas";
+
+    if (draggable) {
+      isDragging = true;
+      updateCursor("grab");
+    } else {
+      updateCursor("cursordown");
+    }
+  });
+
+  document.addEventListener("mouseup", () => {
+    isMouseDown = false;
+    isDragging = false;
+    updateCursor("cursor");
+  });
 
   document.addEventListener("mouseover", (e) => {
+    if (isMouseDown) return; // don't override active state
+
     const tag = e.target.tagName.toLowerCase();
     const style = getComputedStyle(e.target);
 
@@ -138,7 +175,7 @@
     if (style.cursor === "text" || tag === "input" || tag === "textarea")
       return updateCursor("ibeam");
     if (style.cursor === "move") return updateCursor("sizeall");
-    if (style.cursor === "pointer" || tag === "a")
+    if (style.cursor === "pointer" || tag === "a" || tag === "button")
       return updateCursor("point");
     updateCursor("cursor");
   });
