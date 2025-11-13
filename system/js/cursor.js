@@ -55,7 +55,7 @@
   // === CREATE CUSTOM CURSOR ===
   const cursorEl = document.createElement("img");
   Object.assign(cursorEl.style, {
-    position: "absolute",
+    position: "fixed",
     top: "0",
     left: "0",
     width: `${CURSOR_SIZE}px`,
@@ -63,7 +63,7 @@
     pointerEvents: "none",
     zIndex: "999999",
     transform: "translate(-50%, -50%)",
-    /*imageRendering: "pixelated"*/,
+    /*imageRendering: "pixelated"*/
     opacity: "0",
     transition: "opacity 0.08s ease",
   });
