@@ -1,9 +1,10 @@
 /* ==========================================================
-   WannaSmile | Advanced Custom Cursor System (Stable v4)
+   WannaSmile | Advanced Custom Cursor System (Stable v5)
    ----------------------------------------------------------
-   - Full cursor hide
-   - Proper grab, click, mousedown, and focus logic
-   - Prevents stuck grab after drop
+   - Fully hides native cursor globally (no reappear flicker)
+   - Proper click / hold / grab / focus logic
+   - Detects short vs held clicks
+   - Prevents stuck grab state after release
    - Context-sensitive hover detection
    ========================================================== */
 (() => {
@@ -36,7 +37,7 @@
   const SWITCH_THRESHOLD = 0.05;
   const UPDATE_DELAY = 50;
   const CURSOR_SIZE = 32;
-  const CLICK_HOLD_TIME = 500; // 1s threshold between click and mousedown
+  const CLICK_HOLD_TIME = 500; // ms threshold between click and hold
 
   // === DESKTOP DETECTION ===
   const isDesktop = !/Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(
@@ -44,11 +45,21 @@
   );
   if (!isDesktop) return;
 
-  // === HIDE SYSTEM CURSOR ===
+  // === FULL SYSTEM CURSOR HIDE (BUG-PROOF) ===
   const style = document.createElement("style");
   style.textContent = `
-    * { cursor: none !important; }
-    html, body { cursor: none !important; }
+    html, body, iframe, canvas, video, img, input, textarea, button,
+    [role="button"], [draggable], *::before, *::after, * {
+      cursor: none !important;
+    }
+    ::-webkit-scrollbar,
+    ::-webkit-scrollbar-thumb,
+    ::-webkit-scrollbar-track {
+      cursor: none !important;
+    }
+    input, textarea {
+      caret-color: transparent !important;
+    }
   `;
   document.head.appendChild(style);
 
@@ -63,7 +74,6 @@
     pointerEvents: "none",
     zIndex: "999999",
     transform: "translate(-50%, -50%)",
-    /*imageRendering: "pixelated"*/
     opacity: "0",
     transition: "opacity 0.08s ease",
   });
@@ -87,7 +97,6 @@
       cursorSet.cursor ||
       CURSORS.normal.cursor;
 
-    // Fallback if missing
     if (!filename) filename = CURSORS.normal.cursor;
 
     if (!cursorEl.src.endsWith(filename)) {
@@ -105,28 +114,29 @@
   setCursor("cursor");
 
   // === MOVEMENT ===
-document.addEventListener("mousemove", (e) => {
-  cursorEl.style.opacity = "1";
-  cursorEl.style.top = e.clientY + "px";
-  cursorEl.style.left = Math.min(e.clientX, window.innerWidth - CURSOR_SIZE / 2 - 1) + "px";
+  document.addEventListener("mousemove", (e) => {
+    cursorEl.style.opacity = "1";
+    cursorEl.style.top = e.clientY + "px";
+    cursorEl.style.left =
+      Math.min(e.clientX, window.innerWidth - CURSOR_SIZE / 2 - 1) + "px";
 
-  const now = Date.now();
-  if (now - lastSwitch < UPDATE_DELAY) return;
+    const now = Date.now();
+    if (now - lastSwitch < UPDATE_DELAY) return;
 
-  const mid = window.innerWidth / 2;
-  const buffer = window.innerWidth * SWITCH_THRESHOLD;
-  const side =
-    e.clientX < mid - buffer
-      ? "left"
-      : e.clientX > mid + buffer
-      ? "right"
-      : lastFlip;
+    const mid = window.innerWidth / 2;
+    const buffer = window.innerWidth * SWITCH_THRESHOLD;
+    const side =
+      e.clientX < mid - buffer
+        ? "left"
+        : e.clientX > mid + buffer
+        ? "right"
+        : lastFlip;
 
-  if (side !== lastFlip) {
-    lastFlip = side;
-    setCursor(currentType);
-  }
-});
+    if (side !== lastFlip) {
+      lastFlip = side;
+      setCursor(currentType);
+    }
+  });
 
   document.addEventListener("mouseleave", () => (cursorEl.style.opacity = "0"));
   document.addEventListener("mouseenter", () => (cursorEl.style.opacity = "1"));
@@ -146,13 +156,9 @@ document.addEventListener("mousemove", (e) => {
       tag === "img" ||
       tag === "canvas";
 
-    // Start click timer
     clearTimeout(clickTimer);
     clickTimer = setTimeout(() => {
-      if (isMouseDown) {
-        // Held longer than 1s → focused press
-        updateCursor("mousedown");
-      }
+      if (isMouseDown) updateCursor("mousedown"); // held long enough
     }, CLICK_HOLD_TIME);
 
     if (draggable) {
@@ -166,32 +172,24 @@ document.addEventListener("mousemove", (e) => {
   document.addEventListener("mouseup", () => {
     clearTimeout(clickTimer);
     const heldTime = Date.now() - mouseDownTime;
-
     isMouseDown = false;
 
-    // Reset grab state
     if (isDragging) {
       isDragging = false;
       updateCursor("cursor");
       return;
     }
 
-    // Short click release → return to normal
-    if (heldTime < CLICK_HOLD_TIME) {
-      updateCursor("cursor");
-    } else {
-      // Held >1s then released → return smoothly
-      updateCursor("cursor");
-    }
+    // Reset back to default after any click or hold
+    updateCursor("cursor");
   });
 
   // === HOVER CONTEXT ===
   document.addEventListener("mouseover", (e) => {
-    if (isMouseDown) return; // Don’t override active hold state
+    if (isMouseDown) return;
 
     const tag = e.target.tagName.toLowerCase();
     const style = getComputedStyle(e.target);
-
     const disabled =
       e.target.disabled ||
       e.target.getAttribute("aria-disabled") === "true" ||
@@ -206,6 +204,7 @@ document.addEventListener("mousemove", (e) => {
     if (style.cursor === "move") return updateCursor("sizeall");
     if (style.cursor === "pointer" || tag === "a" || tag === "button")
       return updateCursor("point");
+
     updateCursor("cursor");
   });
 })();
