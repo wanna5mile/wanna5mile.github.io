@@ -36,7 +36,7 @@
   const SWITCH_THRESHOLD = 0.05;
   const UPDATE_DELAY = 50;
   const CURSOR_SIZE = 32;
-  const CLICK_HOLD_TIME = 1000; // 1s threshold between click and mousedown
+  const CLICK_HOLD_TIME = 500; // 1s threshold between click and mousedown
 
   // === DESKTOP DETECTION ===
   const isDesktop = !/Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(
