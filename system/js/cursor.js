@@ -105,28 +105,28 @@
   setCursor("cursor");
 
   // === MOVEMENT ===
-  document.addEventListener("mousemove", (e) => {
-    cursorEl.style.opacity = "1";
-    cursorEl.style.top = e.clientY + "px";
-    cursorEl.style.left = e.clientX + "px";
+document.addEventListener("mousemove", (e) => {
+  cursorEl.style.opacity = "1";
+  cursorEl.style.top = e.clientY + "px";
+  cursorEl.style.left = Math.min(e.clientX, window.innerWidth - CURSOR_SIZE / 2 - 1) + "px";
 
-    const now = Date.now();
-    if (now - lastSwitch < UPDATE_DELAY) return;
+  const now = Date.now();
+  if (now - lastSwitch < UPDATE_DELAY) return;
 
-    const mid = window.innerWidth / 2;
-    const buffer = window.innerWidth * SWITCH_THRESHOLD;
-    const side =
-      e.clientX < mid - buffer
-        ? "left"
-        : e.clientX > mid + buffer
-        ? "right"
-        : lastFlip;
+  const mid = window.innerWidth / 2;
+  const buffer = window.innerWidth * SWITCH_THRESHOLD;
+  const side =
+    e.clientX < mid - buffer
+      ? "left"
+      : e.clientX > mid + buffer
+      ? "right"
+      : lastFlip;
 
-    if (side !== lastFlip) {
-      lastFlip = side;
-      setCursor(currentType);
-    }
-  });
+  if (side !== lastFlip) {
+    lastFlip = side;
+    setCursor(currentType);
+  }
+});
 
   document.addEventListener("mouseleave", () => (cursorEl.style.opacity = "0"));
   document.addEventListener("mouseenter", () => (cursorEl.style.opacity = "1"));
