@@ -1,95 +1,146 @@
 /* ==========================================================
-   WannaSmile | Custom Cursor Handler
+   WannaSmile | Advanced Custom Cursor System
    ----------------------------------------------------------
-   - Detects computer users only
-   - Uses white custom cursor by default
-   - Flips based on screen half (left/right)
-   - Cooldown prevents flicker near center
+   - Desktop-only detection
+   - Dynamic cursor flip (left/right half)
+   - Context-sensitive cursors (pointer, grab, text, move, noselect)
+   - Auto-detects disabled/inactive elements
+   - Flicker-proof with buffer + cooldown
    ========================================================== */
 (() => {
   "use strict";
 
-  // Cursor folders
-  const CURSOR_PATH = {
-    white: "system/images/cursor/white/",
-    black: "system/images/cursor/black/",
-  };
+  // Paths
+  const CURSOR_PATH = "system/images/cursor/white/";
 
   // Cursor filenames
   const CURSORS = {
-    white: {
-      normal: "cursor_white.png",
-      flipped: "cursor_white_flipped.png",
+    normal: {
+      cursor: "normal_cursor.png",
+      grab: "normal_grab.png",
+      point: "normal_point.png",
     },
-    black: {
-      normal: "cursor_black.png",
-      flipped: "cursor_black_flipped.png",
+    flipped: {
+      cursor: "flipped_cursor.png",
+      grab: "flipped_grab.png",
+      point: "flipped_point.png",
+    },
+    universal: {
+      ibeam: "universal_ibeam.png",
+      sizeall: "universal_sizeall.png",
+      noselect: "universal_noselect.png",
     },
   };
 
   // Config
-  const ACTIVE_SET = "white"; // change to "black" if you want black default
-  const SWITCH_THRESHOLD = 0.05; // 5% buffer zone to avoid flicker
-  const UPDATE_DELAY = 100; // ms cooldown between flips
+  const SWITCH_THRESHOLD = 0.05; // 5% screen buffer
+  const UPDATE_DELAY = 100; // ms cooldown
+  const CURSOR_SIZE = 32; // px
 
-  let isComputer =
-    !/Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(navigator.userAgent);
-  if (!isComputer) return; // Skip if not on desktop
+  // Detect desktop only
+  const isDesktop = !/Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(
+    navigator.userAgent
+  );
+  if (!isDesktop) return;
 
-  // Create custom cursor element
+  // Create cursor element
   const cursorEl = document.createElement("img");
-  cursorEl.src = CURSOR_PATH[ACTIVE_SET] + CURSORS[ACTIVE_SET].normal;
   Object.assign(cursorEl.style, {
     position: "fixed",
     top: "0",
     left: "0",
-    width: "32px",
-    height: "32px",
+    width: CURSOR_SIZE + "px",
+    height: CURSOR_SIZE + "px",
     pointerEvents: "none",
     zIndex: "9999",
     transform: "translate(-50%, -50%)",
-    transition: "opacity 0.1s ease",
-    opacity: "0",
     imageRendering: "pixelated",
+    opacity: "0",
+    transition: "opacity 0.1s ease",
   });
   document.body.appendChild(cursorEl);
-
-  // Hide system cursor
   document.body.style.cursor = "none";
 
-  let lastFlip = "right"; // start with normal
+  // State
+  let lastFlip = "right";
   let lastChangeTime = 0;
+  let currentCursorType = "cursor";
 
-  // Mouse move logic
+  // Set cursor safely
+  const setCursor = (type = "cursor") => {
+    const now = Date.now();
+    const cursorSet = lastFlip === "left" ? CURSORS.flipped : CURSORS.normal;
+    const filename =
+      cursorSet[type] || CURSORS.universal[type] || CURSORS.normal.cursor;
+    cursorEl.src = CURSOR_PATH + filename;
+    currentCursorType = type;
+    lastChangeTime = now;
+  };
+
+  // Initial cursor
+  setCursor("cursor");
+
+  // Track mouse movement
   document.addEventListener("mousemove", (e) => {
     cursorEl.style.opacity = "1";
-    cursorEl.style.top = `${e.clientY}px`;
-    cursorEl.style.left = `${e.clientX}px`;
+    cursorEl.style.top = e.clientY + "px";
+    cursorEl.style.left = e.clientX + "px";
 
     const now = Date.now();
     const screenMid = window.innerWidth / 2;
     const buffer = window.innerWidth * SWITCH_THRESHOLD;
 
-    // Avoid rapid switching
     if (now - lastChangeTime < UPDATE_DELAY) return;
 
-    // Determine current side
-    const side = e.clientX < screenMid - buffer ? "left"
-                : e.clientX > screenMid + buffer ? "right"
-                : lastFlip; // within buffer zone → keep current
+    const side =
+      e.clientX < screenMid - buffer
+        ? "left"
+        : e.clientX > screenMid + buffer
+        ? "right"
+        : lastFlip;
 
     if (side !== lastFlip) {
-      const newSrc =
-        side === "left"
-          ? CURSOR_PATH[ACTIVE_SET] + CURSORS[ACTIVE_SET].flipped
-          : CURSOR_PATH[ACTIVE_SET] + CURSORS[ACTIVE_SET].normal;
-      cursorEl.src = newSrc;
       lastFlip = side;
-      lastChangeTime = now;
+      setCursor(currentCursorType);
     }
   });
 
-  // Fade out cursor when leaving window
+  // Hide/show on leave
   document.addEventListener("mouseleave", () => (cursorEl.style.opacity = "0"));
   document.addEventListener("mouseenter", () => (cursorEl.style.opacity = "1"));
+
+  // Smooth cursor updates
+  const updateCursorType = (type) => {
+    if (type !== currentCursorType) setCursor(type);
+  };
+
+  // Click/drag interactions
+  document.addEventListener("mousedown", () => updateCursorType("grab"));
+  document.addEventListener("mouseup", () => updateCursorType("cursor"));
+
+  // Main hover detection logic
+  document.addEventListener("mouseover", (e) => {
+    const tag = e.target.tagName.toLowerCase();
+    const style = getComputedStyle(e.target);
+
+    const isDisabled =
+      e.target.disabled ||
+      e.target.getAttribute("aria-disabled") === "true" ||
+      e.target.classList.contains("disabled") ||
+      style.pointerEvents === "none" ||
+      style.cursor === "not-allowed" ||
+      style.cursor === "no-drop";
+
+    if (isDisabled) {
+      updateCursorType("noselect");
+      return;
+    }
+
+    if (style.cursor === "text" || tag === "input" || tag === "textarea")
+      updateCursorType("ibeam");
+    else if (style.cursor === "move") updateCursorType("sizeall");
+    else if (style.cursor === "pointer" || tag === "a")
+      updateCursorType("point");
+    else updateCursorType("cursor");
+  });
 })();
