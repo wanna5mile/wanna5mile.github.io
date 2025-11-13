@@ -1,19 +1,16 @@
 /* ==========================================================
-   WannaSmile | Advanced Custom Cursor System
+   WannaSmile | Advanced Custom Cursor System (Stable v2)
    ----------------------------------------------------------
-   - Desktop-only detection
-   - Dynamic cursor flip (left/right half)
-   - Context-sensitive cursors (pointer, grab, text, move, noselect)
-   - Auto-detects disabled/inactive elements
-   - Flicker-proof with buffer + cooldown
+   - Fully hides native cursor
+   - Correctly switches between flipped/normal sets
+   - Context-aware (pointer, grab, text, move, etc.)
+   - Flicker-proof & fast
    ========================================================== */
 (() => {
   "use strict";
 
-  // Paths
+  // === CONFIG ===
   const CURSOR_PATH = "system/images/cursor/white/";
-
-  // Cursor filenames
   const CURSORS = {
     normal: {
       cursor: "normal_cursor.png",
@@ -32,98 +29,104 @@
     },
   };
 
-  // Config
-  const SWITCH_THRESHOLD = 0.05; // 5% screen buffer
-  const UPDATE_DELAY = 100; // ms cooldown
-  const CURSOR_SIZE = 32; // px
+  const SWITCH_THRESHOLD = 0.05; // 5% horizontal buffer
+  const UPDATE_DELAY = 50; // faster switching
+  const CURSOR_SIZE = 32;
 
-  // Detect desktop only
+  // === DESKTOP DETECTION ===
   const isDesktop = !/Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(
     navigator.userAgent
   );
   if (!isDesktop) return;
 
-  // Create cursor element
+  // === GLOBAL CURSOR HIDE ===
+  const globalHideStyle = document.createElement("style");
+  globalHideStyle.textContent = `
+    * { cursor: none !important; }
+    html, body { cursor: none !important; }
+  `;
+  document.head.appendChild(globalHideStyle);
+
+  // === CUSTOM CURSOR ELEMENT ===
   const cursorEl = document.createElement("img");
   Object.assign(cursorEl.style, {
     position: "fixed",
     top: "0",
     left: "0",
-    width: CURSOR_SIZE + "px",
-    height: CURSOR_SIZE + "px",
+    width: `${CURSOR_SIZE}px`,
+    height: `${CURSOR_SIZE}px`,
     pointerEvents: "none",
-    zIndex: "9999",
+    zIndex: "999999",
     transform: "translate(-50%, -50%)",
     imageRendering: "pixelated",
     opacity: "0",
     transition: "opacity 0.1s ease",
   });
   document.body.appendChild(cursorEl);
-  document.body.style.cursor = "none";
 
-  // State
+  // === STATE ===
   let lastFlip = "right";
-  let lastChangeTime = 0;
-  let currentCursorType = "cursor";
+  let currentType = "cursor";
+  let lastSwitch = 0;
 
-  // Set cursor safely
+  // === SET CURSOR IMAGE ===
   const setCursor = (type = "cursor") => {
     const now = Date.now();
     const cursorSet = lastFlip === "left" ? CURSORS.flipped : CURSORS.normal;
     const filename =
       cursorSet[type] || CURSORS.universal[type] || CURSORS.normal.cursor;
+
+    if (cursorEl.src.endsWith(filename)) return; // prevent redundant flicker
+
     cursorEl.src = CURSOR_PATH + filename;
-    currentCursorType = type;
-    lastChangeTime = now;
+    currentType = type;
+    lastSwitch = now;
   };
 
   // Initial cursor
   setCursor("cursor");
 
-  // Track mouse movement
+  // === MOVE TRACKING ===
   document.addEventListener("mousemove", (e) => {
     cursorEl.style.opacity = "1";
     cursorEl.style.top = e.clientY + "px";
     cursorEl.style.left = e.clientX + "px";
 
     const now = Date.now();
-    const screenMid = window.innerWidth / 2;
+    const mid = window.innerWidth / 2;
     const buffer = window.innerWidth * SWITCH_THRESHOLD;
 
-    if (now - lastChangeTime < UPDATE_DELAY) return;
+    if (now - lastSwitch < UPDATE_DELAY) return;
 
     const side =
-      e.clientX < screenMid - buffer
+      e.clientX < mid - buffer
         ? "left"
-        : e.clientX > screenMid + buffer
+        : e.clientX > mid + buffer
         ? "right"
         : lastFlip;
 
     if (side !== lastFlip) {
       lastFlip = side;
-      setCursor(currentCursorType);
+      setCursor(currentType);
     }
   });
 
-  // Hide/show on leave
   document.addEventListener("mouseleave", () => (cursorEl.style.opacity = "0"));
   document.addEventListener("mouseenter", () => (cursorEl.style.opacity = "1"));
 
-  // Smooth cursor updates
-  const updateCursorType = (type) => {
-    if (type !== currentCursorType) setCursor(type);
+  // === CONTEXT-AWARE CURSOR LOGIC ===
+  const updateCursor = (type) => {
+    if (type !== currentType) setCursor(type);
   };
 
-  // Click/drag interactions
-  document.addEventListener("mousedown", () => updateCursorType("grab"));
-  document.addEventListener("mouseup", () => updateCursorType("cursor"));
+  document.addEventListener("mousedown", () => updateCursor("grab"));
+  document.addEventListener("mouseup", () => updateCursor("cursor"));
 
-  // Main hover detection logic
   document.addEventListener("mouseover", (e) => {
     const tag = e.target.tagName.toLowerCase();
     const style = getComputedStyle(e.target);
 
-    const isDisabled =
+    const disabled =
       e.target.disabled ||
       e.target.getAttribute("aria-disabled") === "true" ||
       e.target.classList.contains("disabled") ||
@@ -131,16 +134,12 @@
       style.cursor === "not-allowed" ||
       style.cursor === "no-drop";
 
-    if (isDisabled) {
-      updateCursorType("noselect");
-      return;
-    }
-
+    if (disabled) return updateCursor("noselect");
     if (style.cursor === "text" || tag === "input" || tag === "textarea")
-      updateCursorType("ibeam");
-    else if (style.cursor === "move") updateCursorType("sizeall");
-    else if (style.cursor === "pointer" || tag === "a")
-      updateCursorType("point");
-    else updateCursorType("cursor");
+      return updateCursor("ibeam");
+    if (style.cursor === "move") return updateCursor("sizeall");
+    if (style.cursor === "pointer" || tag === "a")
+      return updateCursor("point");
+    updateCursor("cursor");
   });
 })();
