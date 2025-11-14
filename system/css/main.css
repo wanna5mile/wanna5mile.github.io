@@ -160,16 +160,22 @@ header img {
 }
 .dashboard-menu p {
   padding: 10px 16px;
-  color: var(--link-color);
   font-family: monospace;
+  color: var(--link-color);
+  font-weight: bold;
   text-decoration: none;
   display: block;
-  transition: color 0.3s, background 0.3s;
+  cursor: default;
+  transition: color 0.3s, text-decoration 0.3s, background 0.3s;
 }
+
 .dashboard-menu p:hover {
   color: var(--accent-color);
   background: rgba(255,255,255,0.1);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-color);
 }
+
 
 /* ==========================================
    Search Bar
