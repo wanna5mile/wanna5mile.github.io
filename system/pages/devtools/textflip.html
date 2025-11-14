@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mirror / FlipText - DevTool</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#60a5fa;--text:#e6eef8}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;min-height:100vh;margin:0;background:linear-gradient(180deg,#071028 0%, #07122a 100%);color:var(--text);display:flex;align-items:center;justify-content:center;padding:28px}
+
+    .wrap{width:100%;max-width:960px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:20px;box-shadow:0 8px 30px rgba(2,6,23,0.7)}
+    h1{font-size:18px;margin:0 0 10px}
+    .row{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+    .col{flex:1}
+    textarea{width:100%;min-height:120px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--text);resize:vertical;font-size:16px}
+
+    .controls{display:flex;flex-wrap:wrap;gap:10px}
+    label.toggle{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.02);cursor:pointer;border:1px solid rgba(255,255,255,0.02)}
+    .output-wrap{margin-top:12px;padding:18px;border-radius:10px;background:rgba(255,255,255,0.02);min-height:140px;display:flex;align-items:center;justify-content:center}
+
+    .output{white-space:pre-wrap;font-size:28px;line-height:1.1;word-break:break-word;max-width:100%;overflow-wrap:break-word;padding:6px}
+
+    /* flip classes */
+    .mirrorX{transform:scaleX(-1)}
+    .mirrorY{transform:scaleY(-1)}
+
+    /* if using CSS flips, we need to re-flip the text direction so selectable copy is readable when 'reverse-chars' is used */
+    .flipped-back{unicode-bidi:bidi-override;direction:rtl}
+
+    .controls-bottom{display:flex;gap:8px;align-items:center;margin-top:10px}
+    button{background:var(--accent);color:#012047;border:0;padding:8px 12px;border-radius:8px;font-weight:600;cursor:pointer}
+    button.ghost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.04)}
+    .small{font-size:13px;padding:6px 8px}
+
+    footer{margin-top:12px;color:rgba(230,238,248,0.6);font-size:13px}
+
+    @media (max-width:560px){.row{flex-direction:column}.controls{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Mirror / Flip Text — live preview</h1>
+
+    <div class="row">
+      <div class="col">
+        <textarea id="input" placeholder="Type text here (or paste) — live preview updates automatically"></textarea>
+      </div>
+      <div style="width:220px;min-width:160px">
+        <div class="controls">
+          <label class="toggle"><input id="cssFlipX" type="checkbox"> Mirror horizontally (CSS)</label>
+          <label class="toggle"><input id="cssFlipY" type="checkbox"> Mirror vertically (CSS)</label>
+          <label class="toggle"><input id="reverseChars" type="checkbox"> Reverse characters (text)</label>
+        </div>
+
+        <div class="controls-bottom">
+          <label class="toggle"><input id="mono" type="checkbox"> Monospace font</label>
+          <label class="toggle"><input id="big" type="checkbox"> Larger text</label>
+        </div>
+
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <button id="copy">Copy output</button>
+          <button id="select" class="ghost small">Select output</button>
+          <button id="clear" class="ghost small">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="output-wrap">
+      <div id="output" class="output" tabindex="0" aria-live="polite"></div>
+    </div>
+
+    <footer>Tips: use "Reverse characters" to get a textual reversed string (useful for some printing), or use the CSS flips for a visual/graphical mirror effect.</footer>
+  </div>
+
+  <script>
+    const input = document.getElementById('input');
+    const output = document.getElementById('output');
+    const cssFlipX = document.getElementById('cssFlipX');
+    const cssFlipY = document.getElementById('cssFlipY');
+    const reverseChars = document.getElementById('reverseChars');
+    const copyBtn = document.getElementById('copy');
+    const selectBtn = document.getElementById('select');
+    const clearBtn = document.getElementById('clear');
+    const mono = document.getElementById('mono');
+    const big = document.getElementById('big');
+
+    function updateOutput(){
+      const raw = input.value || '';
+      let outText = raw;
+
+      // If user chooses to reverse characters, produce a reversed logical string
+      if(reverseChars.checked){
+        // reverse by grapheme clusters (basic, not perfect for all emoji/combining marks)
+        outText = Array.from(outText).reverse().join('');
+      }
+
+      // Put text into the output element (use textContent to preserve raw text)
+      output.textContent = outText || '\u00A0'; // non-breaking space so box keeps height when empty
+
+      // Update classes for CSS flipping
+      output.classList.toggle('mirrorX', cssFlipX.checked);
+      output.classList.toggle('mirrorY', cssFlipY.checked);
+
+      // Small UX: if we apply CSS flips but also want the text selection to behave naturally, add a bidi fix
+      // This makes selection and copy behave more predictably for many cases; try toggle off if it looks odd.
+      if((cssFlipX.checked || cssFlipY.checked) && !reverseChars.checked){
+        output.classList.add('flipped-back');
+      } else {
+        output.classList.remove('flipped-back');
+      }
+
+      // Font toggles
+      output.style.fontFamily = mono.checked ? 'ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Segoe UI Mono", "Courier New", monospace' : '';
+      output.style.fontSize = big.checked ? '36px' : '28px';
+    }
+
+    // wire up events
+    input.addEventListener('input', updateOutput);
+    cssFlipX.addEventListener('change', updateOutput);
+    cssFlipY.addEventListener('change', updateOutput);
+    reverseChars.addEventListener('change', updateOutput);
+    mono.addEventListener('change', updateOutput);
+    big.addEventListener('change', updateOutput);
+
+    copyBtn.addEventListener('click', async () => {
+      try{
+        // prefer copying the logical (reversed) string rather than the visually flipped representation
+        const textToCopy = reverseChars.checked ? Array.from(input.value || '').reverse().join('') : (input.value || '');
+        await navigator.clipboard.writeText(textToCopy);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(()=> copyBtn.textContent = 'Copy output', 1100);
+      }catch(e){
+        copyBtn.textContent = 'Copy failed';
+        setTimeout(()=> copyBtn.textContent = 'Copy output', 1100);
+      }
+    });
+
+    selectBtn.addEventListener('click', ()=>{
+      // select the output's text
+      const range = document.createRange();
+      range.selectNodeContents(output);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      output.focus();
+    });
+
+    clearBtn.addEventListener('click', ()=>{ input.value = ''; updateOutput(); input.focus(); });
+
+    // initialize example
+    input.value = 'Mirror me! 1234 — punctuation, emojis \nNew line supported.';
+    updateOutput();
+  </script>
+</body>
+</html>
