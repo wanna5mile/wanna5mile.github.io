@@ -1,7 +1,8 @@
 /* ==========================================================
-   WannaSmile | Advanced Custom Cursor System (Stable v5)
+   WannaSmile | Advanced Custom Cursor System (Stable v5 FIXED)
    ----------------------------------------------------------
-   - Fully hides native cursor globally (no reappear flicker)
+   - Fully hides native cursor (no flicker)
+   - Does NOT break page drag/scroll or ChromeOS movement
    - Proper click / hold / grab / focus logic
    - Detects short vs held clicks
    - Prevents stuck grab state after release
@@ -37,7 +38,7 @@
   const SWITCH_THRESHOLD = 0.05;
   const UPDATE_DELAY = 50;
   const CURSOR_SIZE = 32;
-  const CLICK_HOLD_TIME = 500; // ms threshold between click and hold
+  const CLICK_HOLD_TIME = 500;
 
   // === DESKTOP DETECTION ===
   const isDesktop = !/Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(
@@ -45,20 +46,19 @@
   );
   if (!isDesktop) return;
 
-  // === FULL SYSTEM CURSOR HIDE (BUG-PROOF) ===
+  // === SAFE CURSOR HIDE (does NOT break scrolling) ===
   const style = document.createElement("style");
   style.textContent = `
-    html, body, iframe, canvas, video, img, input, textarea, button,
-    [role="button"], [draggable], *::before, *::after, * {
+    html, body {
       cursor: none !important;
+    }
+    input, textarea {
+      caret-color: transparent !important;
     }
     ::-webkit-scrollbar,
     ::-webkit-scrollbar-thumb,
     ::-webkit-scrollbar-track {
       cursor: none !important;
-    }
-    input, textarea {
-      caret-color: transparent !important;
     }
   `;
   document.head.appendChild(style);
@@ -97,8 +97,6 @@
       cursorSet.cursor ||
       CURSORS.normal.cursor;
 
-    if (!filename) filename = CURSORS.normal.cursor;
-
     if (!cursorEl.src.endsWith(filename)) {
       cursorEl.src = CURSOR_PATH + filename;
       currentType = type;
@@ -125,6 +123,7 @@
 
     const mid = window.innerWidth / 2;
     const buffer = window.innerWidth * SWITCH_THRESHOLD;
+
     const side =
       e.clientX < mid - buffer
         ? "left"
@@ -158,7 +157,7 @@
 
     clearTimeout(clickTimer);
     clickTimer = setTimeout(() => {
-      if (isMouseDown) updateCursor("mousedown"); // held long enough
+      if (isMouseDown) updateCursor("mousedown");
     }, CLICK_HOLD_TIME);
 
     if (draggable) {
@@ -171,7 +170,6 @@
 
   document.addEventListener("mouseup", () => {
     clearTimeout(clickTimer);
-    const heldTime = Date.now() - mouseDownTime;
     isMouseDown = false;
 
     if (isDragging) {
@@ -180,7 +178,6 @@
       return;
     }
 
-    // Reset back to default after any click or hold
     updateCursor("cursor");
   });
 
@@ -190,6 +187,7 @@
 
     const tag = e.target.tagName.toLowerCase();
     const style = getComputedStyle(e.target);
+
     const disabled =
       e.target.disabled ||
       e.target.getAttribute("aria-disabled") === "true" ||
