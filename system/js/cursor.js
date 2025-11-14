@@ -1,12 +1,9 @@
 /* ==========================================================
-   WannaSmile | Advanced Custom Cursor System (Stable v5 FIXED)
+   WannaSmile | Custom Cursor System (No-Shrink Version)
    ----------------------------------------------------------
-   - Fully hides native cursor (no flicker)
-   - Does NOT break page drag/scroll or ChromeOS movement
-   - Proper click / hold / grab / focus logic
-   - Detects short vs held clicks
-   - Prevents stuck grab state after release
-   - Context-sensitive hover detection
+   - Removes ALL screen clamping / boundaries
+   - Full desktop cursor replacement, no viewport shifting
+   - Hover, click, grab, and context logic
    ========================================================== */
 (() => {
   "use strict";
@@ -40,30 +37,22 @@
   const CURSOR_SIZE = 32;
   const CLICK_HOLD_TIME = 500;
 
-  // === DESKTOP DETECTION ===
-  const isDesktop = !/Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(
-    navigator.userAgent
-  );
+  // === DESKTOP ONLY ===
+  const isDesktop = !/Android|iPhone|iPad|iPod|webOS|BlackBerry|Windows Phone/i.test(navigator.userAgent);
   if (!isDesktop) return;
 
-  // === SAFE CURSOR HIDE (does NOT break scrolling) ===
+  // === HIDE NATIVE CURSOR SAFELY ===
   const style = document.createElement("style");
   style.textContent = `
-    html, body {
-      cursor: none !important;
-    }
-    input, textarea {
-      caret-color: transparent !important;
-    }
+    html, body { cursor: none !important; }
+    input, textarea { caret-color: transparent !important; }
     ::-webkit-scrollbar,
     ::-webkit-scrollbar-thumb,
-    ::-webkit-scrollbar-track {
-      cursor: none !important;
-    }
+    ::-webkit-scrollbar-track { cursor: none !important; }
   `;
   document.head.appendChild(style);
 
-  // === CREATE CUSTOM CURSOR ===
+  // === CUSTOM CURSOR ELEMENT ===
   const cursorEl = document.createElement("img");
   Object.assign(cursorEl.style, {
     position: "fixed",
@@ -85,20 +74,16 @@
   let lastSwitch = 0;
   let isMouseDown = false;
   let isDragging = false;
-  let mouseDownTime = 0;
   let clickTimer = null;
 
-  // === UTILITY ===
+  // === SET CURSOR ===
   const setCursor = (type = "cursor") => {
-    const cursorSet = lastFlip === "left" ? CURSORS.flipped : CURSORS.normal;
-    let filename =
-      cursorSet[type] ||
-      CURSORS.universal[type] ||
-      cursorSet.cursor ||
-      CURSORS.normal.cursor;
+    const set = lastFlip === "left" ? CURSORS.flipped : CURSORS.normal;
+    let file =
+      set[type] || CURSORS.universal[type] || set.cursor || CURSORS.normal.cursor;
 
-    if (!cursorEl.src.endsWith(filename)) {
-      cursorEl.src = CURSOR_PATH + filename;
+    if (!cursorEl.src.endsWith(file)) {
+      cursorEl.src = CURSOR_PATH + file;
       currentType = type;
       lastSwitch = Date.now();
     }
@@ -111,41 +96,38 @@
   // === INITIAL ===
   setCursor("cursor");
 
-// === MOVEMENT ===
-document.addEventListener("mousemove", (e) => {
-  cursorEl.style.opacity = "1";
+  // === MOVEMENT (∞ NO LIMITS — FULL FREEDOM) ===
+  document.addEventListener("mousemove", (e) => {
+    cursorEl.style.opacity = "1";
+    cursorEl.style.top = e.clientY + "px";
+    cursorEl.style.left = e.clientX + "px"; // ★ NO LIMITS ANYWHERE
 
-  // remove ALL X-boundary limiting
-  cursorEl.style.top = e.clientY + "px";
-  cursorEl.style.left = e.clientX + "px";
+    const now = Date.now();
+    if (now - lastSwitch < UPDATE_DELAY) return;
 
-  const now = Date.now();
-  if (now - lastSwitch < UPDATE_DELAY) return;
+    const mid = window.innerWidth / 2;
+    const buffer = window.innerWidth * SWITCH_THRESHOLD;
 
-  const mid = window.innerWidth / 2;
-  const buffer = window.innerWidth * SWITCH_THRESHOLD;
+    const side =
+      e.clientX < mid - buffer
+        ? "left"
+        : e.clientX > mid + buffer
+        ? "right"
+        : lastFlip;
 
-  const side =
-    e.clientX < mid - buffer
-      ? "left"
-      : e.clientX > mid + buffer
-      ? "right"
-      : lastFlip;
-
-  if (side !== lastFlip) {
-    lastFlip = side;
-    setCursor(currentType);
-  }
-});
+    if (side !== lastFlip) {
+      lastFlip = side;
+      setCursor(currentType);
+    }
+  });
 
   document.addEventListener("mouseleave", () => (cursorEl.style.opacity = "0"));
   document.addEventListener("mouseenter", () => (cursorEl.style.opacity = "1"));
 
-  // === MOUSE LOGIC ===
+  // === CLICK / DRAG LOGIC ===
   document.addEventListener("mousedown", (e) => {
     isMouseDown = true;
     isDragging = false;
-    mouseDownTime = Date.now();
 
     const tag = e.target.tagName.toLowerCase();
     const style = getComputedStyle(e.target);
@@ -172,13 +154,11 @@ document.addEventListener("mousemove", (e) => {
   document.addEventListener("mouseup", () => {
     clearTimeout(clickTimer);
     isMouseDown = false;
-
     if (isDragging) {
       isDragging = false;
       updateCursor("cursor");
       return;
     }
-
     updateCursor("cursor");
   });
 
