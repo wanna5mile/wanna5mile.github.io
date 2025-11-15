@@ -15,24 +15,17 @@
       text-align: center;
       margin: 0;
     }
-
-    main {
-      padding: 2rem;
-    }
-
+    main { padding: 2rem; }
     h1 {
       font-size: 2em;
       margin-bottom: 1em;
       transition: color 0.3s, text-decoration-color 0.3s;
     }
-
     h1:hover {
       color: #ff3b3b;
       text-decoration: underline;
       text-decoration-color: #ff3b3b;
     }
-
-    /* Centered search bar */
     .search-box {
       display: flex;
       justify-content: center;
@@ -44,7 +37,6 @@
       border-radius: 10px;
       padding: 0.4rem 0.6rem;
     }
-
     .search-box input {
       flex: 1;
       background: transparent;
@@ -53,20 +45,16 @@
       font-size: 1rem;
       outline: none;
     }
-
     .search-box button {
       background: none;
       border: none;
       cursor: pointer;
     }
-
     .search-box img {
       width: 22px;
       height: 22px;
       filter: invert(1);
     }
-
-    /* Category buttons */
     .category-buttons {
       display: flex;
       justify-content: center;
@@ -74,7 +62,6 @@
       margin-bottom: 2rem;
       flex-wrap: wrap;
     }
-
     .category-buttons button {
       background: #222;
       color: #fff;
@@ -85,20 +72,16 @@
       font-size: 1rem;
       transition: background 0.3s, transform 0.2s;
     }
-
     .category-buttons button:hover {
       background: #444;
       transform: scale(1.05);
     }
-
-    /* Assets grid */
     .assets-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 1rem;
       margin-top: 1em;
     }
-
     .asset-card {
       background: rgba(255,255,255,0.05);
       border-radius: 10px;
@@ -106,12 +89,10 @@
       text-align: center;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-
     .asset-card:hover {
       transform: scale(1.04);
       box-shadow: 0 0 10px rgba(255,255,255,0.2);
     }
-
     .asset-card img {
       width: 100%;
       height: 120px;
@@ -119,18 +100,15 @@
       border-radius: 8px;
       background: #111;
     }
-
     .asset-card h4 {
       margin: 0.4em 0 0.2em;
       font-size: 1em;
     }
-
     .asset-card p {
       margin: 0;
       font-size: 0.85em;
       color: #bbb;
     }
-
     .soon {
       opacity: 0.6;
       pointer-events: none;
@@ -208,26 +186,47 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
+  const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec"; // <<< REPLACE THIS
+
   const container = document.getElementById("discoveryContainer");
   const searchInput = document.getElementById("searchInput");
   const searchBtn = document.getElementById("searchBtn");
   const buttons = document.querySelectorAll(".category-buttons button");
 
-  const jsonPath = "../json/assets.json";
   const fallbackImage = "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
-  const fallbackLink = "https://theworldpt1.github.io./source/dino/";
+  const fallbackLink = "https://wanna5mile.github.io./source/dino/";
+
   let assets = [];
 
+  // ---- LOAD DATA FROM GOOGLE SHEETS ----
   try {
-    const res = await fetch(jsonPath);
-    if (!res.ok) throw new Error("Failed to load JSON");
-    assets = await res.json();
-  } catch (err) {
-    console.error(err);
+    const res = await fetch(SHEETS_URL);
+    if (!res.ok) throw new Error("Sheets API failed");
+
+    const sheet = await res.json();
+    const rows = sheet.data || sheet; // supports both formats
+
+    assets = rows.map(r => ({
+      title: r.title || "",
+      author: r.author || "",
+      link: r.link || "",
+      image: r.image || "",
+      category: r.category || "",
+      subcategory: r["sub-category"] || "",
+      status: r.status || "",
+      page: r.page || "",
+      featured: r.featured || "",
+      new: r.new || "",
+      fixed: r.fixed || ""
+    }));
+
+  } catch (e) {
+    console.error(e);
     container.innerHTML = "<p>⚠ Failed to load ϱame data.</p>";
     return;
   }
 
+  // ---- RENDER ----
   function renderassets(list) {
     container.innerHTML = "";
     if (!list.length) {
@@ -238,15 +237,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     grid.className = "assets-grid";
 
     list.forEach(asset => {
-      let imgSrc = asset.image?.trim() || "";
-      let linkSrc = asset.link?.trim() || "";
-      if (!imgSrc || imgSrc.toLowerCase() === "blank" || asset.status?.toLowerCase() === "blank")
-        imgSrc = fallbackImage;
-      if (!linkSrc) linkSrc = fallbackLink;
+      let imgSrc = asset.image || fallbackImage;
+      let linkSrc = asset.link || fallbackLink;
 
       const card = document.createElement("div");
       card.className = "asset-card";
-      if (asset.status?.toLowerCase() === "soon") card.classList.add("soon");
+      if (asset.status.toLowerCase() === "soon") card.classList.add("soon");
 
       const link = document.createElement("a");
       link.href = linkSrc;
@@ -255,14 +251,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const img = document.createElement("img");
       img.src = imgSrc;
-      img.alt = asset.title || "asset";
-      img.onerror = () => { img.src = fallbackImage; };
+      img.onerror = () => (img.src = fallbackImage);
 
       const title = document.createElement("h4");
-      title.textContent = asset.title || "Untitled";
+      title.textContent = asset.title;
 
       const author = document.createElement("p");
-      author.textContent = asset.author || "Unknown";
+      author.textContent = asset.author;
 
       link.appendChild(img);
       link.appendChild(title);
@@ -276,36 +271,34 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   renderassets(assets);
 
-  // --- Filter by category ---
+  // ---- CATEGORY FILTER ----
   buttons.forEach(btn => {
     btn.addEventListener("click", () => {
       const cat = btn.dataset.category.toLowerCase();
-      const filtered = assets.filter(g => g.category?.toLowerCase() === cat);
+      const filtered = assets.filter(a => a.category.toLowerCase() === cat);
       renderassets(filtered);
     });
   });
 
-  // --- Search filter ---
+  // ---- SEARCH ----
   function searchassets() {
-    const q = searchInput.value.toLowerCase().trim();
-    const filtered = assets.filter(
-      g =>
-        g.title?.toLowerCase().includes(q) ||
-        g["sub-category"]?.toLowerCase().includes(q)
+    const q = searchInput.value.toLowerCase();
+    const filtered = assets.filter(a =>
+      a.title.toLowerCase().includes(q) ||
+      a.subcategory.toLowerCase().includes(q)
     );
     renderassets(filtered);
   }
-
   searchBtn.addEventListener("click", searchassets);
   searchInput.addEventListener("keydown", e => {
     if (e.key === "Enter") searchassets();
   });
 
-  // --- Profile pic from storage ---
+  // ---- PROFILE PIC ----
   const savedPic = localStorage.getItem("profilePic");
   if (savedPic) document.getElementById("pfp").src = savedPic;
 
-  // --- Dashboard toggle ---
+  // ---- DASHBOARD ----
   const dashboardBtn = document.getElementById("dashboardBtn");
   const dashboardMenu = document.getElementById("dashboardMenu");
 
@@ -315,8 +308,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   dashboardBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    const isVisible = dashboardMenu.style.display === "block";
-    if (isVisible) {
+    const open = dashboardMenu.style.display === "block";
+    if (open) {
       dashboardMenu.style.opacity = 0;
       setTimeout(() => (dashboardMenu.style.display = "none"), 300);
     } else {
@@ -333,6 +326,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
   });
+
 });
 </script>
 
