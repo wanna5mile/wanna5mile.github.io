@@ -167,6 +167,31 @@
       }
     }, 1000);
   }
+function showPopup() {
+  overlay.style.display = "block";
+  modal.style.display = "block";
+
+  // Add blur + lock scroll
+  document.body.classList.add("popup-active", "popup-blurred");
+
+  setTimeout(() => {
+    overlay.classList.add("show");
+    modal.classList.add("show");
+  }, 10);
+}
+
+function hidePopup() {
+  overlay.classList.remove("show");
+  modal.classList.remove("show");
+
+  // Remove blur + unlock scroll
+  document.body.classList.remove("popup-active", "popup-blurred");
+
+  setTimeout(() => {
+    overlay.style.display = "none";
+    modal.style.display = "none";
+  }, 280);
+}
 
   closeBtn.addEventListener("click", () => {
     modal.classList.remove("show");
@@ -184,6 +209,7 @@
       overlay.style.display = "none";
     }, 200);
   });
+  
 </script>
 
 <!-- ======================================================== -->
