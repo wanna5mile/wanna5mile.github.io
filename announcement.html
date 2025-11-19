@@ -1,12 +1,50 @@
-<head></head>
-<body>
-  <style>
-  body{
-    background:black;
-    color:white;
+<head>
+<style>
+  body {
+    background: black;
+    color: white;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    overflow-y: scroll;
+  }
+
+  /* Center container with fixed width + scroll if needed */
+  .announcement-box {
+    width: 550px;
+    max-width: 90%;
+    margin: 40px auto;
+    padding: 20px 25px;
+    background: #111;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
+    overflow-y: auto;
+    max-height: 80vh;
+  }
+
+  /* Button-like anchor styling */
+  a.return-btn {
+    display: inline-block;
+    margin-top: 25px;
+    background: #222;
+    padding: 12px 25px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  a.return-btn:hover {
+    background: red;
+    transform: scale(1.08);
   }
 </style>
-  <center>
+</head>
+
+<body>
+
+  <div class="announcement-box">
     <p>
       Hello everyone!<br><br>
       Rhap5ody here, Im here to announce that i will
@@ -35,6 +73,10 @@
       “don’t show again” without any worry to forget or miss out on the announcement, I will be adding the page link to the header! 
       <strong>“Announcement” <—-</strong>
     </p>
+  </div>
+
+  <center>
+    <a class="return-btn" href="/">return</a>
   </center>
-  <center><a href="/">return</a></center>
+
 </body>
