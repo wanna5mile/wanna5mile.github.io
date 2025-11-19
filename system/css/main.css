@@ -698,6 +698,20 @@ a, button, input, textarea {
   pointer-events: none;
   transition: opacity 0.25s ease;
 }
+/* ==========================================
+   Global Page Blur When Popup Is Active
+   ========================================== */
+body.popup-active {
+  overflow: hidden; /* block scrolling */
+}
+
+body.popup-blurred #container,
+body.popup-blurred #container-discov,
+body.popup-blurred header,
+body.popup-blurred footer {
+  filter: blur(6px) brightness(0.8);
+  transition: filter 0.3s ease;
+}
 
 #toTopBtn.show {
   opacity: 1;
