@@ -693,3 +693,13 @@ a, button, input, textarea {
   background: rgba(255, 255, 255, 0.15);
   color: var(--accent-color);
 }
+#toTopBtn {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+#toTopBtn.show {
+  opacity: 1;
+  pointer-events: auto;
+}
