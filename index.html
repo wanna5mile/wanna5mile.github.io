@@ -397,26 +397,29 @@
 </script>
 
       <script>
-      const toTopBtn = document.getElementById("toTopBtn");
+  const toTopBtn = document.getElementById("toTopBtn");
 
-      // Show button when scrolled down 200px
-      window.onscroll = function () {
-        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 200) {
-          toTopBtn.style.display = "block";
-        } else {
-          toTopBtn.style.display = "none";
-        }
-      };
+  // Use one scroll listener
+  window.addEventListener("scroll", () => {
+    const scrollY = window.scrollY;
 
-      // Scroll smoothly to top on click
-      toTopBtn.onclick = function () {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-      };
-    </script>
-<script>
+    // Toggle visibility
+    if (scrollY > 250) {
+      toTopBtn.classList.add("show");
+    } else {
+      toTopBtn.classList.remove("show");
+    }
+  });
+
+  // Smooth scroll to top
+  toTopBtn.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  });
+</script>
+
 /* ==========================================================
    INTERACTIVE 404 CHECK + CUSTOM DOMAIN FIX
    ----------------------------------------------------------
