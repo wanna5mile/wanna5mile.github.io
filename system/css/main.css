@@ -582,3 +582,114 @@ a, button, input, textarea {
 .soon:hover img {
   opacity: 0.55; /* fade more when hovered */
 }
+/* ==========================================
+   Announcement Popup — CLEAN + MATCHED STYLE
+   ========================================== */
+
+/* Background overlay */
+.announcement-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  display: none;
+  z-index: 99997;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.announcement-overlay.show {
+  display: block;
+  opacity: 1;
+}
+
+/* Modal */
+.announcement-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(480px, 90%);
+  transform: translate(-50%, -50%) scale(0.85);
+  background: rgba(20, 20, 20, 0.7);
+  backdrop-filter: blur(12px) saturate(1.4);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 22px;
+  padding: 22px 26px;
+  color: var(--link-color);
+  font-family: monospace;
+  text-align: left;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  display: none;
+  z-index: 99998;
+  transition: transform 0.28s ease, opacity 0.28s ease;
+}
+
+/* When JS adds .show */
+.announcement-modal.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Title */
+.announcement-title {
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--accent-color);
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+/* Content */
+.announcement-content {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+.announcement-content p {
+  line-height: 1.55;
+  font-size: 0.95rem;
+  color: var(--link-color);
+}
+
+/* Scrollbar */
+.announcement-content::-webkit-scrollbar {
+  width: 8px;
+}
+.announcement-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+}
+
+/* Buttons */
+.announcement-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+  gap: 12px;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 0.95rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--link-color);
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, opacity 0.25s;
+}
+
+/* Disabled state during countdown */
+.modal-btn.disabled {
+  opacity: 0.35 !important;
+  pointer-events: none;
+}
+
+/* Hover */
+.modal-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--accent-color);
+}
