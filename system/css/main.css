@@ -713,7 +713,36 @@ body.popup-blurred footer {
   transition: filter 0.3s ease;
 }
 
-#toTopBtn.show {
-  opacity: 1;
-  pointer-events: auto;
-}
+    #topBar {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 20;
+      background: var(--header-bg);
+    }
+
+    #topBar header {
+      z-index: 21;
+    }
+
+    #quoteWrapper {
+      position: relative;
+      width: 100vw;
+      height: 30px;
+      overflow: hidden;
+      background: #1d201f;
+      display: flex;
+      align-items: center;
+    }
+
+    #quoteBox {
+      position: absolute;
+      white-space: nowrap;
+      font-weight: bold;
+      color: #fff;
+      transform: translateX(100%);
+      user-select: none;
+      cursor: default;
+      font-size: 1.0em;
+      font-family: monospace;
+    }
