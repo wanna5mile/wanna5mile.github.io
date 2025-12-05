@@ -300,44 +300,24 @@ function createAssetCards(data) {
 // Favorite star
 const star = document.createElement("button");
 star.className = "favorite-star";
-Object.assign(star.style, {
-  background: "transparent",
-  border: "none",
-  cursor: "pointer",
-  padding: "0"
-});
+// use an <img> inside the button but keep the same structure (replace textContent with innerHTML)
+star.innerHTML = isFav(title)
+  ? '<img src="fav-filled.png" alt="Favorite" width="20" height="20" style="pointer-events:none">'
+  : '<img src="fav-unfilled.png" alt="Not favorite" width="20" height="20" style="pointer-events:none">';
 
-// Create the img element
-const starImg = document.createElement("img");
-starImg.src = isFav(title)
-  ? "fav-filled.png"
-  : "fav-unfilled.png";
-
-starImg.alt = "Favorite";
-starImg.style.width = "20px";
-starImg.style.height = "20px";
-starImg.style.pointerEvents = "none"; // Important so clicks go to the button
-
-star.appendChild(starImg);
+Object.assign(star.style, { background: "transparent", border: "none", cursor: "pointer", padding: "0" });
 
 star.addEventListener("click", (e) => {
   e.preventDefault();
   e.stopPropagation();
-
   const key = title.toLowerCase();
-
-  if (window.favorites.has(key)) {
-    window.favorites.delete(key);
-  } else {
-    window.favorites.add(key);
-  }
-
+  if (window.favorites.has(key)) window.favorites.delete(key);
+  else window.favorites.add(key);
   saveFavorites();
-
-  // Update icon
-  starImg.src = window.favorites.has(key)
-    ? "favorite-filled.png"
-    : "favorite-unfilled.png";
+  // update the img inside the button (same spot where textContent was updated before)
+  star.innerHTML = window.favorites.has(key)
+    ? '<img src="fav-filled.png" alt="Favorite" width="20" height="20" style="pointer-events:none">'
+    : '<img src="fav-unfilled.png" alt="Not favorite" width="20" height="20" style="pointer-events:none">';
 });
 
 card.append(a, titleEl, authorEl, star);
