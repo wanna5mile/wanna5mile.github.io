@@ -26,8 +26,7 @@
       }
     });
   </script>
-
-  <!-- Social Meta -->
+  <!-- link styling -->
   <meta property="og:title" content="WannaSmile" />
   <meta property="og:description" content="Welcome to WannaSmile — a library full of content! Enjoy it in your free time." />
   <meta property="og:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
@@ -40,82 +39,6 @@
   <meta name="twitter:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
 </head>
 <body theme="classic">
-<script>
-  const modal = document.getElementById("announcement-modal");
-  const overlay = document.getElementById("popup-overlay");
-  const closeBtn = document.getElementById("close-btn");
-  const neverBtn = document.getElementById("never-btn");
-  if (!localStorage.getItem("announcement_hidden")) {
-    overlay.style.display = "block";
-    modal.style.display = "block";
-    setTimeout(() => modal.classList.add("show"), 10);
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        startCountdown();
-        observer.disconnect();
-      }
-    }, { threshold: 0.6 });
-    observer.observe(modal);
-  }
-  function startCountdown() {
-    let timer = 5;
-    const interval = setInterval(() => {
-      timer--;
-      closeBtn.textContent = `Close (${timer})`;
-      neverBtn.textContent = `Don't Show Again (${timer})`;
-      if (timer <= 0) {
-        clearInterval(interval);
-        closeBtn.textContent = "Close";
-        neverBtn.textContent = "Don't Show Again";
-        closeBtn.classList.remove("disabled");
-        neverBtn.classList.remove("disabled");
-      }
-    }, 1000);
-  }
-function showPopup() {
-  overlay.style.display = "block";
-  modal.style.display = "block";
-  // Add blur + lock scroll
-  document.body.classList.add("popup-active", "popup-blurred");
-  setTimeout(() => {
-    overlay.classList.add("show");
-    modal.classList.add("show");
-  }, 10);
-}
-function hidePopup() {
-  overlay.classList.remove("show");
-  modal.classList.remove("show");
-
-  // Remove blur + unlock scroll
-  document.body.classList.remove("popup-active", "popup-blurred");
-
-  setTimeout(() => {
-    overlay.style.display = "none";
-    modal.style.display = "none";
-  }, 280);
-}
-
-  closeBtn.addEventListener("click", () => {
-    modal.classList.remove("show");
-    setTimeout(() => {
-      modal.style.display = "none";
-      overlay.style.display = "none";
-    }, 200);
-  });
-
-  neverBtn.addEventListener("click", () => {
-    localStorage.setItem("announcement_hidden", "true");
-    modal.classList.remove("show");
-    setTimeout(() => {
-      modal.style.display = "none";
-      overlay.style.display = "none";
-    }, 200);
-  });
-  
-</script>
-
-<!-- ======================================================== -->
-
   <!-- Preloader -->
   <div id="preloader" class="preloader">
     <div class="loader-gif">
@@ -124,7 +47,6 @@ function hidePopup() {
     <div class="load-progress-bar"><div id="progressBar" class="load-progress-fill"></div></div>
     <div id="loaderText" class="loading-text">Loading...</div>
   </div>
-
   <div id="topBar">
     <header>
       <nav class="nav-links">
@@ -134,15 +56,13 @@ function hidePopup() {
         <a href="system/pages/settings.html">Settings</a>
         <a href="system/pages/support.html">Support</a>
         <a href="info.html">Info</a>
-        <a href="announcement.html">announcement</a>
-
+        <a href="news.html">news & global chat</a>
         <div class="pages-anchor">
           <button class="arrowleft" onclick="prevPage()"><img src="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/icons/left.png" /></button>
           <span class="page-indicator">...</span>
           <button class="arrowright" onclick="nextPage()"><img src="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/icons/right.png" /></button>
         </div>
       </nav>
-
       <div class="header-controls">
         <div class="search-box">
           <input id="searchInputHeader" type="text" placeholder="Search ϱames..." />
@@ -152,32 +72,25 @@ function hidePopup() {
         <button id="dashboardBtn"><img src="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/icons/dashboard.png" /></button>
       </div>
     </header>
-
     <div id="quoteWrapper">
       <p id="quoteBox">Loading...</p>
     </div>
   </div>
-
   <aside id="dashboardMenu" class="dashboard-menu">
     <p>pages</p>
     <a href="https://bguhm.github.io/music-player.html">Music Player</a>
     <a href="system/pages/settings-themes.html">Themes</a>
     <a href="system/pages/credits.html">Credits</a>
-
     <p>dev tools</p>
     <a href="system/pages/devtools/rawfetch.html">raw image link fetcher</a>
     <a href="system/pages/devtools/textflip.html">text flip/mirror</a>
-
     <p>other</p>
     <a href="system/pages/alt.html">Alternative Links</a>
   </aside>
-
   <main>
     <div id="container">Loading assets...</div>
   </main>
-
   <button id="toTopBtn">⬆ Top</button>
-
   <footer>
     <a href="system/pages/sources.html">Sources</a>
     <a href="system/pages/contributors.html">Contribute</a>
@@ -187,7 +100,6 @@ function hidePopup() {
     <a href="system/archive/index.html">archived versions</a>
     <a href="system/pages/update-logs.html" id="footerVersion">Version loading...</a>
   </footer>
-
   <!-- JS -->
   <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/settings.js" defer></script>
   <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/commands.js" defer></script>
@@ -197,127 +109,9 @@ function hidePopup() {
   <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/version.js" defer></script>
   <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/all.js" defer></script>
   <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/pages.js" defer></script>
-
-  <!-- Quotes Scroll -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const wrapper = document.getElementById("quoteWrapper");
-      const box = document.getElementById("quoteBox");
-      const jsonPath = "https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/json/quotes.json";
-
-      let quotes = [];
-      let pos = 0;
-      let lastTime = null;
-
-      const baseSpeed = 120;
-      const slowSpeed = 70;
-      const slowerSpeed = 30;
-
-      let currentSpeed = baseSpeed;
-      let isHoveringBox = false;
-      let isHoveringText = false;
-      let isMouseDown = false;
-
-      async function loadQuotes() {
-        try {
-          const res = await fetch(jsonPath);
-          const data = await res.json();
-          quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
-          start();
-        } catch {
-          quotes = ["⚠ Error loading quotes"];
-          start();
-        }
-      }
-
-      function setQuote() {
-        const quote = quotes[Math.floor(Math.random() * quotes.length)];
-        box.textContent = quote;
-        pos = wrapper.offsetWidth;
-        box.style.transform = `translateX(${pos}px)`;
-      }
-
-      function updateSpeed() {
-        if (isMouseDown) currentSpeed = 0;
-        else if (isHoveringText) currentSpeed = slowerSpeed;
-        else if (isHoveringBox) currentSpeed = slowSpeed;
-        else currentSpeed = baseSpeed;
-      }
-
-      function animate(time) {
-        if (lastTime !== null) {
-          const dt = (time - lastTime) / 1000;
-          pos -= currentSpeed * dt;
-          box.style.transform = `translateX(${pos}px)`;
-          if (pos + box.offsetWidth < 0) setQuote();
-        }
-        lastTime = time;
-        requestAnimationFrame(animate);
-      }
-
-      function start() {
-        setQuote();
-        requestAnimationFrame(animate);
-      }
-
-      wrapper.addEventListener("mouseenter", () => { isHoveringBox = true; updateSpeed(); });
-      wrapper.addEventListener("mouseleave", () => { isHoveringBox = false; isHoveringText = false; updateSpeed(); });
-      box.addEventListener("mouseenter", () => { isHoveringText = true; updateSpeed(); });
-      box.addEventListener("mouseleave", () => { isHoveringText = false; updateSpeed(); });
-      wrapper.addEventListener("mousedown", () => { isMouseDown = true; updateSpeed(); });
-      wrapper.addEventListener("mouseup", () => { isMouseDown = false; updateSpeed(); });
-
-      loadQuotes();
-    });
-  </script>
-
-  <!-- PFP Loader -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const pfp = document.getElementById("pfp");
-      const defaultPic = "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/icons/profile.png";
-
-      const currentUser = localStorage.getItem("currentUser");
-      if (!currentUser) {
-        pfp.src = defaultPic;
-        return;
-      }
-
-      const userData = JSON.parse(localStorage.getItem("user_" + currentUser) || "{}");
-      const profileData = JSON.parse(localStorage.getItem("profile_" + currentUser) || "{}");
-
-      const userPic = profileData.pic || defaultPic;
-
-      pfp.src = userPic;
-
-      const cachedPreview = {
-        username: userData.username || profileData.nickname || currentUser,
-        pic: userPic
-      };
-      localStorage.setItem("preview_" + currentUser, JSON.stringify(cachedPreview));
-    });
-  </script>
-
-  <!-- To Top Button -->
-  <script>
-    const toTopBtn = document.getElementById("toTopBtn");
-
-    window.addEventListener("scroll", () => {
-      const scrollY = window.scrollY;
-      if (scrollY > 250) {
-        toTopBtn.classList.add("show");
-      } else {
-        toTopBtn.classList.remove("show");
-      }
-    });
-
-    toTopBtn.addEventListener("click", () => {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-    });
-  </script>
+  <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/quotes.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/profile.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/top.js" defer></script>
 
   <!-- 404 Checker FIXED → wrapped properly -->
   <script>
