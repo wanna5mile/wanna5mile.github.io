@@ -1,11 +1,3 @@
-/* ==========================================================
-   SELF-CONTAINED ANNOUNCEMENT BANNER
-   - Pulls from Google Sheet JSON
-   - Shows only ONE active announcement
-   - Auto-updates every 20 seconds
-   - Supports :sticker: codes → images
-   ========================================================== */
-
 (() => {
   "use strict";
 
