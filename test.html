@@ -38,126 +38,31 @@
   <meta name="twitter:title" content="WannaSmile" />
   <meta name="twitter:description" content="A fun, content-filled library to make you smile." />
   <meta name="twitter:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
-
-  <!-- Inline custom styles -->
-  <style>
-    #topBar {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      z-index: 20;
-      background: var(--header-bg);
-    }
-
-    #topBar header {
-      z-index: 21;
-    }
-
-    #quoteWrapper {
-      position: relative;
-      width: 100vw;
-      height: 30px;
-      overflow: hidden;
-      background: #1d201f;
-      display: flex;
-      align-items: center;
-    }
-
-    #quoteBox {
-      position: absolute;
-      white-space: nowrap;
-      font-weight: bold;
-      color: #fff;
-      transform: translateX(100%);
-      user-select: none;
-      cursor: default;
-      font-size: 1.0em;
-      font-family: monospace;
-    }
-  </style>
 </head>
-
 <body theme="classic">
-
-<!-- ========================================================
-     ANNOUNCEMENT POPUP — MOVED OUT OF <head> (VALID NOW)
-========================================================= -->
-
-<!--<div id="popup-overlay" class="announcement-overlay"></div>
-
-<div id="announcement-modal" class="announcement-modal">
-  <div class="announcement-header">
-    <h2 class="announcement-title">Break Announcement</h2>
-  </div>
-
-  <div class="announcement-content">
-<p>
-      Hello everyone!<br><br>
-      Rhap5ody here, Im here to announce that i will
-      be taking a break from updating the website for a while.
-      <br><br>
-      <strong>When will I come back?</strong><br>
-      Sometime before <strong>May 16th, 2025</strong>
-      <br><br>
-      <strong>Why go on break?</strong><br>
-      i feel im not at the level i should be at right now,
-      ill go on break so i can learn to become a better website design for y'all.
-      <br><br>
-      <strong>What does this mean for YOU?</strong><br>
-      not much actually! i will be continuing to add all assets up until page 5!
-      (page 6 to 10 is not guaranteed, but ill try to grt them filled out).
-      <br><br>
-      <strong>Suggestions & Bug Fixes</strong><br>
-      All suggestions are welcome to be continued to be asked of me,
-      I will do as much as I can to include everyone’s suggestions 
-      and get sources for the assets people want to enjoy the most.
-      And of course I will be swift to deliver with bug fixes and new content,
-      fair well for now but not forever!
-      <br><br>
-      <strong>Hide or Don’t show again</strong>
-      Click the buttons at the bottom but know that either if you read or not you can click
-      “don’t show again” without any worry to forget or miss out on the announcement, I will be adding the page link to the header! 
-      <strong>“Announcement” <—-</strong>
-    </p>
-  </div>
-
-  <div class="announcement-buttons">
-    <button id="close-btn" class="modal-btn modal-close disabled">Close (5)</button>
-    <button id="never-btn" class="modal-btn modal-hide disabled">Don’t Show Again (5)</button>
-  </div>
-</div> -->
-
 <script>
   const modal = document.getElementById("announcement-modal");
   const overlay = document.getElementById("popup-overlay");
   const closeBtn = document.getElementById("close-btn");
   const neverBtn = document.getElementById("never-btn");
-
   if (!localStorage.getItem("announcement_hidden")) {
     overlay.style.display = "block";
     modal.style.display = "block";
-
     setTimeout(() => modal.classList.add("show"), 10);
-
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
         startCountdown();
         observer.disconnect();
       }
     }, { threshold: 0.6 });
-
     observer.observe(modal);
   }
-
   function startCountdown() {
     let timer = 5;
-
     const interval = setInterval(() => {
       timer--;
-
       closeBtn.textContent = `Close (${timer})`;
       neverBtn.textContent = `Don't Show Again (${timer})`;
-
       if (timer <= 0) {
         clearInterval(interval);
         closeBtn.textContent = "Close";
@@ -170,16 +75,13 @@
 function showPopup() {
   overlay.style.display = "block";
   modal.style.display = "block";
-
   // Add blur + lock scroll
   document.body.classList.add("popup-active", "popup-blurred");
-
   setTimeout(() => {
     overlay.classList.add("show");
     modal.classList.add("show");
   }, 10);
 }
-
 function hidePopup() {
   overlay.classList.remove("show");
   modal.classList.remove("show");
