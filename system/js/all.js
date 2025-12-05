@@ -297,28 +297,51 @@ function createAssetCards(data) {
     const authorEl = document.createElement("p");
     authorEl.textContent = author || "";
 
-    // Favorite star
-    const star = document.createElement("button");
-    star.className = "favorite-star";
-    star.textContent = isFav(title) ? "★" : "☆";
-    Object.assign(star.style, { background: "transparent", border: "none", cursor: "pointer" });
-    star.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const key = title.toLowerCase();
-      if (window.favorites.has(key)) window.favorites.delete(key);
-      else window.favorites.add(key);
-      saveFavorites();
-      star.textContent = window.favorites.has(key) ? "★" : "☆";
-    });
+// Favorite star
+const star = document.createElement("button");
+star.className = "favorite-star";
+Object.assign(star.style, {
+  background: "transparent",
+  border: "none",
+  cursor: "pointer",
+  padding: "0"
+});
 
-    card.append(a, titleEl, authorEl, star);
-    frag.appendChild(card);
+// Create the img element
+const starImg = document.createElement("img");
+starImg.src = isFav(title)
+  ? "fav-filled.png"
+  : "fav-unfilled.png";
+
+starImg.alt = "Favorite";
+starImg.style.width = "20px";
+starImg.style.height = "20px";
+starImg.style.pointerEvents = "none"; // Important so clicks go to the button
+
+star.appendChild(starImg);
+
+star.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const key = title.toLowerCase();
+
+  if (window.favorites.has(key)) {
+    window.favorites.delete(key);
+  } else {
+    window.favorites.add(key);
   }
 
-  container.appendChild(frag);
-  return imagePromises;
-}
+  saveFavorites();
+
+  // Update icon
+  starImg.src = window.favorites.has(key)
+    ? "favorite-filled.png"
+    : "favorite-unfilled.png";
+});
+
+card.append(a, titleEl, authorEl, star);
+frag.appendChild(card);
 
 /* ---------------------------
    Paging + Search + Filter (Enhanced + Pixel Error GIF + Smart Match)
