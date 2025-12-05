@@ -1,90 +1,59 @@
-/* ==========================================================
-   Quotes Scroller (JSON-Fetched, Smoothed, Centered & Fixed)
-   ========================================================== */
-async function initQuotes() {
-  const wrapper = document.getElementById("quoteWrapper");
-  const quoteBox = document.getElementById("quoteBox");
-  if (!wrapper || !quoteBox) return;
-
+document.addEventListener("DOMContentLoaded", () => {
+const wrapper = document.getElementById("quoteWrapper");
+const box = document.getElementById("quoteBox");
+const jsonPath = "https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/json/quotes.json";
+let quotes = [];
+let pos = 0;
+let lastTime = null;
+const baseSpeed = 120;
+const slowSpeed = 70;
+const slowerSpeed = 30;
+let currentSpeed = baseSpeed;
+let isHoveringBox = false;
+let isHoveringText = false;
+let isMouseDown = false;
+async function loadQuotes() {
   try {
-    const res = await fetch(config.quotesJson, { cache: "no-store" });
-    if (!res.ok) throw new Error("Failed to fetch quotes JSON");
-    const quotes = await res.json();
-
-    if (!Array.isArray(quotes) || !quotes.length)
-      throw new Error("Invalid quotes format");
-
-    // === Core animation settings ===
-    let baseSpeed = 120; // pixels per second
-    let targetMultiplier = 1;
-    let currentMultiplier = 1;
-    let position = 0;
-    let lastTime = null;
-    let paused = false;
-
-    // --- Helper: pick and display a random quote ---
-    function setRandomQuote() {
-      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      quoteBox.textContent = randomQuote;
-
-      // Wait one frame so the new width is known
-      requestAnimationFrame(() => {
-        const offset = 50 + Math.random() * 100; // slight random delay offscreen
-        position = wrapper.offsetWidth + offset;
-        quoteBox.style.transform = `translate(${position}px, -50%)`;
-      });
-    }
-
-    // --- Main animation loop ---
-    function animate(timestamp) {
-      if (lastTime !== null) {
-        const delta = (timestamp - lastTime) / 1000; // seconds since last frame
-        const accel = 5; // faster response for hover transitions
-
-        // Smoothly interpolate only if not paused
-        const target = paused ? 0 : targetMultiplier;
-        currentMultiplier += (target - currentMultiplier) * accel * delta;
-
-        // Only move if not paused
-        if (!paused && currentMultiplier > 0.001) {
-          position -= baseSpeed * currentMultiplier * delta;
-          quoteBox.style.transform = `translate(${position}px, -50%)`;
-        }
-
-        // ✅ Wait until fully off-screen before resetting
-        if (position + quoteBox.offsetWidth < -100) {
-          setRandomQuote();
-        }
-      }
-
-      lastTime = timestamp;
-      requestAnimationFrame(animate);
-    }
-
-    // --- Hover speed adjustments ---
-    wrapper.addEventListener("mouseenter", () => (targetMultiplier = 0.5));
-    wrapper.addEventListener("mouseleave", () => (targetMultiplier = 1));
-    quoteBox.addEventListener("mouseenter", () => (targetMultiplier = 0.25));
-    quoteBox.addEventListener("mouseleave", () => (targetMultiplier = 1));
-
-    // --- Pause/resume on mousedown ---
-    const pause = () => {
-      paused = true;
-      currentMultiplier = 0; // instantly stop motion
-    };
-    const unpause = () => {
-      paused = false;
-    };
-
-    wrapper.addEventListener("mousedown", pause);
-    quoteBox.addEventListener("mousedown", pause);
-    window.addEventListener("mouseup", unpause);
-
-    // --- Initialize first quote & start animation ---
-    setRandomQuote();
-    requestAnimationFrame(animate);
-    console.log("✅ Quotes loaded successfully");
-  } catch (err) {
-    console.warn("⚠ Quotes init failed:", err);
+    const res = await fetch(jsonPath);
+    const data = await res.json();
+    quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
+    start();
+  } catch {
+    quotes = ["⚠ Error loading quotes"];
+    start();
   }
 }
+function setQuote() {
+  const quote = quotes[Math.floor(Math.random() * quotes.length)];
+  box.textContent = quote;
+  pos = wrapper.offsetWidth;
+  box.style.transform = `translateX(${pos}px)`;
+}
+function updateSpeed() {
+  if (isMouseDown) currentSpeed = 0;
+  else if (isHoveringText) currentSpeed = slowerSpeed;
+  else if (isHoveringBox) currentSpeed = slowSpeed;
+  else currentSpeed = baseSpeed;
+}
+function animate(time) {
+  if (lastTime !== null) {
+    const dt = (time - lastTime) / 1000;
+    pos -= currentSpeed * dt;
+    box.style.transform = `translateX(${pos}px)`;
+    if (pos + box.offsetWidth < 0) setQuote();
+  }
+  lastTime = time;
+  requestAnimationFrame(animate);
+}
+function start() {
+  setQuote();
+  requestAnimationFrame(animate);
+}
+wrapper.addEventListener("mouseenter", () => { isHoveringBox = true; updateSpeed(); });
+wrapper.addEventListener("mouseleave", () => { isHoveringBox = false; isHoveringText = false; updateSpeed(); });
+box.addEventListener("mouseenter", () => { isHoveringText = true; updateSpeed(); });
+box.addEventListener("mouseleave", () => { isHoveringText = false; updateSpeed(); });
+wrapper.addEventListener("mousedown", () => { isMouseDown = true; updateSpeed(); });
+wrapper.addEventListener("mouseup", () => { isMouseDown = false; updateSpeed(); });
+loadQuotes();
+});
