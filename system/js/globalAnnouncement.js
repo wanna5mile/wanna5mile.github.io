@@ -1,30 +1,89 @@
 /* ==========================================================
-   GLOBAL ANNOUNCEMENT SYSTEM (SELF-CONTAINED SCRIPT)
-   Requires only: ANNOUNCEMENT_SHEET_URL (string)
-   Supports :sticker: codes → image replacement
+   SELF-CONTAINED ANNOUNCEMENT BANNER
+   - Pulls from Google Sheet JSON
+   - Shows only ONE active announcement
+   - Auto-updates every 20 seconds
+   - Supports :sticker: codes → images
    ========================================================== */
 
-(function () {
-  if (typeof ANNOUNCEMENT_SHEET_URL !== "string") {
-    console.error("[Announcements] Missing ANNOUNCEMENT_SHEET_URL variable.");
-    return;
+(() => {
+  "use strict";
+
+  const ANNOUNCEMENT_SHEET_URL =
+    "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec";
+    
+  const STICKER_PATH = "/system/images/announcement-stickers/";
+  const REFRESH = 20000; // 20 seconds
+  let current = "";
+
+  /* -----------------------------
+     CSS
+  ----------------------------- */
+  const style = document.createElement("style");
+  style.textContent = `
+    #globalAnn {
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-family: system-ui, sans-serif;
+      text-align: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 999999;
+      cursor: pointer;
+      transition: opacity .25s ease;
+      color: #fff;
+      display: none;
+    }
+    #globalAnn img {
+      height: 22px;
+      vertical-align: middle;
+      margin: 0 4px;
+    }
+    body.has-announcement {
+      margin-top: 48px !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* -----------------------------
+     Helper: Sticker Replacement
+  ----------------------------- */
+  function withStickers(text) {
+    return text.replace(/:([a-zA-Z0-9_\-]+):/g, (m, n) => {
+      return `<img src="${STICKER_PATH}${n}.png" alt="${n}">`;
+    });
   }
 
-  const STICKER_PATH = "/system/images/announcement-stickers/"; // <—
+  /* -----------------------------
+     Build Banner DOM
+  ----------------------------- */
+  function ensureBanner() {
+    let b = document.getElementById("globalAnn");
+    if (!b) {
+      b = document.createElement("div");
+      b.id = "globalAnn";
+      document.body.appendChild(b);
+    }
+    return b;
+  }
 
-  async function fetchAnnouncements() {
+  /* -----------------------------
+     Fetch + Pick Active Row
+  ----------------------------- */
+  async function fetchSheet() {
     try {
-      const res = await fetch(ANNOUNCEMENT_SHEET_URL, { cache: "no-store" });
-      const rows = await res.json();
-      return rows || [];
-    } catch (err) {
-      console.warn("[Announcements] Fetch failed:", err);
+      const r = await fetch(ANNOUNCEMENT_SHEET_URL, { cache: "no-store" });
+      return await r.json();
+    } catch (e) {
+      console.warn("Announcement fetch failed:", e);
       return [];
     }
   }
 
-  function filterActiveAnnouncements(rows) {
-    return rows.filter(r => {
+  function getActive(rows) {
+    return rows.find(r => {
       if (!r.announcement) return false;
 
       const enabled = String(r.enabled || "").trim().toLowerCase();
@@ -37,87 +96,52 @@
       }
 
       return true;
-    });
+    }) || null;
   }
 
-  // Convert :emoji_name: → <img src="...">
-  function processStickers(text) {
-    if (typeof text !== "string") return text;
+  /* -----------------------------
+     Update Banner
+  ----------------------------- */
+  function updateBanner(text, type) {
+    const bar = ensureBanner();
 
-    return text.replace(/:([a-zA-Z0-9_\-]+):/g, (match, stickerName) => {
-      const src = `${STICKER_PATH}${stickerName}.png`;
-      return `<img src="${src}" alt="${stickerName}" style="height:22px; vertical-align:middle; margin:0 4px;">`;
-    });
-  }
+    if (!text) {
+      bar.style.display = "none";
+      document.body.classList.remove("has-announcement");
+      current = "";
+      return;
+    }
 
-  function createBanner(msg) {
-    const banner = document.createElement("div");
-    banner.id = "globalAnnouncement";
+    const processed = withStickers(text);
+    if (processed === current) return;
+    current = processed;
 
-    Object.assign(banner.style, {
-      width: "100%",
-      padding: "12px 20px",
-      fontSize: "16px",
-      fontFamily: "system-ui, sans-serif",
-      textAlign: "center",
-      position: "fixed",
-      top: "0",
-      left: "0",
-      zIndex: "999999",
-      cursor: "pointer",
-      transition: "0.25s ease",
-      color: "#fff",
-    });
-
-    const type = (msg.type || "info").toLowerCase();  // <— CHANGED level → type
-
+    // Colors based on "type"
     const colors = {
       info: "#2196F3",
       warning: "#FFC107",
       danger: "#F44336",
-      critical: "#B71C1C"
+      critical: "#B71C1C",
     };
+    bar.style.background = colors[(type || "info").toLowerCase()] || colors.info;
 
-    banner.style.background = colors[type] || colors.info;
-
-    // Process stickers then insert HTML
-    const html = processStickers(msg.announcement);
-    banner.innerHTML = html;
-
-    // close button
-    const closeBtn = document.createElement("span");
-    closeBtn.textContent = " ✕";
-    closeBtn.style.marginLeft = "10px";
-    closeBtn.style.cursor = "pointer";
-    closeBtn.style.fontWeight = "bold";
-    closeBtn.style.userSelect = "none";
-
-    closeBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      banner.style.opacity = "0";
-      setTimeout(() => banner.remove(), 250);
-    });
-
-    banner.appendChild(closeBtn);
-    document.body.appendChild(banner);
-
-    // Push page down
-    document.body.style.marginTop = "48px";
+    bar.innerHTML = processed;
+    bar.style.display = "block";
+    document.body.classList.add("has-announcement");
   }
 
-  async function initAnnouncements() {
-    const rows = await fetchAnnouncements();
-    const active = filterActiveAnnouncements(rows);
-
-    if (!active.length) return;
-
-    createBanner(active[0]);
+  /* -----------------------------
+     Main Loop
+  ----------------------------- */
+  async function refresh() {
+    const rows = await fetchSheet();
+    const active = getActive(rows);
+    if (!active) updateBanner("");
+    else updateBanner(active.announcement, active.type);
   }
 
-  // Initialize on DOM ready
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initAnnouncements);
-  } else {
-    initAnnouncements();
-  }
+  /* Init */
+  document.addEventListener("DOMContentLoaded", refresh);
+  setInterval(refresh, REFRESH);
+
 })();
