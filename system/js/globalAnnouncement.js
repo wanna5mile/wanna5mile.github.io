@@ -37,7 +37,7 @@
       display: none;
     }
     #globalAnn img {
-      height: 22px;
+      width: 22px;
       vertical-align: middle;
       margin: 0 4px;
     }
