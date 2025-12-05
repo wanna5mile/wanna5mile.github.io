@@ -59,7 +59,7 @@
     window.config = {
       fallbackImage:
         "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
-      fallbackLink: "https://wanna5mile.github.io./source/dino/",
+      fallbackLink: "https://wanna5mile.github.io/source/dino/",
       gifBase:
         "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
       sheetUrl:
@@ -127,273 +127,268 @@
     };
   }
 
-/* ---------------------------
-   Asset Card Builder
---------------------------- */
-function createAssetCards(data) {
-  const { container } = dom || {};
-  if (!container) return [];
+  /* ---------------------------
+     Asset Card Builder
+  --------------------------- */
+  function createAssetCards(data) {
+    const { container } = dom || {};
+    if (!container) return [];
 
-  container.innerHTML = "";
-  const imagePromises = [];
-  const frag = document.createDocumentFragment();
-  const sortMode = getSortMode();
-  let sorted = Array.isArray(data) ? [...data] : [];
-  if (sortMode === "alphabetical") {
-    sorted.sort((a, b) =>
-      safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
-        numeric: true,
-        sensitivity: "base",
-      })
-    );
-  }
+    container.innerHTML = "";
+    const imagePromises = [];
+    const frag = document.createDocumentFragment();
+    const sortMode = getSortMode();
 
-  // Badge URLs
-  const badgeMap = {
-    featured:
-      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png",
-    new:
-      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png",
-    fixed:
-      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png",
-    fix:
-      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixing.png",
-  };
+    let sorted = Array.isArray(data) ? [...data] : [];
+    if (sortMode === "alphabetical") {
+      sorted.sort((a, b) =>
+        safeStr(a.title).localeCompare(safeStr(b.title), undefined, {
+          numeric: true,
+          sensitivity: "base",
+        })
+      );
+    }
 
-  for (const asset of sorted) {
-    const title = safeStr(asset.title).trim();
-    const author = safeStr(asset.author).trim();
-    const imageSrc = safeStr(asset.image) || config.fallbackImage;
-    const link = safeStr(asset.link) || config.fallbackLink;
-    const pageNum = Number(asset.page) || 1;
-    const status = safeStr(asset.status).toLowerCase();
-
-    const isFeatured = safeStr(asset.featured).toLowerCase() === "yes";
-    const isNew = safeStr(asset.new).toLowerCase() === "yes";
-    const isFixed = safeStr(asset.fixed).toLowerCase() === "yes";
-
-    // Card wrapper
-    const card = document.createElement("div");
-    card.className = "asset-card";
-    Object.assign(card.dataset, {
-      title: title.toLowerCase(),
-      author: author.toLowerCase(),
-      page: String(pageNum),
-      filtered: "true",
-    });
-
-    // Link wrapper
-    const a = document.createElement("a");
-    a.href = link;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.className = "asset-link";
-
-    // Image wrapper
-    const wrapper = document.createElement("div");
-    wrapper.className = "asset-img-wrapper";
-    wrapper.style.position = "relative";
-    wrapper.style.display = "inline-block";
-    wrapper.style.borderRadius = "14px";
-    wrapper.style.overflow = "hidden";
-
-    // Main image
-    const img = document.createElement("img");
-    img.alt = title;
-    img.loading = "eager";
-    img.className = "asset-img";
-
-    const imgPromise = new Promise((resolve) => {
-      const tmp = new Image();
-      tmp.onload = () => {
-        img.src = imageSrc;
-        resolve();
-      };
-      tmp.onerror = () => {
-        img.src = config.fallbackImage;
-        resolve();
-      };
-      tmp.src = imageSrc;
-    });
-    imagePromises.push({ promise: imgPromise, page: pageNum });
-    wrapper.appendChild(img);
-
-    // Helper to add overlay
-    const addOverlay = (src, alt, cls, fullCover = false) => {
-      const o = document.createElement("img");
-      o.src = src;
-      o.alt = alt;
-      o.className = `status-overlay ${cls}`;
-      Object.assign(o.style, {
-        position: "absolute",
-        top: "0",
-        left: "0",
-        width: "100%",
-        height: "100%",
-        objectFit: "cover",
-        pointerEvents: "none",
-        zIndex: fullCover ? "10" : "5",
-      });
-      wrapper.appendChild(o);
+    const badgeMap = {
+      featured:
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png",
+      new:
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png",
+      fixed:
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png",
+      fix:
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixing.png",
     };
 
-    // Add badges
-    if (isFeatured) addOverlay(badgeMap.featured, "featured badge", "overlay-featured");
-    if (isNew) addOverlay(badgeMap.new, "new badge", "overlay-new");
-    if (isFixed) addOverlay(badgeMap.fixed, "fixed badge", "overlay-fixed");
+    for (const asset of sorted) {
+      const title = safeStr(asset.title).trim();
+      const author = safeStr(asset.author).trim();
+      const imageSrc = safeStr(asset.image) || config.fallbackImage;
+      const link = safeStr(asset.link) || config.fallbackLink;
+      const pageNum = Number(asset.page) || 1;
+      const status = safeStr(asset.status).toLowerCase();
 
-    // GIF overlays for "new"/"updated"
-    if (status && ["new", "updated"].includes(status)) {
-      addOverlay(`${config.gifBase}${status}.gif`, `${status} badge`, `status-gif status-${status}`);
+      const isFeatured = safeStr(asset.featured).toLowerCase() === "yes";
+      const isNew = safeStr(asset.new).toLowerCase() === "yes";
+      const isFixed = safeStr(asset.fixed).toLowerCase() === "yes";
+
+      const card = document.createElement("div");
+      card.className = "asset-card";
+      Object.assign(card.dataset, {
+        title: title.toLowerCase(),
+        author: author.toLowerCase(),
+        page: String(pageNum),
+        filtered: "true",
+      });
+
+      const a = document.createElement("a");
+      a.href = link;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.className = "asset-link";
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "asset-img-wrapper";
+      wrapper.style.position = "relative";
+      wrapper.style.display = "inline-block";
+      wrapper.style.borderRadius = "14px";
+      wrapper.style.overflow = "hidden";
+
+      const img = document.createElement("img");
+      img.alt = title;
+      img.loading = "eager";
+      img.className = "asset-img";
+
+      const imgPromise = new Promise((resolve) => {
+        const tmp = new Image();
+        tmp.onload = () => {
+          img.src = imageSrc;
+          resolve();
+        };
+        tmp.onerror = () => {
+          img.src = config.fallbackImage;
+          resolve();
+        };
+        tmp.src = imageSrc;
+      });
+      imagePromises.push({ promise: imgPromise, page: pageNum });
+      wrapper.appendChild(img);
+
+      const addOverlay = (src, alt, cls, fullCover = false) => {
+        const o = document.createElement("img");
+        o.src = src;
+        o.alt = alt;
+        o.className = `status-overlay ${cls}`;
+        Object.assign(o.style, {
+          position: "absolute",
+          top: "0",
+          left: "0",
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          pointerEvents: "none",
+          zIndex: fullCover ? "10" : "5",
+        });
+        wrapper.appendChild(o);
+      };
+
+      if (isFeatured) addOverlay(badgeMap.featured, "featured badge", "overlay-featured");
+      if (isNew) addOverlay(badgeMap.new, "new badge", "overlay-new");
+      if (isFixed) addOverlay(badgeMap.fixed, "fixed badge", "overlay-fixed");
+
+      if (status && ["new", "updated"].includes(status)) {
+        addOverlay(`${config.gifBase}${status}.gif`, `${status} badge`, `status-gif status-${status}`);
+      }
+
+      if (status === "fix") {
+        addOverlay(badgeMap.fix, "fixing overlay", "overlay-fix", true);
+        card.classList.add("fix");
+      }
+
+      if (status === "soon") {
+        card.classList.add("soon");
+      }
+
+      a.appendChild(wrapper);
+
+      const titleEl = document.createElement("h3");
+      titleEl.textContent = title || "Untitled";
+
+      const authorEl = document.createElement("p");
+      authorEl.textContent = author || "";
+
+      card.append(a, titleEl, authorEl);
+      frag.appendChild(card);
     }
 
-    // If status is "fix", add full cover overlay
-    if (status === "fix") {
-      addOverlay(badgeMap.fix, "fixing overlay", "overlay-fix", true);
-      card.classList.add("fix");
-    }
-
-    // If status is "soon", mark it
-    if (status === "soon") {
-      card.classList.add("soon");
-    }
-
-    // Assemble card
-    a.appendChild(wrapper);
-
-    const titleEl = document.createElement("h3");
-    titleEl.textContent = title || "Untitled";
-
-    const authorEl = document.createElement("p");
-    authorEl.textContent = author || "";
-
-/* ---------------------------
-   Paging + Search + Filter (Enhanced + Pixel Error GIF + Smart Match)
---------------------------- */
-function initPaging() {
-  const { container, pageIndicator, searchInput, searchBtn } = dom || {};
-  if (!container) return;
-
-  const quoteWrapper = document.getElementById("quoteWrapper");
-
-  // Create or find error GIF element
-  let errorGif = document.getElementById("noResultsGif");
-  if (!errorGif) {
-    errorGif = document.createElement("img");
-    errorGif.id = "noResultsGif";
-    errorGif.src = "system/images/GIF/searching.gif";
-    errorGif.alt = "No results found";
-
-    Object.assign(errorGif.style, {
-      display: "none",
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      width: "128px",
-      height: "128px",
-      imageRendering: "pixelated",
-      opacity: "0",
-      transition: "opacity 0.25s ease",
-      pointerEvents: "none",
-      zIndex: "1000",
-    });
-
-    container.parentElement.appendChild(errorGif);
+    container.appendChild(frag);
+    return imagePromises;
   }
 
-  const getAllCards = () => [...container.querySelectorAll(".asset-card")];
-  const getFilteredCards = () => getAllCards().filter((c) => c.dataset.filtered === "true");
-  const getPages = () =>
-    [...new Set(getAllCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort((a, b) => a - b);
+  /* ---------------------------
+     Paging + Search
+  --------------------------- */
+  function initPaging() {
+    const { container, pageIndicator, searchInput, searchBtn } = dom || {};
+    if (!container) return;
 
-  function updateVisibility() {
-    const visibleCards = getFilteredCards().length;
-    if (visibleCards === 0) {
-      errorGif.style.display = "block";
-      requestAnimationFrame(() => (errorGif.style.opacity = "1"));
-      quoteWrapper && (quoteWrapper.style.opacity = "0.5");
-    } else {
-      errorGif.style.opacity = "0";
-      setTimeout(() => {
-        if (parseFloat(errorGif.style.opacity) === 0) errorGif.style.display = "none";
-      }, 250);
-      quoteWrapper && (quoteWrapper.style.opacity = "1");
+    const quoteWrapper = document.getElementById("quoteWrapper");
+
+    let errorGif = document.getElementById("noResultsGif");
+    if (!errorGif) {
+      errorGif = document.createElement("img");
+      errorGif.id = "noResultsGif";
+      errorGif.src = "system/images/GIF/searching.gif";
+      errorGif.alt = "No results found";
+
+      Object.assign(errorGif.style, {
+        display: "none",
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "128px",
+        height: "128px",
+        imageRendering: "pixelated",
+        opacity: "0",
+        transition: "opacity 0.25s ease",
+        pointerEvents: "none",
+        zIndex: "1000",
+      });
+
+      container.parentElement.appendChild(errorGif);
     }
+
+    const getAllCards = () => [...container.querySelectorAll(".asset-card")];
+    const getFilteredCards = () => getAllCards().filter((c) => c.dataset.filtered === "true");
+    const getPages = () =>
+      [...new Set(getAllCards().map((c) => +c.dataset.page).filter((n) => !isNaN(n)))].sort((a, b) => a - b);
+
+    function updateVisibility() {
+      const visibleCards = getFilteredCards().length;
+      if (visibleCards === 0) {
+        errorGif.style.display = "block";
+        requestAnimationFrame(() => (errorGif.style.opacity = "1"));
+        quoteWrapper && (quoteWrapper.style.opacity = "0.5");
+      } else {
+        errorGif.style.opacity = "0";
+        setTimeout(() => {
+          if (parseFloat(errorGif.style.opacity) === 0) errorGif.style.display = "none";
+        }, 250);
+        quoteWrapper && (quoteWrapper.style.opacity = "1");
+      }
+    }
+
+    window.renderPage = () => {
+      const pages = getPages();
+      if (!pages.length) return;
+
+      const saved = +sessionStorage.getItem("currentPage") || pages[0];
+      if (!window._pageRestored) {
+        window.currentPage = pages.includes(saved) ? saved : pages[0];
+        window._pageRestored = true;
+      }
+
+      const filteredCards = getFilteredCards();
+      getAllCards().forEach((c) => {
+        const visible = +c.dataset.page === +window.currentPage && c.dataset.filtered === "true";
+        c.style.display = visible ? "" : "none";
+      });
+
+      const idx = pages.indexOf(+window.currentPage);
+      if (pageIndicator) {
+        pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`;
+      }
+
+      sessionStorage.setItem("currentPage", window.currentPage);
+      updateVisibility();
+    };
+
+    window.filterAssets = (q) => {
+      const query = safeStr(q).toLowerCase().trim();
+      const words = query.split(/\s+/).filter(Boolean);
+
+      const allCards = getAllCards();
+
+      allCards.forEach((c) => {
+        const title = (c.dataset.title || "").toLowerCase();
+        const author = (c.dataset.author || "").toLowerCase();
+        const haystack = `${title} ${author}`;
+
+        let score = 0;
+        if (haystack.includes(query)) score += 3;
+        for (const w of words) if (haystack.includes(w)) score += 2;
+        if (words.length && words.some((w) => haystack.split(/\s+/).some(h => h.startsWith(w) || h.endsWith(w))))
+          score += 1;
+
+        c.dataset.filtered = score > 0 || !query ? "true" : "false";
+      });
+
+      renderPage();
+    };
+
+    window.prevPage = () => {
+      const pages = getPages();
+      if (!pages.length) return;
+      const i = pages.indexOf(+window.currentPage);
+      window.currentPage = i <= 0 ? pages.at(-1) : pages[i - 1];
+      renderPage();
+    };
+
+    window.nextPage = () => {
+      const pages = getPages();
+      if (!pages.length) return;
+      const i = pages.indexOf(+window.currentPage);
+      window.currentPage = i === -1 || i === pages.length - 1 ? pages[0] : pages[i + 1];
+      renderPage();
+    };
+
+    searchBtn?.addEventListener("click", () => filterAssets(searchInput.value));
+    searchInput?.addEventListener("input", debounce(() => filterAssets(searchInput.value), 200));
+
+    window.currentPage = +sessionStorage.getItem("currentPage") || 1;
+    renderPage();
   }
-
-  window.renderPage = () => {
-    const pages = getPages();
-    if (!pages.length) return;
-
-    const saved = +sessionStorage.getItem("currentPage") || pages[0];
-    if (!window._pageRestored) {
-      window.currentPage = pages.includes(saved) ? saved : pages[0];
-      window._pageRestored = true;
-    }
-
-    const filteredCards = getFilteredCards();
-    getAllCards().forEach((c) => {
-      const visible = +c.dataset.page === +window.currentPage && c.dataset.filtered === "true";
-      c.style.display = visible ? "" : "none";
-    });
-
-    // Keep the current page indicator, even if no cards are visible
-    const idx = pages.indexOf(+window.currentPage);
-    if (pageIndicator) {
-      pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`;
-    }
-
-    sessionStorage.setItem("currentPage", window.currentPage);
-    updateVisibility();
-  };
-
-  // ✅ Smart Search Filter (partial, multi-word, weighted match)
-  window.filterAssets = (q) => {
-    const query = safeStr(q).toLowerCase().trim();
-    const words = query.split(/\s+/).filter(Boolean);
-    const allCards = getAllCards();
-
-    allCards.forEach((c) => {
-      const title = (c.dataset.title || "").toLowerCase();
-      const author = (c.dataset.author || "").toLowerCase();
-      const haystack = `${title} ${author}`;
-
-      // Weighted flexible matching
-      let score = 0;
-      if (haystack.includes(query)) score += 3;
-      for (const w of words) if (haystack.includes(w)) score += 2;
-      if (words.length && words.some((w) => haystack.split(/\s+/).some(h => h.startsWith(w) || h.endsWith(w))))
-        score += 1;
-
-      c.dataset.filtered = score > 0 || !query ? "true" : "false";
-    });
-
-    renderPage();
-  };
-
-  window.prevPage = () => {
-    const pages = getPages();
-    if (!pages.length) return;
-    const i = pages.indexOf(+window.currentPage);
-    window.currentPage = i <= 0 ? pages.at(-1) : pages[i - 1];
-    renderPage();
-  };
-
-  window.nextPage = () => {
-    const pages = getPages();
-    if (!pages.length) return;
-    const i = pages.indexOf(+window.currentPage);
-    window.currentPage = i === -1 || i === pages.length - 1 ? pages[0] : pages[i + 1];
-    renderPage();
-  };
-
-  searchBtn?.addEventListener("click", () => filterAssets(searchInput.value));
-  searchInput?.addEventListener("input", debounce(() => filterAssets(searchInput.value), 200));
-
-  window.currentPage = +sessionStorage.getItem("currentPage") || 1;
-  renderPage();
-}
 
   /* ---------------------------
      Placeholder Cycle
@@ -439,187 +434,173 @@ function initPaging() {
     window.stopPlaceholderCycle = () => (window._placeholderRunning = false);
   }
 
-/* ---------------------------
-   Update Popup (Auto-version Compare + Sheet Fallback)
---------------------------- */
-async function initUpdatePopup() {
-  const p = dom.updatePopup;
-  if (!p) return;
+  /* ---------------------------
+     Update Popup
+  --------------------------- */
+  async function initUpdatePopup() {
+    const p = dom.updatePopup;
+    if (!p) return;
 
-  const LS_HIDE = "ws_hideUpdate";
-  const LS_VER = "ws_lastUpdateVersion";
+    const LS_HIDE = "ws_hideUpdate";
+    const LS_VER = "ws_lastUpdateVersion";
 
-  try {
-    // Fetch sheet data (force no cache)
-    const res = await fetch(`${config.sheetUrl}?mode=version-message`, { cache: "no-store" });
-    const raw = await res.json();
+    try {
+      const res = await fetch(`${config.sheetUrl}?mode=version-message`, { cache: "no-store" });
+      const raw = await res.json();
 
-    // ✅ Determine latest version entry (supports both array-of-objects and flat row format)
-    let latest = null;
-    if (Array.isArray(raw)) {
-      // If rows have `version` and `version-message`
-      if (raw[0]?.version && raw[0]?.["version-message"]) {
-        latest = raw.filter(r => r.version && r["version-message"]).at(-1);
-        latest = {
-          version: latest.version,
-          message: latest["version-message"],
-          trailer: latest.trailer || "",
-          link: latest.link || config.updateLink,
-        };
-      } else if (raw.at(-1)?.version) {
-        // if array of {version, message, ...}
-        latest = raw.at(-1);
+      let latest = null;
+      if (Array.isArray(raw)) {
+        if (raw[0]?.version && raw[0]?.["version-message"]) {
+          latest = raw.filter(r => r.version && r["version-message"]).at(-1);
+          latest = {
+            version: latest.version,
+            message: latest["version-message"],
+            trailer: latest.trailer || "",
+            link: latest.link || config.updateLink,
+          };
+        } else if (raw.at(-1)?.version) {
+          latest = raw.at(-1);
+        }
       }
-    }
 
-    if (!latest) {
-      latest = { version: "0.0.0", message: "Welcome to WannaSmile!", trailer: "", link: config.updateLink };
-    }
+      if (!latest) {
+        latest = {
+          version: "0.0.0",
+          message: "Welcome to WannaSmile!",
+          trailer: "",
+          link: config.updateLink,
+        };
+      }
 
-    const CURRENT_VERSION = latest.version || "0.0.0";
-    const MESSAGE = latest.message || "Enjoy the latest update!";
-    const TRAILER = latest.trailer || "";
-    const LINK = latest.link || config.updateLink;
+      const CURRENT_VERSION = latest.version || "0.0.0";
+      const MESSAGE = latest.message || "Enjoy the latest update!";
+      const TRAILER = latest.trailer || "";
+      const LINK = latest.link || config.updateLink;
 
-    // 📝 Update popup text
-    const titleEl = p.querySelector("h2");
-    const msgEl = p.querySelector("p");
-    if (titleEl) titleEl.textContent = `Version ${CURRENT_VERSION} Update!`;
-    if (msgEl) msgEl.textContent = MESSAGE;
-    if (dom.updateVideo && TRAILER) dom.updateVideo.src = TRAILER;
+      const titleEl = p.querySelector("h2");
+      const msgEl = p.querySelector("p");
+      if (titleEl) titleEl.textContent = `Version ${CURRENT_VERSION} Update!`;
+      if (msgEl) msgEl.textContent = MESSAGE;
+      if (dom.updateVideo && TRAILER) dom.updateVideo.src = TRAILER;
 
-    const footerVersion = document.getElementById("footerVersion");
-    if (footerVersion) footerVersion.textContent = `Version ${CURRENT_VERSION}`;
+      const footerVersion = document.getElementById("footerVersion");
+      if (footerVersion) footerVersion.textContent = `Version ${CURRENT_VERSION}`;
 
-    // 🧠 Memory system: compare stored version
-    const lastVersion = localStorage.getItem(LS_VER);
-    const hidePref = localStorage.getItem(LS_HIDE);
+      const lastVersion = localStorage.getItem(LS_VER);
+      const hidePref = localStorage.getItem(LS_HIDE);
 
-    // Reset hide flag if new version
-    if (lastVersion !== CURRENT_VERSION) {
-      localStorage.removeItem(LS_HIDE);
-      sessionStorage.removeItem(LS_HIDE);
-    }
+      if (lastVersion !== CURRENT_VERSION) {
+        localStorage.removeItem(LS_HIDE);
+        sessionStorage.removeItem(LS_HIDE);
+      }
 
-    // Save current version
-    localStorage.setItem(LS_VER, CURRENT_VERSION);
+      localStorage.setItem(LS_VER, CURRENT_VERSION);
 
-    // Should show popup even if "Don't show again" was checked — but only for new versions
-    const isNewVersion = lastVersion !== CURRENT_VERSION;
-    const shouldShow = isNewVersion || (!hidePref && !sessionStorage.getItem(LS_HIDE));
+      const isNewVersion = lastVersion !== CURRENT_VERSION;
+      const shouldShow = isNewVersion || (!hidePref && !sessionStorage.getItem(LS_HIDE));
 
-    if (!shouldShow) return;
+      if (!shouldShow) return;
 
-    // 🎬 Show popup
-    setTimeout(() => p.classList.add("show"), 600);
+      setTimeout(() => p.classList.add("show"), 600);
 
-    // 🖱 Button handlers
-    dom.viewUpdateBtn?.addEventListener("click", () => {
-      window.open(LINK, "_self");
-      p.classList.remove("show");
-    });
-    dom.viewUpdateInfoBtn?.addEventListener("click", () => window.open(LINK, "_blank"));
-    dom.closeUpdateBtn?.addEventListener("click", () => {
-      sessionStorage.setItem(LS_HIDE, "1");
-      p.classList.remove("show");
-    });
-    dom.dontShowBtn?.addEventListener("click", () => {
-      localStorage.setItem(LS_HIDE, "1");
-      p.classList.remove("show");
-    });
-    p.addEventListener("click", (e) => {
-      if (e.target === p) {
+      dom.viewUpdateBtn?.addEventListener("click", () => {
+        window.open(LINK, "_self");
+        p.classList.remove("show");
+      });
+      dom.viewUpdateInfoBtn?.addEventListener("click", () => window.open(LINK, "_blank"));
+      dom.closeUpdateBtn?.addEventListener("click", () => {
         sessionStorage.setItem(LS_HIDE, "1");
         p.classList.remove("show");
-      }
-    });
-  } catch (err) {
-    console.warn("⚠ Version message fetch failed:", err);
-  }
-}
-
-/* ---------------------------
-     Asset Loader (Smooth Progress)
---------------------------- */
-async function loadAssets(retry = false) {
-  try {
-    showLoading("Loading assets...");
-
-    let currentProgress = 0;
-    const setProgress = (target) => {
-      return new Promise((resolve) => {
-        const step = () => {
-          currentProgress += (target - currentProgress) * 0.08; // smooth easing
-          if (Math.abs(target - currentProgress) < 0.5) {
-            currentProgress = target;
-            updateProgress(currentProgress);
-            resolve();
-          } else {
-            updateProgress(currentProgress);
-            requestAnimationFrame(step);
-          }
-        };
-        step();
       });
-    };
-
-    await setProgress(5); // initial start
-
-    // Fetch JSON
-    const res = await fetch(config.sheetUrl, { cache: "no-store" });
-    if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
-    const raw = await res.json();
-    const data = raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
-    window.assetsData = data;
-
-    await setProgress(20);
-
-    const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
-    const filtered = isFavPage
-      ? data.filter((a) => window.favorites.has(safeStr(a.title).toLowerCase()))
-      : data;
-
-    // Create asset cards & track image loading
-    const promises = createAssetCards(filtered || []);
-    const totalImages = promises.length;
-    let loadedImages = 0;
-
-    if (totalImages) {
-      for (const p of promises) {
-        p.promise.then(() => {
-          loadedImages++;
-        });
-      }
-
-      // Smooth progress loop
-      while (loadedImages < totalImages) {
-        const target = 20 + (loadedImages / totalImages) * 70; // 20-90%
-        currentProgress += (target - currentProgress) * 0.08;
-        updateProgress(currentProgress);
-        await rafAsync();
-      }
+      dom.dontShowBtn?.addEventListener("click", () => {
+        localStorage.setItem(LS_HIDE, "1");
+        p.classList.remove("show");
+      });
+      p.addEventListener("click", (e) => {
+        if (e.target === p) {
+          sessionStorage.setItem(LS_HIDE, "1");
+          p.classList.remove("show");
+        }
+      });
+    } catch (err) {
+      console.warn("⚠ Version message fetch failed:", err);
     }
-
-    await setProgress(90);
-
-    if (typeof renderPage === "function") renderPage();
-    if (isFavPage && !filtered.length && dom.container)
-      dom.container.innerHTML =
-        "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorite assets added to this page</p>";
-
-    await setProgress(100);
-    await delay(350);
-    hidePreloader(true);
-  } catch (err) {
-    console.error("Error loading assets:", err);
-    if (!retry) {
-      setTimeout(() => loadAssets(true).catch(() => {}), 1000);
-      return;
-    }
-    showLoading("⚠ Failed to load assets.");
-    hidePreloader(true);
   }
-}
+
+  /* ---------------------------
+     Asset Loader
+  --------------------------- */
+  async function loadAssets(retry = false) {
+    try {
+      showLoading("Loading assets...");
+
+      let currentProgress = 0;
+      const setProgress = (target) => {
+        return new Promise((resolve) => {
+          const step = () => {
+            currentProgress += (target - currentProgress) * 0.08;
+            if (Math.abs(target - currentProgress) < 0.5) {
+              currentProgress = target;
+              updateProgress(currentProgress);
+              resolve();
+            } else {
+              updateProgress(currentProgress);
+              requestAnimationFrame(step);
+            }
+          };
+          step();
+        });
+      };
+
+      await setProgress(5);
+
+      const res = await fetch(config.sheetUrl, { cache: "no-store" });
+      if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
+      const raw = await res.json();
+      const data = raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
+      window.assetsData = data;
+
+      await setProgress(20);
+
+      // Favorites removed → ALWAYS use full data
+      const filtered = data;
+
+      const promises = createAssetCards(filtered || []);
+      const totalImages = promises.length;
+      let loadedImages = 0;
+
+      if (totalImages) {
+        for (const p of promises) {
+          p.promise.then(() => {
+            loadedImages++;
+          });
+        }
+
+        while (loadedImages < totalImages) {
+          const target = 20 + (loadedImages / totalImages) * 70;
+          currentProgress += (target - currentProgress) * 0.08;
+          updateProgress(currentProgress);
+          await rafAsync();
+        }
+      }
+
+      await setProgress(90);
+
+      if (typeof renderPage === "function") renderPage();
+
+      await setProgress(100);
+      await delay(350);
+      hidePreloader(true);
+    } catch (err) {
+      console.error("Error loading assets:", err);
+      if (!retry) {
+        setTimeout(() => loadAssets(true).catch(() => {}), 1000);
+        return;
+      }
+      showLoading("⚠ Failed to load assets.");
+      hidePreloader(true);
+    }
+  }
 
   /* ---------------------------
      DOM Bootstrap
@@ -627,7 +608,6 @@ async function loadAssets(retry = false) {
   document.addEventListener("DOMContentLoaded", async () => {
     try {
       initElements();
-      initFavorites();
       initPreloader();
       initPaging();
       initPlaceholders();
