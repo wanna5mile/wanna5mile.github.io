@@ -1,8 +1,3 @@
-/* ==========================================================
-   WannaSmile | Unified JS Loader & UI Logic
-   Final Hardened & Optimized Version
-   (Favorites Page Filter + Paging + Progress Bar + Popup + Quotes)
-   ========================================================== */
 (() => {
   "use strict";
 
@@ -77,29 +72,6 @@
   }
 
   /* ---------------------------
-     Favorites System
-  --------------------------- */
-  function initFavorites() {
-    try {
-      const stored = JSON.parse(localStorage.getItem("favorites") || "[]");
-      window.favorites = new Set(stored.map((s) => safeStr(s).toLowerCase()));
-    } catch {
-      window.favorites = new Set();
-    }
-
-    window.saveFavorites = () =>
-      localStorage.setItem("favorites", JSON.stringify([...window.favorites]));
-
-    window.refreshCards = () => {
-      if (!window.assetsData || typeof createAssetCards !== "function") return;
-      const promises = createAssetCards(window.assetsData);
-      if (typeof renderPage === "function") renderPage();
-      if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
-      return promises;
-    };
-  }
-
-  /* ---------------------------
      Preloader UI
   --------------------------- */
   function initPreloader() {
@@ -166,8 +138,6 @@ function createAssetCards(data) {
   const imagePromises = [];
   const frag = document.createDocumentFragment();
   const sortMode = getSortMode();
-  const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
-
   let sorted = Array.isArray(data) ? [...data] : [];
   if (sortMode === "alphabetical") {
     sorted.sort((a, b) =>
@@ -296,32 +266,6 @@ function createAssetCards(data) {
 
     const authorEl = document.createElement("p");
     authorEl.textContent = author || "";
-
-// Favorite star
-const star = document.createElement("button");
-star.className = "favorite-star";
-// use an <img> inside the button but keep the same structure (replace textContent with innerHTML)
-star.innerHTML = isFav(title)
-  ? '<img src="fav-filled.png" alt="Favorite" width="20" height="20" style="pointer-events:none">'
-  : '<img src="fav-unfilled.png" alt="Not favorite" width="20" height="20" style="pointer-events:none">';
-
-Object.assign(star.style, { background: "transparent", border: "none", cursor: "pointer", padding: "0" });
-
-star.addEventListener("click", (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  const key = title.toLowerCase();
-  if (window.favorites.has(key)) window.favorites.delete(key);
-  else window.favorites.add(key);
-  saveFavorites();
-  // update the img inside the button (same spot where textContent was updated before)
-  star.innerHTML = window.favorites.has(key)
-    ? '<img src="fav-filled.png" alt="Favorite" width="20" height="20" style="pointer-events:none">'
-    : '<img src="fav-unfilled.png" alt="Not favorite" width="20" height="20" style="pointer-events:none">';
-});
-
-card.append(a, titleEl, authorEl, star);
-frag.appendChild(card);
 
 /* ---------------------------
    Paging + Search + Filter (Enhanced + Pixel Error GIF + Smart Match)
@@ -661,7 +605,7 @@ async function loadAssets(retry = false) {
     if (typeof renderPage === "function") renderPage();
     if (isFavPage && !filtered.length && dom.container)
       dom.container.innerHTML =
-        "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
+        "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorite assets added to this page</p>";
 
     await setProgress(100);
     await delay(350);
@@ -692,7 +636,7 @@ async function loadAssets(retry = false) {
 
       if (typeof initQuotes === "function") await initQuotes();
 
-      console.log("✅ WannaSmile Loader + Quotes Ready");
+      console.log("working");
     } catch (err) {
       console.error("Initialization failed:", err);
       showLoading("Initialization failed. Please reload.");
