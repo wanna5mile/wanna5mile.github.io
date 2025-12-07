@@ -712,8 +712,3 @@ body.popup-blurred footer {
   filter: blur(6px) brightness(0.8);
   transition: filter 0.3s ease;
 }
-
-#toTopBtn.show {
-  opacity: 1;
-  pointer-events: auto;
-}
