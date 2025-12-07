@@ -691,7 +691,7 @@ body.popup-blurred footer {
 #container div img,
 #container-discov div img {
   width: 100%;          /* now card + image alignment matches */
-  max-width: 180px;     /* soft limit */
+  max-width: 100%;     /* soft limit */
   height: auto;
   display: block;
   margin: 0 auto 8px;
