@@ -22,9 +22,7 @@ a, a:visited {
   color: var(--link-color);
   text-decoration: none;
 }
-a:focus {
-  outline: none;
-}
+a:focus { outline: none; }
 
 /* ==========================================
    Header & Navigation
@@ -122,9 +120,7 @@ header img {
   transition: transform 0.25s ease;
   object-fit: cover;
 }
-#pfp:hover {
-  transform: scale(1.1);
-}
+#pfp:hover { transform: scale(1.1); }
 
 #dashboardBtn {
   width: 36px;
@@ -135,9 +131,7 @@ header img {
   cursor: pointer;
   transition: transform 0.25s ease;
 }
-#dashboardBtn:hover {
-  transform: scale(1.1);
-}
+#dashboardBtn:hover { transform: scale(1.1); }
 
 .dashboard-menu {
   position: fixed;
@@ -174,12 +168,14 @@ header img {
   cursor: default;
   transition: color 0.3s, text-decoration 0.3s, background 0.3s;
 }
+
 .dashboard-menu p:hover {
   color: var(--accent-color);
   background: rgba(255,255,255,0.1);
   text-decoration: underline;
   text-decoration-color: var(--accent-color);
 }
+
 
 /* ==========================================
    Search Bar
@@ -194,9 +190,7 @@ header img {
   box-shadow: 0 2px 5px rgba(0,0,0,0.15);
   transition: box-shadow 0.2s;
 }
-.search-box:focus-within {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-}
+.search-box:focus-within { box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
 
 .search-box input {
   padding: 6px;
@@ -207,9 +201,7 @@ header img {
   font-size: 14px;
   flex: 1;
 }
-.search-box input::placeholder {
-  color: var(--input-placeholder);
-}
+.search-box input::placeholder { color: var(--input-placeholder); }
 
 .search-box button {
   padding: 6px;
@@ -223,14 +215,8 @@ header img {
   justify-content: center;
   transition: transform 0.2s, filter 0.2s;
 }
-.search-box button:hover {
-  transform: scale(1.1);
-  filter: brightness(1.2);
-}
-.search-box button img {
-  width: 14px;
-  height: 14px;
-}
+.search-box button:hover { transform: scale(1.1); filter: brightness(1.2); }
+.search-box button img { width: 14px; height: 14px; }
 
 .search-error {
   display: none;
@@ -265,41 +251,63 @@ header img {
 }
 
 /* ==========================================
-   Grid Layout (Centered Assets)
+   Grid Layout (Fixed Single Row Stretch)
    ========================================== */
 #container,
 #container-discov {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   justify-items: center;
-  align-items: start;
   gap: 20px;
   padding: 20px;
   background-color: var(--main-bg);
   flex-grow: 1;
   min-height: 0;
+  align-content: start;
 }
 
 /* ==========================================
-   Asset Cards (Centered + Uniform)
+   Asset Cards
    ========================================== */
 #container div,
 #container-discov div {
-  width: 100%;
-  max-width: 220px;
+  width: 180px;
   min-height: 160px;
   background: var(--card-bg);
   text-align: center;
-  border-radius: 20px;
+  border-radius: 20px; /* consistent, smooth radius */
   padding: 8px;
   overflow: hidden;
   transition: transform 0.2s ease;
-  position: relative;
 }
 
 #container div:hover,
 #container-discov div:hover {
   transform: scale(1.05);
+}
+
+#container div img,
+#container-discov div img {
+  width: 180px;
+  max-width: 85%;
+  height: auto;
+  display: block;
+  margin: 0 auto 8px;
+  border-radius: 14px; /* same rounding ratio for visual balance */
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+#container div img:hover,
+#container-discov div img:hover {
+  transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+  #container div img,
+  #container-discov div img {
+    width: 140px;
+  }
 }
 
 /* ==========================================
@@ -323,7 +331,7 @@ header img {
 }
 
 /* ==========================================
-   SOON Status (Perfect Centering)
+   SOON Status (Classic)
    ========================================== */
 .soon {
   position: relative;
@@ -331,24 +339,27 @@ header img {
   pointer-events: none;
   filter: grayscale(100%);
 }
-
 .soon::after {
   content: "COMING SOON";
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.65);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
   color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
   font-family: monospace;
   font-size: 14px;
   font-weight: bold;
   letter-spacing: 1px;
-  border-radius: inherit;
+  text-shadow: 0 0 4px #000;
   z-index: 3;
 }
-
+.soon:hover {
+  border: 2px solid #ff0000;
+  box-shadow: 0 0 10px #ff0000;
+}
 .soon img {
   filter: grayscale(100%);
   opacity: 0.7;
@@ -469,20 +480,22 @@ footer {
 .fix img {
   filter: grayscale(100%);
   opacity: 0.9;
-  background-color: #808080;
-  mix-blend-mode: multiply;
+  background-color: #808080; /* grey base */
+  mix-blend-mode: multiply;  /* makes the grey blend smoothly */
 }
 
+/* Transparent overlay */
 .fix::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(128, 128, 128, 0.2);
+  background: rgba(128, 128, 128, 0.2); /* ~20% transparent grey overlay */
   border-radius: inherit;
   pointer-events: none;
   z-index: 3;
 }
 
+/* Optional hover feedback (red border for visibility) */
 .fix:hover {
   border: 2px solid #ff0000;
   box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
@@ -492,15 +505,15 @@ footer {
    Disable Text Selection & Focus Highlights
    ========================================== */
 * {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none; /* Chrome, Safari, Edge */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE 10+ */
+  user-select: none;         /* Standard */
+  -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
 }
 
 input, textarea {
-  -webkit-user-select: text;
+  -webkit-user-select: text; /* Allow typing and selecting inside inputs */
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
@@ -509,7 +522,6 @@ input, textarea {
 a, button, input, textarea {
   outline: none !important;
 }
-
 /* ==========================================
    Status Overlays: Featured / New / Fixed
    ========================================== */
@@ -521,16 +533,17 @@ a, button, input, textarea {
   height: 100%;
   object-fit: cover;
   pointer-events: none;
-  opacity: 0.85;
-  transition: opacity 0.25s ease;
+  opacity: 0.85; /* keep default opacity */
+  transition: opacity 0.25s ease; /* remove transform scaling */
   border-radius: inherit;
 }
 
 .asset-link:hover img.status-overlay {
-  opacity: 0.55;
-  transform: none;
+  opacity: 0.55; /* slightly less visible on hover */
+  transform: none; /* ensure it doesn't scale */
 }
 
+/* Optional: fix new/fixed/featured overlay z-index if needed */
 .asset-link img.status-overlay.overlay-featured,
 .asset-link img.status-overlay.overlay-new,
 .asset-link img.status-overlay.overlay-fixed {
@@ -545,7 +558,7 @@ a, button, input, textarea {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%); /* exact center */
   background: rgba(0, 0, 0, 0.7);
   color: #fff;
   padding: 10px 14px;
@@ -559,6 +572,7 @@ a, button, input, textarea {
   pointer-events: none;
 }
 
+/* Keep overlay image grayscale & opacity for 'soon' assets */
 .soon img {
   filter: grayscale(100%);
   opacity: 0.7;
@@ -566,12 +580,13 @@ a, button, input, textarea {
 }
 
 .soon:hover img {
-  opacity: 0.55;
+  opacity: 0.55; /* fade more when hovered */
 }
-
 /* ==========================================
    Announcement Popup — CLEAN + MATCHED STYLE
    ========================================== */
+
+/* Background overlay */
 .announcement-overlay {
   position: fixed;
   inset: 0;
@@ -587,6 +602,7 @@ a, button, input, textarea {
   opacity: 1;
 }
 
+/* Modal */
 .announcement-modal {
   position: fixed;
   top: 50%;
@@ -607,11 +623,14 @@ a, button, input, textarea {
   z-index: 99998;
   transition: transform 0.28s ease, opacity 0.28s ease;
 }
+
+/* When JS adds .show */
 .announcement-modal.show {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
 }
 
+/* Title */
 .announcement-title {
   margin: 0 0 10px;
   padding-bottom: 6px;
@@ -621,6 +640,7 @@ a, button, input, textarea {
   text-align: center;
 }
 
+/* Content */
 .announcement-content {
   max-height: 60vh;
   overflow-y: auto;
@@ -631,6 +651,8 @@ a, button, input, textarea {
   font-size: 0.95rem;
   color: var(--link-color);
 }
+
+/* Scrollbar */
 .announcement-content::-webkit-scrollbar {
   width: 8px;
 }
@@ -639,6 +661,7 @@ a, button, input, textarea {
   border-radius: 20px;
 }
 
+/* Buttons */
 .announcement-buttons {
   display: flex;
   justify-content: space-between;
@@ -658,17 +681,39 @@ a, button, input, textarea {
   cursor: pointer;
   transition: background 0.25s ease, color 0.25s ease, opacity 0.25s;
 }
+
+/* Disabled state during countdown */
 .modal-btn.disabled {
   opacity: 0.35 !important;
   pointer-events: none;
 }
+
+/* Hover */
 .modal-btn:hover {
   background: rgba(255, 255, 255, 0.15);
   color: var(--accent-color);
 }
-
 #toTopBtn {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
+}
+/* ==========================================
+   Global Page Blur When Popup Is Active
+   ========================================== */
+body.popup-active {
+  overflow: hidden; /* block scrolling */
+}
+
+body.popup-blurred #container,
+body.popup-blurred #container-discov,
+body.popup-blurred header,
+body.popup-blurred footer {
+  filter: blur(6px) brightness(0.8);
+  transition: filter 0.3s ease;
+}
+
+#toTopBtn.show {
+  opacity: 1;
+  pointer-events: auto;
 }
