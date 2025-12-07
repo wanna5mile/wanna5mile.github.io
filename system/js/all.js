@@ -137,61 +137,67 @@ function getCurrentTheme() {
     };
   }
 
-  /* ---------------------------
-     Preloader UI
-  --------------------------- */
-  function initPreloader() {
-    const { preloader } = dom || {};
-    if (!preloader) return;
+/* ---------------------------
+   Preloader UI
+--------------------------- */
+function initPreloader() {
+  const { preloader, loaderImage } = dom || {};
+  if (!preloader) return;
 
-    preloader.style.display = "flex";
-    preloader.style.opacity = "1";
-    preloader.dataset.hidden = "false";
+  preloader.style.display = "flex";
+  preloader.style.opacity = "1";
+  preloader.dataset.hidden = "false";
 
-    let counter = preloader.querySelector("#counter");
-    let bar = preloader.querySelector(".load-progress-bar");
-    let fill = preloader.querySelector(".load-progress-fill");
+  let counter = preloader.querySelector("#counter");
+  let bar = preloader.querySelector(".load-progress-bar");
+  let fill = preloader.querySelector(".load-progress-fill");
 
-    if (!counter) {
-      counter = document.createElement("div");
-      counter.id = "counter";
-      counter.className = "load-progress-text";
-      preloader.appendChild(counter);
-    }
-    if (!bar) {
-      bar = document.createElement("div");
-      bar.className = "load-progress-bar";
-      fill = document.createElement("div");
-      fill.className = "load-progress-fill";
-      bar.appendChild(fill);
-      preloader.appendChild(bar);
-    } else if (!fill) {
-      fill = document.createElement("div");
-      fill.className = "load-progress-fill";
-      bar.appendChild(fill);
-    }
-
-    dom.loaderText = counter;
-    dom.progressBarFill = fill;
-
-    window.updateProgress = (p) => {
-      const clamped = clamp(Math.round(p), 0, 100);
-      counter.textContent = `${clamped}%`;
-      fill.style.width = `${clamped}%`;
-    };
-
-    window.showLoading = (text) =>
-      (preloader.querySelector(".loading-text") || counter).textContent = text;
-
-    window.hidePreloader = (force = false) => {
-      if (preloader.dataset.hidden === "true") return;
-      preloader.dataset.hidden = "true";
-      preloader.style.transition = "opacity 0.45s ease";
-      preloader.style.opacity = "0";
-      preloader.style.pointerEvents = "none";
-      setTimeout(() => (preloader.style.display = "none"), 500);
-    };
+  if (!counter) {
+    counter = document.createElement("div");
+    counter.id = "counter";
+    counter.className = "load-progress-text";
+    preloader.appendChild(counter);
   }
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.className = "load-progress-bar";
+    fill = document.createElement("div");
+    fill.className = "load-progress-fill";
+    bar.appendChild(fill);
+    preloader.appendChild(bar);
+  } else if (!fill) {
+    fill = document.createElement("div");
+    fill.className = "load-progress-fill";
+    bar.appendChild(fill);
+  }
+
+  dom.loaderText = counter;
+  dom.progressBarFill = fill;
+
+  /* ✅ ADD THIS — sets the GIF from theme config */
+  dom.setLoaderGif = (type) => {
+    if (!dom.loaderImage) return;
+    dom.loaderImage.src = config.getGif(type);
+  };
+
+  window.updateProgress = (p) => {
+    const clamped = clamp(Math.round(p), 0, 100);
+    counter.textContent = `${clamped}%`;
+    fill.style.width = `${clamped}%`;
+  };
+
+  window.showLoading = (text) =>
+    (preloader.querySelector(".loading-text") || counter).textContent = text;
+
+  window.hidePreloader = (force = false) => {
+    if (preloader.dataset.hidden === "true") return;
+    preloader.dataset.hidden = "true";
+    preloader.style.transition = "opacity 0.45s ease";
+    preloader.style.opacity = "0";
+    preloader.style.pointerEvents = "none";
+    setTimeout(() => (preloader.style.display = "none"), 500);
+  };
+}
 
 /* ---------------------------
    Asset Card Builder
@@ -630,11 +636,15 @@ async function initUpdatePopup() {
 }
 
 /* ---------------------------
-     Asset Loader (Smooth Progress)
+   Asset Loader (Smooth Progress)
 --------------------------- */
 async function loadAssets(retry = false) {
   try {
     showLoading("");
+
+    /* ✅ ADD THIS — start with loading GIF */
+    if (dom.setLoaderGif) dom.setLoaderGif("loading");
+
     let currentProgress = 0;
     const setProgress = (target) => {
       return new Promise((resolve) => {
@@ -643,6 +653,12 @@ async function loadAssets(retry = false) {
           if (Math.abs(target - currentProgress) < 0.5) {
             currentProgress = target;
             updateProgress(currentProgress);
+
+            /* ✅ WHEN PROGRESS HITS 100 → switch GIF to "loaded" */
+            if (currentProgress === 100 && dom.setLoaderGif) {
+              dom.setLoaderGif("loaded");
+            }
+
             resolve();
           } else {
             updateProgress(currentProgress);
@@ -697,9 +713,13 @@ async function loadAssets(retry = false) {
       dom.container.innerHTML =
         "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
 
-    await setProgress(100);
-    await delay(350);
-    hidePreloader(true);
+await setProgress(100);
+
+dom.setLoaderGif("loaded"); // show loaded gif once
+await delay(600); // let the gif play
+
+hidePreloader(true);
+
   } catch (err) {
     console.error("Error loading assets:", err);
     if (!retry) {
