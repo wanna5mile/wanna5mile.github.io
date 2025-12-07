@@ -5,6 +5,12 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+/*Disable Text Selection & Focus Highlights*/
+  -webkit-user-select: none; /* Chrome, Safari, Edge */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE 10+ */
+  user-select: none;         /* Standard */
+  -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
 }
 
 html, body {
@@ -256,8 +262,8 @@ header img {
 #container,
 #container-discov {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  justify-items: center;
+grid-template-columns: repeat(auto-fill, 220px);
+justify-content: center;
   gap: 20px;
   padding: 20px;
   background-color: var(--main-bg);
@@ -271,7 +277,7 @@ header img {
    ========================================== */
 #container div,
 #container-discov div {
-  width: 180px;
+  width: 220px;
   min-height: 160px;
   background: var(--card-bg);
   text-align: center;
@@ -288,8 +294,8 @@ header img {
 
 #container div img,
 #container-discov div img {
-  width: 180px;
-  max-width: 85%;
+  width: 100%;
+  max-width: 220px;
   height: auto;
   display: block;
   margin: 0 auto 8px;
@@ -301,13 +307,6 @@ header img {
 #container div img:hover,
 #container-discov div img:hover {
   transform: scale(1.05);
-}
-
-@media (max-width: 600px) {
-  #container div img,
-  #container-discov div img {
-    width: 140px;
-  }
 }
 
 /* ==========================================
@@ -499,17 +498,6 @@ footer {
 .fix:hover {
   border: 2px solid #ff0000;
   box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
-}
-
-/* ==========================================
-   Disable Text Selection & Focus Highlights
-   ========================================== */
-* {
-  -webkit-user-select: none; /* Chrome, Safari, Edge */
-  -moz-user-select: none;    /* Firefox */
-  -ms-user-select: none;     /* IE 10+ */
-  user-select: none;         /* Standard */
-  -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
 }
 
 input, textarea {
