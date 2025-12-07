@@ -61,8 +61,7 @@ body[theme="slackerish"] {
   height: 100vh;
 
   /* Dynamic background image from CSS variable */
-  background: #000 var(--preloader-bg) center/cover no-repeat;
-
+  background: var(--preloader-bg);
   display: flex;
   flex-direction: column;
   justify-content: center;
