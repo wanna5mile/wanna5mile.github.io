@@ -251,64 +251,41 @@ header img {
 }
 
 /* ==========================================
-   Grid Layout (Fixed Single Row Stretch)
+   Grid Layout (Centered Assets)
    ========================================== */
 #container,
 #container-discov {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  justify-items: center;
+  justify-items: center;        /* centers content inside each grid cell */
+  align-items: start;
   gap: 20px;
   padding: 20px;
   background-color: var(--main-bg);
   flex-grow: 1;
   min-height: 0;
-  align-content: start;
 }
 
 /* ==========================================
-   Asset Cards
+   Asset Cards (Centered + Uniform)
    ========================================== */
 #container div,
 #container-discov div {
-  width: 180px;
-  max-width: 220px;
+  width: 100%;         /* fill grid column */
+  max-width: 220px;    /* same as grid minmax */
   min-height: 160px;
   background: var(--card-bg);
   text-align: center;
-  border-radius: 20px; /* consistent, smooth radius */
+  border-radius: 20px;
   padding: 8px;
   overflow: hidden;
   transition: transform 0.2s ease;
+  position: relative;  /* required for overlay centering */
 }
 
 #container div:hover,
 #container-discov div:hover {
   transform: scale(1.05);
-}
-
-#container div img,
-#container-discov div img {
-  width: 180px;
-  max-width: 85%;
-  height: auto;
-  display: block;
-  margin: 0 auto 8px;
-  border-radius: 14px; /* same rounding ratio for visual balance */
-  object-fit: contain;
-  transition: transform 0.3s ease;
-}
-
-#container div img:hover,
-#container-discov div img:hover {
-  transform: scale(1.05);
-}
-
-@media (max-width: 600px) {
-  #container div img,
-  #container-discov div img {
-    width: 140px;
-  }
 }
 
 /* ==========================================
@@ -332,7 +309,7 @@ header img {
 }
 
 /* ==========================================
-   SOON Status (Classic)
+   SOON Status (Perfect Centering)
    ========================================== */
 .soon {
   position: relative;
@@ -340,27 +317,24 @@ header img {
   pointer-events: none;
   filter: grayscale(100%);
 }
+
 .soon::after {
   content: "COMING SOON";
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.7);
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.65);
   color: #fff;
-  padding: 10px 14px;
-  border-radius: 8px;
   font-family: monospace;
   font-size: 14px;
   font-weight: bold;
   letter-spacing: 1px;
-  text-shadow: 0 0 4px #000;
+  border-radius: inherit;
   z-index: 3;
 }
-.soon:hover {
-  border: 2px solid #ff0000;
-  box-shadow: 0 0 10px #ff0000;
-}
+
 .soon img {
   filter: grayscale(100%);
   opacity: 0.7;
@@ -714,36 +688,20 @@ body.popup-blurred footer {
   transition: filter 0.3s ease;
 }
 
-    #topBar {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      z-index: 20;
-      background: var(--header-bg);
-    }
+#container div img,
+#container-discov div img {
+  width: 100%;          /* now card + image alignment matches */
+  max-width: 180px;     /* soft limit */
+  height: auto;
+  display: block;
+  margin: 0 auto 8px;
+  border-radius: 14px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
 
-    #topBar header {
-      z-index: 21;
-    }
+#container div img:hover,
+#container-discov div img:hover {
+  transform: scale(1.05);
+}
 
-    #quoteWrapper {
-      position: relative;
-      width: 100vw;
-      height: 30px;
-      overflow: hidden;
-      background: #1d201f;
-      display: flex;
-      align-items: center;
-    }
-
-    #quoteBox {
-      position: absolute;
-      white-space: nowrap;
-      font-weight: bold;
-      color: #fff;
-      transform: translateX(100%);
-      user-select: none;
-      cursor: default;
-      font-size: 1.0em;
-      font-family: monospace;
-    }
