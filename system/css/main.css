@@ -6,7 +6,6 @@
   padding: 0;
   box-sizing: border-box;
 }
-
 html, body {
   background-color: var(--main-bg);
   color: var(--text-color);
@@ -14,7 +13,6 @@ html, body {
   display: flex;
   flex-direction: column;
 }
-
 /* ==========================================
    Links
    ========================================== */
@@ -23,7 +21,6 @@ a, a:visited {
   text-decoration: none;
 }
 a:focus { outline: none; }
-
 /* ==========================================
    Header & Navigation
    ========================================== */
@@ -36,7 +33,6 @@ header {
   width: 100%;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
-
 header a, footer a {
   margin: 0 10px;
   color: var(--link-color);
@@ -50,25 +46,21 @@ header a:hover, footer a:hover {
   text-decoration: underline;
   text-decoration-color: var(--accent-color);
 }
-
 header img {
   width: 28px;
   height: 28px;
   object-fit: cover;
 }
-
 .nav-links {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-
 .header-controls {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 /* ==========================================
    Page Controls
    ========================================== */
@@ -78,7 +70,6 @@ header img {
   gap: 8px;
   margin-left: 10px;
 }
-
 .pages-anchor button {
   background: transparent;
   border: none;
@@ -89,18 +80,15 @@ header img {
   align-items: center;
   justify-content: center;
 }
-
 .pages-anchor button img {
   width: 28px;
   height: 28px;
   object-fit: contain;
   transition: transform 0.2s ease;
 }
-
 .pages-anchor button:hover img {
   transform: scale(1.2);
 }
-
 .pages-anchor .page-indicator {
   font-weight: bold;
   font-size: 0.9rem;
@@ -108,7 +96,6 @@ header img {
   font-family: monospace;
   user-select: none;
 }
-
 /* ==========================================
    Profile & Dashboard
    ========================================== */
@@ -121,7 +108,6 @@ header img {
   object-fit: cover;
 }
 #pfp:hover { transform: scale(1.1); }
-
 #dashboardBtn {
   width: 36px;
   background: none;
@@ -132,7 +118,6 @@ header img {
   transition: transform 0.25s ease;
 }
 #dashboardBtn:hover { transform: scale(1.1); }
-
 .dashboard-menu {
   position: fixed;
   top: 60px;
@@ -168,15 +153,12 @@ header img {
   cursor: default;
   transition: color 0.3s, text-decoration 0.3s, background 0.3s;
 }
-
 .dashboard-menu p:hover {
   color: var(--accent-color);
   background: rgba(255,255,255,0.1);
   text-decoration: underline;
   text-decoration-color: var(--accent-color);
 }
-
-
 /* ==========================================
    Search Bar
    ========================================== */
@@ -191,7 +173,6 @@ header img {
   transition: box-shadow 0.2s;
 }
 .search-box:focus-within { box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
-
 .search-box input {
   padding: 6px;
   border: none;
@@ -202,7 +183,6 @@ header img {
   flex: 1;
 }
 .search-box input::placeholder { color: var(--input-placeholder); }
-
 .search-box button {
   padding: 6px;
   border: none;
@@ -217,7 +197,6 @@ header img {
 }
 .search-box button:hover { transform: scale(1.1); filter: brightness(1.2); }
 .search-box button img { width: 14px; height: 14px; }
-
 .search-error {
   display: none;
   position: fixed;
@@ -231,7 +210,6 @@ header img {
   font-size: 14px;
   z-index: 1000;
 }
-
 #searchFeedback {
   display: none;
   position: fixed;
@@ -249,7 +227,6 @@ header img {
   border: none;
   box-shadow: none;
 }
-
 /* ==========================================
    Grid Layout (Fixed Single Row Stretch)
    ========================================== */
@@ -265,7 +242,6 @@ header img {
   min-height: 0;
   align-content: start;
 }
-
 /* ==========================================
    Asset Cards
    ========================================== */
@@ -280,12 +256,10 @@ header img {
   overflow: hidden;
   transition: transform 0.2s ease;
 }
-
 #container div:hover,
 #container-discov div:hover {
   transform: scale(1.05);
 }
-
 #container div img,
 #container-discov div img {
   width: 180px;
@@ -297,19 +271,16 @@ header img {
   object-fit: contain;
   transition: transform 0.3s ease;
 }
-
 #container div img:hover,
 #container-discov div img:hover {
   transform: scale(1.05);
 }
-
 @media (max-width: 600px) {
   #container div img,
   #container-discov div img {
     width: 140px;
   }
 }
-
 /* ==========================================
    Card Text
    ========================================== */
@@ -329,7 +300,6 @@ header img {
   color: var(--accent-color);
   text-decoration: underline;
 }
-
 /* ==========================================
    SOON Status (Classic)
    ========================================== */
@@ -364,7 +334,6 @@ header img {
   filter: grayscale(100%);
   opacity: 0.7;
 }
-
 /* ==========================================
    Utility Elements
    ========================================== */
