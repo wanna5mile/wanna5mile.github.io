@@ -65,11 +65,11 @@ function initElements() {
   // Theme-Aware GIF Config
   // -----------------------------
   const defaultThemeGifs = {
-    searching: "system/images/GIF/searching.gif",
-    loading: "system/images/GIF/loading.gif",
-    loaded: "system/images/GIF/load-fire.gif",
-    crash: "system/images/GIF/crash.gif",
-    ded: "system/images/GIF/ded.gif",
+    searching: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/searching.gif",
+    loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
+    loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/load-fire.gif",
+    crash: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/crash.gif",
+    ded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/ded.gif",
   };
 
   window.config = {
@@ -91,8 +91,8 @@ function initElements() {
       classic: { ...defaultThemeGifs },
       slackerish: {
         ...defaultThemeGifs,
-        loading: "system/images/GIF/slackerish-load.gif",
-        loaded: "system/images/GIF/slackerish-loaded.gif",
+        loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-load.gif",
+        loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-loaded.gif",
       },
     },
 
