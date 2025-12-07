@@ -12,8 +12,8 @@
    These match your JS themeGifs + background logic
    ============================================== */
 :root {
-  --preloader-bg: url('system/images/GIF/loading-bg-default.png');
-  --preloader-gif: url('system/images/GIF/loading.gif');
+  --preloader-bg: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading-bg-default.png');
+  --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif');
   --preloader-text-color: #000;
 }
 
@@ -24,29 +24,29 @@
 
 /* Light Theme */
 body[theme="light"] {
-  --preloader-bg: url('system/images/GIF/light-bg.png');
-  --preloader-gif: url('system/images/GIF/loading.gif');
+  --preloader-bg: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/light-bg.png');
+  --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif');
   --preloader-text-color: #000;
 }
 
 /* Dark Theme */
 body[theme="dark"] {
-  --preloader-bg: url('system/images/GIF/dark-bg.png');
-  --preloader-gif: url('system/images/GIF/loading.gif');
+  --preloader-bg: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/dark-bg.png');
+  --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif');
   --preloader-text-color: #fff;
 }
 
 /* Classic Theme */
 body[theme="classic"] {
-  --preloader-bg: url('system/images/GIF/classic-bg.png');
-  --preloader-gif: url('system/images/GIF/loading.gif');
+  --preloader-bg: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/classic-bg.png');
+  --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif');
   --preloader-text-color: #000;
 }
 
 /* Slackerish Theme */
 body[theme="slackerish"] {
-  --preloader-bg: url('system/images/GIF/slackerish-bg.png');
-  --preloader-gif: url('system/images/GIF/slackerish-load.gif');
+  --preloader-bg: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-bg.png');
+  --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-load.gif');
   --preloader-text-color: #ffffff;
 }
 
