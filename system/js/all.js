@@ -31,50 +31,97 @@
     }
   });
 
-  /* ---------------------------
-     DOM & Config Initialization
-  --------------------------- */
-  function initElements() {
-    const $ = (sel) => {
-      try {
-        if (!sel) return null;
-        if (/^[A-Za-z0-9\-_]+$/.test(sel)) return document.getElementById(sel);
-        return document.querySelector(sel) || null;
-      } catch {
-        return null;
-      }
-    };
+/* ---------------------------
+   DOM & Config Initialization
+--------------------------- */
+function initElements() {
+  const $ = (sel) => {
+    try {
+      if (!sel) return null;
+      if (/^[A-Za-z0-9\-_]+$/.test(sel)) return document.getElementById(sel);
+      return document.querySelector(sel) || null;
+    } catch {
+      return null;
+    }
+  };
 
-    window.dom = {
-      container: $("#container"),
-      preloader: $("#preloader"),
-      loaderImage: $("#loaderImage"),
-      pageIndicator: $(".page-indicator") || $("#page-indicator"),
-      searchInput: $("#searchInputHeader"),
-      searchBtn: $("#searchBtnHeader"),
-      updatePopup: $("#updatePopup"),
-      updatePopupContent: $(".update-popup-content"),
-      viewUpdateBtn: $("#viewUpdateBtn"),
-      viewUpdateInfoBtn: $("#viewUpdateInfoBtn"),
-      closeUpdateBtn: $("#closeUpdateBtn"),
-      dontShowBtn: $("#dontShowBtn"),
-      updateVideo: $("#updateVideo"),
-    };
+  window.dom = {
+    container: $("#container"),
+    preloader: $("#preloader"),
+    loaderImage: $("#loaderImage"),
+    pageIndicator: $(".page-indicator") || $("#page-indicator"),
+    searchInput: $("#searchInputHeader"),
+    searchBtn: $("#searchBtnHeader"),
+    updatePopup: $("#updatePopup"),
+    updatePopupContent: $(".update-popup-content"),
+    viewUpdateBtn: $("#viewUpdateBtn"),
+    viewUpdateInfoBtn: $("#viewUpdateInfoBtn"),
+    closeUpdateBtn: $("#closeUpdateBtn"),
+    dontShowBtn: $("#dontShowBtn"),
+    updateVideo: $("#updateVideo"),
+  };
 
-    window.config = {
-      fallbackImage:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
-      fallbackLink: "https://wanna5mile.github.io./source/dino/",
-      gifBase:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
-      sheetUrl:
-        "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
-      updateTrailerSrc: "",
-      updateLink: "system/pages/version-log.html",
-      quotesJson:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/json/quotes.json",
-    };
-  }
+  window.config = {
+    fallbackImage:
+      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
+    fallbackLink: "https://wanna5mile.github.io./source/dino/",
+    gifBase:
+      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
+    sheetUrl:
+      "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
+    updateTrailerSrc: "",
+    updateLink: "system/pages/version-log.html",
+    quotesJson:
+      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/json/quotes.json",
+
+    /* ---------------------------------
+       Theme-Based GIF Configuration
+    --------------------------------- */
+themeGifs: {
+  default: {
+    searching: "system/images/GIF/searching.gif",
+    loading: "system/images/GIF/loading.gif",
+    loaded: "system/images/GIF/load-fire.gif",
+    crash: "system/images/GIF/crash.gif",
+    ded: "system/images/GIF/ded.gif",
+  },
+  light: {
+    searching: "system/images/GIF/searching.gif",
+    loading: "system/images/GIF/loading.gif",
+    loaded: "system/images/GIF/load-fire.gif",
+    crash: "system/images/GIF/crash.gif",
+    ded: "system/images/GIF/ded.gif",
+  },
+  dark: {
+    searching: "system/images/GIF/searching.gif",
+    loading: "system/images/GIF/loading.gif",
+    loaded: "system/images/GIF/load-fire.gif",
+    crash: "system/images/GIF/crash.gif",
+    ded: "system/images/GIF/ded.gif",
+  },
+  classic: {
+    searching: "system/images/GIF/searching.gif",
+    loading: "system/images/GIF/loading.gif",
+    loaded: "system/images/GIF/load-fire.gif",
+    crash: "system/images/GIF/crash.gif",
+    ded: "system/images/GIF/ded.gif",
+  },
+  slackerish: {
+    searching: "system/images/GIF/searching.gif",
+    loading: "system/images/GIF/slackerish-load.gif",
+    loaded: "system/images/GIF/slackerish-loaded.gif",
+    crash: "system/images/GIF/crash.gif",
+    ded: "system/images/GIF/ded.gif",
+  },
+},
+};
+}
+/* ---------------------------------
+   Helper: Get Current Theme
+--------------------------------- */
+function getCurrentTheme() {
+  return document.body.getAttribute("theme") || "default";
+}
 
   /* ---------------------------
      Favorites System
