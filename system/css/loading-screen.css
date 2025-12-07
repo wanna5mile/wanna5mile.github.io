@@ -12,7 +12,7 @@
    These match your JS themeGifs + background logic
    ============================================== */
 :root {
-  --preloader-bg:#000;
+  --preloader-bg: #000;
   --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif');
   --preloader-text-color: #000;
 }
@@ -24,28 +24,28 @@
 
 /* Light Theme */
 body[theme="light"] {
-  --preloader-bg:#fff;
+  --preloader-bg: #fff;
   --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif');
   --preloader-text-color: #000;
 }
 
 /* Dark Theme */
 body[theme="dark"] {
-  --preloader-bg:#000;
+  --preloader-bg: #000;
   --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif');
   --preloader-text-color: #fff;
 }
 
 /* Classic Theme */
 body[theme="classic"] {
-  --preloader-bg:#000;
+  --preloader-bg: #000;
   --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif');
   --preloader-text-color: #000;
 }
 
 /* Slackerish Theme */
 body[theme="slackerish"] {
-  --preloader-bg:#f2efc7;
+  --preloader-bg: #f2efc7;
   --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-load.gif');
   --preloader-text-color: #ffffff;
 }
@@ -57,11 +57,10 @@ body[theme="slackerish"] {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
 
-  /* Dynamic background image from CSS variable */
-  background: var(--preloader-bg);
+  background-color: var(--preloader-bg);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -74,16 +73,27 @@ body[theme="slackerish"] {
 }
 
 /* =================================================
-   LOADER GIF (DYNAMIC)
-   JS sets loaderImage.src, CSS defines fallback
+   LOADER GIF (DYNAMIC + fallback)
+   JS sets loaderImage.src, CSS provides fallback
    ================================================= */
-.loader-gif img {
+.loader-gif {
   width: 300px;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* Fallback GIF if JS fails */
+  background-image: var(--preloader-gif);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.loader-gif img {
+  width: 100%;
   height: auto;
   image-rendering: pixelated;
-
-  /* If JS doesn't override the src, use CSS variable */
-  content: var(--preloader-gif);
 }
 
 /* =================================================
