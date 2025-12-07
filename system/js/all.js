@@ -21,10 +21,15 @@ const debounce = (fn, ms = 150) => {
   };
 };
 
-/* Added — does NOT change utility structure */
+/* ---------------------------
+   Wait for image to fully load
+   before continuing (async)
+--------------------------- */
 function waitForImage(img, newSrc) {
   return new Promise((resolve) => {
     if (!img) return resolve();
+
+    // Already loaded and same src → resolve immediately
     if (img.src === newSrc && img.complete) return resolve();
 
     const onLoad = () => {
