@@ -12,7 +12,7 @@
    These match your JS themeGifs + background logic
    ============================================== */
 :root {
-  --preloader-bg: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading-bg-default.png');
+  --preloader-bg:#000;
   --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif');
   --preloader-text-color: #000;
 }
@@ -24,28 +24,28 @@
 
 /* Light Theme */
 body[theme="light"] {
-  --preloader-bg: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/light-bg.png');
+  --preloader-bg:#fff;
   --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif');
   --preloader-text-color: #000;
 }
 
 /* Dark Theme */
 body[theme="dark"] {
-  --preloader-bg: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/dark-bg.png');
+  --preloader-bg:#000;
   --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif');
   --preloader-text-color: #fff;
 }
 
 /* Classic Theme */
 body[theme="classic"] {
-  --preloader-bg: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/classic-bg.png');
+  --preloader-bg:#000;
   --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif');
   --preloader-text-color: #000;
 }
 
 /* Slackerish Theme */
 body[theme="slackerish"] {
-  --preloader-bg: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-bg.png');
+  --preloader-bg:#f2efc7;
   --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-load.gif');
   --preloader-text-color: #ffffff;
 }
