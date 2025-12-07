@@ -133,24 +133,24 @@ body[theme="classic"] {
    SLACKERISH THEME (moody dark brown palette)
    ========================================== */
 body[theme="slackerish"] {
-  --main-bg: #131112;
-  --card-bg: #1b1717;
-  --highlight-bg: #2b2220;
-  --quote-bg: #1a1818;
+  --main-bg: #f2efc7;
+  --card-bg: #faf3ab;
+  --highlight-bg: #eafaab;
+  --quote-bg: #ffdc8b;
 
-  --header-bg: #342A21;
-  --footer-bg: #342A21;
-  --menu-bg: rgba(0, 0, 0, 0.95);
+  --header-bg: #ffeaba;
+  --footer-bg: #ffeaba;
+  --menu-bg: rgba(225, 239, 168, 0.95);
 
-  --text-color: #fff;
-  --link-color: #ffbcbc;
-  --accent-color: #ff4444;
+  --text-color: #99ffb9;
+  --link-color: #4dff6d;
+  --accent-color: #adffbc;
 
-  --input-bg: #2a2220;
-  --input-border: #5a4740;
-  --input-text: #f4f4f4;
-  --input-placeholder: #b8b8b8;
-  --search-btn-bg: #3a2f28;
+  --input-bg: #f2ffad;
+  --input-border: #fcff82;
+  --input-text: #a0ffb8;
+  --input-placeholder: #bfffa0;
+  --search-btn-bg: #fff7c3;
 
   --status-ok-border: #00ff00;
   --status-fix-border: #ff0000;
