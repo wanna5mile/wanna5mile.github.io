@@ -698,3 +698,36 @@ body.popup-blurred footer {
   filter: blur(6px) brightness(0.8);
   transition: filter 0.3s ease;
 }
+#topBar {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 20;
+  background: var(--header-bg); /* already correct */
+}
+
+#topBar header {
+  z-index: 21;
+}
+
+#quoteWrapper {
+  position: relative;
+  width: 100vw;
+  height: 30px;
+  overflow: hidden;
+  background: var(--quote-bg); /* use theme variable instead of #1d201f */
+  display: flex;
+  align-items: center;
+}
+
+#quoteBox {
+  position: absolute;
+  white-space: nowrap;
+  font-weight: bold;
+  color: var(--quote-text, var(--text-color)); /* use theme variable */
+  transform: translateX(100%);
+  user-select: none;
+  cursor: default;
+  font-size: 1.0em;
+  font-family: monospace;
+}
