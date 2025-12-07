@@ -6,20 +6,36 @@
 (() => {
   "use strict";
 
-  /* ---------------------------
+/* ---------------------------
      Utilities
-  --------------------------- */
-  const clamp = (v, a = 0, b = 100) => Math.min(b, Math.max(a, v));
-  const delay = (ms) => new Promise((r) => setTimeout(r, ms));
-  const safeStr = (v) => (v == null ? "" : String(v));
-  const rafAsync = () => new Promise((r) => requestAnimationFrame(r));
-  const debounce = (fn, ms = 150) => {
-    let t;
-    return (...args) => {
-      clearTimeout(t);
-      t = setTimeout(() => fn(...args), ms);
-    };
+--------------------------- */
+const clamp = (v, a = 0, b = 100) => Math.min(b, Math.max(a, v));
+const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+const safeStr = (v) => (v == null ? "" : String(v));
+const rafAsync = () => new Promise((r) => requestAnimationFrame(r));
+const debounce = (fn, ms = 150) => {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), ms);
   };
+};
+
+/* Added — does NOT change utility structure */
+function waitForImage(img, newSrc) {
+  return new Promise((resolve) => {
+    if (!img) return resolve();
+    if (img.src === newSrc && img.complete) return resolve();
+
+    const onLoad = () => {
+      img.removeEventListener("load", onLoad);
+      resolve();
+    };
+
+    img.addEventListener("load", onLoad);
+    img.src = newSrc;
+  });
+}
 
   /* ---------------------------
      Sort Mode Control
@@ -715,8 +731,10 @@ async function loadAssets(retry = false) {
 
 await setProgress(100);
 
-dom.setLoaderGif("loaded"); // show loaded gif once
-await delay(600); // let the gif play
+const gif = config.getGif("loaded");
+await waitForImage(dom.loaderImage, gif);
+// Give the loaded GIF a moment to show (optional)
+await delay(200);
 
 hidePreloader(true);
 
