@@ -634,8 +634,7 @@ async function initUpdatePopup() {
 --------------------------- */
 async function loadAssets(retry = false) {
   try {
-    showLoading("Loading assets...");
-
+    showLoading("");
     let currentProgress = 0;
     const setProgress = (target) => {
       return new Promise((resolve) => {
