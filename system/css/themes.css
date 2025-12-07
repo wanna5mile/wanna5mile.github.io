@@ -143,13 +143,13 @@ body[theme="slackerish"] {
   --menu-bg: rgba(225, 239, 168, 0.95);
 
   --text-color: #fff;
-  --link-color: #4dff6d;
+  --link-color: #ff0000;
   --accent-color: #adffbc;
 
   --input-bg: #f2ffad;
   --input-border: #fcff82;
-  --input-text: #a0ffb8;
-  --input-placeholder: #bfffa0;
+  --input-text: #fff;
+  --input-placeholder: #fff;
   --search-btn-bg: #fff7c3;
 
   --status-ok-border: #00ff00;
