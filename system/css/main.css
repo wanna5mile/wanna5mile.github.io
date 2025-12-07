@@ -242,6 +242,7 @@ header img {
   min-height: 0;
   align-content: start;
 }
+
 /* ==========================================
    Asset Cards
    ========================================== */
@@ -251,36 +252,52 @@ header img {
   min-height: 160px;
   background: var(--card-bg);
   text-align: center;
-  border-radius: 20px; /* consistent, smooth radius */
+  border-radius: 20px;
   padding: 8px;
   overflow: hidden;
   transition: transform 0.2s ease;
+
+  /* FLEX FIX → centers content without altering layout */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
+/* Hover scale */
 #container div:hover,
 #container-discov div:hover {
   transform: scale(1.05);
 }
+
+/* Image */
 #container div img,
 #container-discov div img {
-  width: 180px;
-  max-width: 85%;
+  width: 180px;        /* same size as before */
+  max-width: 85%;      /* same scaling behavior */
   height: auto;
-  display: block;
-  margin: 0 auto 8px;
-  border-radius: 14px; /* same rounding ratio for visual balance */
+  border-radius: 14px;
   object-fit: contain;
   transition: transform 0.3s ease;
+
+  /* Ensure perfect centering regardless of odd widths */
+  align-self: center;
+  margin-bottom: 8px;
 }
+
+/* Hover scale */
 #container div img:hover,
 #container-discov div img:hover {
   transform: scale(1.05);
 }
+
+/* Mobile */
 @media (max-width: 600px) {
   #container div img,
   #container-discov div img {
     width: 140px;
   }
 }
+
 /* ==========================================
    Card Text
    ========================================== */
