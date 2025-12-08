@@ -6,41 +6,20 @@
 (() => {
   "use strict";
 
-/* ---------------------------
+  /* ---------------------------
      Utilities
---------------------------- */
-const clamp = (v, a = 0, b = 100) => Math.min(b, Math.max(a, v));
-const delay = (ms) => new Promise((r) => setTimeout(r, ms));
-const safeStr = (v) => (v == null ? "" : String(v));
-const rafAsync = () => new Promise((r) => requestAnimationFrame(r));
-const debounce = (fn, ms = 150) => {
-  let t;
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), ms);
-  };
-};
-
-/* ---------------------------
-   Wait for image to fully load
-   before continuing (async)
---------------------------- */
-function waitForImage(img, newSrc) {
-  return new Promise((resolve) => {
-    if (!img) return resolve();
-
-    // Already loaded and same src → resolve immediately
-    if (img.src === newSrc && img.complete) return resolve();
-
-    const onLoad = () => {
-      img.removeEventListener("load", onLoad);
-      resolve();
+  --------------------------- */
+  const clamp = (v, a = 0, b = 100) => Math.min(b, Math.max(a, v));
+  const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+  const safeStr = (v) => (v == null ? "" : String(v));
+  const rafAsync = () => new Promise((r) => requestAnimationFrame(r));
+  const debounce = (fn, ms = 150) => {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), ms);
     };
-
-    img.addEventListener("load", onLoad);
-    img.src = newSrc;
-  });
-}
+  };
 
   /* ---------------------------
      Sort Mode Control
@@ -52,88 +31,50 @@ function waitForImage(img, newSrc) {
     }
   });
 
-/* ---------------------------
-   DOM & Config Initialization
---------------------------- */
-function initElements() {
-  const $ = (sel) => {
-    try {
-      if (!sel) return null;
-      if (/^[A-Za-z0-9\-_]+$/.test(sel)) return document.getElementById(sel);
-      return document.querySelector(sel) || null;
-    } catch {
-      return null;
-    }
-  };
+  /* ---------------------------
+     DOM & Config Initialization
+  --------------------------- */
+  function initElements() {
+    const $ = (sel) => {
+      try {
+        if (!sel) return null;
+        if (/^[A-Za-z0-9\-_]+$/.test(sel)) return document.getElementById(sel);
+        return document.querySelector(sel) || null;
+      } catch {
+        return null;
+      }
+    };
 
-  window.dom = {
-    container: $("#container"),
-    preloader: $("#preloader"),
-    loaderImage: $("#loaderImage"),
-    pageIndicator: $(".page-indicator") || $("#page-indicator"),
-    searchInput: $("#searchInputHeader"),
-    searchBtn: $("#searchBtnHeader"),
-    updatePopup: $("#updatePopup"),
-    updatePopupContent: $(".update-popup-content"),
-    viewUpdateBtn: $("#viewUpdateBtn"),
-    viewUpdateInfoBtn: $("#viewUpdateInfoBtn"),
-    closeUpdateBtn: $("#closeUpdateBtn"),
-    dontShowBtn: $("#dontShowBtn"),
-    updateVideo: $("#updateVideo"),
-  };
+    window.dom = {
+      container: $("#container"),
+      preloader: $("#preloader"),
+      loaderImage: $("#loaderImage"),
+      pageIndicator: $(".page-indicator") || $("#page-indicator"),
+      searchInput: $("#searchInputHeader"),
+      searchBtn: $("#searchBtnHeader"),
+      updatePopup: $("#updatePopup"),
+      updatePopupContent: $(".update-popup-content"),
+      viewUpdateBtn: $("#viewUpdateBtn"),
+      viewUpdateInfoBtn: $("#viewUpdateInfoBtn"),
+      closeUpdateBtn: $("#closeUpdateBtn"),
+      dontShowBtn: $("#dontShowBtn"),
+      updateVideo: $("#updateVideo"),
+    };
 
-  // -----------------------------
-  // Theme-Aware GIF Config
-  // -----------------------------
-  const defaultThemeGifs = {
-    searching: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/searching.gif",
-    loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
-    loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/load-fire.gif",
-    crash: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/crash.gif",
-    ded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/ded.gif",
-  };
-
-  window.config = {
-    fallbackImage:
-      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
-    fallbackLink: "https://wanna5mile.github.io./source/dino/",
-    sheetUrl:
-      "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
-    updateTrailerSrc: "",
-    updateLink: "system/pages/version-log.html",
-    quotesJson:
-      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/json/quotes.json",
-
-    // Theme GIFs
-    themeGifs: {
-      default: { ...defaultThemeGifs },
-      light: { ...defaultThemeGifs },
-      dark: { ...defaultThemeGifs },
-      classic: { ...defaultThemeGifs },
-      slackerish: {
-        ...defaultThemeGifs,
-        loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-load.gif",
-        loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-loaded.gif",
-      },
-    },
-
-    /* -----------------------------
-       Get GIF for current theme + type
-    ----------------------------- */
-    getGif: (type) => {
-      const theme = getCurrentTheme();
-      const gifs = window.config.themeGifs[theme] || window.config.themeGifs.default;
-      return gifs[type] || defaultThemeGifs[type] || "";
-    },
-  };
-}
-
-/* ---------------------------------
-   Helper: Get Current Theme
---------------------------------- */
-function getCurrentTheme() {
-  return document.body.getAttribute("theme") || "default";
-}
+    window.config = {
+      fallbackImage:
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
+      fallbackLink: "https://wanna5mile.github.io./source/dino/",
+      gifBase:
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
+      sheetUrl:
+        "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
+      updateTrailerSrc: "",
+      updateLink: "system/pages/version-log.html",
+      quotesJson:
+        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/json/quotes.json",
+    };
+  }
 
   /* ---------------------------
      Favorites System
@@ -158,70 +99,61 @@ function getCurrentTheme() {
     };
   }
 
-/* ---------------------------
-   Preloader UI
---------------------------- */
-function initPreloader() {
-  const { preloader, loaderImage } = dom || {};
-  if (!preloader) return;
+  /* ---------------------------
+     Preloader UI
+  --------------------------- */
+  function initPreloader() {
+    const { preloader } = dom || {};
+    if (!preloader) return;
 
-  preloader.style.display = "flex";
-  preloader.style.opacity = "1";
-  preloader.dataset.hidden = "false";
+    preloader.style.display = "flex";
+    preloader.style.opacity = "1";
+    preloader.dataset.hidden = "false";
 
-  let counter = preloader.querySelector("#counter");
-  let bar = preloader.querySelector(".load-progress-bar");
-  let fill = preloader.querySelector(".load-progress-fill");
+    let counter = preloader.querySelector("#counter");
+    let bar = preloader.querySelector(".load-progress-bar");
+    let fill = preloader.querySelector(".load-progress-fill");
 
-  if (!counter) {
-    counter = document.createElement("div");
-    counter.id = "counter";
-    counter.className = "load-progress-text";
-    preloader.appendChild(counter);
+    if (!counter) {
+      counter = document.createElement("div");
+      counter.id = "counter";
+      counter.className = "load-progress-text";
+      preloader.appendChild(counter);
+    }
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.className = "load-progress-bar";
+      fill = document.createElement("div");
+      fill.className = "load-progress-fill";
+      bar.appendChild(fill);
+      preloader.appendChild(bar);
+    } else if (!fill) {
+      fill = document.createElement("div");
+      fill.className = "load-progress-fill";
+      bar.appendChild(fill);
+    }
+
+    dom.loaderText = counter;
+    dom.progressBarFill = fill;
+
+    window.updateProgress = (p) => {
+      const clamped = clamp(Math.round(p), 0, 100);
+      counter.textContent = `${clamped}%`;
+      fill.style.width = `${clamped}%`;
+    };
+
+    window.showLoading = (text) =>
+      (preloader.querySelector(".loading-text") || counter).textContent = text;
+
+    window.hidePreloader = (force = false) => {
+      if (preloader.dataset.hidden === "true") return;
+      preloader.dataset.hidden = "true";
+      preloader.style.transition = "opacity 0.45s ease";
+      preloader.style.opacity = "0";
+      preloader.style.pointerEvents = "none";
+      setTimeout(() => (preloader.style.display = "none"), 500);
+    };
   }
-  if (!bar) {
-    bar = document.createElement("div");
-    bar.className = "load-progress-bar";
-    fill = document.createElement("div");
-    fill.className = "load-progress-fill";
-    bar.appendChild(fill);
-    preloader.appendChild(bar);
-  } else if (!fill) {
-    fill = document.createElement("div");
-    fill.className = "load-progress-fill";
-    bar.appendChild(fill);
-  }
-
-  dom.loaderText = counter;
-  dom.progressBarFill = fill;
-
-  /* ✅ ADD THIS — sets the GIF from theme config */
-  dom.setLoaderGif = (type) => {
-    if (!dom.loaderImage) return;
-    dom.loaderImage.src = config.getGif(type);
-  };
-
-  window.updateProgress = (p) => {
-    const clamped = clamp(Math.round(p), 0, 100);
-    counter.textContent = `${clamped}%`;
-    fill.style.width = `${clamped}%`;
-  };
-
-  window.showLoading = (text) =>
-    (preloader.querySelector(".loading-text") || counter).textContent = text;
-
-window.hidePreloader = (force = false) => {
-  if (preloader.dataset.hidden === "true") return;
-  preloader.dataset.hidden = "true";
-  preloader.style.transition = "opacity 0.45s ease";
-  preloader.style.opacity = "0";
-  preloader.style.pointerEvents = "none";
-
-  // ✅ Clear loader GIF when preloader hides
-  if (dom.loaderImage) dom.loaderImage.src = "";
-
-  setTimeout(() => (preloader.style.display = "none"), 500);
-};
 
 /* ---------------------------
    Asset Card Builder
@@ -342,7 +274,7 @@ function createAssetCards(data) {
 
     // GIF overlays for "new"/"updated"
     if (status && ["new", "updated"].includes(status)) {
-    addOverlay(config.getGif(status), `${status} badge`, `status-gif status-${status}`);
+      addOverlay(`${config.gifBase}${status}.gif`, `${status} badge`, `status-gif status-${status}`);
     }
 
     // If status is "fix", add full cover overlay
@@ -402,7 +334,7 @@ function initPaging() {
   if (!errorGif) {
     errorGif = document.createElement("img");
     errorGif.id = "noResultsGif";
-    errorGif.src = config.getGif("searching");
+    errorGif.src = "system/images/GIF/searching.gif";
     errorGif.alt = "No results found";
 
     Object.assign(errorGif.style, {
@@ -660,14 +592,11 @@ async function initUpdatePopup() {
 }
 
 /* ---------------------------
-   Asset Loader (Smooth Progress)
+     Asset Loader (Smooth Progress)
 --------------------------- */
 async function loadAssets(retry = false) {
   try {
-    showLoading("");
-
-    // Start with loading GIF immediately
-    if (dom.setLoaderGif) dom.setLoaderGif("loading");
+    showLoading("Loading assets...");
 
     let currentProgress = 0;
     const setProgress = (target) => {
@@ -689,7 +618,7 @@ async function loadAssets(retry = false) {
 
     await setProgress(5); // initial start
 
-    // Fetch JSON data
+    // Fetch JSON
     const res = await fetch(config.sheetUrl, { cache: "no-store" });
     if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
     const raw = await res.json();
@@ -710,10 +639,12 @@ async function loadAssets(retry = false) {
 
     if (totalImages) {
       for (const p of promises) {
-        p.promise.then(() => loadedImages++);
+        p.promise.then(() => {
+          loadedImages++;
+        });
       }
 
-      // Smooth progress loop while images load
+      // Smooth progress loop
       while (loadedImages < totalImages) {
         const target = 20 + (loadedImages / totalImages) * 70; // 20-90%
         currentProgress += (target - currentProgress) * 0.08;
@@ -729,22 +660,9 @@ async function loadAssets(retry = false) {
       dom.container.innerHTML =
         "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
 
-    // Finish progress at 100%
     await setProgress(100);
-
-    // Swap to loaded GIF immediately
-    if (dom.loaderImage && dom.setLoaderGif) {
-      const loadedGif = config.getGif("loaded");
-      await waitForImage(dom.loaderImage, loadedGif); // ensure GIF is fully loaded
-      dom.loaderImage.src = loadedGif;
-    }
-
-    // Keep loaded GIF visible for 1.8 seconds
-    await delay(1800);
-
-    // Then hide preloader
+    await delay(350);
     hidePreloader(true);
-
   } catch (err) {
     console.error("Error loading assets:", err);
     if (!retry) {
