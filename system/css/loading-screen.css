@@ -37,7 +37,7 @@ body[theme="slackerish"] {
   height: 100vh;
 
   /* Always black background */
-  background: #000 var(--preloader-bg) center/cover no-repeat;
+  background: #000;
 
   display: flex;
   flex-direction: column;
