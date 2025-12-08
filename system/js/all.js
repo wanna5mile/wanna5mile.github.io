@@ -210,18 +210,15 @@ function initPreloader() {
   window.showLoading = (text) =>
     (preloader.querySelector(".loading-text") || counter).textContent = text;
 
-window.hidePreloader = (force = false) => {
-  if (preloader.dataset.hidden === "true") return;
-  preloader.dataset.hidden = "true";
-  preloader.style.transition = "opacity 0.45s ease";
-  preloader.style.opacity = "0";
-  preloader.style.pointerEvents = "none";
-
-  // ✅ Clear loader GIF when preloader hides
-  if (dom.loaderImage) dom.loaderImage.src = "";
-
-  setTimeout(() => (preloader.style.display = "none"), 500);
-};
+  window.hidePreloader = (force = false) => {
+    if (preloader.dataset.hidden === "true") return;
+    preloader.dataset.hidden = "true";
+    preloader.style.transition = "opacity 0.45s ease";
+    preloader.style.opacity = "0";
+    preloader.style.pointerEvents = "none";
+    setTimeout(() => (preloader.style.display = "none"), 500);
+  };
+}
 
 /* ---------------------------
    Asset Card Builder
