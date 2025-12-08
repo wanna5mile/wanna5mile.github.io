@@ -701,12 +701,13 @@ async function loadAssets(retry = false) {
       : data;
 
     // Create asset cards & track image loading
-    const promises = createAssetCards(filtered || []);
-    const totalImages = promises.length;
+    const imagePromises = createAssetCards(filtered || []);
+    const totalImages = imagePromises.length;
     let loadedImages = 0;
 
     if (totalImages) {
-      for (const p of promises) {
+      // Increment loadedImages as each image finishes
+      for (const p of imagePromises) {
         p.promise.then(() => loadedImages++);
       }
 
@@ -729,11 +730,14 @@ async function loadAssets(retry = false) {
     // Finish progress at 100%
     await setProgress(100);
 
-    // Swap to loaded GIF immediately
+    // Swap to loaded GIF
     if (dom.loaderImage && dom.setLoaderGif) {
       const loadedGif = config.getGif("loaded");
-      await waitForImage(dom.loaderImage, loadedGif); // ensure GIF is fully loaded
+      // Set the loaded GIF first
       dom.loaderImage.src = loadedGif;
+
+      // Wait for the GIF to fully load before continuing
+      await waitForImage(dom.loaderImage, loadedGif);
     }
 
     // Keep loaded GIF visible for 1.8 seconds
