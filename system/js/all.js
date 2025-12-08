@@ -159,17 +159,16 @@ function getCurrentTheme() {
   }
 
 /* ---------------------------
-   Preloader UI (CSS-driven)
+   Preloader UI
 --------------------------- */
 function initPreloader() {
   const { preloader, loaderImage } = dom || {};
   if (!preloader) return;
 
-  // Ensure preloader is visible via CSS class
-  preloader.classList.remove('hidden');
+  preloader.style.display = "flex";
+  preloader.style.opacity = "1";
   preloader.dataset.hidden = "false";
 
-  // Ensure counter and progress bar exist
   let counter = preloader.querySelector("#counter");
   let bar = preloader.querySelector(".load-progress-bar");
   let fill = preloader.querySelector(".load-progress-fill");
@@ -180,7 +179,6 @@ function initPreloader() {
     counter.className = "load-progress-text";
     preloader.appendChild(counter);
   }
-
   if (!bar) {
     bar = document.createElement("div");
     bar.className = "load-progress-bar";
@@ -197,47 +195,33 @@ function initPreloader() {
   dom.loaderText = counter;
   dom.progressBarFill = fill;
 
-  /* ---------------------------
-     Loader GIF Setter
-  --------------------------- */
+  /* ✅ ADD THIS — sets the GIF from theme config */
   dom.setLoaderGif = (type) => {
-    if (!loaderImage) return;
-    loaderImage.src = config.getGif(type);
+    if (!dom.loaderImage) return;
+    dom.loaderImage.src = config.getGif(type);
   };
 
-  /* ---------------------------
-     Progress Updater
-     Updates only CSS variable for width
-  --------------------------- */
   window.updateProgress = (p) => {
     const clamped = clamp(Math.round(p), 0, 100);
     counter.textContent = `${clamped}%`;
-    fill.style.setProperty('--progress', `${clamped}%`);
+    fill.style.width = `${clamped}%`;
   };
 
-  /* ---------------------------
-     Loading Text Updater
-  --------------------------- */
-  window.showLoading = (text) => {
-    const target = preloader.querySelector(".loading-text") || counter;
-    target.textContent = text;
-  };
+  window.showLoading = (text) =>
+    (preloader.querySelector(".loading-text") || counter).textContent = text;
 
-  /* ---------------------------
-     Hide Preloader
-     Uses CSS class for fade/visibility
-  --------------------------- */
-  window.hidePreloader = (force = false) => {
-    if (preloader.dataset.hidden === "true") return;
-    preloader.dataset.hidden = "true";
+window.hidePreloader = (force = false) => {
+  if (preloader.dataset.hidden === "true") return;
+  preloader.dataset.hidden = "true";
+  preloader.style.transition = "opacity 0.45s ease";
+  preloader.style.opacity = "0";
+  preloader.style.pointerEvents = "none";
 
-    // Add fade class; CSS handles opacity transition
-    preloader.classList.add('fade');
+  // ✅ Clear loader GIF when preloader hides
+  if (dom.loaderImage) dom.loaderImage.src = "";
 
-    // Optional: remove from DOM after fade duration
-    setTimeout(() => preloader.classList.add('hidden'), 500);
-  };
-}
+  setTimeout(() => (preloader.style.display = "none"), 500);
+};
 
 /* ---------------------------
    Asset Card Builder
@@ -720,13 +704,12 @@ async function loadAssets(retry = false) {
       : data;
 
     // Create asset cards & track image loading
-    const imagePromises = createAssetCards(filtered || []);
-    const totalImages = imagePromises.length;
+    const promises = createAssetCards(filtered || []);
+    const totalImages = promises.length;
     let loadedImages = 0;
 
     if (totalImages) {
-      // Increment loadedImages as each image finishes
-      for (const p of imagePromises) {
+      for (const p of promises) {
         p.promise.then(() => loadedImages++);
       }
 
@@ -749,14 +732,11 @@ async function loadAssets(retry = false) {
     // Finish progress at 100%
     await setProgress(100);
 
-    // Swap to loaded GIF
+    // Swap to loaded GIF immediately
     if (dom.loaderImage && dom.setLoaderGif) {
       const loadedGif = config.getGif("loaded");
-      // Set the loaded GIF first
+      await waitForImage(dom.loaderImage, loadedGif); // ensure GIF is fully loaded
       dom.loaderImage.src = loadedGif;
-
-      // Wait for the GIF to fully load before continuing
-      await waitForImage(dom.loaderImage, loadedGif);
     }
 
     // Keep loaded GIF visible for 1.8 seconds
