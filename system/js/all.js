@@ -159,16 +159,17 @@ function getCurrentTheme() {
   }
 
 /* ---------------------------
-   Preloader UI
+   Preloader UI (CSS-driven)
 --------------------------- */
 function initPreloader() {
   const { preloader, loaderImage } = dom || {};
   if (!preloader) return;
 
-  preloader.style.display = "flex";
-  preloader.style.opacity = "1";
+  // Ensure preloader is visible via CSS class
+  preloader.classList.remove('hidden');
   preloader.dataset.hidden = "false";
 
+  // Ensure counter and progress bar exist
   let counter = preloader.querySelector("#counter");
   let bar = preloader.querySelector(".load-progress-bar");
   let fill = preloader.querySelector(".load-progress-fill");
@@ -179,6 +180,7 @@ function initPreloader() {
     counter.className = "load-progress-text";
     preloader.appendChild(counter);
   }
+
   if (!bar) {
     bar = document.createElement("div");
     bar.className = "load-progress-bar";
@@ -195,28 +197,45 @@ function initPreloader() {
   dom.loaderText = counter;
   dom.progressBarFill = fill;
 
-  /* ✅ ADD THIS — sets the GIF from theme config */
+  /* ---------------------------
+     Loader GIF Setter
+  --------------------------- */
   dom.setLoaderGif = (type) => {
-    if (!dom.loaderImage) return;
-    dom.loaderImage.src = config.getGif(type);
+    if (!loaderImage) return;
+    loaderImage.src = config.getGif(type);
   };
 
+  /* ---------------------------
+     Progress Updater
+     Updates only CSS variable for width
+  --------------------------- */
   window.updateProgress = (p) => {
     const clamped = clamp(Math.round(p), 0, 100);
     counter.textContent = `${clamped}%`;
-    fill.style.width = `${clamped}%`;
+    fill.style.setProperty('--progress', `${clamped}%`);
   };
 
-  window.showLoading = (text) =>
-    (preloader.querySelector(".loading-text") || counter).textContent = text;
+  /* ---------------------------
+     Loading Text Updater
+  --------------------------- */
+  window.showLoading = (text) => {
+    const target = preloader.querySelector(".loading-text") || counter;
+    target.textContent = text;
+  };
 
+  /* ---------------------------
+     Hide Preloader
+     Uses CSS class for fade/visibility
+  --------------------------- */
   window.hidePreloader = (force = false) => {
     if (preloader.dataset.hidden === "true") return;
     preloader.dataset.hidden = "true";
-    preloader.style.transition = "opacity 0.45s ease";
-    preloader.style.opacity = "0";
-    preloader.style.pointerEvents = "none";
-    setTimeout(() => (preloader.style.display = "none"), 500);
+
+    // Add fade class; CSS handles opacity transition
+    preloader.classList.add('fade');
+
+    // Optional: remove from DOM after fade duration
+    setTimeout(() => preloader.classList.add('hidden'), 500);
   };
 }
 
