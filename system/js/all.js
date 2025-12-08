@@ -663,7 +663,7 @@ async function loadAssets(retry = false) {
   try {
     showLoading("");
 
-    /* ✅ ADD THIS — start with loading GIF */
+    // Start with loading GIF immediately
     if (dom.setLoaderGif) dom.setLoaderGif("loading");
 
     let currentProgress = 0;
@@ -674,12 +674,6 @@ async function loadAssets(retry = false) {
           if (Math.abs(target - currentProgress) < 0.5) {
             currentProgress = target;
             updateProgress(currentProgress);
-
-            /* ✅ WHEN PROGRESS HITS 100 → switch GIF to "loaded" */
-            if (currentProgress === 100 && dom.setLoaderGif) {
-              dom.setLoaderGif("loaded");
-            }
-
             resolve();
           } else {
             updateProgress(currentProgress);
@@ -692,7 +686,7 @@ async function loadAssets(retry = false) {
 
     await setProgress(5); // initial start
 
-    // Fetch JSON
+    // Fetch JSON data
     const res = await fetch(config.sheetUrl, { cache: "no-store" });
     if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
     const raw = await res.json();
@@ -713,12 +707,10 @@ async function loadAssets(retry = false) {
 
     if (totalImages) {
       for (const p of promises) {
-        p.promise.then(() => {
-          loadedImages++;
-        });
+        p.promise.then(() => loadedImages++);
       }
 
-      // Smooth progress loop
+      // Smooth progress loop while images load
       while (loadedImages < totalImages) {
         const target = 20 + (loadedImages / totalImages) * 70; // 20-90%
         currentProgress += (target - currentProgress) * 0.08;
@@ -734,14 +726,21 @@ async function loadAssets(retry = false) {
       dom.container.innerHTML =
         "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
 
-await setProgress(100);
+    // Finish progress at 100%
+    await setProgress(100);
 
-const gif = config.getGif("loaded");
-await waitForImage(dom.loaderImage, gif);
-// Give the loaded GIF a moment to show (optional)
-await delay(200);
+    // Swap to loaded GIF immediately
+    if (dom.loaderImage && dom.setLoaderGif) {
+      const loadedGif = config.getGif("loaded");
+      await waitForImage(dom.loaderImage, loadedGif); // ensure GIF is fully loaded
+      dom.loaderImage.src = loadedGif;
+    }
 
-hidePreloader(true);
+    // Keep loaded GIF visible for 1.8 seconds
+    await delay(1800);
+
+    // Then hide preloader
+    hidePreloader(true);
 
   } catch (err) {
     console.error("Error loading assets:", err);
