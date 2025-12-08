@@ -13,8 +13,8 @@
   --main-bg: #d4d4d4;
   --card-bg: #d4d4d4;
   --highlight-bg: #fffbe6;
-  --quote-bg: #eaeaea;
-  --quote-text-color: #000;
+  --quote-bg: #000;
+  --quote-text-color: #fff;
   --quote-shadow: none;
 
   /* === UI Backgrounds (Header/Footer/Menu) === */
@@ -54,8 +54,8 @@ body[theme="light"] {
   --main-bg: #f4f4f4;
   --card-bg: #ffffff;
   --highlight-bg: #fffbe6;
-  --quote-bg: #f1f1f1;
-  --quote-text-color: #222;
+  --quote-bg: #fff;
+  --quote-text-color: #000;
   --quote-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 
   --header-bg: #e0e0e0;
@@ -84,8 +84,8 @@ body[theme="dark"] {
   --main-bg: #1e1e1e;
   --card-bg: #2b2b2b;
   --highlight-bg: #2f2f2f;
-  --quote-bg: #292929;
-  --quote-text-color: #f4f4f4;
+  --quote-bg: #000;
+  --quote-text-color: #fff;
   --quote-shadow: 1px 1px 4px rgba(0,0,0,0.5);
 
   --header-bg: #0d0d0d;
@@ -114,8 +114,8 @@ body[theme="classic"] {
   --main-bg: #d4d4d4;
   --card-bg: #d4d4d4;
   --highlight-bg: #fffbe6;
-  --quote-bg: #eaeaea;
-  --quote-text-color: #000;
+  --quote-bg: #000;
+  --quote-text-color: #fff;
   --quote-shadow: none;
 
   --header-bg: #111;
