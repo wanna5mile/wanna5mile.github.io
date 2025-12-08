@@ -13,9 +13,7 @@
   --main-bg: #d4d4d4;
   --card-bg: #d4d4d4;
   --highlight-bg: #fffbe6;
-  --quote-bg: #000;
-  --quote-text-color: #fff;
-  --quote-shadow: none;
+  --quote-bg: #eaeaea;
 
   /* === UI Backgrounds (Header/Footer/Menu) === */
   --header-bg: #111;
@@ -54,9 +52,7 @@ body[theme="light"] {
   --main-bg: #f4f4f4;
   --card-bg: #ffffff;
   --highlight-bg: #fffbe6;
-  --quote-bg: #fff;
-  --quote-text-color: #000;
-  --quote-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  --quote-bg: #f1f1f1;
 
   --header-bg: #e0e0e0;
   --footer-bg: #ccc;
@@ -84,9 +80,7 @@ body[theme="dark"] {
   --main-bg: #1e1e1e;
   --card-bg: #2b2b2b;
   --highlight-bg: #2f2f2f;
-  --quote-bg: #000;
-  --quote-text-color: #fff;
-  --quote-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+  --quote-bg: #292929;
 
   --header-bg: #0d0d0d;
   --footer-bg: #222;
@@ -114,9 +108,7 @@ body[theme="classic"] {
   --main-bg: #d4d4d4;
   --card-bg: #d4d4d4;
   --highlight-bg: #fffbe6;
-  --quote-bg: #000;
-  --quote-text-color: #fff;
-  --quote-shadow: none;
+  --quote-bg: #eaeaea;
 
   --header-bg: #111;
   --footer-bg: #555;
@@ -141,26 +133,24 @@ body[theme="classic"] {
    SLACKERISH THEME (moody dark brown palette)
    ========================================== */
 body[theme="slackerish"] {
-  --main-bg: #f2efc7;
-  --card-bg: #faf3ab;
-  --highlight-bg: #eafaab;
-  --quote-bg: #ffdc8b;
-  --quote-text-color: #fff;
-  --quote-shadow: 1px 1px 5px rgba(0,0,0,0.6);
+  --main-bg: #131112;
+  --card-bg: #1b1717;
+  --highlight-bg: #2b2220;
+  --quote-bg: #1a1818;
 
-  --header-bg: #ffeaba;
-  --footer-bg: #ffeaba;
-  --menu-bg: rgba(225, 239, 168, 0.95);
+  --header-bg: #342A21;
+  --footer-bg: #342A21;
+  --menu-bg: rgba(0, 0, 0, 0.95);
 
   --text-color: #fff;
-  --link-color: #ff0000;
-  --accent-color: #adffbc;
+  --link-color: #ffbcbc;
+  --accent-color: #ff4444;
 
-  --input-bg: #f2ffad;
-  --input-border: #fcff82;
-  --input-text: #fff;
-  --input-placeholder: #fff;
-  --search-btn-bg: #fff7c3;
+  --input-bg: #2a2220;
+  --input-border: #5a4740;
+  --input-text: #f4f4f4;
+  --input-placeholder: #b8b8b8;
+  --search-btn-bg: #3a2f28;
 
   --status-ok-border: #00ff00;
   --status-fix-border: #ff0000;
