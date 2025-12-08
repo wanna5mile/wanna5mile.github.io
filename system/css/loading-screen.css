@@ -88,12 +88,25 @@ body[theme="slackerish"] {
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+
+  /* Remove shadows, filters, and outlines */
+  box-shadow: none !important;
+  filter: none !important;
+  outline: none !important;
+  background-color: var(--preloader-bg);
 }
 
 .loader-gif img {
   width: 100%;
   height: auto;
   image-rendering: pixelated;
+
+  /* Ensure no shadows, filters, or outlines on the img */
+  box-shadow: none !important;
+  filter: none !important;
+  outline: none !important;
+  background-color: var(--preloader-bg);
+  display: block; /* avoid inline spacing issues */
 }
 
 /* =================================================
