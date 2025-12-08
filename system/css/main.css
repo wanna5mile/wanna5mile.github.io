@@ -718,7 +718,8 @@ body.popup-blurred footer {
       flex-direction: column;
       position: relative;
       z-index: 20;
-      background: var(--header-bg);
+      background: #1d201f;
+      color: #fff;
     }
 
     #topBar header {
@@ -731,6 +732,7 @@ body.popup-blurred footer {
       height: 30px;
       overflow: hidden;
       background: #1d201f;
+      color: #fff;
       display: flex;
       align-items: center;
     }
@@ -739,6 +741,7 @@ body.popup-blurred footer {
       position: absolute;
       white-space: nowrap;
       font-weight: bold;
+      background: #1d201f;
       color: #fff;
       transform: translateX(100%);
       user-select: none;
