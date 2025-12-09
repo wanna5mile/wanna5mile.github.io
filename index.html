@@ -39,16 +39,25 @@
   <meta name="twitter:description" content="A fun, content-filled library to make you smile." />
   <meta name="twitter:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
 </head>
-
 <body>
   <!-- Preloader -->
-  <div id="preloader" class="preloader">
-    <div class="loader-gif">
-      <img id="loaderImage" src="system/images/GIF/loading.gif" alt="Loading animation" />
-    </div>
-    <div class="load-progress-bar"><div id="progressBar" class="load-progress-fill"></div></div>
-    <div id="loaderText" class="loading-text">Loading...</div>
+<div id="preloader" class="preloader">
+  <div class="loader-gif">
+    
+    <!-- Loading GIF (default visible) -->
+    <img id="loaderImage" src="system/images/GIF/loading.gif" alt="Loading animation" />
+
+    <!-- Loaded GIF (starts hidden, fades in when ready) -->
+    <img id="loadedImage" src="system/images/GIF/loaded.gif" alt="Loaded animation" style="opacity:0;" />
   </div>
+
+  <div class="load-progress-bar">
+    <div id="progressBar" class="load-progress-fill"></div>
+  </div>
+
+  <div id="loaderText" class="loading-text">Loading...</div>
+</div>
+
   <div id="topBar">
     <header>
       <nav class="nav-links">
