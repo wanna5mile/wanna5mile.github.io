@@ -13,11 +13,10 @@
    ============================================== */
 :root {
   --preloader-bg: #000;
-  --preloader-gif: url('https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif');
   --preloader-text-color: #fff;
 }
 
-/* Remove theme overrides: everything uses the same black bg and white text */
+/* Force black bg & white text regardless of theme */
 body[theme="light"],
 body[theme="dark"],
 body[theme="classic"],
@@ -36,8 +35,7 @@ body[theme="slackerish"] {
   width: 100%;
   height: 100vh;
 
-  /* Always black background */
-  background: #000;
+  background: var(--preloader-bg);
 
   display: flex;
   flex-direction: column;
@@ -51,15 +49,24 @@ body[theme="slackerish"] {
 }
 
 /* =================================================
-   LOADER GIF
+   LOADER / LOADED GIFS
    ================================================= */
-.loader-gif img {
+#loaderImage,
+#loadedImage {
   width: 300px;
   height: auto;
   image-rendering: pixelated;
+  transition: opacity 0.4s ease;
+  position: absolute; /* matches JS absolute positioning */
+  top: 0;
+  left: 0;
+}
 
-  /* fallback GIF if JS doesn't override src */
-  content: var(--preloader-gif);
+/* Optionally wrap them in a container if needed */
+.loader-gif {
+  position: relative;
+  width: 300px;
+  height: auto;
 }
 
 /* =================================================
@@ -73,11 +80,31 @@ body[theme="slackerish"] {
 /* =================================================
    Invisible counter / loading text
    ================================================= */
-.counter,
+#counter,
 .loading-text {
   color: var(--preloader-text-color);
   font-size: 0.1em; /* intentionally tiny */
   font-weight: 700;
   margin-top: 10px;
   text-align: center;
+}
+
+/* =================================================
+   Optional: progress bar
+   ================================================= */
+.load-progress-bar {
+  width: 300px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.load-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: #fff;
+  border-radius: 4px;
+  transition: width 0.3s ease;
 }
