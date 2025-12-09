@@ -31,50 +31,59 @@
     }
   });
 
-  /* ---------------------------
-     DOM & Config Initialization
-  --------------------------- */
-  function initElements() {
-    const $ = (sel) => {
-      try {
-        if (!sel) return null;
-        if (/^[A-Za-z0-9\-_]+$/.test(sel)) return document.getElementById(sel);
-        return document.querySelector(sel) || null;
-      } catch {
-        return null;
-      }
-    };
+/* ---------------------------
+   DOM & Config Initialization
+--------------------------- */
+function initElements() {
+  const $ = (sel) => {
+    try {
+      if (!sel) return null;
+      if (/^[A-Za-z0-9\-_]+$/.test(sel)) return document.getElementById(sel);
+      return document.querySelector(sel) || null;
+    } catch {
+      return null;
+    }
+  };
 
-    window.dom = {
-      container: $("#container"),
-      preloader: $("#preloader"),
-      loaderImage: $("#loaderImage"),
-      pageIndicator: $(".page-indicator") || $("#page-indicator"),
-      searchInput: $("#searchInputHeader"),
-      searchBtn: $("#searchBtnHeader"),
-      updatePopup: $("#updatePopup"),
-      updatePopupContent: $(".update-popup-content"),
-      viewUpdateBtn: $("#viewUpdateBtn"),
-      viewUpdateInfoBtn: $("#viewUpdateInfoBtn"),
-      closeUpdateBtn: $("#closeUpdateBtn"),
-      dontShowBtn: $("#dontShowBtn"),
-      updateVideo: $("#updateVideo"),
-    };
+  window.dom = {
+    container: $("#container"),
+    preloader: $("#preloader"),
 
-    window.config = {
-      fallbackImage:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
-      fallbackLink: "https://wanna5mile.github.io./source/dino/",
-      gifBase:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
-      sheetUrl:
-        "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
-      updateTrailerSrc: "",
-      updateLink: "system/pages/version-log.html",
-      quotesJson:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/json/quotes.json",
-    };
-  }
+    // Preloader GIF elements
+    loaderImage: $("#loaderImage"),
+    loadedImage: $("#loadedImage"),  // ✅ ADDED
+
+    // UI elements
+    pageIndicator: $(".page-indicator") || $("#page-indicator"),
+    searchInput: $("#searchInputHeader"),
+    searchBtn: $("#searchBtnHeader"),
+
+    // Update popup
+    updatePopup: $("#updatePopup"),
+    updatePopupContent: $(".update-popup-content"),
+    viewUpdateBtn: $("#viewUpdateBtn"),
+    viewUpdateInfoBtn: $("#viewUpdateInfoBtn"),
+    closeUpdateBtn: $("#closeUpdateBtn"),
+    dontShowBtn: $("#dontShowBtn"),
+    updateVideo: $("#updateVideo"),
+  };
+
+  window.config = {
+    fallbackImage:
+      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
+    fallbackLink: "https://wanna5mile.github.io./source/dino/",
+    gifBase:
+      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
+    sheetUrl:
+      "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
+
+    updateTrailerSrc: "",
+    updateLink: "system/pages/version-log.html",
+
+    quotesJson:
+      "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/json/quotes.json",
+  };
+}
 
   /* ---------------------------
      Favorites System
@@ -99,61 +108,94 @@
     };
   }
 
-  /* ---------------------------
-     Preloader UI
-  --------------------------- */
-  function initPreloader() {
-    const { preloader } = dom || {};
-    if (!preloader) return;
+/* ---------------------------
+   Preloader UI (with loading/loaded states)
+--------------------------- */
+function initPreloader() {
+  const { preloader, loaderImage } = dom || {};
+  if (!preloader || !loaderImage) return;
 
-    preloader.style.display = "flex";
-    preloader.style.opacity = "1";
-    preloader.dataset.hidden = "false";
-
-    let counter = preloader.querySelector("#counter");
-    let bar = preloader.querySelector(".load-progress-bar");
-    let fill = preloader.querySelector(".load-progress-fill");
-
-    if (!counter) {
-      counter = document.createElement("div");
-      counter.id = "counter";
-      counter.className = "load-progress-text";
-      preloader.appendChild(counter);
-    }
-    if (!bar) {
-      bar = document.createElement("div");
-      bar.className = "load-progress-bar";
-      fill = document.createElement("div");
-      fill.className = "load-progress-fill";
-      bar.appendChild(fill);
-      preloader.appendChild(bar);
-    } else if (!fill) {
-      fill = document.createElement("div");
-      fill.className = "load-progress-fill";
-      bar.appendChild(fill);
-    }
-
-    dom.loaderText = counter;
-    dom.progressBarFill = fill;
-
-    window.updateProgress = (p) => {
-      const clamped = clamp(Math.round(p), 0, 100);
-      counter.textContent = `${clamped}%`;
-      fill.style.width = `${clamped}%`;
-    };
-
-    window.showLoading = (text) =>
-      (preloader.querySelector(".loading-text") || counter).textContent = text;
-
-    window.hidePreloader = (force = false) => {
-      if (preloader.dataset.hidden === "true") return;
-      preloader.dataset.hidden = "true";
-      preloader.style.transition = "opacity 0.45s ease";
-      preloader.style.opacity = "0";
-      preloader.style.pointerEvents = "none";
-      setTimeout(() => (preloader.style.display = "none"), 500);
-    };
+  // Insert LOADED GIF (once only)
+  let loadedImage = document.getElementById("loadedImage");
+  if (!loadedImage) {
+    loadedImage = document.createElement("img");
+    loadedImage.id = "loadedImage";
+    loadedImage.alt = "Loaded animation";
+    loadedImage.src = `${config.gifBase}loaded.gif`;
+    loadedImage.style.opacity = "0";
+    loadedImage.style.position = "absolute";
+    loadedImage.style.top = "0";
+    loadedImage.style.left = "0";
+    loadedImage.style.width = "120px";
+    loadedImage.style.transition = "opacity .4s ease";
+    loaderImage.parentElement.appendChild(loadedImage);
   }
+
+  dom.loadedImage = loadedImage;
+
+  // Display + initial state
+  preloader.style.display = "flex";
+  preloader.style.opacity = "1";
+  preloader.dataset.hidden = "false";
+
+  // Build/update counter + bar
+  let counter = preloader.querySelector("#counter");
+  let bar = preloader.querySelector(".load-progress-bar");
+  let fill = preloader.querySelector(".load-progress-fill");
+
+  if (!counter) {
+    counter = document.createElement("div");
+    counter.id = "counter";
+    counter.className = "load-progress-text";
+    preloader.appendChild(counter);
+  }
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.className = "load-progress-bar";
+    fill = document.createElement("div");
+    fill.className = "load-progress-fill";
+    bar.appendChild(fill);
+    preloader.appendChild(bar);
+  } else if (!fill) {
+    fill = document.createElement("div");
+    fill.className = "load-progress-fill";
+    bar.appendChild(fill);
+  }
+
+  dom.loaderText = counter;
+  dom.progressBarFill = fill;
+
+  // Progress updater
+  window.updateProgress = (p) => {
+    const clamped = clamp(Math.round(p), 0, 100);
+    counter.textContent = `${clamped}%`;
+    fill.style.width = `${clamped}%`;
+  };
+
+  window.showLoading = (text) =>
+    (preloader.querySelector(".loading-text") || counter).textContent = text;
+
+  // Fade-out preloader
+  window.hidePreloader = () => {
+    if (preloader.dataset.hidden === "true") return;
+    preloader.dataset.hidden = "true";
+
+    preloader.style.transition = "opacity .45s ease";
+    preloader.style.opacity = "0";
+    preloader.style.pointerEvents = "none";
+
+    setTimeout(() => {
+      preloader.style.display = "none";
+    }, 500);
+  };
+
+  // NEW: transition from loading.gif → loaded.gif
+  window.showLoadedState = async () => {
+    dom.loaderImage.style.opacity = "0";   // hide loading gif
+    dom.loadedImage.style.opacity = "1";   // show loaded gif (ONE TIME)
+    await delay(500);
+  };
+}
 
 /* ---------------------------
    Asset Card Builder
@@ -660,9 +702,15 @@ async function loadAssets(retry = false) {
       dom.container.innerHTML =
         "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
 
-    await setProgress(100);
-    await delay(350);
-    hidePreloader(true);
+await setProgress(100);
+await delay(200);
+
+// swap GIF state before closing preloader
+await showLoadedState();
+
+await delay(400);
+hidePreloader(true);
+
   } catch (err) {
     console.error("Error loading assets:", err);
     if (!retry) {
