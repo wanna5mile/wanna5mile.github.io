@@ -127,8 +127,8 @@ function initPreloader() {
       loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif"
       },
       slackerish: {
-        loading: "https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/images/GIF/slackerish-load.gif",
-        loaded: "https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/images/GIF/slackerish-loaded.gif"
+        loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-load.gif",
+        loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-loaded.gif"
       }
       // Add more theme replacements here
     }
