@@ -626,22 +626,34 @@ a, button, input, textarea {
   pointer-events: auto !important;
 }
 
-/* Loading → Loaded GIF transition */
+/* GIF Wrapper stays centered the same way your original preloader did */
 .loader-gif {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+/* Both GIFs stack but DO NOT force a fixed width */
 #loaderImage,
 #loadedImage {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 120px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);  /* Perfect center */
+  max-width: 100%;
   height: auto;
-  transition: opacity .4s ease;
   pointer-events: none;
+  transition: opacity .4s ease;
 }
 
-#loadedImage {
-  opacity: 0; /* starts hidden */
+/* Keep original GIF scaling */
+#loaderImage {
+  opacity: 1;
 }
+
+/* Loaded GIF starts invisible */
+#loadedImage {
+  opacity: 0;
+}
+
