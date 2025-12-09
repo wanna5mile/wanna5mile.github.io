@@ -8,19 +8,15 @@
 }
 
 /* ==============================================
-   DEFAULT PRELOADER STYLES
-   Background always black, text always white
+   GLOBAL PRELOADER VARIABLES
    ============================================== */
 :root {
   --preloader-bg: #000;
   --preloader-text-color: #fff;
 }
 
-/* Force black bg & white text regardless of theme */
-body[theme="light"],
-body[theme="dark"],
-body[theme="classic"],
-body[theme="slackerish"] {
+/* Force black bg no matter the theme */
+body[theme] {
   --preloader-bg: #000;
   --preloader-text-color: #fff;
 }
@@ -30,8 +26,7 @@ body[theme="slackerish"] {
    ================================================= */
 .preloader {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100vh;
 
@@ -41,6 +36,7 @@ body[theme="slackerish"] {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 12px;
 
   z-index: 999999;
   opacity: 1;
@@ -49,56 +45,54 @@ body[theme="slackerish"] {
 }
 
 /* =================================================
-   LOADER / LOADED GIFS
+   GIFs — stacked cleanly, centered
    ================================================= */
+.loader-gif {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 #loaderImage,
 #loadedImage {
+  position: absolute; /* stack them directly on top */
   width: 300px;
   height: auto;
   image-rendering: pixelated;
   transition: opacity 0.4s ease;
-  position: absolute; /* matches JS absolute positioning */
-  top: 0;
-  left: 0;
-}
-
-/* Optionally wrap them in a container if needed */
-.loader-gif {
-  position: relative;
-  width: 300px;
-  height: auto;
 }
 
 /* =================================================
-   Fade out class (used by JS)
+   TEXT BELOW GIF
    ================================================= */
-.preloader.fade {
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* =================================================
-   Invisible counter / loading text
-   ================================================= */
-#counter,
 .loading-text {
+  color: #000;            /* totally invisible on black bg */
+  font-size: 0.05rem;     /* tiny */
+  text-align: center;
+}
+
+/* percentage counter */
+#counter {
   color: var(--preloader-text-color);
-  font-size: 0.1em; /* intentionally tiny */
-  font-weight: 700;
-  margin-top: 10px;
+  margin-top: -4px;
+  font-size: 0.8rem;
+  font-weight: 600;
   text-align: center;
 }
 
 /* =================================================
-   Optional: progress bar
+   PROGRESS BAR
    ================================================= */
 .load-progress-bar {
   width: 300px;
   height: 8px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.25);
   border-radius: 4px;
-  margin-top: 12px;
   overflow: hidden;
+  margin-top: 6px;
 }
 
 .load-progress-fill {
@@ -107,4 +101,10 @@ body[theme="slackerish"] {
   background: #fff;
   border-radius: 4px;
   transition: width 0.3s ease;
+}
+
+/* fade-out class */
+.preloader.fade {
+  opacity: 0;
+  pointer-events: none;
 }
