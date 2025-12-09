@@ -5,6 +5,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
@@ -15,18 +20,12 @@ html, body {
   flex-direction: column;
 }
 
-/* ==========================================
-   Links
-   ========================================== */
 a, a:visited {
   color: var(--link-color);
   text-decoration: none;
 }
 a:focus { outline: none; }
 
-/* ==========================================
-   Header & Navigation
-   ========================================== */
 header {
   display: flex;
   justify-content: space-between;
@@ -37,7 +36,8 @@ header {
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-header a, footer a {
+header a,
+footer a {
   margin: 0 10px;
   color: var(--link-color);
   font-family: monospace;
@@ -45,7 +45,9 @@ header a, footer a {
   text-decoration: none;
   transition: color 0.3s, text-decoration 0.3s;
 }
-header a:hover, footer a:hover {
+
+header a:hover,
+footer a:hover {
   color: var(--accent-color);
   text-decoration: underline;
   text-decoration-color: var(--accent-color);
@@ -57,21 +59,13 @@ header img {
   object-fit: cover;
 }
 
-.nav-links {
+.nav-links,
+.header-controls {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.header-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* ==========================================
-   Page Controls
-   ========================================== */
 .pages-anchor {
   display: inline-flex;
   align-items: center;
@@ -82,7 +76,6 @@ header img {
 .pages-anchor button {
   background: transparent;
   border: none;
-  border-radius: 0;
   padding: 0;
   cursor: pointer;
   display: flex;
@@ -109,9 +102,6 @@ header img {
   user-select: none;
 }
 
-/* ==========================================
-   Profile & Dashboard
-   ========================================== */
 #pfp {
   width: 32px;
   height: 32px;
@@ -146,7 +136,9 @@ header img {
   z-index: 9999;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
-.dashboard-menu a {
+
+.dashboard-menu a,
+.dashboard-menu p {
   padding: 10px 16px;
   color: var(--link-color);
   font-family: monospace;
@@ -154,32 +146,19 @@ header img {
   display: block;
   transition: color 0.3s, background 0.3s;
 }
-.dashboard-menu a:hover {
-  color: var(--accent-color);
-  background: rgba(255,255,255,0.1);
-}
-.dashboard-menu p {
-  padding: 10px 16px;
-  font-family: monospace;
-  color: var(--link-color);
-  font-weight: bold;
-  text-decoration: none;
-  display: block;
-  cursor: default;
-  transition: color 0.3s, text-decoration 0.3s, background 0.3s;
-}
 
+.dashboard-menu a:hover,
 .dashboard-menu p:hover {
   color: var(--accent-color);
   background: rgba(255,255,255,0.1);
-  text-decoration: underline;
   text-decoration-color: var(--accent-color);
 }
 
+.dashboard-menu p {
+  font-weight: bold;
+  cursor: default;
+}
 
-/* ==========================================
-   Search Bar
-   ========================================== */
 .search-box {
   display: inline-flex;
   align-items: center;
@@ -190,7 +169,10 @@ header img {
   box-shadow: 0 2px 5px rgba(0,0,0,0.15);
   transition: box-shadow 0.2s;
 }
-.search-box:focus-within { box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+
+.search-box:focus-within {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
 
 .search-box input {
   padding: 6px;
@@ -201,7 +183,6 @@ header img {
   font-size: 14px;
   flex: 1;
 }
-.search-box input::placeholder { color: var(--input-placeholder); }
 
 .search-box button {
   padding: 6px;
@@ -215,8 +196,11 @@ header img {
   justify-content: center;
   transition: transform 0.2s, filter 0.2s;
 }
-.search-box button:hover { transform: scale(1.1); filter: brightness(1.2); }
-.search-box button img { width: 14px; height: 14px; }
+
+.search-box button:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
 
 .search-error {
   display: none;
@@ -232,27 +216,6 @@ header img {
   z-index: 1000;
 }
 
-#searchFeedback {
-  display: none;
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  text-align: center;
-}
-#searchFeedback img {
-  max-height: 120px;
-  border-radius: 8px;
-}
-.search-box input:focus {
-  outline: none;
-  border: none;
-  box-shadow: none;
-}
-
-/* ==========================================
-   Grid Layout (Fixed Single Row Stretch)
-   ========================================== */
 #container,
 #container-discov {
   display: grid;
@@ -266,16 +229,13 @@ header img {
   align-content: start;
 }
 
-/* ==========================================
-   Asset Cards
-   ========================================== */
 #container div,
 #container-discov div {
   width: 180px;
   min-height: 160px;
   background: var(--card-bg);
   text-align: center;
-  border-radius: 20px; /* consistent, smooth radius */
+  border-radius: 20px;
   padding: 8px;
   overflow: hidden;
   transition: transform 0.2s ease;
@@ -291,9 +251,8 @@ header img {
   width: 180px;
   max-width: 85%;
   height: auto;
-  display: block;
   margin: 0 auto 8px;
-  border-radius: 14px; /* same rounding ratio for visual balance */
+  border-radius: 14px;
   object-fit: contain;
   transition: transform 0.3s ease;
 }
@@ -310,9 +269,6 @@ header img {
   }
 }
 
-/* ==========================================
-   Card Text
-   ========================================== */
 #container div h3,
 #container div p,
 #container-discov div h3,
@@ -322,23 +278,14 @@ header img {
   font-size: 0.9rem;
   transition: color 0.3s, text-decoration 0.3s;
 }
-#container div h3:hover,
-#container div p:hover,
-#container-discov div h3:hover,
-#container-discov div p:hover {
-  color: var(--accent-color);
-  text-decoration: underline;
-}
 
-/* ==========================================
-   SOON Status (Classic)
-   ========================================== */
 .soon {
   position: relative;
   opacity: 0.5;
   pointer-events: none;
   filter: grayscale(100%);
 }
+
 .soon::after {
   content: "COMING SOON";
   position: absolute;
@@ -352,124 +299,10 @@ header img {
   font-family: monospace;
   font-size: 14px;
   font-weight: bold;
-  letter-spacing: 1px;
-  text-shadow: 0 0 4px #000;
   z-index: 3;
-}
-.soon:hover {
-  border: 2px solid #ff0000;
-  box-shadow: 0 0 10px #ff0000;
-}
-.soon img {
-  filter: grayscale(100%);
-  opacity: 0.7;
+  pointer-events: none;
 }
 
-/* ==========================================
-   Utility Elements
-   ========================================== */
-embed {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-/* Back to Top */
-#toTopBtn {
-  position: fixed;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: none;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-family: monospace;
-  border: none;
-  border-radius: 8px;
-  background: var(--header-bg);
-  color: var(--link-color);
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-  opacity: 0.6;
-  transition: opacity 0.3s, color 0.3s;
-}
-#toTopBtn:hover {
-  opacity: 0.8;
-  color: var(--accent-color);
-  text-decoration: underline;
-}
-
-/* Footer */
-footer {
-  margin-top: auto;
-  background: var(--footer-bg);
-  text-align: center;
-  padding: 30px;
-  width: 100%;
-  font-family: monospace;
-  color: var(--link-color);
-  box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
-}
-
-/* ==========================================
-   Preloader Progress Bar
-   ========================================== */
-.load-progress-text {
-  font-family: monospace;
-  color: white;
-  text-align: center;
-  margin-top: 10px;
-}
-.load-progress-bar {
-  width: 80%;
-  height: 8px;
-  margin: 10px auto;
-  background: rgba(255,255,255,0.2);
-  border-radius: 4px;
-  overflow: hidden;
-}
-.load-progress-fill {
-  width: 0%;
-  height: 100%;
-  background: linear-gradient(90deg, #00ffff, #ff00ff);
-  transition: width 0.3s ease;
-}
-
-/* ==========================================
-   Sort Mode Buttons
-   ========================================== */
-.theme-buttons-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.theme-btn {
-  padding: 10px 16px;
-  border: 2px solid var(--accent-color);
-  background: var(--header-bg);
-  color: var(--text-color);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.theme-btn:hover {
-  transform: scale(1.05);
-  background: var(--accent-color);
-  color: #fff;
-}
-.theme-btn.active {
-  background: var(--accent-color);
-  color: #fff;
-  box-shadow: 0 0 10px var(--accent-color);
-}
-
-/* ==========================================
-   FIX Status (Grey Base + Transparent Overlay)
-   ========================================== */
 .fix {
   position: relative;
   pointer-events: none;
@@ -480,180 +313,11 @@ footer {
 .fix img {
   filter: grayscale(100%);
   opacity: 0.9;
-  background-color: #808080; /* grey base */
-  mix-blend-mode: multiply;  /* makes the grey blend smoothly */
+  background-color: #808080;
+  mix-blend-mode: multiply;
 }
 
-/* Transparent overlay */
 .fix::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(128, 128, 128, 0.2); /* ~20% transparent grey overlay */
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 3;
-}
-
-/* Optional hover feedback (red border for visibility) */
-.fix:hover {
-  border: 2px solid #ff0000;
-  box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
-}
-
-/* ==========================================
-   Disable Text Selection & Focus Highlights
-   ========================================== */
-* {
-  -webkit-user-select: none; /* Chrome, Safari, Edge */
-  -moz-user-select: none;    /* Firefox */
-  -ms-user-select: none;     /* IE 10+ */
-  user-select: none;         /* Standard */
-  -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
-}
-
-input, textarea {
-  -webkit-user-select: text; /* Allow typing and selecting inside inputs */
-  -moz-user-select: text;
-  -ms-user-select: text;
-  user-select: text;
-}
-
-a, button, input, textarea {
-  outline: none !important;
-}
-/* ==========================================
-   Status Overlays: Featured / New / Fixed
-   ========================================== */
-.asset-link img.status-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  pointer-events: none;
-  opacity: 0.85; /* keep default opacity */
-  transition: opacity 0.25s ease; /* remove transform scaling */
-  border-radius: inherit;
-}
-
-.asset-link:hover img.status-overlay {
-  opacity: 0.55; /* slightly less visible on hover */
-  transform: none; /* ensure it doesn't scale */
-}
-
-/* Optional: fix new/fixed/featured overlay z-index if needed */
-.asset-link img.status-overlay.overlay-featured,
-.asset-link img.status-overlay.overlay-new,
-.asset-link img.status-overlay.overlay-fixed {
-  z-index: 2;
-}
-
-/* ==========================================
-   SOON Status Centering Fix
-   ========================================== */
-.soon::after {
-  content: "COMING SOON";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* exact center */
-  background: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-family: monospace;
-  font-size: 14px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  text-shadow: 0 0 4px #000;
-  z-index: 3;
-  pointer-events: none;
-}
-
-/* Keep overlay image grayscale & opacity for 'soon' assets */
-.soon img {
-  filter: grayscale(100%);
-  opacity: 0.7;
-  transition: opacity 0.25s ease;
-}
-
-.soon:hover img {
-  opacity: 0.55; /* fade more when hovered */
-}
-
-    #topBar {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      z-index: 20;
-      background: #1d201f;
-      color: #fff;
-    }
-
-    #topBar header {
-      z-index: 21;
-    }
-
-    #quoteWrapper {
-      position: relative;
-      width: 100vw;
-      height: 30px;
-      overflow: hidden;
-      background: #1d201f;
-      color: #fff;
-      display: flex;
-      align-items: center;
-    }
-
-    #quoteBox {
-      position: absolute;
-      white-space: nowrap;
-      font-weight: bold;
-      background: #1d201f;
-      color: #fff;
-      transform: translateX(100%);
-      user-select: none;
-      cursor: default;
-      font-size: 1.0em;
-      font-family: monospace;
-    }
-/* Show Back to Top Button */
-#toTopBtn.show {
-  display: block !important;
-  opacity: 0.75 !important;
-  pointer-events: auto !important;
-}
-
-/* GIF Wrapper stays centered the same way your original preloader did */
-.loader-gif {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Both GIFs stack but DO NOT force a fixed width */
-#loaderImage,
-#loadedImage {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);  /* Perfect center */
-  max-width: 100%;
-  height: auto;
-  pointer-events: none;
-  transition: opacity .4s ease;
-}
-
-/* Keep original GIF scaling */
-#loaderImage {
-  opacity: 1;
-}
-
-/* Loaded GIF starts invisible */
-#loadedImage {
-  opacity: 0;
-}
-
