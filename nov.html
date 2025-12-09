@@ -40,58 +40,64 @@
   <meta name="twitter:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
 
   <!-- Inline custom styles -->
-  <style>
-    #topBar {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      z-index: 20;
-      background: var(--header-bg);
-    }
+<style>
+  /* ==========================================
+     Top Bar (Header + Quotes unified)
+     ========================================== */
+  #topBar {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 20;
+    background: var(--header-bg);
+  }
 
-    #topBar header {
-      z-index: 21;
-    }
+  #topBar header {
+    z-index: 21;
+  }
 
-    #quoteWrapper {
-      position: relative;
-      width: 100vw;
-      height: 30px;
-      overflow: hidden;
-      background: #1d201f;
-      display: flex;
-      align-items: center;
-    }
+  /* Quotes Bar */
+  #quoteWrapper {
+    position: relative;
+    width: 100vw;
+    height: 30px;
+    overflow: hidden;
+    background: #1d201f;
+    display: flex;
+    align-items: center;
+  }
 
-    #quoteBox {
-      position: absolute;
-      white-space: nowrap;
-      font-weight: bold;
-      color: #fff;
-      transform: translateX(100%);
-      user-select: none;
-      cursor: default;
-      font-size: 1.0em;
-      font-family: monospace;
-    }
-  </style>
-</head>
+  #quoteBox {
+    position: absolute;
+    white-space: nowrap;
+    font-weight: bold;
+    color: #fff;
+    transform: translateX(100%);
+    user-select: none;
+    cursor: default;
+    font-size: 1.0em;
+    text-decoration: none;
+    font-family: monospace;
+    font-weight: bold;
+  }
+</style>
 
-<body theme="classic">
+<!-- ================================
+     ANNOUNCEMENT POPUP — OPTION A
+================================ -->
 
-<!-- ========================================================
-     ANNOUNCEMENT POPUP — MOVED OUT OF <head> (VALID NOW)
-========================================================= -->
-
+<!-- Dark blurred background -->
 <div id="popup-overlay" class="announcement-overlay"></div>
 
+<!-- Centered modal -->
 <div id="announcement-modal" class="announcement-modal">
+  
   <div class="announcement-header">
     <h2 class="announcement-title">Break Announcement</h2>
   </div>
 
   <div class="announcement-content">
-<p>
+    <p>
       Hello everyone!<br><br>
       Rhap5ody here, Im here to announce that i will
       be taking a break from updating the website for a while.
@@ -125,6 +131,7 @@
     <button id="close-btn" class="modal-btn modal-close disabled">Close (5)</button>
     <button id="never-btn" class="modal-btn modal-hide disabled">Don’t Show Again (5)</button>
   </div>
+
 </div>
 
 <script>
@@ -133,12 +140,15 @@
   const closeBtn = document.getElementById("close-btn");
   const neverBtn = document.getElementById("never-btn");
 
+  // check if user clicked "don't show again"
   if (!localStorage.getItem("announcement_hidden")) {
     overlay.style.display = "block";
     modal.style.display = "block";
 
+    // Wait 10ms so CSS transition triggers
     setTimeout(() => modal.classList.add("show"), 10);
 
+    // Start countdown only when modal is visible
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
         startCountdown();
@@ -162,37 +172,14 @@
         clearInterval(interval);
         closeBtn.textContent = "Close";
         neverBtn.textContent = "Don't Show Again";
+
         closeBtn.classList.remove("disabled");
         neverBtn.classList.remove("disabled");
       }
     }, 1000);
   }
-function showPopup() {
-  overlay.style.display = "block";
-  modal.style.display = "block";
 
-  // Add blur + lock scroll
-  document.body.classList.add("popup-active", "popup-blurred");
-
-  setTimeout(() => {
-    overlay.classList.add("show");
-    modal.classList.add("show");
-  }, 10);
-}
-
-function hidePopup() {
-  overlay.classList.remove("show");
-  modal.classList.remove("show");
-
-  // Remove blur + unlock scroll
-  document.body.classList.remove("popup-active", "popup-blurred");
-
-  setTimeout(() => {
-    overlay.style.display = "none";
-    modal.style.display = "none";
-  }, 280);
-}
-
+  // Close only for the session (until refresh)
   closeBtn.addEventListener("click", () => {
     modal.classList.remove("show");
     setTimeout(() => {
@@ -201,6 +188,7 @@ function hidePopup() {
     }, 200);
   });
 
+  // Close permanently (localStorage)
   neverBtn.addEventListener("click", () => {
     localStorage.setItem("announcement_hidden", "true");
     modal.classList.remove("show");
@@ -209,11 +197,11 @@ function hidePopup() {
       overlay.style.display = "none";
     }, 200);
   });
-  
 </script>
+  
+</head>
 
-<!-- ======================================================== -->
-
+<body theme="classic">
   <!-- Preloader -->
   <div id="preloader" class="preloader">
     <div class="loader-gif">
@@ -222,8 +210,9 @@ function hidePopup() {
     <div class="load-progress-bar"><div id="progressBar" class="load-progress-fill"></div></div>
     <div id="loaderText" class="loading-text">Loading...</div>
   </div>
-
+  
   <div id="topBar">
+    <!-- Header -->
     <header>
       <nav class="nav-links">
         <a href="index.html">Home</a>
@@ -233,48 +222,48 @@ function hidePopup() {
         <a href="system/pages/support.html">Support</a>
         <a href="info.html">Info</a>
         <a href="announcement.html">announcement</a>
-
         <div class="pages-anchor">
-          <button class="arrowleft" onclick="prevPage()"><img src="system/icons/left.png" /></button>
+          <button class="arrowleft" onclick="prevPage()"><img src="system/icons/left.png" alt="Previous page" /></button>
           <span class="page-indicator">...</span>
-          <button class="arrowright" onclick="nextPage()"><img src="system/icons/right.png" /></button>
+          <button class="arrowright" onclick="nextPage()"><img src="system/icons/right.png" alt="Next page" /></button>
         </div>
       </nav>
 
       <div class="header-controls">
         <div class="search-box">
           <input id="searchInputHeader" type="text" placeholder="Search ϱames..." />
-          <button id="searchBtnHeader"><img src="system/icons/search.png" /></button>
+          <button id="searchBtnHeader"><img src="system/icons/search.png" alt="Search" /></button>
         </div>
-        <a href="system/pages/profile.html"><img id="pfp" src="system/icons/profile.png" /></a>
-        <button id="dashboardBtn"><img src="system/icons/dashboard.png" /></button>
+        <a href="system/pages/profile.html"><img id="pfp" src="system/icons/profile.png" alt="Profile" /></a>
+        <button id="dashboardBtn"><img src="system/icons/dashboard.png" alt="Dashboard" /></button>
       </div>
     </header>
 
+    <!-- Quotes Bar -->
     <div id="quoteWrapper">
       <p id="quoteBox">Loading...</p>
     </div>
   </div>
-
+    
+  <!-- Dashboard -->
   <aside id="dashboardMenu" class="dashboard-menu">
     <p>pages</p>
     <a href="https://bguhm.github.io/music-player.html">Music Player</a>
     <a href="system/pages/settings-themes.html">Themes</a>
     <a href="system/pages/credits.html">Credits</a>
-
     <p>dev tools</p>
     <a href="system/pages/devtools/rawfetch.html">raw image link fetcher</a>
     <a href="system/pages/devtools/textflip.html">text flip/mirror</a>
-
     <p>other</p>
     <a href="system/pages/alt.html">Alternative Links</a>
   </aside>
 
+  <!-- Main -->
   <main>
     <div id="container">Loading assets...</div>
   </main>
 
-  <button id="toTopBtn">⬆ Top</button>
+      <button id="toTopBtn">⬆ Top</button>
 
   <footer>
     <a href="system/pages/sources.html">Sources</a>
@@ -286,7 +275,7 @@ function hidePopup() {
     <a href="system/pages/update-logs.html" id="footerVersion">Version loading...</a>
   </footer>
 
-  <!-- JS -->
+  <!-- JS: Core, UI -->
   <script src="system/js/settings.js" defer></script>
   <script src="system/js/commands.js" defer></script>
   <script src="system/js/main.js" defer></script>
@@ -295,161 +284,185 @@ function hidePopup() {
   <script src="system/js/version.js" defer></script>
   <script src="system/js/all.js" defer></script>
 
-  <!-- Quotes Scroll -->
+  <!-- 🖱 Custom Cursor -->
+  <!--<script src="system/js/cursor.js" defer></script>-->
+
+  <!-- Quotes Scroll (merged) -->
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const wrapper = document.getElementById("quoteWrapper");
-      const box = document.getElementById("quoteBox");
-      const jsonPath = "../system/json/quotes.json";
+  document.addEventListener("DOMContentLoaded", () => {
+    const wrapper = document.getElementById("quoteWrapper");
+    const box = document.getElementById("quoteBox");
+    const jsonPath = "../system/json/quotes.json";
 
-      let quotes = [];
-      let pos = 0;
-      let lastTime = null;
+    let quotes = [];
+    let pos = 0;
+    let lastTime = null;
 
-      const baseSpeed = 120;
-      const slowSpeed = 70;
-      const slowerSpeed = 30;
+    // Base speeds (px/sec)
+    const baseSpeed = 120;
+    const slowSpeed = 70;
+    const slowerSpeed = 30;
 
-      let currentSpeed = baseSpeed;
-      let isHoveringBox = false;
-      let isHoveringText = false;
-      let isMouseDown = false;
+    // State flags
+    let currentSpeed = baseSpeed;
+    let isHoveringBox = false;
+    let isHoveringText = false;
+    let isMouseDown = false;
 
-      async function loadQuotes() {
-        try {
-          const res = await fetch(jsonPath);
-          const data = await res.json();
-          quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
-          start();
-        } catch {
-          quotes = ["⚠ Error loading quotes"];
-          start();
-        }
+    async function loadQuotes() {
+      try {
+        const res = await fetch(jsonPath);
+        const data = await res.json();
+        quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
+        start();
+      } catch {
+        quotes = ["⚠ Error loading quotes"];
+        start();
       }
+    }
 
-      function setQuote() {
-        const quote = quotes[Math.floor(Math.random() * quotes.length)];
-        box.textContent = quote;
-        pos = wrapper.offsetWidth;
+    function setQuote() {
+      const quote = quotes[Math.floor(Math.random() * quotes.length)];
+      box.textContent = quote;
+      pos = wrapper.offsetWidth;
+      box.style.transform = `translateX(${pos}px)`;
+    }
+
+    function updateSpeed() {
+      if (isMouseDown) currentSpeed = 0;
+      else if (isHoveringText) currentSpeed = slowerSpeed;
+      else if (isHoveringBox) currentSpeed = slowSpeed;
+      else currentSpeed = baseSpeed;
+    }
+
+    function animate(time) {
+      if (lastTime !== null) {
+        const dt = (time - lastTime) / 1000;
+        pos -= currentSpeed * dt;
         box.style.transform = `translateX(${pos}px)`;
+        if (pos + box.offsetWidth < 0) setQuote();
       }
+      lastTime = time;
+      requestAnimationFrame(animate);
+    }
 
-      function updateSpeed() {
-        if (isMouseDown) currentSpeed = 0;
-        else if (isHoveringText) currentSpeed = slowerSpeed;
-        else if (isHoveringBox) currentSpeed = slowSpeed;
-        else currentSpeed = baseSpeed;
-      }
+    function start() {
+      setQuote();
+      requestAnimationFrame(animate);
+    }
 
-      function animate(time) {
-        if (lastTime !== null) {
-          const dt = (time - lastTime) / 1000;
-          pos -= currentSpeed * dt;
-          box.style.transform = `translateX(${pos}px)`;
-          if (pos + box.offsetWidth < 0) setQuote();
-        }
-        lastTime = time;
-        requestAnimationFrame(animate);
-      }
+    // Hover + click logic
+    wrapper.addEventListener("mouseenter", () => { isHoveringBox = true; updateSpeed(); });
+    wrapper.addEventListener("mouseleave", () => { isHoveringBox = false; isHoveringText = false; updateSpeed(); });
+    box.addEventListener("mouseenter", () => { isHoveringText = true; updateSpeed(); });
+    box.addEventListener("mouseleave", () => { isHoveringText = false; updateSpeed(); });
+    wrapper.addEventListener("mousedown", () => { isMouseDown = true; updateSpeed(); });
+    wrapper.addEventListener("mouseup", () => { isMouseDown = false; updateSpeed(); });
 
-      function start() {
-        setQuote();
-        requestAnimationFrame(animate);
-      }
-
-      wrapper.addEventListener("mouseenter", () => { isHoveringBox = true; updateSpeed(); });
-      wrapper.addEventListener("mouseleave", () => { isHoveringBox = false; isHoveringText = false; updateSpeed(); });
-      box.addEventListener("mouseenter", () => { isHoveringText = true; updateSpeed(); });
-      box.addEventListener("mouseleave", () => { isHoveringText = false; updateSpeed(); });
-      wrapper.addEventListener("mousedown", () => { isMouseDown = true; updateSpeed(); });
-      wrapper.addEventListener("mouseup", () => { isMouseDown = false; updateSpeed(); });
-
-      loadQuotes();
-    });
+    loadQuotes();
+  });
   </script>
 
-  <!-- PFP Loader -->
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const pfp = document.getElementById("pfp");
-      const defaultPic = "system/icons/profile.png";
+  /* ==========================================================
+     LOAD USER PROFILE PREVIEW (Persistent Small PFP)
+     ========================================================== */
+  document.addEventListener("DOMContentLoaded", () => {
+    const pfp = document.getElementById("pfp");
+    const defaultPic = "system/icons/profile.png";
 
-      const currentUser = localStorage.getItem("currentUser");
-      if (!currentUser) {
-        pfp.src = defaultPic;
-        return;
+    const currentUser = localStorage.getItem("currentUser");
+    if (!currentUser) {
+      pfp.src = defaultPic;
+      return;
+    }
+
+    // Try to load user data
+    const userData = JSON.parse(localStorage.getItem("user_" + currentUser) || "{}");
+    const profileData = JSON.parse(localStorage.getItem("profile_" + currentUser) || "{}");
+
+    // Resolve preferred image (profileData first, fallback to default)
+    const userPic = profileData.pic || defaultPic;
+
+    // Update small header PFP
+    pfp.src = userPic;
+
+    // Optionally store a mini cache so other pages load faster
+    const cachedPreview = {
+      username: userData.username || profileData.nickname || currentUser,
+      pic: userPic
+    };
+    localStorage.setItem("preview_" + currentUser, JSON.stringify(cachedPreview));
+  });
+</script>
+
+      <script>
+  const toTopBtn = document.getElementById("toTopBtn");
+
+  // Use one scroll listener
+  window.addEventListener("scroll", () => {
+    const scrollY = window.scrollY;
+
+    // Toggle visibility
+    if (scrollY > 250) {
+      toTopBtn.classList.add("show");
+    } else {
+      toTopBtn.classList.remove("show");
+    }
+  });
+
+  // Smooth scroll to top
+  toTopBtn.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  });
+</script>
+
+/* ==========================================================
+   INTERACTIVE 404 CHECK + CUSTOM DOMAIN FIX
+   ----------------------------------------------------------
+   - Checks links when clicked.
+   - If link contains "https://wanna5mile.github.io/", 
+     it replaces with "https://wanna5mile.github.io./".
+   - Still includes 404 safety check for relative links.
+   ========================================================== */
+document.addEventListener("DOMContentLoaded", () => {
+  document.body.addEventListener("click", async (e) => {
+    const a = e.target.closest("a");
+    if (!a) return;
+
+    let href = a.getAttribute("href");
+    if (!href) return;
+
+    // --- 🔍 Handle the custom domain correction ---
+    if (href.includes("https://wanna5mile.github.io/")) {
+      e.preventDefault(); // stop default navigation
+      const fixed = href.replace("https://wanna5mile.github.io/", "https://wanna5mile.github.io./");
+      window.open(fixed, a.target || "_blank"); // open in new tab (or same if target specified)
+      return;
+    }
+
+    // --- 🧭 Skip external or special links ---
+    if (href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:")) return;
+
+    // --- 📄 Construct absolute URL for 404 check ---
+    const url = new URL(href, window.location.origin);
+
+    try {
+      const res = await fetch(url.href, { method: "HEAD" });
+
+      if (!res.ok) {
+        e.preventDefault();
+        console.warn(`⚠ Broken link detected: ${url.href}`);
+        window.location.href = "/404.html";
       }
-
-      const userData = JSON.parse(localStorage.getItem("user_" + currentUser) || "{}");
-      const profileData = JSON.parse(localStorage.getItem("profile_" + currentUser) || "{}");
-
-      const userPic = profileData.pic || defaultPic;
-
-      pfp.src = userPic;
-
-      const cachedPreview = {
-        username: userData.username || profileData.nickname || currentUser,
-        pic: userPic
-      };
-      localStorage.setItem("preview_" + currentUser, JSON.stringify(cachedPreview));
-    });
-  </script>
-
-  <!-- To Top Button -->
-  <script>
-    const toTopBtn = document.getElementById("toTopBtn");
-
-    window.addEventListener("scroll", () => {
-      const scrollY = window.scrollY;
-      if (scrollY > 250) {
-        toTopBtn.classList.add("show");
-      } else {
-        toTopBtn.classList.remove("show");
-      }
-    });
-
-    toTopBtn.addEventListener("click", () => {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-    });
-  </script>
-
-  <!-- 404 Checker FIXED → wrapped properly -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      document.body.addEventListener("click", async (e) => {
-        const a = e.target.closest("a");
-        if (!a) return;
-
-        let href = a.getAttribute("href");
-        if (!href) return;
-
-        if (href.includes("https://wanna5mile.github.io/")) {
-          e.preventDefault();
-          const fixed = href.replace("https://wanna5mile.github.io/", "https://wanna5mile.github.io./");
-          window.open(fixed, a.target || "_blank");
-          return;
-        }
-
-        if (href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:")) return;
-
-        const url = new URL(href, window.location.origin);
-
-        try {
-          const res = await fetch(url.href, { method: "HEAD" });
-
-          if (!res.ok) {
-            e.preventDefault();
-            window.location.href = "/404.html";
-          }
-        } catch (err) {
-          console.warn(`Network error checking ${url.href}:`, err);
-        }
-      });
-    });
-  </script>
-
+    } catch (err) {
+      console.warn(`Network error checking ${url.href}:`, err);
+    }
+  });
+});
+</script>
 </body>
 </html>
