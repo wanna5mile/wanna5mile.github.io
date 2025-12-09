@@ -625,13 +625,10 @@ a, button, input, textarea {
   opacity: 0.75 !important;
   pointer-events: auto !important;
 }
-/* Preloader GIF swapping */
+
+/* Loading → Loaded GIF transition */
 .loader-gif {
   position: relative;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 #loaderImage,
@@ -639,18 +636,12 @@ a, button, input, textarea {
   position: absolute;
   top: 0;
   left: 0;
-  width: 120px;      /* or any size you want */
+  width: 120px;
   height: auto;
+  transition: opacity .4s ease;
   pointer-events: none;
-  transition: opacity 0.4s ease;
 }
 
-/* Loading GIF is visible by default */
-#loaderImage {
-  opacity: 1;
-}
-
-/* Loaded GIF starts hidden */
 #loadedImage {
-  opacity: 0;
+  opacity: 0; /* starts hidden */
 }
