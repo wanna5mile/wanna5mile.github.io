@@ -115,30 +115,34 @@ function initPreloader() {
   const { preloader, loaderImage } = dom || {};
   if (!preloader || !loaderImage) return;
 
-  // Insert LOADED GIF (once only)
+  /* ---------- INSERT LOADED GIF ---------- */
   let loadedImage = document.getElementById("loadedImage");
   if (!loadedImage) {
     loadedImage = document.createElement("img");
     loadedImage.id = "loadedImage";
     loadedImage.alt = "Loaded animation";
     loadedImage.src = `${config.gifBase}loaded.gif`;
-    loadedImage.style.opacity = "0";
-    loadedImage.style.position = "absolute";
-    loadedImage.style.top = "0";
-    loadedImage.style.left = "0";
-    loadedImage.style.width = "120px";
-    loadedImage.style.transition = "opacity .4s ease";
+
+    Object.assign(loadedImage.style, {
+      position: "absolute",
+      top: "0",
+      left: "0",
+      width: "120px",
+      opacity: "0",
+      transition: "opacity .45s ease"
+    });
+
     loaderImage.parentElement.appendChild(loadedImage);
   }
 
   dom.loadedImage = loadedImage;
 
-  // Display + initial state
+  /* ---------- INITIAL PRELOADER STATE ---------- */
   preloader.style.display = "flex";
   preloader.style.opacity = "1";
   preloader.dataset.hidden = "false";
 
-  // Build/update counter + bar
+  /* ---------- PROGRESS elements ---------- */
   let counter = preloader.querySelector("#counter");
   let bar = preloader.querySelector(".load-progress-bar");
   let fill = preloader.querySelector(".load-progress-fill");
@@ -149,33 +153,29 @@ function initPreloader() {
     counter.className = "load-progress-text";
     preloader.appendChild(counter);
   }
+
   if (!bar) {
     bar = document.createElement("div");
     bar.className = "load-progress-bar";
+
     fill = document.createElement("div");
     fill.className = "load-progress-fill";
+
     bar.appendChild(fill);
     preloader.appendChild(bar);
-  } else if (!fill) {
-    fill = document.createElement("div");
-    fill.className = "load-progress-fill";
-    bar.appendChild(fill);
   }
 
   dom.loaderText = counter;
   dom.progressBarFill = fill;
 
-  // Progress updater
+  /* ---------- PROGRESS UPDATE FUNCTION ---------- */
   window.updateProgress = (p) => {
     const clamped = clamp(Math.round(p), 0, 100);
     counter.textContent = `${clamped}%`;
     fill.style.width = `${clamped}%`;
   };
 
-  window.showLoading = (text) =>
-    (preloader.querySelector(".loading-text") || counter).textContent = text;
-
-  // Fade-out preloader
+  /* ---------- FADE PRELOADER OUT ---------- */
   window.hidePreloader = () => {
     if (preloader.dataset.hidden === "true") return;
     preloader.dataset.hidden = "true";
@@ -189,11 +189,11 @@ function initPreloader() {
     }, 500);
   };
 
-  // NEW: transition from loading.gif → loaded.gif
+  /* ---------- GIF SWITCH (LOADING → LOADED) ---------- */
   window.showLoadedState = async () => {
-    dom.loaderImage.style.opacity = "0";   // hide loading gif
-    dom.loadedImage.style.opacity = "1";   // show loaded gif (ONE TIME)
-    await delay(500);
+    loaderImage.style.opacity = "0";      // hide loading.gif
+    loadedImage.style.opacity = "1";      // show loaded.gif
+    await delay(450);
   };
 }
 
@@ -705,21 +705,27 @@ async function loadAssets(retry = false) {
 await setProgress(100);
 await delay(200);
 
-// swap GIF state before closing preloader
+// Show "loaded" GIF before closing preloader
 await showLoadedState();
 
-await delay(400);
+// Give time for the loaded.gif fade-in
+await delay(350);
+
+// Fade out + hide
 hidePreloader(true);
 
-  } catch (err) {
-    console.error("Error loading assets:", err);
-    if (!retry) {
-      setTimeout(() => loadAssets(true).catch(() => {}), 1000);
-      return;
-    }
-    showLoading("⚠ Failed to load assets.");
-    hidePreloader(true);
+} catch (err) {
+  console.error("Error loading assets:", err);
+
+  if (!retry) {
+    // retry once after delay
+    setTimeout(() => loadAssets(true).catch(() => {}), 1000);
+    return;
   }
+
+  showLoading("⚠ Failed to load assets.");
+  hidePreloader(true);
+}
 }
 
   /* ---------------------------
