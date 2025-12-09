@@ -100,87 +100,147 @@
     };
   }
 
-  /* ---------------------------
-     Preloader UI (with loading/loaded states)
-  --------------------------- */
-  function initPreloader() {
-    const { preloader, loaderImage } = dom || {};
-    if (!preloader || !loaderImage) return;
+/* ---------------------------
+   Preloader UI (Theme-aware, fully configurable)
+--------------------------- */
+function initPreloader() {
+  const { preloader } = dom || {};
+  if (!preloader) return;
 
-    let loadedImage = dom.loadedImage;
-    if (!loadedImage) {
-      loadedImage = document.createElement("img");
-      loadedImage.id = "loadedImage";
-      loadedImage.alt = "Loaded animation";
-      loadedImage.src = `${config.gifBase}loaded.gif`;
-      Object.assign(loadedImage.style, {
-        opacity: "0",
-        position: "absolute",
-        top: "0",
-        left: "0",
-        width: "120px",
-        transition: "opacity .4s ease",
-      });
-      loaderImage.parentElement.appendChild(loadedImage);
-      dom.loadedImage = loadedImage;
+  // ======= Editable GIF Paths =======
+  const gifConfig = {
+    default: {
+      loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
+      loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif"
+    },
+    themes: {
+      light: {
+      loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
+      loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif"
+      },
+      dark: {
+      loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
+      loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif"
+      },
+      classic: {
+      loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
+      loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif"
+      },
+      slackerish: {
+        loading: "https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/images/GIF/slackerish-load.gif",
+        loaded: "https://github.com/wanna5mile/wanna5mile.github.io/blob/main/system/images/GIF/slackerish-loaded.gif"
+      }
+      // Add more theme replacements here
     }
+  };
 
-    preloader.style.display = "flex";
-    preloader.style.opacity = "1";
-    preloader.dataset.hidden = "false";
+  // ======= Determine current theme =======
+  const bodyTheme = document.body.getAttribute("theme") || "classic";
+  const gifs = gifConfig.themes[bodyTheme] || gifConfig.default;
 
-    let counter = preloader.querySelector("#counter");
-    let bar = preloader.querySelector(".load-progress-bar");
-    let fill = preloader.querySelector(".load-progress-fill");
-
-    if (!counter) {
-      counter = document.createElement("div");
-      counter.id = "counter";
-      counter.className = "load-progress-text";
-      preloader.appendChild(counter);
-    }
-    if (!bar) {
-      bar = document.createElement("div");
-      bar.className = "load-progress-bar";
-      fill = document.createElement("div");
-      fill.className = "load-progress-fill";
-      bar.appendChild(fill);
-      preloader.appendChild(bar);
-    } else if (!fill) {
-      fill = document.createElement("div");
-      fill.className = "load-progress-fill";
-      bar.appendChild(fill);
-    }
-
-    dom.loaderText = counter;
-    dom.progressBarFill = fill;
-
-    window.updateProgress = (p) => {
-      const clamped = clamp(Math.round(p), 0, 100);
-      counter.textContent = `${clamped}%`;
-      fill.style.width = `${clamped}%`;
-    };
-
-    window.showLoading = (text) => {
-      const t = preloader.querySelector(".loading-text") || counter;
-      t.textContent = text;
-    };
-
-    window.hidePreloader = () => {
-      if (preloader.dataset.hidden === "true") return;
-      preloader.dataset.hidden = "true";
-      preloader.style.transition = "opacity .45s ease";
-      preloader.style.opacity = "0";
-      preloader.style.pointerEvents = "none";
-      setTimeout(() => (preloader.style.display = "none"), 500);
-    };
-
-    window.showLoadedState = async () => {
-      if (dom.loaderImage) dom.loaderImage.style.opacity = "0";
-      if (dom.loadedImage) dom.loadedImage.style.opacity = "1";
-      await delay(500);
-    };
+  // ======= Create or update loaderImage =======
+  let loaderImg = dom.loaderImage;
+  if (!loaderImg) {
+    loaderImg = document.createElement("img");
+    loaderImg.id = "loaderImage";
+    loaderImg.alt = "Loading animation";
+    Object.assign(loaderImg.style, {
+      opacity: "1",
+      position: "absolute",
+      top: "0",
+      left: "0",
+      width: "120px",
+      transition: "opacity .4s ease",
+    });
+    preloader.appendChild(loaderImg);
+    dom.loaderImage = loaderImg;
   }
+  loaderImg.src = gifs.loading;
+
+  // ======= Create or update loadedImage =======
+  let loadedImg = dom.loadedImage;
+  if (!loadedImg) {
+    loadedImg = document.createElement("img");
+    loadedImg.id = "loadedImage";
+    loadedImg.alt = "Loaded animation";
+    Object.assign(loadedImg.style, {
+      opacity: "0",
+      position: "absolute",
+      top: "0",
+      left: "0",
+      width: "120px",
+      transition: "opacity .4s ease",
+    });
+    loaderImg.parentElement.appendChild(loadedImg);
+    dom.loadedImage = loadedImg;
+  }
+  loadedImg.src = gifs.loaded;
+
+  // ======= Show preloader =======
+  preloader.style.display = "flex";
+  preloader.style.opacity = "1";
+  preloader.dataset.hidden = "false";
+
+  // ======= Progress bar & text =======
+  let counter = preloader.querySelector("#counter");
+  let bar = preloader.querySelector(".load-progress-bar");
+  let fill = preloader.querySelector(".load-progress-fill");
+
+  if (!counter) {
+    counter = document.createElement("div");
+    counter.id = "counter";
+    counter.className = "load-progress-text";
+    preloader.appendChild(counter);
+  }
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.className = "load-progress-bar";
+    fill = document.createElement("div");
+    fill.className = "load-progress-fill";
+    bar.appendChild(fill);
+    preloader.appendChild(bar);
+  } else if (!fill) {
+    fill = document.createElement("div");
+    fill.className = "load-progress-fill";
+    bar.appendChild(fill);
+  }
+
+  dom.loaderText = counter;
+  dom.progressBarFill = fill;
+
+  window.updateProgress = (p) => {
+    const clamped = clamp(Math.round(p), 0, 100);
+    counter.textContent = `${clamped}%`;
+    fill.style.width = `${clamped}%`;
+  };
+
+  window.showLoading = (text) => {
+    const t = preloader.querySelector(".loading-text") || counter;
+    t.textContent = text;
+  };
+
+  window.hidePreloader = () => {
+    if (preloader.dataset.hidden === "true") return;
+    preloader.dataset.hidden = "true";
+    preloader.style.transition = "opacity .45s ease";
+    preloader.style.opacity = "0";
+    preloader.style.pointerEvents = "none";
+    setTimeout(() => (preloader.style.display = "none"), 500);
+  };
+
+  window.showLoadedState = async () => {
+    if (dom.loaderImage) dom.loaderImage.style.opacity = "0";
+    if (dom.loadedImage) dom.loadedImage.style.opacity = "1";
+    await delay(500); // Let loaded GIF be visible
+  };
+
+  // ======= Optional: Update GIFs dynamically if theme changes =======
+  window.updatePreloaderGifsForTheme = (theme) => {
+    const g = gifConfig.themes[theme] || gifConfig.default;
+    if (dom.loaderImage) dom.loaderImage.src = g.loading;
+    if (dom.loadedImage) dom.loadedImage.src = g.loaded;
+  };
+}
 
   /* ---------------------------
      Asset Card Builder
