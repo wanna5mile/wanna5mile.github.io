@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WannaSmile | Home</title>
+  <link rel="icon" href="system/images/favicons/logoo.png" />
+  <meta name="author" content="WannaSmile by Rhap5ody" />
+  <meta name="keywords" content="github, repository, source, library" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="system/css/themes.css" />
+  <link rel="stylesheet" href="system/css/main.css" />
+  <link rel="stylesheet" href="system/css/loading-screen.css" />
+  <link rel="stylesheet" href="system/css/commands.css" />
+
+  <!-- Discord Widget -->
+  <script async defer src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3"></script>
+  <script>
+    window.addEventListener("load", () => {
+      if (typeof Crate !== "undefined") {
+        new Crate({
+          server: '1273329263923302430',
+          channel: '1329289920845713471'
+        });
+      }
+    });
+  </script>
+
+  <!-- Social Meta -->
+  <meta property="og:title" content="WannaSmile" />
+  <meta property="og:description" content="Welcome to WannaSmile — a library full of content! Enjoy it in your free time." />
+  <meta property="og:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
+  <meta property="og:url" content="https://vvannasmile.github.io/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WannaSmile.github.io" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="WannaSmile" />
+  <meta name="twitter:description" content="A fun, content-filled library to make you smile." />
+  <meta name="twitter:image" content="https://www.yourwebsite.com/path/to/your/preview-image.jpg" />
+
+  <!-- Inline custom styles -->
+  <style>
+    #topBar {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 20;
+      background: var(--header-bg);
+    }
+
+    #topBar header {
+      z-index: 21;
+    }
+
+    #quoteWrapper {
+      position: relative;
+      width: 100vw;
+      height: 30px;
+      overflow: hidden;
+      background: #1d201f;
+      display: flex;
+      align-items: center;
+    }
+
+    #quoteBox {
+      position: absolute;
+      white-space: nowrap;
+      font-weight: bold;
+      color: #fff;
+      transform: translateX(100%);
+      user-select: none;
+      cursor: default;
+      font-size: 1.0em;
+      font-family: monospace;
+    }
+  </style>
+</head>
+
+<body theme="classic">
+
+<!-- ========================================================
+     ANNOUNCEMENT POPUP — MOVED OUT OF <head> (VALID NOW)
+========================================================= -->
+
+<div id="popup-overlay" class="announcement-overlay"></div>
+
+<div id="announcement-modal" class="announcement-modal">
+  <div class="announcement-header">
+    <h2 class="announcement-title">Break Announcement</h2>
+  </div>
+
+  <div class="announcement-content">
+<p>
+      Hello everyone!<br><br>
+      Rhap5ody here, Im here to announce that i will
+      be taking a break from updating the website for a while.
+      <br><br>
+      <strong>When will I come back?</strong><br>
+      Sometime before <strong>May 16th, 2025</strong>
+      <br><br>
+      <strong>Why go on break?</strong><br>
+      i feel im not at the level i should be at right now,
+      ill go on break so i can learn to become a better website design for y'all.
+      <br><br>
+      <strong>What does this mean for YOU?</strong><br>
+      not much actually! i will be continuing to add all assets up until page 5!
+      (page 6 to 10 is not guaranteed, but ill try to grt them filled out).
+      <br><br>
+      <strong>Suggestions & Bug Fixes</strong><br>
+      All suggestions are welcome to be continued to be asked of me,
+      I will do as much as I can to include everyone’s suggestions 
+      and get sources for the assets people want to enjoy the most.
+      And of course I will be swift to deliver with bug fixes and new content,
+      fair well for now but not forever!
+      <br><br>
+      <strong>Hide or Don’t show again</strong>
+      Click the buttons at the bottom but know that either if you read or not you can click
+      “don’t show again” without any worry to forget or miss out on the announcement, I will be adding the page link to the header! 
+      <strong>“Announcement” <—-</strong>
+    </p>
+  </div>
+
+  <div class="announcement-buttons">
+    <button id="close-btn" class="modal-btn modal-close disabled">Close (5)</button>
+    <button id="never-btn" class="modal-btn modal-hide disabled">Don’t Show Again (5)</button>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById("announcement-modal");
+  const overlay = document.getElementById("popup-overlay");
+  const closeBtn = document.getElementById("close-btn");
+  const neverBtn = document.getElementById("never-btn");
+
+  if (!localStorage.getItem("announcement_hidden")) {
+    overlay.style.display = "block";
+    modal.style.display = "block";
+
+    setTimeout(() => modal.classList.add("show"), 10);
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        startCountdown();
+        observer.disconnect();
+      }
+    }, { threshold: 0.6 });
+
+    observer.observe(modal);
+  }
+
+  function startCountdown() {
+    let timer = 5;
+
+    const interval = setInterval(() => {
+      timer--;
+
+      closeBtn.textContent = `Close (${timer})`;
+      neverBtn.textContent = `Don't Show Again (${timer})`;
+
+      if (timer <= 0) {
+        clearInterval(interval);
+        closeBtn.textContent = "Close";
+        neverBtn.textContent = "Don't Show Again";
+        closeBtn.classList.remove("disabled");
+        neverBtn.classList.remove("disabled");
+      }
+    }, 1000);
+  }
+function showPopup() {
+  overlay.style.display = "block";
+  modal.style.display = "block";
+
+  // Add blur + lock scroll
+  document.body.classList.add("popup-active", "popup-blurred");
+
+  setTimeout(() => {
+    overlay.classList.add("show");
+    modal.classList.add("show");
+  }, 10);
+}
+
+function hidePopup() {
+  overlay.classList.remove("show");
+  modal.classList.remove("show");
+
+  // Remove blur + unlock scroll
+  document.body.classList.remove("popup-active", "popup-blurred");
+
+  setTimeout(() => {
+    overlay.style.display = "none";
+    modal.style.display = "none";
+  }, 280);
+}
+
+  closeBtn.addEventListener("click", () => {
+    modal.classList.remove("show");
+    setTimeout(() => {
+      modal.style.display = "none";
+      overlay.style.display = "none";
+    }, 200);
+  });
+
+  neverBtn.addEventListener("click", () => {
+    localStorage.setItem("announcement_hidden", "true");
+    modal.classList.remove("show");
+    setTimeout(() => {
+      modal.style.display = "none";
+      overlay.style.display = "none";
+    }, 200);
+  });
+  
+</script>
+
+<!-- ======================================================== -->
+
+  <!-- Preloader -->
+  <div id="preloader" class="preloader">
+    <div class="loader-gif">
+      <img id="loaderImage" src="system/images/GIF/loading.gif" alt="Loading animation" />
+    </div>
+    <div class="load-progress-bar"><div id="progressBar" class="load-progress-fill"></div></div>
+    <div id="loaderText" class="loading-text">Loading...</div>
+  </div>
+
+  <div id="topBar">
+    <header>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="favorites.html">Favorites</a>
+        <a href="system/pages/discovery.html">Discovery</a>
+        <a href="system/pages/settings.html">Settings</a>
+        <a href="system/pages/support.html">Support</a>
+        <a href="info.html">Info</a>
+        <a href="announcement.html">announcement</a>
+
+        <div class="pages-anchor">
+          <button class="arrowleft" onclick="prevPage()"><img src="system/icons/left.png" /></button>
+          <span class="page-indicator">...</span>
+          <button class="arrowright" onclick="nextPage()"><img src="system/icons/right.png" /></button>
+        </div>
+      </nav>
+
+      <div class="header-controls">
+        <div class="search-box">
+          <input id="searchInputHeader" type="text" placeholder="Search ϱames..." />
+          <button id="searchBtnHeader"><img src="system/icons/search.png" /></button>
+        </div>
+        <a href="system/pages/profile.html"><img id="pfp" src="system/icons/profile.png" /></a>
+        <button id="dashboardBtn"><img src="system/icons/dashboard.png" /></button>
+      </div>
+    </header>
+
+    <div id="quoteWrapper">
+      <p id="quoteBox">Loading...</p>
+    </div>
+  </div>
+
+  <aside id="dashboardMenu" class="dashboard-menu">
+    <p>pages</p>
+    <a href="https://bguhm.github.io/music-player.html">Music Player</a>
+    <a href="system/pages/settings-themes.html">Themes</a>
+    <a href="system/pages/credits.html">Credits</a>
+
+    <p>dev tools</p>
+    <a href="system/pages/devtools/rawfetch.html">raw image link fetcher</a>
+    <a href="system/pages/devtools/textflip.html">text flip/mirror</a>
+
+    <p>other</p>
+    <a href="system/pages/alt.html">Alternative Links</a>
+  </aside>
+
+  <main>
+    <div id="container">Loading assets...</div>
+  </main>
+
+  <button id="toTopBtn">⬆ Top</button>
+
+  <footer>
+    <a href="system/pages/sources.html">Sources</a>
+    <a href="system/pages/contributors.html">Contribute</a>
+    <a href="system/pages/discord.html">Discord</a>
+    <a href="system/pages/bugsNfixes.html">Bugs & Fixes</a>
+    <a href="system/pages/contact.html">Socials</a>
+    <a href="system/archive/index.html">archived versions</a>
+    <a href="system/pages/update-logs.html" id="footerVersion">Version loading...</a>
+  </footer>
+
+  <!-- JS -->
+  <script src="system/js/settings.js" defer></script>
+  <script src="system/js/commands.js" defer></script>
+  <script src="system/js/main.js" defer></script>
+  <script src="system/js/searcherror.js" defer></script>
+  <script src="system/js/index.js" defer></script>
+  <script src="system/js/version.js" defer></script>
+  <script src="system/js/all.js" defer></script>
+
+  <!-- Quotes Scroll -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const wrapper = document.getElementById("quoteWrapper");
+      const box = document.getElementById("quoteBox");
+      const jsonPath = "../system/json/quotes.json";
+
+      let quotes = [];
+      let pos = 0;
+      let lastTime = null;
+
+      const baseSpeed = 120;
+      const slowSpeed = 70;
+      const slowerSpeed = 30;
+
+      let currentSpeed = baseSpeed;
+      let isHoveringBox = false;
+      let isHoveringText = false;
+      let isMouseDown = false;
+
+      async function loadQuotes() {
+        try {
+          const res = await fetch(jsonPath);
+          const data = await res.json();
+          quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
+          start();
+        } catch {
+          quotes = ["⚠ Error loading quotes"];
+          start();
+        }
+      }
+
+      function setQuote() {
+        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        box.textContent = quote;
+        pos = wrapper.offsetWidth;
+        box.style.transform = `translateX(${pos}px)`;
+      }
+
+      function updateSpeed() {
+        if (isMouseDown) currentSpeed = 0;
+        else if (isHoveringText) currentSpeed = slowerSpeed;
+        else if (isHoveringBox) currentSpeed = slowSpeed;
+        else currentSpeed = baseSpeed;
+      }
+
+      function animate(time) {
+        if (lastTime !== null) {
+          const dt = (time - lastTime) / 1000;
+          pos -= currentSpeed * dt;
+          box.style.transform = `translateX(${pos}px)`;
+          if (pos + box.offsetWidth < 0) setQuote();
+        }
+        lastTime = time;
+        requestAnimationFrame(animate);
+      }
+
+      function start() {
+        setQuote();
+        requestAnimationFrame(animate);
+      }
+
+      wrapper.addEventListener("mouseenter", () => { isHoveringBox = true; updateSpeed(); });
+      wrapper.addEventListener("mouseleave", () => { isHoveringBox = false; isHoveringText = false; updateSpeed(); });
+      box.addEventListener("mouseenter", () => { isHoveringText = true; updateSpeed(); });
+      box.addEventListener("mouseleave", () => { isHoveringText = false; updateSpeed(); });
+      wrapper.addEventListener("mousedown", () => { isMouseDown = true; updateSpeed(); });
+      wrapper.addEventListener("mouseup", () => { isMouseDown = false; updateSpeed(); });
+
+      loadQuotes();
+    });
+  </script>
+
+  <!-- PFP Loader -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const pfp = document.getElementById("pfp");
+      const defaultPic = "system/icons/profile.png";
+
+      const currentUser = localStorage.getItem("currentUser");
+      if (!currentUser) {
+        pfp.src = defaultPic;
+        return;
+      }
+
+      const userData = JSON.parse(localStorage.getItem("user_" + currentUser) || "{}");
+      const profileData = JSON.parse(localStorage.getItem("profile_" + currentUser) || "{}");
+
+      const userPic = profileData.pic || defaultPic;
+
+      pfp.src = userPic;
+
+      const cachedPreview = {
+        username: userData.username || profileData.nickname || currentUser,
+        pic: userPic
+      };
+      localStorage.setItem("preview_" + currentUser, JSON.stringify(cachedPreview));
+    });
+  </script>
+
+  <!-- To Top Button -->
+  <script>
+    const toTopBtn = document.getElementById("toTopBtn");
+
+    window.addEventListener("scroll", () => {
+      const scrollY = window.scrollY;
+      if (scrollY > 250) {
+        toTopBtn.classList.add("show");
+      } else {
+        toTopBtn.classList.remove("show");
+      }
+    });
+
+    toTopBtn.addEventListener("click", () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    });
+  </script>
+
+  <!-- 404 Checker FIXED → wrapped properly -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.addEventListener("click", async (e) => {
+        const a = e.target.closest("a");
+        if (!a) return;
+
+        let href = a.getAttribute("href");
+        if (!href) return;
+
+        if (href.includes("https://wanna5mile.github.io/")) {
+          e.preventDefault();
+          const fixed = href.replace("https://wanna5mile.github.io/", "https://wanna5mile.github.io./");
+          window.open(fixed, a.target || "_blank");
+          return;
+        }
+
+        if (href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:")) return;
+
+        const url = new URL(href, window.location.origin);
+
+        try {
+          const res = await fetch(url.href, { method: "HEAD" });
+
+          if (!res.ok) {
+            e.preventDefault();
+            window.location.href = "/404.html";
+          }
+        } catch (err) {
+          console.warn(`Network error checking ${url.href}:`, err);
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
