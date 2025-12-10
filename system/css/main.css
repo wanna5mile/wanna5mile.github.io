@@ -5,6 +5,14 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+/* ==========================================
+   Disable Text Selection & Focus Highlights
+   ========================================== */
+  -webkit-user-select: none; /* Chrome, Safari, Edge */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE 10+ */
+  user-select: none;         /* Standard */
+  -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
 }
 
 html, body {
@@ -288,12 +296,12 @@ header img {
 
 #container div img,
 #container-discov div img {
-  width: 180px;
-  max-width: 85%;
+  width: 100%;          /* fills card width */
+  max-width: 85%;       /* BUT caps size nicely */
   height: auto;
   display: block;
-  margin: 0 auto 8px;
-  border-radius: 14px; /* same rounding ratio for visual balance */
+  margin: 0 auto 8px;   /* true horizontal centering */
+  border-radius: 14px;
   object-fit: contain;
   transition: transform 0.3s ease;
 }
@@ -499,17 +507,6 @@ footer {
 .fix:hover {
   border: 2px solid #ff0000;
   box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
-}
-
-/* ==========================================
-   Disable Text Selection & Focus Highlights
-   ========================================== */
-* {
-  -webkit-user-select: none; /* Chrome, Safari, Edge */
-  -moz-user-select: none;    /* Firefox */
-  -ms-user-select: none;     /* IE 10+ */
-  user-select: none;         /* Standard */
-  -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
 }
 
 input, textarea {
