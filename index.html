@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WannaSmile | Home</title>
-  <link rel="icon" href="system/images/favicons/logoo.png" />
+  <link rel="icon" href="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/favicons/logo.png" />
   <meta name="author" content="WannaSmile by Rhap5ody" />
   <meta name="keywords" content="github, repository, source, library" />
 
@@ -68,18 +68,18 @@
         <a href="system/pages/support.html">Support</a>
         <a href="info.html">Info</a>
         <div class="pages-anchor">
-          <button class="arrowleft" onclick="prevPage()"><img src="system/icons/left.png" /></button>
+          <button class="arrowleft" onclick="prevPage()"><img src="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/icons/left.png" /></button>
           <span class="page-indicator">...</span>
-          <button class="arrowright" onclick="nextPage()"><img src="system/icons/right.png" /></button>
+          <button class="arrowright" onclick="nextPage()"><img src="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/icons/right.png" /></button>
         </div>
       </nav>
 
       <div class="header-controls">
         <div class="search-box">
           <input id="searchInputHeader" type="text" placeholder="Search ϱames..." />
-          <button id="searchBtnHeader"><img src="system/icons/search.png" /></button>
+          <button id="searchBtnHeader"><img src="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/icons/search.png" /></button>
         </div>
-        <a href="system/pages/profile.html"><img id="pfp" src="system/icons/profile.png" /></a>
+        <a href="system/pages/profile.html"><img id="pfp" src="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/icons/profile.png" /></a>
         <button id="dashboardBtn"><img src="system/icons/dashboard.png" /></button>
       </div>
     </header>
@@ -247,6 +247,63 @@
         behavior: "smooth"
       });
     });
+  </script>
+  <script defer>
+    (function() {
+
+  // Patterns that identify your project pages
+  const patterns = [
+    "https://wanna5mile.github.io./source/",
+    "https://wanna5mile.github.io./source-expanded/"
+  ];
+
+  // Checks if a URL matches your project structure
+  function matchesProject(url) {
+    return patterns.some(p => url.startsWith(p));
+  }
+
+  // Opens the project inside a new fullscreen about:blank tab using an <embed>
+  function openProject(url) {
+    const win = window.open("about:blank");
+
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <body style="margin:0; overflow:hidden;">
+        <embed src="${url}"
+               style="position:absolute; top:0; left:0; width:100vw; height:100vh; border:none;">
+      </body>
+      </html>
+    `);
+
+    win.document.close();
+  }
+
+  // Intercept clicks on <a> elements
+  document.addEventListener("click", e => {
+    const a = e.target.closest("a");
+    if (!a || !a.href) return;
+
+    const url = a.href;
+
+    // Check if internal project link
+    if (matchesProject(url)) {
+      e.preventDefault();
+      openProject(url);
+    }
+  });
+
+  // Intercept calls to window.open in JS
+  const originalOpen = window.open;
+  window.open = function(url, ...rest) {
+    if (typeof url === "string" && matchesProject(url)) {
+      openProject(url);
+      return null;
+    }
+    return originalOpen.call(window, url, ...rest);
+  };
+
+})();
   </script>
   <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/top.js" defer></script>
   <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/pages.js" defer></script>
