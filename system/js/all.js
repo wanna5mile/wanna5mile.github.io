@@ -116,19 +116,19 @@ function initPreloader() {
     },
     themes: {
       light: {
-      loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
-      loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif",
-      delay: 1100
+        loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
+        loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif",
+        delay: 1100
       },
       dark: {
-      loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
-      loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif",
-      delay: 1100
+        loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
+        loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif",
+        delay: 1100
       },
       classic: {
-      loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
-      loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif",
-      delay: 1100
+        loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
+        loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif",
+        delay: 1100
       },
       slackerish: {
         loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-load.gif",
@@ -146,6 +146,9 @@ function initPreloader() {
   const bodyTheme = document.body.getAttribute("theme") || "classic";
   const gifs = gifConfig.themes[bodyTheme] || gifConfig.default;
 
+  // Save theme-based delay for loader logic
+  preloader.dataset.gifDelay = gifs.delay;
+
   // ======= Create or update loaderImage =======
   let loaderImg = dom.loaderImage;
   if (!loaderImg) {
@@ -158,7 +161,7 @@ function initPreloader() {
       top: "0",
       left: "0",
       width: "120px",
-      transition: "opacity .4s ease",
+      transition: "opacity .4s ease"
     });
     preloader.appendChild(loaderImg);
     dom.loaderImage = loaderImg;
@@ -177,7 +180,7 @@ function initPreloader() {
       top: "0",
       left: "0",
       width: "120px",
-      transition: "opacity .4s ease",
+      transition: "opacity .4s ease"
     });
     loaderImg.parentElement.appendChild(loadedImg);
     dom.loadedImage = loadedImg;
@@ -236,10 +239,11 @@ function initPreloader() {
     setTimeout(() => (preloader.style.display = "none"), 500);
   };
 
-  window.showLoadedState = async () => {
+  // ======= UPDATED: Theme-aware loaded animation delay =======
+  window.showLoadedState = async (gifDelay = Number(preloader.dataset.gifDelay) || 1000) => {
     if (dom.loaderImage) dom.loaderImage.style.opacity = "0";
     if (dom.loadedImage) dom.loadedImage.style.opacity = "1";
-    await delay(500); // Let loaded GIF be visible
+    await delay(gifDelay);
   };
 
   // ======= Optional: Update GIFs dynamically if theme changes =======
@@ -247,6 +251,7 @@ function initPreloader() {
     const g = gifConfig.themes[theme] || gifConfig.default;
     if (dom.loaderImage) dom.loaderImage.src = g.loading;
     if (dom.loadedImage) dom.loadedImage.src = g.loaded;
+    preloader.dataset.gifDelay = g.delay; // keep delay synced
   };
 }
 
@@ -602,59 +607,99 @@ function initPreloader() {
     } catch(err){console.warn("⚠ Version message fetch failed:",err);}
   }
 
-  /* ---------------------------
-     Asset Loader
-  --------------------------- */
-  async function loadAssets(retry=false){
-    try{
-      showLoading("Loading assets...");
-      let currentProgress=0;
-      const setProgress=(target)=>new Promise(resolve=>{
-        const step=()=>{
-          currentProgress+=(target-currentProgress)*0.08;
-          if(Math.abs(target-currentProgress)<0.5){
-            currentProgress=target;
+/* ---------------------------
+   Asset Loader
+--------------------------- */
+async function loadAssets(retry = false) {
+  try {
+    showLoading("Loading assets...");
+
+    let currentProgress = 0;
+
+    const setProgress = (target) =>
+      new Promise((resolve) => {
+        const step = () => {
+          currentProgress += (target - currentProgress) * 0.08;
+
+          if (Math.abs(target - currentProgress) < 0.5) {
+            currentProgress = target;
             updateProgress(currentProgress);
             resolve();
-          } else {updateProgress(currentProgress); requestAnimationFrame(step);}
+          } else {
+            updateProgress(currentProgress);
+            requestAnimationFrame(step);
+          }
         };
         step();
       });
-      await setProgress(5);
 
-      const res = await fetch(config.sheetUrl,{cache:"no-store"});
-      if(!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
-      const raw = await res.json();
-      const data = raw.filter(i=>Object.values(i).some(v=>safeStr(v).trim()));
-      window.assetsData = data;
+    // Start progress
+    await setProgress(5);
 
-      await setProgress(20);
+    // Fetch sheet
+    const res = await fetch(config.sheetUrl, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Sheets fetch failed: ${res.status}`);
 
-      const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
-      const filtered = isFavPage? data.filter(a=>window.favorites.has(safeStr(a.title).toLowerCase())):data;
+    const raw = await res.json();
+    const data = raw.filter((i) =>
+      Object.values(i).some((v) => safeStr(v).trim())
+    );
+    window.assetsData = data;
 
-      const promises = createAssetCards(filtered||[]);
-      const totalImages=promises.length;
-      if(totalImages>0){
-        await Promise.all(promises.map(p=>p.promise));
-      }
+    await setProgress(20);
 
-      await setProgress(90);
-      if(typeof renderPage==="function") renderPage();
-      if(isFavPage && !filtered.length && dom.container) dom.container.innerHTML="<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
+    // Favorites mode
+    const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
+    const filtered = isFavPage
+      ? data.filter((a) =>
+          window.favorites.has(safeStr(a.title).toLowerCase())
+        )
+      : data;
 
-      await setProgress(100);
-      await delay(200);
-      await showLoadedState();
-      await delay(400);
-      hidePreloader();
-    } catch(err){
-      console.error("Error loading assets:",err);
-      if(!retry){setTimeout(()=>loadAssets(true).catch(()=>{}),1000);return;}
-      showLoading("⚠ Failed to load assets.");
-      hidePreloader();
+    // Load images
+    const promises = createAssetCards(filtered || []);
+    const totalImages = promises.length;
+
+    if (totalImages > 0) {
+      await Promise.all(promises.map((p) => p.promise));
     }
+
+    await setProgress(90);
+
+    if (typeof renderPage === "function") renderPage();
+
+    if (isFavPage && !filtered.length && dom.container) {
+      dom.container.innerHTML =
+        "<p style='text-align:center;color:#ccc;font-family:monospace;'>No favorites yet ★</p>";
+    }
+
+    // Finish progress
+    await setProgress(100);
+
+    // THEME-BASED LOADED GIF DELAY
+    const gifDelay =
+      Number(dom.preloader?.dataset?.gifDelay) || 1000; // fallback
+
+    // Let progress bar reach 100 smoothly
+    await delay(150);
+
+    // ▶ Show "loaded" GIF for its full duration
+    await showLoadedState(gifDelay);
+
+    // Fade out immediately after GIF finishes
+    hidePreloader();
+  } catch (err) {
+    console.error("Error loading assets:", err);
+
+    if (!retry) {
+      setTimeout(() => loadAssets(true).catch(() => {}), 1000);
+      return;
+    }
+
+    showLoading("⚠ Failed to load assets.");
+    hidePreloader();
   }
+}
 
   /* ---------------------------
      DOM Bootstrap
