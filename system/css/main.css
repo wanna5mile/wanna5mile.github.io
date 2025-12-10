@@ -283,7 +283,7 @@ header img {
   min-height: 160px;
   background: var(--card-bg);
   text-align: center;
-  border-radius: 20px; /* consistent, smooth radius */
+  border-radius: 20px;
   padding: 8px;
   overflow: hidden;
   transition: transform 0.2s ease;
@@ -296,11 +296,10 @@ header img {
 
 #container div img,
 #container-discov div img {
-  width: 100%;          /* fills card width */
-  max-width: 85%;       /* BUT caps size nicely */
+  max-width: 85%;       /* control size without forcing width */
   height: auto;
   display: block;
-  margin: 0 auto 8px;   /* true horizontal centering */
+  margin: 0 auto 8px;   /* TRUE horizontal centering */
   border-radius: 14px;
   object-fit: contain;
   transition: transform 0.3s ease;
@@ -314,7 +313,7 @@ header img {
 @media (max-width: 600px) {
   #container div img,
   #container-discov div img {
-    width: 140px;
+    max-width: 75%;      /* scales cleanly on small screens */
   }
 }
 
