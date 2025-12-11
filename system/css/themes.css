@@ -12,7 +12,7 @@
 
   /* Main background color + white-icons overlay */
   --main-bg: 
-    url("system/backgrounds/background_white_icons.png") center/180px repeat,
+    url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_white_icons.png") center/180px repeat,
     #d4d4d4;
 
   /* Card background now transparent */
@@ -20,14 +20,14 @@
 
   /* Quote background color + grey-icons overlay */
   --quote-bg:
-    url("system/backgrounds/background_grey_icons.png") center/160px repeat,
+    url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_grey_icons.png") center/160px repeat,
     #eaeaea;
 
   /* === UI Backgrounds (Header/Footer/Menu) === */
 
   /* Header background + black-icons overlay */
   --header-bg:
-    url("system/backgrounds/background_black_icons.png") center/200px repeat,
+    url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_black_icons.png") center/200px repeat,
     #111;
 
   --footer-bg:
