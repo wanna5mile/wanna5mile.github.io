@@ -1,8 +1,7 @@
 /*
  * themes.css
  * Defines all color/background variables for different themes.
- * Synced with main.css variable structure (2025 update)
- * Includes highlight, shadow, and quote colors for consistency.
+ * Updated to support overlay PNG backgrounds (2025-compatible)
  */
 
 /* ==========================================
@@ -10,14 +9,30 @@
    ========================================== */
 :root {
   /* === Layout & Containers === */
-  --main-bg: #d4d4d4;
-  --card-bg: #d4d4d4;
-  --highlight-bg: #fffbe6;
-  --quote-bg: #eaeaea;
+
+  /* Main background color + white-icons overlay */
+  --main-bg: 
+    url("system/backgrounds/background_white_icons.png") center/180px repeat,
+    #d4d4d4;
+
+  /* Card background now transparent */
+  --card-bg: transparent;
+
+  /* Quote background color + grey-icons overlay */
+  --quote-bg:
+    url("system/backgrounds/background_grey_icons.png") center/160px repeat,
+    #eaeaea;
 
   /* === UI Backgrounds (Header/Footer/Menu) === */
-  --header-bg: #111;
-  --footer-bg: #555;
+
+  /* Header background + black-icons overlay */
+  --header-bg:
+    url("system/backgrounds/background_black_icons.png") center/200px repeat,
+    #111;
+
+  --footer-bg:
+    #555;
+
   --menu-bg: rgba(0, 0, 0, 0.95);
 
   /* === Text & Links === */
@@ -39,7 +54,7 @@
 }
 
 /* ==========================================
-   DEFAULT THEME
+   DEFAULT THEME  
    ========================================== */
 body {
   /* Inherits from :root */
