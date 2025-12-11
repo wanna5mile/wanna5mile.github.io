@@ -26,7 +26,7 @@ async function startLoadingProcess() {
   await createAssetCards(allAssets);
   updateProgress(85);
 
-  // Allow DOM to finish layout/rendering
+  // Allow DOM rendering to complete
   await new Promise((resolve) => requestAnimationFrame(resolve));
 
   // Finish preloader sequence
@@ -34,6 +34,16 @@ async function startLoadingProcess() {
   updateProgress(100);
   hidePreloader();
 
-  // Start at "btd5" page (or fallback to 1)
-  goToPage("btd5", 1);
+  // -----------------------------------------
+  // PAGE RESTORE LOGIC
+  // -----------------------------------------
+  const savedPage = sessionStorage.getItem("currentPage");
+
+  if (!savedPage) {
+    // First visit in this session → default to page 1
+    goToPage(1);
+  } else {
+    // Restore last visited page
+    goToPage(Number(savedPage));
+  }
 }
