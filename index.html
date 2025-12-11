@@ -248,7 +248,9 @@
       });
     });
   </script>
-  <script defer>
+  <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/top.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/pages.js" defer></script>
+<script>
 (function () {
 
   // ================================
@@ -271,99 +273,83 @@
     const win = window.open("about:blank");
     if (!win) return;
 
-    // ================================
-    // FAKE COVER LAYERS (random picker)
-    // ================================
     const fakeLayers = [
-      {
-        title: "Google Classroom",
-        icon: "system/fake-icons/classroom.png",
-        image: "system/fake-screens/classroom.png"
-      },
-      {
-        title: "Google Docs",
-        icon: "system/fake-icons/docs.png",
-        image: "system/fake-screens/docs.png"
-      }
+      { title: "Sheets",         icon: "icons/sheets.png",     image: "sheets_hi.png" },
+      { title: "No Internet",    icon: "icons/warning.png",    image: "nofi_hi.png" },
+      { title: "Document Viewer",icon: "icons/document.png",   image: "document_hi.png" },
+      { title: "My Files",       icon: "icons/files.png",      image: "myfiles_hi.png" },
+      { title: "Dashboard",      icon: "icons/dashboard.png",  image: "dashboard_hi.png" }
     ];
 
     const originalTitle = "Loading…";
     const originalIcon = "";
 
+    // ================================
+    // INLINE-SAFE PAGE INJECTION
+    // ================================
+    win.document.open();
     win.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>${originalTitle}</title>
-        <link id="appFavicon" rel="icon" href="${originalIcon}">
-        <style>
-          body {
-            margin: 0;
-            overflow: hidden;
-          }
-          #realApp {
-            position: absolute;
-            inset: 0;
-          }
-          #fakeCover {
-            position: fixed;
-            inset: 0;
-            display: none;
-            background: #fff;
-            z-index: 9999999;
-          }
-          #fakeCover img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-        </style>
-      </head>
-      <body>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${originalTitle}</title>
+  <link id="appFavicon" rel="icon" href="${originalIcon}">
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #realApp { position: absolute; inset: 0; }
+    #fakeCover {
+      position: fixed;
+      inset: 0;
+      display: none;
+      background: #fff;
+      z-index: 9999999;
+    }
+    #fakeCover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
+</head>
 
-        <!-- REAL CONTENT -->
-        <embed id="realApp" src="${url}" style="border:none;">
+<body>
 
-        <!-- FAKE LAYER (initially hidden) -->
-        <div id="fakeCover">
-          <img id="fakeImage" src="">
-        </div>
+  <embed id="realApp" src="${url}" style="border:none;">
 
-        <script>
-          const fakeLayers = ${JSON.stringify(fakeLayers)};
+  <div id="fakeCover">
+    <img id="fakeImage">
+  </div>
 
-          const cover = document.getElementById("fakeCover");
-          const coverImg = document.getElementById("fakeImage");
-          const favicon = document.getElementById("appFavicon");
+  <script>
+    const fakeLayers = ${JSON.stringify(fakeLayers)};
+    const cover = document.getElementById("fakeCover");
+    const coverImg = document.getElementById("fakeImage");
+    const favicon = document.getElementById("appFavicon");
 
-          const originalTitle = document.title;
-          const originalIcon = favicon.href;
+    const originalTitle = document.title;
+    const originalIcon = favicon.href;
 
-          function applyFakeLayer() {
-            const pick = fakeLayers[Math.floor(Math.random() * fakeLayers.length)];
-            coverImg.src = pick.image;
-            document.title = pick.title;
-            favicon.href = pick.icon;
-            cover.style.display = "block";
-          }
+    function applyFakeLayer() {
+      const pick = fakeLayers[Math.floor(Math.random() * fakeLayers.length)];
+      coverImg.src = pick.image;
+      document.title = pick.title;
+      favicon.href = pick.icon;
+      cover.style.display = "block";
+    }
 
-          function removeFakeLayer() {
-            cover.style.display = "none";
-            document.title = originalTitle;
-            favicon.href = originalIcon;
-          }
+    function removeFakeLayer() {
+      cover.style.display = "none";
+      document.title = originalTitle;
+      favicon.href = originalIcon;
+    }
 
-          // When tab loses focus → apply fake layer
-          window.addEventListener("blur", applyFakeLayer);
+    window.addEventListener("blur", applyFakeLayer);
+    window.addEventListener("focus", removeFakeLayer);
+  <\/script>
 
-          // When tab gains focus → remove it
-          window.addEventListener("focus", removeFakeLayer);
-        </script>
-
-      </body>
-      </html>
+</body>
+</html>
     `);
-
     win.document.close();
   }
 
@@ -395,8 +381,6 @@
   };
 
 })();
-  </script>
-  <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/top.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/pages.js" defer></script>
+</script>
 </body>
 </html>
