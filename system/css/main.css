@@ -652,3 +652,36 @@ a, button, input, textarea {
 #loadedImage {
   opacity: 0;
 }
+
+/* alert styling*/
+/* Dialog container */
+.dialog-width {
+  --sl-overlay-background-color: rgba(0, 0, 0, 0.35);
+  --sl-panel-background-color: #ffffffcc; /* translucent white */
+  --sl-border-radius-medium: 18px;
+  --sl-shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.35s ease-out;
+  padding: 10px 0;
+}
+
+/* Dialog text styling */
+.dialog-width::part(body) {
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: #333;
+  padding: 1rem 1.4rem;
+}
+
+/* Footer button */
+.dialog-width::part(footer) sl-button {
+  --sl-color-neutral-600: #444;
+  --sl-color-neutral-700: #222;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
