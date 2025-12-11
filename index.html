@@ -248,156 +248,55 @@
       });
     });
   </script>
-  <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/top.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/pages.js" defer></script>
-<script>
-js:(function () {
+  <script defer>
+    (function() {
 
-  // ================================
-  // PROJECT URL PATTERNS
-  // ================================
+  // Patterns that identify your project pages
   const patterns = [
     "https://wanna5mile.github.io./source/",
     "https://bguhm.github.io./library/",
     "https://wanna5mile.github.io./source-expanded/"
   ];
 
+  // Checks if a URL matches your project structure
   function matchesProject(url) {
     return patterns.some(p => url.startsWith(p));
   }
 
-  // ================================
-  // ABOUT:BLANK WRAPPER
-  // ================================
+  // Opens the project inside a new fullscreen about:blank tab using an <embed>
   function openProject(url) {
     const win = window.open("about:blank");
-    if (!win) return;
 
-    const fakeLayers = [
-      { title: "Sheets",          icon: "icons/sheets.png",     image: "sheets_hi.png" },
-      { title: "No Internet",     icon: "icons/warning.png",    image: "nofi_hi.png" },
-      { title: "Document Viewer", icon: "icons/document.png",   image: "document_hi.png" },
-      { title: "My Files",        icon: "icons/files.png",      image: "myfiles_hi.png" },
-      { title: "Dashboard",       icon: "icons/dashboard.png",  image: "dashboard_hi.png" }
-    ];
-
-    const originalTitle = "Loading…";
-    const originalIcon = "";
-
-    win.document.open();
     win.document.write(`
-<!DOCTYPE html>
-<html>
-<head>
-  <title>${originalTitle}</title>
-  <link id="appFavicon" rel="icon" href="${originalIcon}">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-
-    /* Fullscreen embed */
-    #realApp {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      border: none;
-    }
-
-    /* Fullscreen fake cover */
-    #fakeCover {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: none;
-      background: #fff;
-      z-index: 9999999;
-    }
-
-    #fakeCover img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-  </style>
-</head>
-
-<body>
-
-  <!-- REAL GAME -->
-  <embed id="realApp" src="${url}">
-
-  <!-- FAKE COVER (hidden until tab inactive) -->
-  <div id="fakeCover">
-    <img id="fakeImage">
-  </div>
-
-  <script>
-    const fakeLayers = ${JSON.stringify(fakeLayers)};
-    const cover = document.getElementById("fakeCover");
-    const coverImg = document.getElementById("fakeImage");
-    const favicon = document.getElementById("appFavicon");
-
-    const originalTitle = document.title;
-    const originalIcon = favicon.href;
-
-    // Show fake cover + tab cloak ONLY when the tab is unfocused
-    function applyFakeLayer() {
-      const pick = fakeLayers[Math.floor(Math.random() * fakeLayers.length)];
-      coverImg.src = pick.image;
-      document.title = pick.title;
-      favicon.href = pick.icon;
-      cover.style.display = "block";
-    }
-
-    // Remove fake cover + restore original
-    function removeFakeLayer() {
-      cover.style.display = "none";
-      document.title = originalTitle;
-      favicon.href = originalIcon;
-    }
-
-    // Blur → cloak on
-    window.addEventListener("blur", applyFakeLayer);
-
-    // Focus → cloak off
-    window.addEventListener("focus", removeFakeLayer);
-
-    // Remove cover immediately on load
-    removeFakeLayer();
-  <\/script>
-
-</body>
-</html>
+      <!DOCTYPE html>
+      <html>
+      <body style="margin:0; overflow:hidden;">
+        <embed src="${url}"
+               style="position:absolute; top:0; left:0; width:100vw; height:100vh; border:none;">
+      </body>
+      </html>
     `);
 
     win.document.close();
   }
 
-  // ================================
-  // CLICK INTERCEPT
-  // ================================
-  document.addEventListener("click", (e) => {
+  // Intercept clicks on <a> elements
+  document.addEventListener("click", e => {
     const a = e.target.closest("a");
     if (!a || !a.href) return;
 
     const url = a.href;
 
+    // Check if internal project link
     if (matchesProject(url)) {
       e.preventDefault();
       openProject(url);
     }
   });
 
-  // ================================
-  // window.open INTERCEPT
-  // ================================
+  // Intercept calls to window.open in JS
   const originalOpen = window.open;
-  window.open = function (url, ...rest) {
+  window.open = function(url, ...rest) {
     if (typeof url === "string" && matchesProject(url)) {
       openProject(url);
       return null;
@@ -406,6 +305,8 @@ js:(function () {
   };
 
 })();
-</script>
+  </script>
+  <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/top.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/pages.js" defer></script>
 </body>
 </html>
