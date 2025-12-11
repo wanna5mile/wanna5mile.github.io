@@ -251,7 +251,7 @@
   <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/top.js" defer></script>
   <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/pages.js" defer></script>
 <script>
-(function () {
+js:(function () {
 
   // ================================
   // PROJECT URL PATTERNS
@@ -267,26 +267,23 @@
   }
 
   // ================================
-  // ABOUT:BLANK PROJECT WRAPPER
+  // ABOUT:BLANK WRAPPER
   // ================================
   function openProject(url) {
     const win = window.open("about:blank");
     if (!win) return;
 
     const fakeLayers = [
-      { title: "Sheets",         icon: "icons/sheets.png",     image: "sheets_hi.png" },
-      { title: "No Internet",    icon: "icons/warning.png",    image: "nofi_hi.png" },
-      { title: "Document Viewer",icon: "icons/document.png",   image: "document_hi.png" },
-      { title: "My Files",       icon: "icons/files.png",      image: "myfiles_hi.png" },
-      { title: "Dashboard",      icon: "icons/dashboard.png",  image: "dashboard_hi.png" }
+      { title: "Sheets",          icon: "icons/sheets.png",     image: "sheets_hi.png" },
+      { title: "No Internet",     icon: "icons/warning.png",    image: "nofi_hi.png" },
+      { title: "Document Viewer", icon: "icons/document.png",   image: "document_hi.png" },
+      { title: "My Files",        icon: "icons/files.png",      image: "myfiles_hi.png" },
+      { title: "Dashboard",       icon: "icons/dashboard.png",  image: "dashboard_hi.png" }
     ];
 
     const originalTitle = "Loading…";
     const originalIcon = "";
 
-    // ================================
-    // INLINE-SAFE PAGE INJECTION
-    // ================================
     win.document.open();
     win.document.write(`
 <!DOCTYPE html>
@@ -295,15 +292,32 @@
   <title>${originalTitle}</title>
   <link id="appFavicon" rel="icon" href="${originalIcon}">
   <style>
-    body { margin: 0; overflow: hidden; }
-    #realApp { position: absolute; inset: 0; }
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    /* Fullscreen embed */
+    #realApp {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      border: none;
+    }
+
+    /* Fullscreen fake cover */
     #fakeCover {
-      position: fixed;
-      inset: 0;
+      position: absolute;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
       display: none;
       background: #fff;
       z-index: 9999999;
     }
+
     #fakeCover img {
       width: 100%;
       height: 100%;
@@ -314,8 +328,10 @@
 
 <body>
 
-  <embed id="realApp" src="${url}" style="border:none;">
+  <!-- REAL GAME -->
+  <embed id="realApp" src="${url}">
 
+  <!-- FAKE COVER (hidden until tab inactive) -->
   <div id="fakeCover">
     <img id="fakeImage">
   </div>
@@ -329,6 +345,7 @@
     const originalTitle = document.title;
     const originalIcon = favicon.href;
 
+    // Show fake cover + tab cloak ONLY when the tab is unfocused
     function applyFakeLayer() {
       const pick = fakeLayers[Math.floor(Math.random() * fakeLayers.length)];
       coverImg.src = pick.image;
@@ -337,19 +354,27 @@
       cover.style.display = "block";
     }
 
+    // Remove fake cover + restore original
     function removeFakeLayer() {
       cover.style.display = "none";
       document.title = originalTitle;
       favicon.href = originalIcon;
     }
 
+    // Blur → cloak on
     window.addEventListener("blur", applyFakeLayer);
+
+    // Focus → cloak off
     window.addEventListener("focus", removeFakeLayer);
+
+    // Remove cover immediately on load
+    removeFakeLayer();
   <\/script>
 
 </body>
 </html>
     `);
+
     win.document.close();
   }
 
