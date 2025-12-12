@@ -597,8 +597,8 @@ a, button, input, textarea {
       width: 100vw;
       height: 30px;
       overflow: hidden;
-      background: #1d201f;
-      color: #fff;
+      background: var(--quote-bg);
+      color: var(--text-color);
       display: flex;
       align-items: center;
     }
@@ -607,14 +607,15 @@ a, button, input, textarea {
       position: absolute;
       white-space: nowrap;
       font-weight: bold;
-      background: #1d201f;
-      color: #fff;
+      background: var(--quote-bg);
+      color: var(--text-color);
       transform: translateX(100%);
       user-select: none;
       cursor: default;
       font-size: 1.0em;
       font-family: monospace;
     }
+
 /* Show Back to Top Button */
 #toTopBtn.show {
   display: block !important;
