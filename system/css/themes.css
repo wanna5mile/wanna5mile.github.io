@@ -108,26 +108,33 @@ body[theme="classic"] {
 
 /* Slackerish Theme */
 body[theme="slackerish"] {
-  --main-bg: #f2efc7;
-  --card-bg: #0c0057;
-  --highlight-bg: #03062e;
-  --quote-bg: #b9ffc1;
+/* ---------- GENERAL LAYOUT COLORS ---------- */
+--main-bg: #f2efc7;            /* Main page background (entire body, page wrapper) */
+--card-bg: #0c0057;            /* Background of cards, containers, panels, item boxes */
+--highlight-bg: #03062e;       /* Hover states, highlighted elements, selected items */
+--quote-bg: #b9ffc1;           /* Background of the quote bar + quoteBox */
 
-  --header-bg: #8ef0a0;
-  --footer-bg: #8ef0a0;
-  --menu-bg: rgba(0, 0, 0, 0.95);
+/* ---------- HEADER + FOOTER ---------- */
+--header-bg: #8ef0a0;          /* Background of the header/nav bar */
+--footer-bg: #8ef0a0;          /* Background of the footer */
+--menu-bg: rgba(0, 0, 0, 0.95); /* Mobile/dropdown menu background overlay */
 
-  --text-color: #2e0312;
-  --link-color: #ff0082;
-  --accent-color: #ff0082;
+/* ---------- TEXT + LINKS + ACCENTS ---------- */
+--text-color: #2e0312;         /* Default text content (paragraphs, labels, item names) */
+--link-color: #ff0082;         /* Hyperlinks inside the page */
+--accent-color: #ff0082;       /* Buttons, borders, accents, focus outlines, icons */
 
-  --input-bg: #ff7686;
-  --input-border: #ffa8b2;
-  --input-text: #fff;
-  --input-placeholder: #8b1039;
-  --search-btn-bg: #ff7686;
+/* ---------- INPUTS + SEARCH BAR ---------- */
+--input-bg: #ff7686;           /* Input field background */
+--input-border: #ffa8b2;       /* Input border color */
+--input-text: #fff;            /* Text typed inside inputs */
+--input-placeholder: #8b1039;  /* Placeholder text color inside inputs */
+--search-btn-bg: #ff7686;      /* Search button background (usually matches input-bg) */
 
-  --status-ok-border: #00ff00;
-  --status-fix-border: #ff0000;
-  --shadow-color: rgba(0, 0, 0, 0.6);
+/* ---------- STATUS BORDERS (Asset Checker / Item Status) ---------- */
+--status-ok-border: #00ff00;   /* Border for items marked "OK", "Working", or "Verified" */
+--status-fix-border: #ff0000;  /* Border for items needing "Fix", "Missing", or "Error" */
+
+/* ---------- MISC VISUALS ---------- */
+--shadow-color: rgba(0, 0, 0, 0.6);  /* Box shadows for cards, images, panels */
 }
