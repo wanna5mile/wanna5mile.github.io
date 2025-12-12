@@ -151,3 +151,28 @@ body[theme="slackerish"] {
   --status-fix-border: #ff0000;
   --shadow-color: rgba(0, 0, 0, 0.6);
 }
+
+
+/* ==========================================
+   REDUX THEME — Image-Only
+   ========================================== */
+body[theme="redux"] {
+  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_white_icons.png");
+  --quote-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_grey_icons.png");
+  --header-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_black_icons.png");
+
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+
+  --input-bg: rgba(255,255,255,0.6); /* optional */
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
