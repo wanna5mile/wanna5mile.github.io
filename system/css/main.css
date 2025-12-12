@@ -296,10 +296,10 @@ header img {
 
 #container div img,
 #container-discov div img {
-  max-width: 85%;       /* control size without forcing width */
+  width: 130px;       /* control size without forcing width */
   height: auto;
   display: block;
-  margin: 0 auto 8px;   /* TRUE horizontal centering */
+  margin: 0 auto 0px; 
   border-radius: 14px;
   object-fit: contain;
   transition: transform 0.3s ease;
