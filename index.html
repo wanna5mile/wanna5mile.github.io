@@ -245,8 +245,8 @@
       });
     });
   </script>
-  <script defer>
-    (function() {
+<script defer>
+(function () {
 
   // Patterns that identify your project pages
   const patterns = [
@@ -261,16 +261,37 @@
     return patterns.some(p => url.startsWith(p));
   }
 
+  // Fetch the <title> from the target page
+  async function fetchPageTitle(url) {
+    try {
+      const res = await fetch(url);
+      const text = await res.text();
+      const match = text.match(/<title>(.*?)<\/title>/i);
+      return match ? match[1] : url;
+    } catch {
+      return url; // fallback
+    }
+  }
+
   // Opens the project inside a new fullscreen about:blank tab using an <embed>
-  function openProject(url) {
+  async function openProject(url) {
     const win = window.open("about:blank");
+
+    // Fetch title before writing HTML
+    const title = await fetchPageTitle(url);
 
     win.document.write(`
       <!DOCTYPE html>
       <html>
-      <body style="margin:0; overflow:hidden;">
-        <embed src="${url}"
-               style="position:absolute; top:0; left:0; width:100vw; height:100vh; border:none;">
+      <head>
+        <title>${title}</title>
+        <style>
+          body { margin:0; overflow:hidden; }
+          embed { position:absolute; top:0; left:0; width:100vw; height:100vh; border:none; }
+        </style>
+      </head>
+      <body>
+        <embed src="${url}">
       </body>
       </html>
     `);
@@ -285,7 +306,6 @@
 
     const url = a.href;
 
-    // Check if internal project link
     if (matchesProject(url)) {
       e.preventDefault();
       openProject(url);
@@ -294,7 +314,7 @@
 
   // Intercept calls to window.open in JS
   const originalOpen = window.open;
-  window.open = function(url, ...rest) {
+  window.open = function (url, ...rest) {
     if (typeof url === "string" && matchesProject(url)) {
       openProject(url);
       return null;
@@ -303,7 +323,7 @@
   };
 
 })();
-  </script>
+</script>
   <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/top.js" defer></script>
   <script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/pages.js" defer></script>
 <script>
