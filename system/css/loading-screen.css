@@ -47,7 +47,7 @@ body[theme] {
 /* =================================================
    GIF stack — now in normal flow (NO fixed/absolute)
    ================================================= */
-.loader-gif {
+#loader-gif {
   width: 300px;
   height: 300px;
 
