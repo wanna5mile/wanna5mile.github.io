@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WannaSmile | Home</title>
-  <link rel="icon" href="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/favicons/logo.png" />
+  <link id="favicon" rel="icon" href="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/favicons/logo.png" />
   <meta name="author" content="WannaSmile by Rhap5ody" />
   <meta name="keywords" content="github, repository, source, library" />
   <!-- Styles -->
@@ -317,5 +317,32 @@ window.addEventListener("DOMContentLoaded", () => {
   closeBtn.addEventListener("click", () => dialog.hide());
 });
 </script>
+  <script>
+    function setFavicon(theme) {
+    const favicon = document.getElementById("favicon");
+
+    // Map themes → favicon paths
+    const iconMap = {
+        light:       "icons/light.png",
+        dark:        "icons/dark.png",
+        classic:     "icons/classic.png",
+        slackerish:  "icons/slackerish.png",
+
+        // fallback for body with no theme attribute (:root default)
+        default:     "icons/default.png"
+    };
+
+    // Select correct icon or fallback
+    favicon.href = iconMap[theme] || iconMap.default;
+}
+
+// Listen for your theme-change event
+document.addEventListener("theme-change", (e) => {
+    setFavicon(e.detail.theme);
+});
+
+// Initial load
+setFavicon(document.body.getAttribute("theme") || "default");
+  </script>
 </body>
 </html>
