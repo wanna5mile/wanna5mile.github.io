@@ -252,6 +252,7 @@
   const patterns = [
     "https://wanna5mile.github.io./source/",
     "https://bguhm.github.io./library/",
+    "https://wanna5mile.github.io./web-ported/",
     "https://wanna5mile.github.io./source-expanded/"
   ];
 
@@ -317,32 +318,5 @@ window.addEventListener("DOMContentLoaded", () => {
   closeBtn.addEventListener("click", () => dialog.hide());
 });
 </script>
-  <script>
-    function setFavicon(theme) {
-    const favicon = document.getElementById("favicon");
-
-    // Map themes → favicon paths
-    const iconMap = {
-        light:       "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/favicons/logo.png",
-        dark:        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/favicons/logo.png",
-        classic:     "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/favicons/logo.png",
-        slackerish:  "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/favicons/slackerish.png",
-
-        // fallback for body with no theme attribute (:root default)
-        default:     "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/favicons/logo.png"
-    };
-
-    // Select correct icon or fallback
-    favicon.href = iconMap[theme] || iconMap.default;
-}
-
-// Listen for your theme-change event
-document.addEventListener("theme-change", (e) => {
-    setFavicon(e.detail.theme);
-});
-
-// Initial load
-setFavicon(document.body.getAttribute("theme") || "default");
-  </script>
 </body>
 </html>
