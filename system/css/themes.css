@@ -1,68 +1,34 @@
-/*
- * themes.css
- * Defines all color/background variables for different themes.
- * Updated to support overlay PNG backgrounds (2025-compatible)
- */
+/* Revamped themes.css with unified variable structure */
 
-/* ==========================================
-   BASE FALLBACK (always active)
-   ========================================== */
 :root {
-  /* === Layout & Containers === */
+  --main-bg: #d4d4d4;
+  --card-bg: #d4d4d4;
+  --highlight-bg: #fffbe6;
+  --quote-bg: #eaeaea;
 
-  /* Main background color + white-icons overlay */
-  --main-bg: 
-    url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_white_icons.png") center/180px repeat,
-    #d4d4d4;
-
-  /* Card background now transparent */
-  --card-bg: transparent;
-
-  /* Quote background color + grey-icons overlay */
-  --quote-bg:
-    url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_grey_icons.png") center/160px repeat,
-    #eaeaea;
-
-  /* === UI Backgrounds (Header/Footer/Menu) === */
-
-  /* Header background + black-icons overlay */
-  --header-bg:
-    url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_black_icons.png") center/200px repeat,
-    #111;
-
-  --footer-bg:
-    #555;
-
+  --header-bg: #111;
+  --footer-bg: #555;
   --menu-bg: rgba(0, 0, 0, 0.95);
 
-  /* === Text & Links === */
   --text-color: #000;
   --link-color: #fff;
-  --accent-color: #222;
+  --accent-color: #ff4444;
 
-  /* === Inputs / Search === */
   --input-bg: #f0f0f0;
-  --input-border: transparent;
+  --input-border: #ccc;
   --input-text: #333;
   --input-placeholder: #888;
   --search-btn-bg: #333;
 
-  /* === Borders / Shadows === */
   --status-ok-border: #00ff00;
   --status-fix-border: #ff0000;
-  --shadow-color: rgba(0, 0, 0, 0.2);
+  --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
-/* ==========================================
-   DEFAULT THEME  
-   ========================================== */
-body {
-  /* Inherits from :root */
-}
+/* Default Theme */
+body {}
 
-/* ==========================================
-   LIGHT THEME
-   ========================================== */
+/* Light Theme */
 body[theme="light"] {
   --main-bg: #f4f4f4;
   --card-bg: #ffffff;
@@ -88,9 +54,7 @@ body[theme="light"] {
   --shadow-color: rgba(0, 0, 0, 0.15);
 }
 
-/* ==========================================
-   DARK THEME
-   ========================================== */
+/* Dark Theme */
 body[theme="dark"] {
   --main-bg: #1e1e1e;
   --card-bg: #2b2b2b;
@@ -116,9 +80,7 @@ body[theme="dark"] {
   --shadow-color: rgba(0, 0, 0, 0.5);
 }
 
-/* ==========================================
-   CLASSIC THEME (original look)
-   ========================================== */
+/* Classic Theme */
 body[theme="classic"] {
   --main-bg: #d4d4d4;
   --card-bg: #d4d4d4;
@@ -144,28 +106,26 @@ body[theme="classic"] {
   --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
-/* ==========================================
-   SLACKERISH THEME (moody dark brown palette)
-   ========================================== */
+/* Slackerish Theme */
 body[theme="slackerish"] {
-  --main-bg: #131112;
-  --card-bg: #1b1717;
-  --highlight-bg: #2b2220;
-  --quote-bg: #1a1818;
+  --main-bg: #f2efc7;
+  --card-bg: #0c0057;
+  --highlight-bg: #03062e;
+  --quote-bg: #b9ffc1;
 
-  --header-bg: #342A21;
-  --footer-bg: #342A21;
+  --header-bg: #8ef0a0;
+  --footer-bg: #8ef0a0;
   --menu-bg: rgba(0, 0, 0, 0.95);
 
-  --text-color: #fff;
-  --link-color: #ffbcbc;
-  --accent-color: #ff4444;
+  --text-color: #2e0312;
+  --link-color: #ff0082;
+  --accent-color: #ff0082;
 
-  --input-bg: #2a2220;
-  --input-border: #5a4740;
-  --input-text: #f4f4f4;
-  --input-placeholder: #b8b8b8;
-  --search-btn-bg: #3a2f28;
+  --input-bg: #ff7686;
+  --input-border: #ffa8b2;
+  --input-text: #fff;
+  --input-placeholder: #8b1039;
+  --search-btn-bg: #ff7686;
 
   --status-ok-border: #00ff00;
   --status-fix-border: #ff0000;
