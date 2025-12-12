@@ -1,48 +1,27 @@
-/*
- * themes.css
- * Defines all color/background variables for different themes.
- * Updated to support overlay PNG backgrounds (2025-compatible)
- */
-
-/* ==========================================
-   BASE FALLBACK (always active)
-   ========================================== */
 :root {
   /* === Layout & Containers === */
-
-  /* Main background color + white-icons overlay */
-  --main-bg: 
-    url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_white_icons.png") center/180px repeat,
-    #d4d4d4;
+  --main-bg: #d4d4d4;
 
   /* Card background now transparent */
-  --card-bg: transparent;
+  --card-bg: #d4d4d4;
 
-  /* Quote background color + grey-icons overlay */
-  --quote-bg:
-    url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_grey_icons.png") center/160px repeat,
-    #eaeaea;
+  /* Quote box background + NEW text color */
+  --quote-bg: #1d201f;
+  --quote-text: #fff;
 
   /* === UI Backgrounds (Header/Footer/Menu) === */
-
-  /* Header background + black-icons overlay */
-  --header-bg:
-    url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_black_icons.png") center/200px repeat,
-    #111;
-
-  --footer-bg:
-    #555;
-
+  --header-bg: #111;
+  --footer-bg: #555;
   --menu-bg: rgba(0, 0, 0, 0.95);
 
   /* === Text & Links === */
   --text-color: #000;
   --link-color: #fff;
-  --accent-color: #222;
+  --accent-color: #ff4444;
 
   /* === Inputs / Search === */
   --input-bg: #f0f0f0;
-  --input-border: transparent;
+  --input-border: #ccc;
   --input-text: #333;
   --input-placeholder: #888;
   --search-btn-bg: #333;
@@ -50,7 +29,7 @@
   /* === Borders / Shadows === */
   --status-ok-border: #00ff00;
   --status-fix-border: #ff0000;
-  --shadow-color: rgba(0, 0, 0, 0.2);
+  --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
 /* ==========================================
@@ -123,7 +102,8 @@ body[theme="classic"] {
   --main-bg: #d4d4d4;
   --card-bg: #d4d4d4;
   --highlight-bg: #fffbe6;
-  --quote-bg: #eaeaea;
+  --quote-bg: #1d201f;
+  --quote-text: #fff;
 
   --header-bg: #111;
   --footer-bg: #555;
