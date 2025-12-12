@@ -630,19 +630,6 @@ a, button, input, textarea {
   align-items: center;
 }
 
-/* Both GIFs stack but DO NOT force a fixed width */
-#loaderImage,
-#loadedImage {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);  /* Perfect center */
-  max-width: 100%;
-  height: auto;
-  pointer-events: none;
-  transition: opacity .4s ease;
-}
-
 /* Keep original GIF scaling */
 #loaderImage {
   opacity: 1;
