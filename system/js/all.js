@@ -296,9 +296,8 @@ function initPreloader() {
       const link = safeStr(asset.link) || config.fallbackLink;
       const pageNum = Number(asset.page) || 1;
       const status = safeStr(asset.status).toLowerCase();
-      const isFeatured = safeStr(asset.featured).toLowerCase() === "yes";
-      const isNew = safeStr(asset.new).toLowerCase() === "yes";
-      const isFixed = safeStr(asset.fixed).toLowerCase() === "yes";
+      // NEW UNIFIED STATUS (from sheet column: type)
+      const statusField = safeStr(asset.type || asset.status || "").toLowerCase();
 
       const card = document.createElement("div");
       card.className = "asset-card";
@@ -362,45 +361,58 @@ function initPreloader() {
         wrapper.appendChild(o);
       };
 
-      if (isFeatured) addOverlay(badgeMap.featured, "featured badge", "overlay-featured");
-      if (isNew) addOverlay(badgeMap.new, "new badge", "overlay-new");
-      if (isFixed) addOverlay(badgeMap.fixed, "fixed badge", "overlay-fixed");
-      if (["new", "updated"].includes(status)) addOverlay(`${config.gifBase}${status}.gif`, `${status} badge`, `status-gif status-${status}`);
-      if (status === "fix") {
-        addOverlay(badgeMap.fix, "fixing overlay", "overlay-fix", true);
-        card.classList.add("fix");
-      }
-      if (status === "soon") card.classList.add("soon");
+// UNIFIED OVERLAY LOGIC  (uses: statusField = asset.type)
+if (statusField === "featured")
+  addOverlay(badgeMap.featured, "featured badge", "overlay-featured");
 
-      a.appendChild(wrapper);
+if (statusField === "new")
+  addOverlay(badgeMap.new, "new badge", "overlay-new");
 
-      const titleEl = document.createElement("h3");
-      titleEl.textContent = title || "Untitled";
-      const authorEl = document.createElement("p");
-      authorEl.textContent = author || "";
+if (statusField === "fixed")
+  addOverlay(badgeMap.fixed, "fixed badge", "overlay-fixed");
 
-      const star = document.createElement("button");
-      star.className = "favorite-star";
-      star.textContent = isFav(title) ? "★" : "☆";
-      Object.assign(star.style, { background: "transparent", border: "none", cursor: "pointer" });
-      star.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const key = title.toLowerCase();
-        if (window.favorites.has(key)) window.favorites.delete(key);
-        else window.favorites.add(key);
-        saveFavorites();
-        star.textContent = window.favorites.has(key) ? "★" : "☆";
-      });
+// existing animated-status logic stays the same
+if (["new", "updated"].includes(status))
+  addOverlay(`${config.gifBase}${status}.gif`, `${status} badge`, `status-gif status-${status}`);
 
-      card.append(a, titleEl, authorEl, star);
-      frag.appendChild(card);
-    }
+if (status === "fix") {
+  addOverlay(badgeMap.fix, "fixing overlay", "overlay-fix", true);
+  card.classList.add("fix");
+}
 
+if (status === "soon")
+  card.classList.add("soon");
+
+a.appendChild(wrapper);
+
+const titleEl = document.createElement("h3");
+titleEl.textContent = title || "Untitled";
+
+const authorEl = document.createElement("p");
+authorEl.textContent = author || "";
+
+const star = document.createElement("button");
+star.className = "favorite-star";
+star.textContent = isFav(title) ? "★" : "☆";
+Object.assign(star.style, { background: "transparent", border: "none", cursor: "pointer" });
+
+star.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  const key = title.toLowerCase();
+  if (window.favorites.has(key)) window.favorites.delete(key);
+  else window.favorites.add(key);
+  saveFavorites();
+  star.textContent = window.favorites.has(key) ? "★" : "☆";
+});
+
+card.append(a, titleEl, authorEl, star);
+frag.appendChild(card);
+    } // ← close for (const asset ...)
     container.appendChild(frag);
     return imagePromises;
-  }
-
+  } // ← close createAssetCards()
+    
   /* ---------------------------
      Paging + Search + Filter
   --------------------------- */
