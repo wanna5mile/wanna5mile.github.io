@@ -5,9 +5,10 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-/* ==========================================
-   Disable Text Selection & Focus Highlights
-   ========================================== */
+
+  /* ==========================================
+     Disable Text Selection & Focus Highlights
+     ========================================== */
   -webkit-user-select: none; /* Chrome, Safari, Edge */
   -moz-user-select: none;    /* Firefox */
   -ms-user-select: none;     /* IE 10+ */
@@ -176,14 +177,12 @@ header img {
   cursor: default;
   transition: color 0.3s, text-decoration 0.3s, background 0.3s;
 }
-
 .dashboard-menu p:hover {
   color: var(--accent-color);
   background: rgba(255,255,255,0.1);
   text-decoration: underline;
   text-decoration-color: var(--accent-color);
 }
-
 
 /* ==========================================
    Search Bar
@@ -277,6 +276,10 @@ header img {
 /* ==========================================
    Asset Cards
    ========================================== */
+
+/* Base card styling (originally declared earlier).
+   Note: earlier file had overflow:hidden here; a later rule set position:relative without overflow.
+   We keep the earlier properties here and let later override if present (per your rule - latest wins). */
 #container div,
 #container-discov div {
   width: 180px;
@@ -286,6 +289,7 @@ header img {
   border-radius: 20px;
   padding: 0px;
   transition: transform 0.2s ease;
+  overflow: hidden; /* original placement — may be overridden by later rule */
 }
 
 #container div:hover,
@@ -293,6 +297,7 @@ header img {
   transform: scale(1.05);
 }
 
+/* Image in cards */
 #container div img,
 #container-discov div img {
   max-width: 85%;       /* control size without forcing width */
@@ -309,6 +314,7 @@ header img {
   transform: scale(1.05);
 }
 
+/* responsive tweak */
 @media (max-width: 600px) {
   #container div img,
   #container-discov div img {
@@ -345,12 +351,14 @@ header img {
   pointer-events: none;
   filter: grayscale(100%);
 }
+
+/* Latest "SOON" centering version preserved (this was declared later in your file) */
 .soon::after {
   content: "COMING SOON";
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%); /* exact center */
   background: rgba(0, 0, 0, 0.7);
   color: #fff;
   padding: 10px 14px;
@@ -361,14 +369,23 @@ header img {
   letter-spacing: 1px;
   text-shadow: 0 0 4px #000;
   z-index: 3;
+  pointer-events: none;
 }
+
 .soon:hover {
   border: 2px solid #ff0000;
   box-shadow: 0 0 10px #ff0000;
 }
+
+/* Keep overlay image grayscale & opacity for 'soon' assets */
 .soon img {
   filter: grayscale(100%);
   opacity: 0.7;
+  transition: opacity 0.25s ease;
+}
+
+.soon:hover img {
+  opacity: 0.55; /* fade more when hovered */
 }
 
 /* ==========================================
@@ -517,6 +534,7 @@ input, textarea {
 a, button, input, textarea {
   outline: none !important;
 }
+
 /* ==========================================
    Status Overlays: Featured / New / Fixed
    ========================================== */
@@ -548,72 +566,47 @@ a, button, input, textarea {
 /* ==========================================
    SOON Status Centering Fix
    ========================================== */
-.soon::after {
-  content: "COMING SOON";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* exact center */
-  background: rgba(0, 0, 0, 0.7);
+/* (Already handled under SOON Status section above) */
+
+/* ==========================================
+   QUOTE / TOPBAR
+   ========================================== */
+#topBar {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 20;
+  background: #1d201f;
   color: #fff;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-family: monospace;
-  font-size: 14px;
+}
+
+#topBar header {
+  z-index: 21;
+}
+
+#quoteWrapper {
+  position: relative;
+  width: 100vw;
+  height: 30px;
+  overflow: hidden;
+  background: var(--quote-bg);
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+}
+
+#quoteBox {
+  position: absolute;
+  white-space: nowrap;
   font-weight: bold;
-  letter-spacing: 1px;
-  text-shadow: 0 0 4px #000;
-  z-index: 3;
-  pointer-events: none;
+  background: var(--quote-bg);
+  color: var(--text-color);
+  transform: translateX(100%);
+  user-select: none;
+  cursor: default;
+  font-size: 1.0em;
+  font-family: monospace;
 }
-
-/* Keep overlay image grayscale & opacity for 'soon' assets */
-.soon img {
-  filter: grayscale(100%);
-  opacity: 0.7;
-  transition: opacity 0.25s ease;
-}
-
-.soon:hover img {
-  opacity: 0.55; /* fade more when hovered */
-}
-
-    #topBar {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      z-index: 20;
-      background: #1d201f;
-      color: #fff;
-    }
-
-    #topBar header {
-      z-index: 21;
-    }
-
-    #quoteWrapper {
-      position: relative;
-      width: 100vw;
-      height: 30px;
-      overflow: hidden;
-      background: var(--quote-bg);
-      color: var(--text-color);
-      display: flex;
-      align-items: center;
-    }
-
-    #quoteBox {
-      position: absolute;
-      white-space: nowrap;
-      font-weight: bold;
-      background: var(--quote-bg);
-      color: var(--text-color);
-      transform: translateX(100%);
-      user-select: none;
-      cursor: default;
-      font-size: 1.0em;
-      font-family: monospace;
-    }
 
 /* Show Back to Top Button */
 #toTopBtn.show {
@@ -622,6 +615,9 @@ a, button, input, textarea {
   pointer-events: auto !important;
 }
 
+/* ==========================================
+   GIF / Preloader / Loader
+   ========================================== */
 /* GIF Wrapper stays centered the same way your original preloader did */
 .loader-gif {
   position: relative;
@@ -644,20 +640,23 @@ a, button, input, textarea {
 }
 
 /* Keep original GIF scaling */
-#loaderImage {
-  opacity: 1;
-}
+#loaderImage { opacity: 1; }
 
 /* Loaded GIF starts invisible */
-#loadedImage {
-  opacity: 0;
-}
+#loadedImage { opacity: 0; }
 
+/* ==========================================
+   Small layout/positioning overrides (last declarations win)
+   ========================================== */
+/* This rule was declared later in your original file and thus overrides the earlier
+   #container div rule's overflow setting. According to your request, latest lines win. */
 #container div,
 #container-discov div {
-  position: relative; /* fixes overlay offset */
+  position: relative; /* fixes overlay offset (latest) */
+  /* Note: this overrides earlier overflow: hidden if present earlier in the file. */
 }
 
+/* Small image display tweaks (latest version preserved) */
 #container div img,
 #container-discov div img {
   display: block;
