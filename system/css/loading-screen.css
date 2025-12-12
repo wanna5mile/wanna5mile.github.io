@@ -15,12 +15,6 @@
   --preloader-text-color: #fff;
 }
 
-/* Force black bg no matter the theme */
-body[theme] {
-  --preloader-bg: #000;
-  --preloader-text-color: #fff;
-}
-
 /* =================================================
    PRELOADER OVERLAY
    ================================================= */
