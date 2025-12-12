@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/system/css/settings.css">
 </head>
 
-<body theme="classic">
+<body>
   <!-- Loading Screen -->
   <div class="preloader" id="preloader" aria-live="polite" aria-busy="true">
     <div class="loader-gif">
@@ -107,7 +107,8 @@
     <section class="setting-group">
       <h2>Theme & Appearance</h2>
       <div class="theme-buttons-container">
-        <button onclick="setTheme('classic')" class="theme-btn" style="background: var(--header-bg); border-color: var(--accent-color);">Classic (Default)</button>
+        <button onclick="setTheme('redux')" class="theme-btn" style="background: var(--header-bg); border-color: var(--accent-color);">Redux (Default)</button>
+        <button onclick="setTheme('classic')" class="theme-btn" style="background: var(--header-bg); border-color: var(--accent-color);">Classic (old)</button>
         <button onclick="setTheme('dark')" class="theme-btn" style="background-color: #333; color: #fff;">Dark Mode</button>
         <button onclick="setTheme('light')" class="theme-btn" style="background-color: #bbb; color: #111;">Light Mode</button>
         <button onclick="setTheme('slackerish')" class="theme-btn" style="background-color: #3c096c; color: #D80032;">slackerish</button>
@@ -189,6 +190,11 @@
       const pfp = document.getElementById("pfp");
       if (savedPic && pfp) pfp.src = savedPic;
 
+      const savedTheme = localStorage.getItem("siteTheme");
+      if (savedTheme) {
+      document.body.setAttribute("theme", savedTheme);
+      }
+
       const dashboardBtn = document.getElementById("dashboardBtn");
       const dashboardMenu = document.getElementById("dashboardMenu");
       if (dashboardBtn && dashboardMenu) {
@@ -214,7 +220,10 @@
     // Dummy functions
     function setCloakCookie(e) { console.log("Tab cloak set!"); }
     function clearCloak() { console.log("Tab cloak cleared!"); }
-    function setTheme(name) { console.log("Theme set to:", name); }
+    function setTheme(name) {
+    document.body.setAttribute("theme", name);
+    localStorage.setItem("siteTheme", name);
+    }
     function customTheme() {
       const menu = document.getElementById("customThemeMenu");
       menu.style.display = menu.style.display === "none" ? "block" : "none";
