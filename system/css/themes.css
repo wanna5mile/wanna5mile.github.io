@@ -1,95 +1,173 @@
-/* =================================================
-   PRELOADER (uses theme variables now)
-   ================================================= */
-.preloader {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100vh;
+/*
+ * themes.css
+ * Defines all color/background variables for different themes.
+ * Updated to support overlay PNG backgrounds (2025-compatible)
+ */
 
-  background: var(--main-bg);            /* uses theme instead of forced black */
-  color: var(--text-color);
+/* ==========================================
+   BASE FALLBACK (always active)
+   ========================================== */
+:root {
+  /* === Layout & Containers === */
 
-  display: flex;
-  justify-content: center;               /* center horizontally only */
-  align-items: flex-start;               /* stop forcing vertical centering */
-  padding-top: 80px;                     /* push content down naturally */
+  /* Main background color + white-icons overlay */
+  --main-bg: 
+    url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_white_icons.png") center/180px repeat,
+    #d4d4d4;
 
-  z-index: 999999;
-  opacity: 1;
-  pointer-events: all;
-  transition: opacity 0.6s ease;
+  /* Card background now transparent */
+  --card-bg: transparent;
+
+  /* Quote background color + grey-icons overlay */
+  --quote-bg:
+    url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_grey_icons.png") center/160px repeat,
+    #eaeaea;
+
+  /* === UI Backgrounds (Header/Footer/Menu) === */
+
+  /* Header background + black-icons overlay */
+  --header-bg:
+    url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_black_icons.png") center/200px repeat,
+    #111;
+
+  --footer-bg:
+    #555;
+
+  --menu-bg: rgba(0, 0, 0, 0.95);
+
+  /* === Text & Links === */
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #222;
+
+  /* === Inputs / Search === */
+  --input-bg: #f0f0f0;
+  --input-border: transparent;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: #333;
+
+  /* === Borders / Shadows === */
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0, 0, 0, 0.2);
 }
 
-/* Wrap all loader elements so they stack properly */
-.preloader-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
+/* ==========================================
+   DEFAULT THEME  
+   ========================================== */
+body {
+  /* Inherits from :root */
 }
 
-/* =================================================
-   GIF AREA — no more forced absolute overlap
-   ================================================= */
-.loader-gif {
-  width: 300px;
-  height: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* ==========================================
+   LIGHT THEME
+   ========================================== */
+body[theme="light"] {
+  --main-bg: #f4f4f4;
+  --card-bg: #ffffff;
+  --highlight-bg: #fffbe6;
+  --quote-bg: #f1f1f1;
+
+  --header-bg: #e0e0e0;
+  --footer-bg: #ccc;
+  --menu-bg: rgba(255, 255, 255, 0.95);
+
+  --text-color: #111;
+  --link-color: #222;
+  --accent-color: #e53935;
+
+  --input-bg: #eee;
+  --input-border: #aaa;
+  --input-text: #111;
+  --input-placeholder: #666;
+  --search-btn-bg: #555;
+
+  --status-ok-border: #00c853;
+  --status-fix-border: #d32f2f;
+  --shadow-color: rgba(0, 0, 0, 0.15);
 }
 
-/* If you DO want fading between #loaderImage & #loadedImage,
-   keep them absolute. If not, remove position:absolute. */
-#loaderImage,
-#loadedImage {
-  width: 300px;
-  height: auto;
-  image-rendering: pixelated;
-  transition: opacity 0.4s ease;
+/* ==========================================
+   DARK THEME
+   ========================================== */
+body[theme="dark"] {
+  --main-bg: #1e1e1e;
+  --card-bg: #2b2b2b;
+  --highlight-bg: #2f2f2f;
+  --quote-bg: #292929;
+
+  --header-bg: #0d0d0d;
+  --footer-bg: #222;
+  --menu-bg: rgba(0, 0, 0, 0.9);
+
+  --text-color: #f4f4f4;
+  --link-color: #f4f4f4;
+  --accent-color: #00bcd4;
+
+  --input-bg: #333;
+  --input-border: #555;
+  --input-text: #f4f4f4;
+  --input-placeholder: #999;
+  --search-btn-bg: #1e1e1e;
+
+  --status-ok-border: #00ff88;
+  --status-fix-border: #ff5555;
+  --shadow-color: rgba(0, 0, 0, 0.5);
 }
 
-/* =================================================
-   TEXT + PERCENT
-   ================================================= */
-.loading-text {
-  color: var(--text-color);
-  font-size: 0.8rem;
-  text-align: center;
+/* ==========================================
+   CLASSIC THEME (original look)
+   ========================================== */
+body[theme="classic"] {
+  --main-bg: #d4d4d4;
+  --card-bg: #d4d4d4;
+  --highlight-bg: #fffbe6;
+  --quote-bg: #eaeaea;
+
+  --header-bg: #111;
+  --footer-bg: #555;
+  --menu-bg: rgba(0, 0, 0, 0.95);
+
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+
+  --input-bg: #f0f0f0;
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: #333;
+
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
-#counter {
-  color: var(--text-color);
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-align: center;
-  margin-top: -4px;
-}
+/* ==========================================
+   SLACKERISH THEME (moody dark brown palette)
+   ========================================== */
+body[theme="slackerish"] {
+  --main-bg: #131112;
+  --card-bg: #1b1717;
+  --highlight-bg: #2b2220;
+  --quote-bg: #1a1818;
 
-/* =================================================
-   PROGRESS BAR
-   ================================================= */
-.load-progress-bar {
-  width: 300px;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-top: 6px;
-}
+  --header-bg: #342A21;
+  --footer-bg: #342A21;
+  --menu-bg: rgba(0, 0, 0, 0.95);
 
-.load-progress-fill {
-  width: 0%;
-  height: 100%;
-  background: var(--text-color);
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
+  --text-color: #fff;
+  --link-color: #ffbcbc;
+  --accent-color: #ff4444;
 
-/* fade-out */
-.preloader.fade {
-  opacity: 0;
-  pointer-events: none;
+  --input-bg: #2a2220;
+  --input-border: #5a4740;
+  --input-text: #f4f4f4;
+  --input-placeholder: #b8b8b8;
+  --search-btn-bg: #3a2f28;
+
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0, 0, 0, 0.6);
 }
