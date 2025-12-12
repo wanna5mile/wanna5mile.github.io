@@ -714,7 +714,6 @@ a, button, input, textarea {
 
 #container div img,
 #container-discov div img {
-  overflow: visible;
   display: block;
   margin-left: auto;
   margin-right: auto;
