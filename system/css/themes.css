@@ -4,13 +4,13 @@
   --main-bg: #d4d4d4;
   --card-bg: #d4d4d4;
   --highlight-bg: #fffbe6;
-  --quote-bg: #eaeaea;
+  --quote-bg: #000;
 
   --header-bg: #111;
   --footer-bg: #555;
   --menu-bg: rgba(0, 0, 0, 0.95);
 
-  --text-color: #000;
+  --text-color: #fff;
   --link-color: #fff;
   --accent-color: #ff4444;
 
@@ -85,13 +85,13 @@ body[theme="classic"] {
   --main-bg: #d4d4d4;
   --card-bg: #d4d4d4;
   --highlight-bg: #fffbe6;
-  --quote-bg: #eaeaea;
+  --quote-bg: #000;
 
   --header-bg: #111;
   --footer-bg: #555;
   --menu-bg: rgba(0, 0, 0, 0.95);
 
-  --text-color: #000;
+  --text-color: #fff;
   --link-color: #fff;
   --accent-color: #ff4444;
 
