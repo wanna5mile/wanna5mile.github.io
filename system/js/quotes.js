@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const wrapper = document.getElementById("quoteWrapper");
   const box = document.getElementById("quoteBox");
-  const jsonPath = "https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/json/quotes.json";
+  const jsonPath = "../system/json/quotes.json";
 
   let quotes = [];
   let pos = 0;
