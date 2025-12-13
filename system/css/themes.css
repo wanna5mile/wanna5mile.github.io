@@ -161,6 +161,7 @@ body[theme="redux"] {
   --quote-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_grey_icons.png");
   --header-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_black_icons.png");
 
+  --card-bg: rgba(0,0,0,0);
   --quote-text: #fff;
   --text-color: #000;
   --link-color: #fff;
