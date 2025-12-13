@@ -183,7 +183,7 @@ body[theme="redux"] {
    Graduation THEME
    ========================================== */
 body[theme="graduation"] {
-  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/graduation_bg.jpeg");
+  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/graduation.png");
   --quote-bg: rgba(0,0,0,0);
   --header-bg: rgba(0,0,0,0);
   --card-bg: rgba(0,0,0,0);
