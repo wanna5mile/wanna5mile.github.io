@@ -574,3 +574,16 @@ body[theme="name_here"] {
   --status-fix-border: #ff0000;
   --shadow-color: rgba(0,0,0,0.3);
 }
+
+
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  background-image: var(--main-bg);
+  background-repeat: no-repeat;
+  background-position: top center;
+  background-size: min(1365px, 100vw) auto;
+}
