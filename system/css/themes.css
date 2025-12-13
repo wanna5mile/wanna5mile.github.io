@@ -157,7 +157,7 @@ body[theme="slackerish"] {
    REDUX THEME — Image-Only
    ========================================== */
 body[theme="redux"] {
-  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_white_icons.png");
+  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/redux-white_bg.png");
   --quote-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_grey_icons.png");
   --header-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_black_icons.png");
 
