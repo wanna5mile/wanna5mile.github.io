@@ -638,11 +638,15 @@ a, button, input, textarea {
   opacity: 0;
 }
 
+html {
+  height: 100%;
+}
+
 body {
+  min-height: 100%;
   background-image: var(--main-bg);
   background-repeat: no-repeat;
   background-position: top center;
-
-  /* THIS IS THE MAGIC */
-  background-size: 1365px auto;
+  background-size: min(1365px, 100vw) auto;
 }
+
