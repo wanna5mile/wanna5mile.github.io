@@ -177,3 +177,400 @@ body[theme="redux"] {
   --status-fix-border: #ff0000;
   --shadow-color: rgba(0,0,0,0.3);
 }
+
+
+/* ==========================================
+   Graduation THEME
+   ========================================== */
+body[theme="graduation"] {
+  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/graduation_bg.jpeg");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   flower boy THEME
+   ========================================== */
+body[theme="flower-boy"] {
+  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/flower-boy_bg.jpeg");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   STAR PLATNIUM THEME
+   ========================================== */
+body[theme="star-platnium"] {
+  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/star-platnium_bg.jpeg");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   Star Platnium vs The World THEME
+   ========================================== */
+body[theme="star-world"] {
+  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/the-starly-world_bg.jpeg");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   THE KING THEME
+   ========================================== */
+body[theme="the-king"] {
+  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/the-king-crimson-card_bg.jpeg");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   NAME THEME
+   ========================================== */
+body[theme="name_here"] {
+  --main-bg: url("");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   NAME THEME
+   ========================================== */
+body[theme="name_here"] {
+  --main-bg: url("");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   NAME THEME
+   ========================================== */
+body[theme="name_here"] {
+  --main-bg: url("");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   NAME THEME
+   ========================================== */
+body[theme="name_here"] {
+  --main-bg: url("");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   NAME THEME
+   ========================================== */
+body[theme="name_here"] {
+  --main-bg: url("");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   NAME THEME
+   ========================================== */
+body[theme="name_here"] {
+  --main-bg: url("");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   NAME THEME
+   ========================================== */
+body[theme="name_here"] {
+  --main-bg: url("");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   NAME THEME
+   ========================================== */
+body[theme="name_here"] {
+  --main-bg: url("");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   NAME THEME
+   ========================================== */
+body[theme="name_here"] {
+  --main-bg: url("");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   NAME THEME
+   ========================================== */
+body[theme="name_here"] {
+  --main-bg: url("");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   NAME THEME
+   ========================================== */
+body[theme="name_here"] {
+  --main-bg: url("");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   NAME THEME
+   ========================================== */
+body[theme="name_here"] {
+  --main-bg: url("");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   NAME THEME
+   ========================================== */
+body[theme="name_here"] {
+  --main-bg: url("");
+  --quote-bg: rgba(0,0,0,0);
+  --header-bg: rgba(0,0,0,0);
+  --card-bg: rgba(0,0,0,0);
+  --quote-text: #fff;
+  --text-color: #000;
+  --link-color: #fff;
+  --accent-color: #ff4444;
+  --input-bg: rgba(0,0,0,0);
+  --input-border: #ccc;
+  --input-text: #333;
+  --input-placeholder: #888;
+  --search-btn-bg: rgba(0,0,0,0.5);
+  --status-ok-border: #00ff00;
+  --status-fix-border: #ff0000;
+  --shadow-color: rgba(0,0,0,0.3);
+}
