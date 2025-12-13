@@ -166,7 +166,7 @@ body[theme="redux"] {
   --link-color: #fff;
   --accent-color: #ff4444;
 
-  --input-bg: rgba(255,255,255,0.6); /* optional */
+  --input-bg: rgba(0,0,0,0);
   --input-border: #ccc;
   --input-text: #333;
   --input-placeholder: #888;
