@@ -650,3 +650,16 @@ body {
   background-size: min(1365px, 100vw) auto;
 }
 
+#quoteBox {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.quote-sticker {
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+  vertical-align: middle;
+  pointer-events: none;
+}
