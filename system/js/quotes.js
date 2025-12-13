@@ -17,19 +17,43 @@ document.addEventListener("DOMContentLoaded", () => {
   let isMouseDown = false;
 
   /* ==========================================
-     Quote Image Parser (:image:)
+     Quote Image Parser
+     Supports:
+     :name:
+     :folder/name:
+     :folder/name.gif:
      ========================================== */
   function parseQuoteWithImages(text) {
-    return text.replace(/:([a-zA-Z0-9_-]+):/g, (match, name) => {
-      return `
-        <img
-          src="../system/images/stickers/${name}.png"
-          class="quote-sticker"
-          alt="${name}"
-          onerror="this.onerror=null;this.src='../system/images/stickers/${name}.gif';"
-        >
-      `;
-    });
+    return text.replace(
+      /:([a-zA-Z0-9_\-\/]+(?:\.(png|gif|webp|jpg|jpeg))?):/gi,
+      (match, path, ext) => {
+        // Prevent path traversal
+        if (path.includes("..")) return match;
+
+        // Explicit extension → use as-is
+        if (ext) {
+          return `
+            <img
+              src="../system/images/stickers/${path}"
+              class="quote-sticker"
+              alt="${path}"
+              loading="lazy"
+            >
+          `;
+        }
+
+        // No extension → png fallback to gif
+        return `
+          <img
+            src="../system/images/stickers/${path}.png"
+            class="quote-sticker"
+            alt="${path}"
+            loading="lazy"
+            onerror="this.onerror=null;this.src='../system/images/stickers/${path}.gif';"
+          >
+        `;
+      }
+    );
   }
 
   async function loadQuotes() {
@@ -47,7 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function setQuote() {
     const quote = quotes[Math.floor(Math.random() * quotes.length)];
 
-    // Use parsed HTML instead of textContent
     box.innerHTML = parseQuoteWithImages(quote);
 
     pos = wrapper.offsetWidth;
