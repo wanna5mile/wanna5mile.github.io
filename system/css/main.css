@@ -657,8 +657,8 @@ body {
 }
 
 .quote-sticker {
-  width: 25px;
-  height: 25px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
   vertical-align: middle;
   pointer-events: none;
