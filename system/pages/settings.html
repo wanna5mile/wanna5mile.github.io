@@ -22,10 +22,10 @@
   <!-- Loading Screen -->
   <div class="preloader" id="preloader" aria-live="polite" aria-busy="true">
     <div class="loader-gif">
-      <img src="/system/images/GIF/loading.gif" id="loaderImage" alt="Loading animation">
+      <img src="/system/images/GIF/loading.gif" alt="Loading animation">
     </div>
-    <div class="counter" id="counter">0%</div>
-    <div class="loading-text">Loading...</div>
+    <div class="counter">0%</div>
+    <div class="loading-text">Loading Settings…</div>
   </div>
 
   <!-- Header -->
@@ -34,29 +34,29 @@
       <a href="/index.html">Home</a>
       <a href="/system/pages/favorites.html">Favorites</a>
       <a href="/system/pages/discovery.html">Discovery</a>
-      <a href="/system/pages/settings.html">Settings</a>
+      <a href="/system/pages/settings.html" aria-current="page">Settings</a>
       <a href="/system/pages/support.html">Support</a>
       <a href="/system/pages/info.html">Info</a>
     </nav>
 
     <div class="header-controls">
       <div class="search-box" role="search">
-        <input type="text" id="searchInputHeader" placeholder="Search assets..." aria-label="Search assets library">
-        <button id="searchBtnHeader" aria-label="Submit Search">
-          <img src="/system/icons/search.png" alt="Search icon">
+        <input type="text" id="searchInputHeader" placeholder="Search assets...">
+        <button id="searchBtnHeader">
+          <img src="/system/icons/search.png" alt="Search">
         </button>
       </div>
-      <a href="/system/pages/profile.html" aria-label="View Profile">
+      <a href="/system/pages/profile.html">
         <img src="/system/icons/profile.png" alt="Profile Picture" id="pfp">
       </a>
-      <button id="dashboardBtn" aria-controls="dashboardMenu" aria-expanded="false" aria-label="Open Dashboard Menu">
-        <img src="/system/icons/dashboard.png" alt="Dashboard icon" style="width: 100%; height: 100%; object-fit: contain;">
+      <button id="dashboardBtn" aria-controls="dashboardMenu">
+        <img src="/system/icons/dashboard.png" alt="Dashboard">
       </button>
     </div>
   </header>
 
   <!-- Dashboard Menu -->
-  <aside id="dashboardMenu" class="dashboard-menu" aria-hidden="true">
+  <aside id="dashboardMenu" class="dashboard-menu">
     <a href="/system/pages/music-player.html">Music Player</a>
     <a href="/system/pages/settings-themes.html">Themes</a>
     <a href="/system/pages/credits.html">Credits</a>
@@ -65,22 +65,33 @@
 
   <!-- Main -->
   <main class="settings-page">
-    <h1>General Settings</h1>
+    <header class="settings-header">
+      <h1>Settings</h1>
+      <p class="settings-intro">
+        Customize how WannaSmile looks, behaves, and protects your privacy.
+      </p>
+    </header>
 
     <!-- Tab Cloaking -->
     <section class="setting-group">
       <h2>Tab Cloaking & Security</h2>
+      <p class="note">
+        Disguise this site as something else to stay hidden and safe.
+      </p>
+
       <form onsubmit="setCloakCookie(event)">
         <div class="form-row">
-          <label for="webname">Website Name:</label>
+          <label for="webname">Website Title</label>
           <input type="text" id="webname" placeholder="10x76 Library">
         </div>
+
         <div class="form-row">
-          <label for="webicon">Website Icon URL:</label>
-          <input type="url" id="webicon" placeholder="https://www.google.com/favicon.ico">
+          <label for="webicon">Tab Icon URL</label>
+          <input type="url" id="webicon" placeholder="https://google.com/favicon.ico">
         </div>
+
         <div class="form-row">
-          <label for="presetCloaks">Or select a preset:</label>
+          <label for="presetCloaks">Quick Presets</label>
           <select id="presetCloaks">
             <option value="google">Google</option>
             <option value="drive">Google Drive</option>
@@ -90,45 +101,58 @@
             <option value="schoology">Schoology</option>
           </select>
         </div>
-        <button id="websubmit" class="submit-btn" type="submit">Set Tab Cloak</button>
+
+        <button class="submit-btn">Apply Tab Cloak</button>
       </form>
-      <button onclick="clearCloak()" class="action-btn clear-btn">Clear Current Tab Cloak</button>
+
+      <button onclick="clearCloak()" class="action-btn clear-btn">
+        Clear Tab Cloak
+      </button>
+
       <div class="setting-checkbox-row">
         <input type="checkbox" id="tabDisguise">
-        <label for="tabDisguise">Disguise tab when you click off (Focus Blur)</label>
+        <label for="tabDisguise">Auto-disguise when tab loses focus</label>
       </div>
+
       <div class="setting-checkbox-row">
         <input type="checkbox" id="blockClose">
-        <label for="blockClose">Block tab from being closed (requires custom script)</label>
+        <label for="blockClose">Prevent accidental tab closing</label>
       </div>
     </section>
 
     <!-- Theme -->
     <section class="setting-group">
       <h2>Theme & Appearance</h2>
+      <p class="note">
+        Change how WannaSmile looks across the site.
+      </p>
+
       <div class="theme-buttons-container">
-        <button onclick="setTheme('redux')" class="theme-btn" style="background: var(--header-bg); border-color: var(--accent-color);">Redux (Default)</button>
-        <button onclick="setTheme('classic')" class="theme-btn" style="background: var(--header-bg); border-color: var(--accent-color);">Classic (old)</button>
-        <button onclick="setTheme('dark')" class="theme-btn" style="background-color: #333; color: #fff;">Dark Mode</button>
-        <button onclick="setTheme('light')" class="theme-btn" style="background-color: #bbb; color: #111;">Light Mode</button>
-        <button onclick="setTheme('graduation')" class="theme-btn" style="background-color: #3c096c; color: #D80032;">graduation</button>
-        <button onclick="setTheme('flower-boy')" class="theme-btn" style="background-color: #3c096c; color: #D80032;">flower boy</button>
-        <button onclick="setTheme('star-platnium')" class="theme-btn" style="background-color: #3c096c; color: #D80032;">star platnium</button>
-        <button onclick="setTheme('star-world')" class="theme-btn" style="background-color: #3c096c; color: #D80032;">star platium vs the world</button>
-        <button onclick="setTheme('the-king')" class="theme-btn" style="background-color: #3c096c; color: #D80032;">king crimson</button>
-        <button onclick="setTheme('slackerish')" class="theme-btn" style="background-color: #3c096c; color: #D80032;">slackerish</button>
-        <button onclick="customTheme()" class="theme-btn custom-btn">Custom Theme...</button>
+        <button onclick="setTheme('redux')" class="theme-btn">Redux</button>
+        <button onclick="setTheme('classic')" class="theme-btn">Classic</button>
+        <button onclick="setTheme('dark')" class="theme-btn">Dark</button>
+        <button onclick="setTheme('light')" class="theme-btn">Light</button>
+        <button onclick="setTheme('graduation')" class="theme-btn">Graduation</button>
+        <button onclick="setTheme('flower-boy')" class="theme-btn">Flower Boy</button>
+        <button onclick="setTheme('star-platnium')" class="theme-btn">Star Platinum</button>
+        <button onclick="setTheme('star-world')" class="theme-btn">Star World</button>
+        <button onclick="setTheme('the-king')" class="theme-btn">King Crimson</button>
+        <button onclick="setTheme('slackerish')" class="theme-btn">Slackerish</button>
+        <button onclick="customTheme()" class="theme-btn custom-btn">
+          Custom Theme…
+        </button>
       </div>
 
       <div id="customThemeMenu" class="custom-theme-controls" style="display:none;">
-        <label>UI Background: <input type="color" id="uibg" value="#2e2e2e"></label>
-        <label>Main Background: <input type="color" id="bg" value="#1a1a1a"></label>
-        <label>Text Color: <input type="color" id="textcolor" value="#ffffff"></label>
-        <label>Accent Color: <input type="color" id="accentcolor" value="#c77dff"></label>
-        <button onclick="applyCustomTheme()" class="submit-btn">Apply Custom Colors</button>
+        <label>UI Background <input type="color" id="uibg"></label>
+        <label>Main Background <input type="color" id="bg"></label>
+        <label>Text Color <input type="color" id="textcolor"></label>
+        <label>Accent Color <input type="color" id="accentcolor"></label>
+        <button onclick="applyCustomTheme()" class="submit-btn">Apply</button>
+
         <div class="form-row">
-          <label for="bgimg">Or set Background Image URL:</label>
-          <input type="url" id="bgimg" placeholder="https://i.imgur.com/yourimage.jpg" onkeydown="if(event.key==='Enter') applyBackgroundImage()">
+          <label for="bgimg">Background Image URL</label>
+          <input type="url" id="bgimg">
         </div>
       </div>
     </section>
@@ -136,108 +160,57 @@
     <!-- Panic -->
     <section class="setting-group">
       <h2>Panic Mode & Password</h2>
+      <p class="note">
+        Instantly redirect away or lock access when needed.
+      </p>
+
       <form onsubmit="setPanicMode(event)">
-        <div class="form-row">
-          <label for="panicURL">Panic Redirect URL:</label>
-          <input type="url" id="panicURL" placeholder="https://google.com">
-        </div>
-        <button class="submit-btn" type="submit">Set Panic Mode URL</button>
+        <input type="url" id="panicURL" placeholder="https://google.com">
+        <button class="submit-btn">Save Panic URL</button>
       </form>
 
       <form onsubmit="setPassword(event)">
-        <div class="form-row">
-          <label for="pass">Access Password:</label>
-          <input type="password" id="pass" placeholder="password">
-        </div>
-        <p class="note">This password will be required to access the site if the URL is copied/shared.</p>
-        <button id="setPass" class="submit-btn" type="submit">Set Password</button>
-        <button id="delPass" onclick="delPassword()" class="action-btn clear-btn">Delete Password</button>
+        <input type="password" id="pass" placeholder="Password">
+        <button class="submit-btn">Set Password</button>
+        <button type="button" onclick="delPassword()" class="action-btn clear-btn">
+          Remove Password
+        </button>
       </form>
     </section>
 
     <!-- Sort Mode -->
-<section class="setting-group">
-  <h2>Sort Mode</h2>
-  <p class="note">Choose how to order library items and sheets.</p>
-  <div class="theme-buttons-container">
-    <button id="sheetOrderBtn" class="theme-btn">Sheet Order (Default)</button>
-    <button id="alphabeticalBtn" class="theme-btn">Alphabetical Order (A–Z)</button>
-  </div>
-</section>
+    <section class="setting-group">
+      <h2>Sort Mode</h2>
+      <p class="note">Control how content is ordered.</p>
+      <div class="theme-buttons-container">
+        <button id="sheetOrderBtn" class="theme-btn">Default Order</button>
+        <button id="alphabeticalBtn" class="theme-btn">Alphabetical (A–Z)</button>
+      </div>
+    </section>
 
     <div class="return-container">
-  <a href="/index.html" class="return-btn">Return to Main Page</a>
-</div>
-
+      <a href="/index.html" class="return-btn">← Back to Home</a>
+    </div>
   </main>
 
   <!-- Footer -->
   <footer>
-    <a href="/system/pages/sources.html">Sources</a>
-    <a href="/system/pages/contributors.html">Contribute</a>
-    <a href="/system/pages/discord.html">Discord</a>
-    <a href="/system/pages/bugsNfixes.html">Bugs & Fixes</a>
-    <a href="/system/pages/contact.html">Socials</a>
     <a href="/system/pages/version-log.html">Version V0.8</a>
   </footer>
 
   <!-- Scripts -->
-  <script src="/system/js/quotes.js" defer></script>
-  <script src="/system/js/searcherror.js" defer></script>
-  <script src="/system/js/carousel.js" defer></script>
-  <script src="/system/js/commands.js" defer></script>
-  <script src="/system/js/paging.js" defer></script>
   <script src="/system/js/settings.js" defer></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const savedPic = localStorage.getItem("profilePic");
       const pfp = document.getElementById("pfp");
-      if (savedPic && pfp) pfp.src = savedPic;
+      const savedPic = localStorage.getItem("profilePic");
+      if (pfp && savedPic) pfp.src = savedPic;
 
-      const savedTheme = localStorage.getItem("siteTheme");
-      if (savedTheme) {
-      document.body.setAttribute("theme", savedTheme);
-      }
-
-      const dashboardBtn = document.getElementById("dashboardBtn");
-      const dashboardMenu = document.getElementById("dashboardMenu");
-      if (dashboardBtn && dashboardMenu) {
-        dashboardMenu.style.display = "none";
-        dashboardBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const visible = dashboardMenu.style.display === "block";
-          dashboardMenu.style.display = visible ? "none" : "block";
-          dashboardBtn.setAttribute("aria-expanded", !visible);
-        });
-        document.addEventListener("click", (e) => {
-          if (dashboardMenu.style.display === "block" && !dashboardMenu.contains(e.target) && e.target !== dashboardBtn) {
-            dashboardMenu.style.display = "none";
-            dashboardBtn.setAttribute("aria-expanded", "false");
-          }
-        });
-      }
-
-      const preloader = document.getElementById("preloader");
-      if (preloader) setTimeout(() => preloader.style.display = "none", 100);
+      setTimeout(() => {
+        document.getElementById("preloader")?.remove();
+      }, 100);
     });
-
-    // Dummy functions
-    function setCloakCookie(e) { console.log("Tab cloak set!"); }
-    function clearCloak() { console.log("Tab cloak cleared!"); }
-    function setTheme(name) {
-    document.body.setAttribute("theme", name);
-    localStorage.setItem("siteTheme", name);
-    }
-    function customTheme() {
-      const menu = document.getElementById("customThemeMenu");
-      menu.style.display = menu.style.display === "none" ? "block" : "none";
-    }
-    function applyCustomTheme() { console.log("Custom colors applied!"); }
-    function applyBackgroundImage() { console.log("Background image applied!"); }
-    function setPanicMode(e) { console.log("Panic mode URL set!"); }
-    function setPassword(e) { console.log("Access password set!"); }
-    function delPassword() { console.log("Access password deleted!"); }
   </script>
 </body>
 </html>
