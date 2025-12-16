@@ -63,10 +63,14 @@ function applyCustomVarsFromStorage() {
 // ============================================================
 // AUTO-APPLY THEME + CLOAK ON LOAD
 // ============================================================
-(function applyGlobalThemeAndCloak() {
+(async function applyGlobalThemeAndCloak() {
   const savedTheme = localStorage.getItem("selectedTheme") || "classic";
-  document.body.setAttribute("theme", savedTheme);
-  if (savedTheme === "custom") applyCustomVarsFromStorage();
+
+  if (savedTheme === "custom") {
+    applyCustomVarsFromStorage();
+  } else if (typeof applyTheme === "function") {
+    await applyTheme(savedTheme);
+  }
 
   const savedTitle = localStorage.getItem("cloakTitle");
   const savedIcon = localStorage.getItem("cloakIcon");
@@ -75,12 +79,19 @@ function applyCustomVarsFromStorage() {
 })();
 
 // Sync changes across tabs
-window.addEventListener("storage", (e) => {
+window.addEventListener("storage", async (e) => {
   if (e.key === "selectedTheme") {
-    document.body.setAttribute("theme", e.newValue);
-    if (e.newValue === "custom") applyCustomVarsFromStorage();
+    if (e.newValue === "custom") {
+      applyCustomVarsFromStorage();
+    } else if (typeof applyTheme === "function") {
+      await applyTheme(e.newValue);
+    }
   }
-  if (e.key && e.key.startsWith("customTheme")) applyCustomVarsFromStorage();
+
+  if (e.key && e.key.startsWith("customTheme")) {
+    applyCustomVarsFromStorage();
+  }
+
   if (e.key === "cloakTitle" && e.newValue) document.title = e.newValue;
   if (e.key === "cloakIcon" && e.newValue) setFavicon(e.newValue);
 });
@@ -120,11 +131,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
   // THEME CONTROLS
   // ============================================================
-  window.setTheme = function (name) {
-    document.body.setAttribute("theme", name);
+  window.setTheme = async function (name) {
     localStorage.setItem("selectedTheme", name);
-    if (name !== "custom" && customMenu) customMenu.style.display = "none";
-    if (name === "custom") applyCustomVarsFromStorage();
+
+    if (name === "custom") {
+      applyCustomVarsFromStorage();
+    } else if (typeof applyTheme === "function") {
+      await applyTheme(name);
+      if (customMenu) customMenu.style.display = "none";
+    }
+
     showToast(`Theme set to "${name}"`);
   };
 
@@ -220,6 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast("Password cleared!");
   };
 });
+
 // ============================================================
 // SORT MODE TOGGLE (Sheet Order / Alphabetical)
 // ============================================================
@@ -244,7 +261,6 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("sortMode", mode);
     updateSortModeButtons(mode);
     showToast(`Sort mode set to: ${mode === "sheet" ? "Sheet Order" : "Alphabetical"}`);
-    // Notify other pages (like discovery/favorites)
     document.dispatchEvent(new CustomEvent("sortModeChanged", { detail: mode }));
   }
 
