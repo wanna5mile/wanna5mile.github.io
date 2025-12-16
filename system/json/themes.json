@@ -1,0 +1,176 @@
+{
+  "default": {
+    "mainBg": "#d4d4d4",
+    "cardBg": "#d4d4d4",
+    "quoteBg": "#1d201f",
+    "quoteText": "#ffffff",
+    "headerBg": "#111",
+    "footerBg": "#555",
+    "menuBg": "rgba(0, 0, 0, 0.95)",
+    "textColor": "#000",
+    "linkColor": "#fff",
+    "accentColor": "#ff4444",
+    "inputBg": "#f0f0f0",
+    "inputBorder": "#ccc",
+    "inputText": "#333",
+    "inputPlaceholder": "#888",
+    "searchBtnBg": "#333",
+    "statusOkBorder": "#00ff00",
+    "statusFixBorder": "#ff0000",
+    "shadowColor": "rgba(0, 0, 0, 0.3)"
+  },
+
+  "light": {
+    "mainBg": "#f4f4f4",
+    "cardBg": "#ffffff",
+    "highlightBg": "#fffbe6",
+    "quoteBg": "#f1f1f1",
+    "headerBg": "#e0e0e0",
+    "footerBg": "#ccc",
+    "menuBg": "rgba(255, 255, 255, 0.95)",
+    "textColor": "#111",
+    "linkColor": "#222",
+    "accentColor": "#e53935",
+    "inputBg": "#eee",
+    "inputBorder": "#aaa",
+    "inputText": "#111",
+    "inputPlaceholder": "#666",
+    "searchBtnBg": "#555",
+    "statusOkBorder": "#00c853",
+    "statusFixBorder": "#d32f2f",
+    "shadowColor": "rgba(0, 0, 0, 0.15)"
+  },
+
+  "dark": {
+    "mainBg": "#1e1e1e",
+    "cardBg": "#2b2b2b",
+    "highlightBg": "#2f2f2f",
+    "quoteBg": "#292929",
+    "headerBg": "#0d0d0d",
+    "footerBg": "#222",
+    "menuBg": "rgba(0, 0, 0, 0.9)",
+    "textColor": "#f4f4f4",
+    "linkColor": "#f4f4f4",
+    "accentColor": "#00bcd4",
+    "inputBg": "#333",
+    "inputBorder": "#555",
+    "inputText": "#f4f4f4",
+    "inputPlaceholder": "#999",
+    "searchBtnBg": "#1e1e1e",
+    "statusOkBorder": "#00ff88",
+    "statusFixBorder": "#ff5555",
+    "shadowColor": "rgba(0, 0, 0, 0.5)"
+  },
+
+  "classic": {
+    "mainBg": "#d4d4d4",
+    "cardBg": "#d4d4d4",
+    "highlightBg": "#fffbe6",
+    "quoteBg": "#1d201f",
+    "quoteText": "#ffffff",
+    "headerBg": "#111",
+    "footerBg": "#555",
+    "menuBg": "rgba(0, 0, 0, 0.95)",
+    "textColor": "#000",
+    "linkColor": "#fff",
+    "accentColor": "#ff4444",
+    "inputBg": "#f0f0f0",
+    "inputBorder": "#ccc",
+    "inputText": "#333",
+    "inputPlaceholder": "#888",
+    "searchBtnBg": "#333",
+    "statusOkBorder": "#00ff00",
+    "statusFixBorder": "#ff0000",
+    "shadowColor": "rgba(0, 0, 0, 0.3)"
+  },
+
+  "slackerish": {
+    "mainBg": "#131112",
+    "cardBg": "#1b1717",
+    "highlightBg": "#2b2220",
+    "quoteBg": "#1a1818",
+    "headerBg": "#342A21",
+    "footerBg": "#342A21",
+    "menuBg": "rgba(0, 0, 0, 0.95)",
+    "textColor": "#fff",
+    "linkColor": "#ffbcbc",
+    "accentColor": "#ff4444",
+    "inputBg": "#2a2220",
+    "inputBorder": "#5a4740",
+    "inputText": "#f4f4f4",
+    "inputPlaceholder": "#b8b8b8",
+    "searchBtnBg": "#3a2f28",
+    "statusOkBorder": "#00ff00",
+    "statusFixBorder": "#ff0000",
+    "shadowColor": "rgba(0, 0, 0, 0.6)"
+  },
+
+  "redux": {
+    "mainBg": "url(https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/redux-white_bg.png)",
+    "quoteBg": "url(https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_grey_icons.png)",
+    "headerBg": "url(https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_black_icons.png)",
+    "cardBg": "rgba(0,0,0,0)",
+    "quoteText": "#ffffff",
+    "textColor": "#000",
+    "linkColor": "#fff",
+    "accentColor": "#ff4444",
+    "inputBg": "rgba(0,0,0,0)",
+    "inputBorder": "#ccc",
+    "inputText": "#333",
+    "inputPlaceholder": "#888",
+    "searchBtnBg": "rgba(0,0,0,0.5)",
+    "statusOkBorder": "#00ff00",
+    "statusFixBorder": "#ff0000",
+    "shadowColor": "rgba(0,0,0,0.3)"
+  },
+
+  "graduation": {
+    "mainBg": "url(https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/graduation.png)",
+    "quoteBg": "rgba(0,0,0,0)",
+    "headerBg": "rgba(0,0,0,0)",
+    "cardBg": "rgba(0,0,0,0)",
+    "quoteText": "#ffffff",
+    "textColor": "#000",
+    "linkColor": "#fff",
+    "accentColor": "#ff4444",
+    "inputBg": "rgba(0,0,0,0)",
+    "inputBorder": "#ccc",
+    "inputText": "#333",
+    "inputPlaceholder": "#888",
+    "searchBtnBg": "rgba(0,0,0,0.5)",
+    "statusOkBorder": "#00ff00",
+    "statusFixBorder": "#ff0000",
+    "shadowColor": "rgba(0,0,0,0.3)"
+  },
+
+  "flower-boy": {
+    "mainBg": "url(https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/flower-boy_bg.jpeg)",
+    "quoteBg": "rgba(0,0,0,0)",
+    "headerBg": "rgba(0,0,0,0)",
+    "cardBg": "rgba(0,0,0,0)",
+    "quoteText": "#ffffff",
+    "textColor": "#000",
+    "linkColor": "#fff",
+    "accentColor": "#ff4444",
+    "inputBg": "rgba(0,0,0,0)",
+    "inputBorder": "#ccc",
+    "inputText": "#333",
+    "inputPlaceholder": "#888",
+    "searchBtnBg": "rgba(0,0,0,0.5)",
+    "statusOkBorder": "#00ff00",
+    "statusFixBorder": "#ff0000",
+    "shadowColor": "rgba(0,0,0,0.3)"
+  },
+
+  "star-platnium": {
+    "mainBg": "url(https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/star-platnium_bg.jpeg)"
+  },
+
+  "star-world": {
+    "mainBg": "url(https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/the-starly-world_bg.jpeg)"
+  },
+
+  "the-king": {
+    "mainBg": "url(https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/the-king-crimson-card_bg.jpeg)"
+  }
+}
