@@ -1,32 +1,19 @@
 :root {
-  /* === Layout & Containers === */
-  --main-bg: #d4d4d4;
-
-  /* Card background now transparent */
-  --card-bg: #d4d4d4;
-
-  /* Quote box background + NEW text color */
-  --quote-bg: #1d201f;
+  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/redux-white_bg.png");
+  --quote-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_grey_icons.png");
+  --header-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_black_icons.png");
+  --card-bg: rgba(0,0,0,0);
   --quote-text: #fff;
-
-  /* === UI Backgrounds (Header/Footer/Menu) === */
-  --header-bg: #111;
   --footer-bg: #555;
   --menu-bg: rgba(0, 0, 0, 0.95);
-
-  /* === Text & Links === */
   --text-color: #000;
   --link-color: #fff;
   --accent-color: #ff4444;
-
-  /* === Inputs / Search === */
   --input-bg: #f0f0f0;
   --input-border: #ccc;
   --input-text: #333;
   --input-placeholder: #888;
   --search-btn-bg: #333;
-
-  /* === Borders / Shadows === */
   --status-ok-border: #00ff00;
   --status-fix-border: #ff0000;
   --shadow-color: rgba(0, 0, 0, 0.3);
