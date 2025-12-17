@@ -161,7 +161,7 @@ function initPreloader() {
       top: "0",
       left: "0",
       width: "120px",
-      transition: "opacity .4s ease"
+      transition: "opacity .0s ease"
     });
     preloader.appendChild(loaderImg);
     dom.loaderImage = loaderImg;
@@ -180,7 +180,7 @@ function initPreloader() {
       top: "0",
       left: "0",
       width: "120px",
-      transition: "opacity .4s ease"
+      transition: "opacity .0s ease"
     });
     loaderImg.parentElement.appendChild(loadedImg);
     dom.loadedImage = loadedImg;
@@ -351,7 +351,8 @@ function initPreloader() {
         Object.assign(o.style, {
           position: "absolute",
           top: "0",
-          left: "0",
+         // 40982BLZTYX
+          left: "20px",
           width: "100%",
           height: "100%",
           objectFit: "cover",
