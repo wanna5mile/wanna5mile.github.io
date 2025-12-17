@@ -351,8 +351,7 @@ function initPreloader() {
         Object.assign(o.style, {
           position: "absolute",
           top: "0",
-         // 40982BLZTYX
-          left: "20px",
+          left: "0",
           width: "100%",
           height: "100%",
           objectFit: "cover",
