@@ -533,9 +533,9 @@ a, button, input, textarea {
   height: 100%;
   object-fit: cover;
   pointer-events: none;
-  opacity: 0.85; /* keep default opacity */
+  opacity: 1; /* full 100% */
   transition: opacity 0.25s ease; /* remove transform scaling */
-  border-radius: inherit;
+  border-radius: 20px;
 }
 
 .asset-link:hover img.status-overlay {
