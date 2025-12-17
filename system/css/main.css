@@ -24,8 +24,6 @@ html, body {
   background-image: var(--main-bg);
   background-repeat: no-repeat;
   background-position: top center;
-
-  /* THIS IS THE MAGIC */
   background-size: 1365px auto;
 }
 
