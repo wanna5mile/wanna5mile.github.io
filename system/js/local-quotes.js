@@ -1,12 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const wrapper = document.getElementById("quoteWrapper");
   const box = document.getElementById("quoteBox");
-
-  const jsonPath =
-    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/json/quotes.json";
-
-  const STICKER_BASE =
-    "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/stickers/";
+  const jsonPath = "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/json/quotes.json";
 
   let quotes = [];
   let pos = 0;
@@ -39,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (ext) {
           return `
             <img
-              src="${STICKER_BASE}${path}"
+              src="https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/stickers/${path}"
               class="quote-sticker"
               alt="${path}"
               loading="lazy"
@@ -50,11 +45,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // No extension → png fallback to gif
         return `
           <img
-            src="${STICKER_BASE}${path}.png"
+            src="https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/stickers/${path}.png"
             class="quote-sticker"
             alt="${path}"
             loading="lazy"
-            onerror="this.onerror=null;this.src='${STICKER_BASE}${path}.gif';"
+            onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/stickers/${path}.gif';"
           >
         `;
       }
