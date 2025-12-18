@@ -1,7 +1,7 @@
 :root {
-  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/themeify/main/redux/Redux-mainbg.png");
-  --quote-bg: url("https://raw.githubusercontent.com/wanna5mile/themeify/main/redux/Redux-quotebg.png");
-  --header-bg: url("https://raw.githubusercontent.com/wanna5mile/themeify/main/redux/Redux-headerbg.png");
+  --main-bg: url("https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/Redux-mainbg.png");
+  --quote-bg: url("https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/Redux-quotebg.png");
+  --header-bg: url("https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/Redux-headerbg.png");
   --card-bg: rgba(0,0,0,0);
   --quote-text: #fff;
   --footer-bg: #555;
@@ -128,9 +128,9 @@ body[theme="slackerish"] {
    REDUX THEME — Image-Only
    ========================================== */
 body[theme="redux"] {
-  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/redux-white_bg.png");
-  --quote-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_grey_icons.png");
-  --header-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/background_black_icons.png");
+  --main-bg: url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/redux-white_bg.png");
+  --quote-bg: url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/background_grey_icons.png");
+  --header-bg: url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/background_black_icons.png");
   --card-bg: rgba(0,0,0,0);
   --quote-text: #fff;
   --footer-bg: #555;
@@ -153,7 +153,7 @@ body[theme="redux"] {
    Graduation THEME
    ========================================== */
 body[theme="graduation"] {
-  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/graduation.png");
+  --main-bg: url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/graduation.png");
   --quote-bg: rgba(0,0,0,0);
   --header-bg: rgba(0,0,0,0);
   --card-bg: rgba(0,0,0,0);
@@ -175,7 +175,7 @@ body[theme="graduation"] {
    flower boy THEME
    ========================================== */
 body[theme="flower-boy"] {
-  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/flower-boy_bg.jpeg");
+  --main-bg: url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/flower-boy_bg.jpeg");
   --quote-bg: rgba(0,0,0,0);
   --header-bg: rgba(0,0,0,0);
   --card-bg: rgba(0,0,0,0);
@@ -197,7 +197,7 @@ body[theme="flower-boy"] {
    STAR PLATNIUM THEME
    ========================================== */
 body[theme="star-platnium"] {
-  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/star-platnium_bg.jpeg");
+  --main-bg: url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/star-platnium_bg.jpeg");
   --quote-bg: rgba(0,0,0,0);
   --header-bg: rgba(0,0,0,0);
   --card-bg: rgba(0,0,0,0);
@@ -219,7 +219,7 @@ body[theme="star-platnium"] {
    Star Platnium vs The World THEME
    ========================================== */
 body[theme="star-world"] {
-  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/the-starly-world_bg.jpeg");
+  --main-bg: url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/the-starly-world_bg.jpeg");
   --quote-bg: rgba(0,0,0,0);
   --header-bg: rgba(0,0,0,0);
   --card-bg: rgba(0,0,0,0);
@@ -241,7 +241,7 @@ body[theme="star-world"] {
    THE KING THEME
    ========================================== */
 body[theme="the-king"] {
-  --main-bg: url("https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/backgrounds/the-king-crimson-card_bg.jpeg");
+  --main-bg: url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/the-king-crimson-card_bg.jpeg");
   --quote-bg: rgba(0,0,0,0);
   --header-bg: rgba(0,0,0,0);
   --card-bg: rgba(0,0,0,0);
