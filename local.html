@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WannaSmile | Home</title>
+
+  <link id="favicon" rel="icon"
+    href="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/favicons/logo.png" />
+
+  <meta name="author" content="WannaSmile by Rhap5ody" />
+  <meta name="keywords" content="github, repository, source, library" />
+
+  <!-- Styles (jsDelivr) -->
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/css/themes.css" />
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/css/main.css" />
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/css/loading-screen.css" />
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/css/commands.css" />
+
+  <!-- Preload loader GIFs -->
+  <link rel="preload" as="image"
+    href="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif">
+  <link rel="preload" as="image"
+    href="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif">
+  <link rel="preload" as="image"
+    href="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-load.gif">
+  <link rel="preload" as="image"
+    href="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-loaded.gif">
+
+  <!-- Discord Widget -->
+  <script async defer src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3"></script>
+  <script>
+    window.addEventListener("load", () => {
+      if (typeof Crate !== "undefined") {
+        new Crate({
+          server: '1273329263923302430',
+          channel: '1329289920845713471'
+        });
+      }
+    });
+  </script>
+
+  <!-- Social Meta -->
+  <meta property="og:title" content="WannaSmile" />
+  <meta property="og:description" content="Welcome to WannaSmile — a library full of content! Enjoy it in your free time." />
+  <meta property="og:image" content="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/meta/images/11.png" />
+  <meta property="og:url" content="https://vvannasmile.github.io/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WannaSmile.github.io" />
+  <meta name="twitter:card" content="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/meta/images/11.png" />
+  <meta name="twitter:title" content="WannaSmile" />
+  <meta name="twitter:description" content="A fun, content-filled library for your freetime." />
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/meta/images/11.png" />
+</head>
+
+<body>
+
+<!-- ================= PRELOADER ================= -->
+<div id="preloader" class="preloader">
+  <div id="loader-gif">
+    <img id="loaderImage" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
+    <img id="loadedImage" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" style="opacity:0;">
+  </div>
+  <div class="load-progress-bar">
+    <div id="progressBar" class="load-progress-fill"></div>
+  </div>
+  <div id="loaderText" class="loading-text">Loading...</div>
+</div>
+
+<!-- ================= HEADER ================= -->
+<div id="topBar">
+  <header>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="favorites.html">Favorites</a>
+      <a href="system/pages/discovery.html">Discovery</a>
+      <a href="system/pages/settings.html">Settings</a>
+      <a href="system/pages/support.html">Support</a>
+      <a href="info.html">Info</a>
+      <div class="pages-anchor">
+        <button class="arrowleft" onclick="prevPage()">
+          <img src="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/icons/left.png">
+        </button>
+        <span class="page-indicator">...</span>
+        <button class="arrowright" onclick="nextPage()">
+          <img src="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/icons/right.png">
+        </button>
+      </div>
+    </nav>
+
+    <div class="header-controls">
+      <div class="search-box">
+        <input id="searchInputHeader" type="text" placeholder="Search ϱames..." />
+        <button id="searchBtnHeader">
+          <img src="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/icons/search.png">
+        </button>
+      </div>
+      <a href="system/pages/profile.html">
+        <img id="pfp" src="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/icons/profile.png">
+      </a>
+      <button id="dashboardBtn">
+        <img src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/icons/dashboard.png">
+      </button>
+    </div>
+  </header>
+
+  <div id="quoteWrapper">
+    <p id="quoteBox">Loading...</p>
+  </div>
+</div>
+
+<!-- ================= SIDEBAR ================= -->
+<aside id="dashboardMenu" class="dashboard-menu">
+  <p>pages</p>
+  <a href="https://bguhm.github.io/music-player.html">Music Player</a>
+  <a href="system/pages/settings-themes.html">Themes</a>
+  <a href="system/pages/credits.html">Credits</a>
+
+  <p>dev tools</p>
+  <a href="system/pages/devtools/rawfetch.html">raw image link fetcher</a>
+  <a href="system/pages/devtools/textflip.html">text flip/mirror</a>
+
+  <p>other</p>
+  <a href="system/pages/alt.html">Alternative Links</a>
+</aside>
+
+<main>
+  <div id="container">Loading assets...</div>
+</main>
+
+<button id="toTopBtn">⬆ Top</button>
+
+<footer>
+  <a href="system/pages/sources.html">Sources</a>
+  <a href="system/pages/contributors.html">Contribute</a>
+  <a href="system/pages/discord.html">Discord</a>
+  <a href="system/pages/bugsNfixes.html">Bugs & Fixes</a>
+  <a href="system/pages/contact.html">Socials</a>
+  <a href="system/archive/index.html">archived versions</a>
+  <a href="system/pages/update-logs.html" id="footerVersion">Version loading...</a>
+</footer>
+
+<!-- ================= JS (jsDelivr) ================= -->
+<script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/settings.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/commands.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/main.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/searcherror.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/index.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/version.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/all.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/quotes.js"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/top.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/pages.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/backgrounds.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/js/scroll.js" defer></script>
+
+</body>
+</html>
