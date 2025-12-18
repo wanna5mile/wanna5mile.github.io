@@ -3,10 +3,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const box = document.getElementById("quoteBox");
 
   const jsonPath =
-    "https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/json/quotes.json";
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/json/quotes.json";
 
   const STICKER_BASE =
-    "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/stickers/";
+    "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/stickers/";
 
   let quotes = [];
   let pos = 0;
