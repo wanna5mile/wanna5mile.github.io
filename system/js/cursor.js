@@ -9,7 +9,7 @@
   "use strict";
 
   // === CONFIG ===
-  const CURSOR_PATH = "system/images/cursor/white/";
+  const CURSOR_PATH = "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/cursor/white/";
   const CURSORS = {
     normal: {
       cursor: "normal_cursor.png",
@@ -41,10 +41,17 @@
   const isDesktop = !/Android|iPhone|iPad|iPod|webOS|BlackBerry|Windows Phone/i.test(navigator.userAgent);
   if (!isDesktop) return;
 
-  // === HIDE NATIVE CURSOR SAFELY ===
+  // === HIDE NATIVE CURSOR & REMOVE WHITESPACE ===
   const style = document.createElement("style");
   style.textContent = `
-    html, body { cursor: none !important; }
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100%;
+      height: 100%;
+      overflow: hidden !important;
+      cursor: none !important;
+    }
     input, textarea { caret-color: transparent !important; }
     ::-webkit-scrollbar,
     ::-webkit-scrollbar-thumb,
