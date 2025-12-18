@@ -1,7 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
   const wrapper = document.getElementById("quoteWrapper");
   const box = document.getElementById("quoteBox");
-  const jsonPath = "https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/json/quotes.json";
+
+  const jsonPath =
+    "https://cdn.jsdelivr.net/gh/wanna5mile/wanna5mile.github.io@main/system/json/quotes.json";
+
+  const STICKER_BASE =
+    "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/stickers/";
 
   let quotes = [];
   let pos = 0;
@@ -34,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (ext) {
           return `
             <img
-              src="../system/images/stickers/${path}"
+              src="${STICKER_BASE}${path}"
               class="quote-sticker"
               alt="${path}"
               loading="lazy"
@@ -45,11 +50,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // No extension → png fallback to gif
         return `
           <img
-            src="../system/images/stickers/${path}.png"
+            src="${STICKER_BASE}${path}.png"
             class="quote-sticker"
             alt="${path}"
             loading="lazy"
-            onerror="this.onerror=null;this.src='../system/images/stickers/${path}.gif';"
+            onerror="this.onerror=null;this.src='${STICKER_BASE}${path}.gif';"
           >
         `;
       }
