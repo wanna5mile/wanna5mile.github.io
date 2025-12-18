@@ -64,16 +64,16 @@
 
     window.config = {
       fallbackImage:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/404_blank.png",
-      fallbackLink: "https://wanna5mile.github.io./source/dino/",
+        "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/404_blank.png",
+      fallbackLink: "https://01110010-00110101.github.io./source/dino/",
       gifBase:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/",
+        "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/",
       sheetUrl:
         "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec",
       updateTrailerSrc: "",
       updateLink: "system/pages/version-log.html",
       quotesJson:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/json/quotes.json",
+        "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/json/quotes.json",
     };
   }
 
@@ -110,32 +110,32 @@ function initPreloader() {
   // ======= Editable GIF Paths =======
   const gifConfig = {
     default: {
-      loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
-      loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif",
+      loading: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loading.gif",
+      loaded: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loaded.gif",
       delay: 1100
     },
     themes: {
       light: {
-        loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
-        loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif",
+        loading: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loading.gif",
+        loaded: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loaded.gif",
         delay: 1100
       },
       dark: {
-        loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
-        loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif",
+        loading: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loading.gif",
+        loaded: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loaded.gif",
         delay: 1100
       },
       classic: {
-        loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif",
-        loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif",
+        loading: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loading.gif",
+        loaded: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loaded.gif",
         delay: 1100
       },
       slackerish: {
-        loading: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-load.gif",
-        loaded: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-loaded.gif",
-        crash: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-crash.gif",
-        dead: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-dead.gif",
-        searching: "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-searching.gif",
+        loading: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/slackerish-load.gif",
+        loaded: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/slackerish-loaded.gif",
+        crash: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/slackerish-crash.gif",
+        dead: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/slackerish-dead.gif",
+        searching: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/slackerish-searching.gif",
         delay: 1300
       }
       // Add more theme replacements here
@@ -280,13 +280,13 @@ function initPreloader() {
 
     const badgeMap = {
       featured:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/featured-cover.png",
+        "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/featured-cover.png",
       new:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/new-cover.png",
+        "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/new-cover.png",
       fixed:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixed-cover.png",
+        "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/fixed-cover.png",
       fix:
-        "https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/fixing.png",
+        "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/fixing.png",
     };
 
     for (const asset of sorted) {
