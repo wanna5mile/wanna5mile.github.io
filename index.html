@@ -12,6 +12,20 @@
   <link rel="stylesheet" href="system/css/main.css" />
   <link rel="stylesheet" href="system/css/loading-screen.css" />
   <link rel="stylesheet" href="system/css/commands.css" />
+  
+<!-- Preload loader GIFs -->
+<link rel="preload" as="image"
+      href="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loading.gif">
+
+<link rel="preload" as="image"
+      href="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/loaded.gif">
+
+<!-- Slackerish theme -->
+<link rel="preload" as="image"
+      href="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-load.gif">
+
+<link rel="preload" as="image"
+      href="https://raw.githubusercontent.com/wanna5mile/wanna5mile.github.io/main/system/images/GIF/slackerish-loaded.gif">
 
   <!-- Discord Widget -->
   <script async defer src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3"></script>
@@ -42,10 +56,19 @@
   <!-- Preloader -->
 <div id="preloader" class="preloader">
 
-  <div id="loader-gif">
-    <img id="loaderImage" alt="Loading animation">
-    <img id="loadedImage" alt="Loaded animation" style="opacity:0;">
-  </div>
+<div id="loader-gif">
+  <img
+    id="loaderImage"
+    src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+    alt="Loading animation"
+  >
+  <img
+    id="loadedImage"
+    src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+    alt="Loaded animation"
+    style="opacity:0;"
+  >
+</div>
 
   <div class="load-progress-bar">
     <div id="progressBar" class="load-progress-fill"></div>
