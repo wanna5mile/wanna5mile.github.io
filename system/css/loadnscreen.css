@@ -136,4 +136,16 @@ body[theme] {
     }
 
 
+#loaderImage,
+#loadedImage {
+  position: absolute;
+  width: 300px;
+  height: auto;
+  image-rendering: pixelated;
+  display: none !important;
+  opacity: 0 !important;   /* always invisible */
+  visibility: hidden;      /* cannot be shown */
+  pointer-events: none;    /* no interaction */
+  transition: none;        /* no fading ever */
+}
 
