@@ -116,23 +116,23 @@ function initPreloader() {
     },
     themes: {
       light: {
-        loading: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loading.gif",
-        loaded: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loaded.gif",
+        loading: "https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/blankgif.png",
+        loaded: "https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/blankgif.png",
         delay: 1100
       },
       dark: {
-        loading: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loading.gif",
-        loaded: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loaded.gif",
+        loading: "https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/blankgif.png",
+        loaded: "https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/blankgif.png",
         delay: 1100
       },
       classic: {
-        loading: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loading.gif",
-        loaded: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loaded.gif",
+        loading: "https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/blankgif.png",
+        loaded: "https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/blankgif.png",
         delay: 1100
       },
       slackerish: {
-        loading: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/slackerish-load.gif",
-        loaded: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/slackerish-loaded.gif",
+        loading: "https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/blankgif.png",
+        loaded: "https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/blankgif.png",
         crash: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/slackerish-crash.gif",
         dead: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/slackerish-dead.gif",
         searching: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/slackerish-searching.gif",
