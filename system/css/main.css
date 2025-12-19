@@ -626,16 +626,6 @@ a, button, input, textarea {
   pointer-events: auto !important;
 }
 
-/* Keep original GIF scaling */
-#loaderImage {
-  opacity: 1;
-}
-
-/* Loaded GIF starts invisible */
-#loadedImage {
-  opacity: 0;
-}
-
 html {
   height: 100%;
 }
