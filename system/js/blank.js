@@ -2,27 +2,22 @@
 
   let patterns = [];
 
-  // IMPORTANT: use absolute path for GitHub Pages
-  fetch("https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/json/blank.json")
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
+  fetch("/system/json/blank.json")
+    .then(r => {
+      if (!r.ok) throw new Error("Failed to load JSON");
+      return r.json();
     })
     .then(data => {
       if (!Array.isArray(data.patterns)) {
-        throw new Error("Invalid JSON format: patterns missing");
+        throw new Error("patterns missing in JSON");
       }
 
       patterns = data.patterns;
-      console.log("Loaded patterns:", patterns);
+      console.log("Patterns loaded:", patterns);
 
-      init(); // start logic only after patterns load
+      init(); // only start AFTER patterns exist
     })
-    .catch(error => {
-      console.error("Failed to load blank.json:", error);
-    });
+    .catch(err => console.error(err));
 
   function init() {
 
@@ -43,11 +38,10 @@
 
     async function openProject(url) {
       const win = window.open("about:blank");
-
       const title = await fetchPageTitle(url);
 
       win.document.write(`
-        <!DOCTYPE html>
+        <!doctype html>
         <html>
         <head>
           <title>${title}</title>
@@ -55,8 +49,7 @@
             body { margin:0; overflow:hidden; background:black; }
             embed {
               position:absolute;
-              top:0;
-              left:0;
+              inset:0;
               width:100vw;
               height:100vh;
               border:none;
@@ -74,7 +67,7 @@
 
     document.addEventListener("click", e => {
       const a = e.target.closest("a");
-      if (!a || !a.href) return;
+      if (!a?.href) return;
 
       if (matchesProject(a.href)) {
         e.preventDefault();
