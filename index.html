@@ -97,7 +97,7 @@
         </button>
       </div>
 <a href="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/pages/profile.html">
-        <img id="pfp" src="https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/icons/profile.png">
+<img id="pfp" src="https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/icons/profile.png">
       </a>
       <button id="dashboardBtn">
         <img src="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/icons/dashboard.png">
@@ -141,6 +141,33 @@
   <a href="system/pages/update-logs.html" id="footerVersion">Version loading...</a>
 </footer>
 
+<script>
+  // List of image URLs via jsDelivr
+  const images = [
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/bleh.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/catcher.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/clown.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/clowninabox.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/dream.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/eye.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/eyes.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/glitched.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/me.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/purpleu.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/sleeppy.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/smile.png",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/starry.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/starwalk.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/yum.jpeg"
+  ];
+
+  // Pick a random image
+  const randomImage = images[Math.floor(Math.random() * images.length)];
+
+  // Set the image src
+  document.getElementById("pfp").src = randomImage;
+</script>
+  
 <!-- ================= JS (jsDelivr) ================= -->
 <script src="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/js/settings.js" defer></script>
 <script src="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/js/commands.js" defer></script>
