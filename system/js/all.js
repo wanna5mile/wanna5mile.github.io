@@ -156,7 +156,7 @@ function initPreloader() {
     loaderImg.id = "loaderImage";
     loaderImg.alt = "Loading animation";
     Object.assign(loaderImg.style, {
-      opacity: "1",
+      opacity: "0",
       position: "absolute",
       top: "0",
       left: "0",
@@ -189,7 +189,7 @@ function initPreloader() {
 
   // ======= Show preloader =======
   preloader.style.display = "flex";
-  preloader.style.opacity = "1";
+  preloader.style.opacity = "0";
   preloader.dataset.hidden = "false";
 
   // ======= Progress bar & text =======
@@ -242,7 +242,7 @@ function initPreloader() {
   // ======= UPDATED: Theme-aware loaded animation delay =======
   window.showLoadedState = async (gifDelay = Number(preloader.dataset.gifDelay) || 1000) => {
     if (dom.loaderImage) dom.loaderImage.style.opacity = "0";
-    if (dom.loadedImage) dom.loadedImage.style.opacity = "1";
+    if (dom.loadedImage) dom.loadedImage.style.opacity = "0";
     await delay(gifDelay);
   };
 
