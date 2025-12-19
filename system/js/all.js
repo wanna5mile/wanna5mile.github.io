@@ -110,9 +110,9 @@ function initPreloader() {
   // ======= Editable GIF Paths =======
   const gifConfig = {
     default: {
-      loading: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loading.gif",
-      loaded: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/loaded.gif",
-      delay: 1100
+      loading: "https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/blankgif.png",
+      loaded: "https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/blankgif.png",
+      delay: 1225
     },
     themes: {
       light: {
