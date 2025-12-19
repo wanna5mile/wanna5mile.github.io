@@ -1,33 +1,108 @@
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
 
-    :root {
-      --preloader-bg: #000;
-      --preloader-text-color: #fff;
-    }
+/* ==============================================
+   GLOBAL PRELOADER VARIABLES
+   ============================================== */
+:root {
+  background: url("https://raw.githubusercontent.com/01110010-00110101/themeify/main/loading/v078xmasfixed.png");
+  --preloader-text-color: #fff;
+}
 
-    body[theme] {
-      --preloader-bg: url("https://raw.githubusercontent.com/01110010-00110101/themeify/main/loading/v078xmasfixed.png");
-      --preloader-text-color: #fff;
-    }
+/* Force black bg no matter the theme */
+body[theme] {
+  background: url("https://raw.githubusercontent.com/01110010-00110101/themeify/main/loading/v078xmasfixed.png");
+  --preloader-text-color: #fff;
+}
 
-    /* =========================================
-       PRELOADER
-       ========================================= */
-    .preloader {
-      position: fixed;
-      inset: 0;
-      background: var(--preloader-bg) center / cover no-repeat;
-      z-index: 999999;
-      opacity: 1;
-      transition: opacity 0.6s ease;
-    }
+/* =================================================
+   PRELOADER OVERLAY
+   ================================================= */
+.preloader {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+
+  background: url("https://raw.githubusercontent.com/01110010-00110101/themeify/main/loading/v078xmasfixed.png");
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+
+  z-index: 999999;
+  opacity: 1;
+  pointer-events: all;
+  transition: opacity 0.6s ease;
+}
+
+/* =================================================
+   GIF stack — now in normal flow (NO fixed/absolute)
+   ================================================= */
+#loader-gif {
+  width: 300px;
+  height: 300px;
+
+  position: relative;  /* allows the GIFs to stack */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#loaderImage,
+#loadedImage {
+  position: absolute;      /* stacked directly */
+  width: 300px;
+  height: auto;
+  image-rendering: pixelated;
+  transition: opacity 0.4s ease;
+}
+
+/* =================================================
+   TEXT BELOW GIF
+   ================================================= */
+.loading-text {
+  color: #000;            /* invisible on black bg */
+  font-size: 0.05rem;
+  text-align: center;
+}
+
+/* percentage counter */
+#counter {
+  color: var(--preloader-text-color);
+  margin-top: -4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* =================================================
+   PROGRESS BAR
+   ================================================= */
+.load-progress-bar {
+  width: 500px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.load-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: #fff;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
 
     /* percentage (top-left) */
     #counter {
@@ -60,7 +135,5 @@
       transition: width 0.3s ease;
     }
 
-    .preloader.fade {
-      opacity: 0;
-      pointer-events: none;
-    }
+
+
