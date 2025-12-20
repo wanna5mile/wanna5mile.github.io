@@ -1,81 +1,82 @@
 /* ===============================
-   PHYSICS PAGE CONTROLLER
+   WannaSmile Page Physics Input
+   SAFE FOR all.js
    =============================== */
 
-// ---- CONFIG ----
-const PAGE_ACCEL = 0.9;     // how fast momentum builds
-const PAGE_FRICTION = 0.85; // how fast it slows
-const PAGE_THRESHOLD = 1;   // velocity needed to flip page
-const TAP_COOLDOWN = 300;   // ms (~0.3s)
+(() => {
+  "use strict";
 
-// ---- STATE ----
-let pageVelocity = 0;
-let lastFlipTime = 0;
+  // ---- CONFIG ----
+  const PAGE_ACCEL = 0.9;
+  const PAGE_FRICTION = 0.85;
+  const PAGE_THRESHOLD = 1;
+  const TAP_COOLDOWN = 300;
 
-const keys = {
-  left: false,
-  right: false
-};
+  // ---- STATE ----
+  let velocity = 0;
+  let lastFlip = 0;
 
-// ---- SAFE PAGE FLIP ----
-function canFlip() {
-  return performance.now() - lastFlipTime > TAP_COOLDOWN;
-}
+  const keys = {
+    left: false,
+    right: false
+  };
 
-function flipNext() {
-  if (!canFlip()) return;
-  lastFlipTime = performance.now();
-  nextPage();
-}
-
-function flipPrev() {
-  if (!canFlip()) return;
-  lastFlipTime = performance.now();
-  prevPage();
-}
-
-// ---- KEY INPUT ----
-document.addEventListener("keydown", e => {
-  if (e.key === "ArrowRight") keys.right = true;
-  if (e.key === "ArrowLeft") keys.left = true;
-
-  // tap = immediate flip
-  if (e.repeat) return;
-
-  if (e.key === "ArrowRight") flipNext();
-  if (e.key === "ArrowLeft") flipPrev();
-});
-
-document.addEventListener("keyup", e => {
-  if (e.key === "ArrowRight") keys.right = false;
-  if (e.key === "ArrowLeft") keys.left = false;
-});
-
-// ---- PHYSICS LOOP ----
-function pagePhysicsLoop() {
-  // acceleration
-  if (keys.right) pageVelocity += PAGE_ACCEL;
-  if (keys.left) pageVelocity -= PAGE_ACCEL;
-
-  // friction
-  pageVelocity *= PAGE_FRICTION;
-
-  // flip pages if momentum is strong enough
-  if (pageVelocity > PAGE_THRESHOLD && canFlip()) {
-    flipNext();
-    pageVelocity = 0;
+  // ---- SAFETY CHECK ----
+  function canFlip() {
+    return typeof window.nextPage === "function"
+        && typeof window.prevPage === "function"
+        && performance.now() - lastFlip > TAP_COOLDOWN;
   }
 
-  if (pageVelocity < -PAGE_THRESHOLD && canFlip()) {
-    flipPrev();
-    pageVelocity = 0;
+  function flipNext() {
+    if (!canFlip()) return;
+    lastFlip = performance.now();
+    window.nextPage();
   }
 
-  // kill micro jitter
-  if (Math.abs(pageVelocity) < 0.01) pageVelocity = 0;
+  function flipPrev() {
+    if (!canFlip()) return;
+    lastFlip = performance.now();
+    window.prevPage();
+  }
 
-  requestAnimationFrame(pagePhysicsLoop);
-}
+  // ---- INPUT ----
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight") keys.right = true;
+    if (e.key === "ArrowLeft") keys.left = true;
 
-// ---- START ----
-pagePhysicsLoop();
+    if (e.repeat) return;
+
+    if (e.key === "ArrowRight") flipNext();
+    if (e.key === "ArrowLeft") flipPrev();
+  });
+
+  document.addEventListener("keyup", e => {
+    if (e.key === "ArrowRight") keys.right = false;
+    if (e.key === "ArrowLeft") keys.left = false;
+  });
+
+  // ---- PHYSICS LOOP ----
+  function loop() {
+    if (keys.right) velocity += PAGE_ACCEL;
+    if (keys.left) velocity -= PAGE_ACCEL;
+
+    velocity *= PAGE_FRICTION;
+
+    if (velocity > PAGE_THRESHOLD) {
+      flipNext();
+      velocity = 0;
+    }
+
+    if (velocity < -PAGE_THRESHOLD) {
+      flipPrev();
+      velocity = 0;
+    }
+
+    if (Math.abs(velocity) < 0.01) velocity = 0;
+
+    requestAnimationFrame(loop);
+  }
+
+  loop();
+})();
