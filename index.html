@@ -273,47 +273,40 @@
 })();
 </script>
 
-<script defer>
-const baseLink = "https://drive.google.com/uc?export=download&id=";
+<audio id="bgm" autoplay muted></audio>
 
-const musicTracks = [
-    baseLink + "1MmAvDKIG9Me_5X6x-FIM6PQ7lEJarc6t",
-    baseLink + "1yTmJqBZn4OS0wtJzPb22eqSaOnboapGW",
-    baseLink + "1m4kTL_PhwJioVJ-LSDh7dZHdkJI88so2",
-    baseLink + "1su6qUUI4cjvEljyom3C5lEnE5OR97P3j",
-    baseLink + "1Aqj-CloP74IIb4h1IxagWaVz6lmLxdPJ"
+<script>
+const tracks = [
+    "bgm1.mp3",
+    "bgm2.mp3",
+    "bgm3.mp3",
+    "bgm4.mp3",
+    "bgm5.mp3"
 ];
 
-// Create audio element
-const audio = document.createElement("audio");
-audio.volume = 0.2;
-audio.muted = true;
-audio.autoplay = true;
+const bgm = document.getElementById("bgm");
+bgm.volume = 0.2;
 
 // Pick & play random track
 function playRandomTrack() {
-    const randomIndex = Math.floor(Math.random() * musicTracks.length);
-    audio.src = musicTracks[randomIndex];
-    audio.play().catch(() => {});
+    const randomIndex = Math.floor(Math.random() * tracks.length);
+    bgm.src = tracks[randomIndex];
+    bgm.play().catch(() => {});
 }
 
-// Loop forever
-audio.addEventListener("ended", playRandomTrack);
+// When a track ends, play another
+bgm.addEventListener("ended", playRandomTrack);
 
 // Start muted autoplay
 playRandomTrack();
 
-// Unmute + ensure play on first interaction
-function unlockAudio() {
-    audio.muted = false;
-    audio.play().catch(e => console.log("Playback blocked:", e));
-    window.removeEventListener("click", unlockAudio);
-    window.removeEventListener("keydown", unlockAudio);
-}
-
-window.addEventListener("click", unlockAudio, { once: true });
-window.addEventListener("keydown", unlockAudio, { once: true });
+// Guaranteed unmute + play on first click
+window.addEventListener("click", () => {
+    bgm.muted = false;
+    bgm.play().catch(e => console.log("Playback blocked:", e));
+}, { once: true });
 </script>
+
 
 </body>
 </html>
