@@ -5,142 +5,132 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WannaSmile | Discovery</title>
 
-  <link id="favicon" rel="icon" href="https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/favicons/logo.png" />  
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/css/main.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/css/themes.css" />
+  <link rel="icon"
+    href="https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/favicons/logo.png" />
 
+  <!-- Global styles -->
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/css/themes.css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/css/main.css">
+
+  <!-- Discovery-only styles (SCOPED) -->
   <style>
-    body {
-      color: #fff;
-      font-family: 'Segoe UI', sans-serif;
+    #discoveryPage {
+      padding: 2rem;
       text-align: center;
-      margin: 0;
     }
-    main { padding: 2rem; }
-    h1 {
-      font-size: 2em;
-      margin-bottom: 1em;
-      transition: color 0.3s, text-decoration-color 0.3s;
+
+    #discoveryPage h1 {
+      font-size: 2rem;
+      margin-bottom: 1.2rem;
+      transition: color .3s;
     }
-    h1:hover {
+
+    #discoveryPage h1:hover {
       color: #ff3b3b;
-      text-decoration: underline;
-      text-decoration-color: #ff3b3b;
     }
-    .search-box {
+
+    #discoveryPage .category-buttons {
       display: flex;
       justify-content: center;
-      align-items: center;
-      gap: 0.5rem;
-      margin: 0 auto 1.5rem;
-      max-width: 400px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 10px;
-      padding: 0.4rem 0.6rem;
-    }
-    .search-box input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: #fff;
-      font-size: 1rem;
-      outline: none;
-    }
-    .search-box button {
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
-    .search-box img {
-      width: 22px;
-      height: 22px;
-      filter: invert(1);
-    }
-    .category-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 2rem;
       flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 1.5rem 0 2rem;
     }
-    .category-buttons button {
+
+    #discoveryPage .category-buttons button {
       background: #222;
       color: #fff;
       border: none;
       border-radius: 8px;
-      padding: 0.6em 1.2em;
+      padding: 0.5em 1.1em;
       cursor: pointer;
-      font-size: 1rem;
-      transition: background 0.3s, transform 0.2s;
+      font-size: .95rem;
+      transition: background .25s, transform .2s;
     }
-    .category-buttons button:hover {
+
+    #discoveryPage .category-buttons button:hover {
       background: #444;
       transform: scale(1.05);
     }
-    .assets-grid {
+
+    #discoveryPage .assets-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 1rem;
-      margin-top: 1em;
+      margin-top: 1rem;
     }
-    .asset-card {
-      background: rgba(255,255,255,0.05);
-      border-radius: 10px;
-      padding: 0.5em;
-      text-align: center;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    #discoveryPage .asset-card {
+      background: rgba(255,255,255,.05);
+      border-radius: 12px;
+      padding: .5rem;
+      transition: transform .2s, box-shadow .2s;
     }
-    .asset-card:hover {
+
+    #discoveryPage .asset-card:hover {
       transform: scale(1.04);
-      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+      box-shadow: 0 0 12px rgba(255,255,255,.18);
     }
-    .asset-card img {
+
+    #discoveryPage .asset-card img {
       width: 100%;
       height: 120px;
       object-fit: cover;
       border-radius: 8px;
       background: #111;
     }
-    .asset-card h4 {
-      margin: 0.4em 0 0.2em;
-      font-size: 1em;
+
+    #discoveryPage .asset-card h4 {
+      margin: .45rem 0 .2rem;
+      font-size: 1rem;
     }
-    .asset-card p {
+
+    #discoveryPage .asset-card p {
       margin: 0;
-      font-size: 0.85em;
+      font-size: .85rem;
       color: #bbb;
     }
-    .soon {
-      opacity: 0.6;
+
+    #discoveryPage .soon {
+      opacity: .6;
       pointer-events: none;
     }
   </style>
 </head>
+
 <body>
 
 <header>
   <nav class="nav-links">
-    <a href="https://wanna5mile.github.io./">Home</a>
-    <a href="https://wanna5mile.github.io./favorites.html">Favorites</a>
+    <a href="index.html">Home</a>
+    <a href="favorites.html">Favorites</a>
     <a href="discovery.html" class="active">Discovery</a>
     <a href="settings.html">Settings</a>
     <a href="support.html">Support</a>
-    <a href="https://wanna5mile.github.io./info.html">Info</a>
+    <a href="info.html">Info</a>
   </nav>
 
   <div class="header-controls">
-    <a href="profile.html"><img src="/system/icons/profile.png" alt="profile" id="pfp"></a>
-    <img src="/system/icons/dashboard.png" alt="Dashboard" id="dashboardBtn">
+    <a href="profile.html">
+      <img id="pfp" src="/system/icons/profile.png" alt="Profile">
+    </a>
+    <button id="dashboardBtn">
+      <img src="/system/icons/dashboard.png" alt="Dashboard">
+    </button>
   </div>
 </header>
 
-<main>
+<main id="discoveryPage">
+
   <h1>Discover ϱames</h1>
 
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Search ϱames..." />
+  <!-- Uses GLOBAL search-box styles -->
+  <div class="search-box" style="max-width:420px;margin:0 auto 1.6rem;">
+    <input id="searchInput" type="text" placeholder="Search ϱames..." />
     <button id="searchBtn">
-      <img src="/system/icons/search.png" alt="Search" />
+      <img src="/system/icons/search.png" alt="Search">
     </button>
   </div>
 
@@ -167,6 +157,7 @@
   </div>
 
   <div id="discoveryContainer">Loading ϱames...</div>
+
 </main>
 
 <footer>
@@ -185,7 +176,9 @@
   <a href="alt.html">Alternative Links</a>
 </div>
 
+<!-- Your existing JS stays EXACTLY the same -->
 <script>
+
 document.addEventListener("DOMContentLoaded", async () => {
   const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec"; // <<< REPLACE THIS
 
