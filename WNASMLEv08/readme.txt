@@ -47,8 +47,10 @@ Cons:
 ░░╚██╔╝░╚██╔╝░██║░░██║██║░╚███║██║░╚███║██║░░██║██████╔╝██║░╚═╝░██║██║███████╗███████╗██╗
 ░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚══╝╚═╝░░╚══╝╚═╝░░╚═╝╚═════╝░╚═╝░░░░░╚═╝╚═╝╚══════╝╚══════╝╚═╝
 
-[Library] Skysthelimit
-[Library] tw
+[Library] Skysthelimit - owner of selenite
+[Library] tw - forgetten
+[Library] ubg88 - and all other ubg accounts
+[Library] genizy - bread is a legend
 
 [Templates] WilardzySenpai - Loading screen
 [Templates] kaizhelam - Music player
