@@ -176,11 +176,9 @@
   <a href="alt.html">Alternative Links</a>
 </div>
 
-<!-- Your existing JS stays EXACTLY the same -->
 <script>
-
 document.addEventListener("DOMContentLoaded", async () => {
-  const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec"; // <<< REPLACE THIS
+  const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzw69RTChLXyis4xY9o5sUHtPU32zaMeKaR2iEliyWBsJFvVbTbMvbLNfsB4rO4gLLzTQ/exec";
 
   const container = document.getElementById("discoveryContainer");
   const searchInput = document.getElementById("searchInput");
@@ -191,14 +189,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fallbackLink = "https://wanna5mile.github.io./source/dino/";
 
   let assets = [];
+  let currentCategory = null;
 
-  // ---- LOAD DATA FROM GOOGLE SHEETS ----
+  /* ==============================
+     LOAD DATA
+     ============================== */
   try {
     const res = await fetch(SHEETS_URL);
     if (!res.ok) throw new Error("Sheets API failed");
 
     const sheet = await res.json();
-    const rows = sheet.data || sheet; // supports both formats
+    const rows = sheet.data || sheet;
 
     assets = rows.map(r => ({
       title: r.title || "",
@@ -207,11 +208,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       image: r.image || "",
       category: r.category || "",
       subcategory: r["sub-category"] || "",
-      status: r.status || "",
-      page: r.page || "",
-      featured: r.featured || "",
-      new: r.new || "",
-      fixed: r.fixed || ""
+      status: r.status || ""
     }));
 
   } catch (e) {
@@ -220,31 +217,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // ---- RENDER ----
-  function renderassets(list) {
+  /* ==============================
+     RENDER
+     ============================== */
+  function renderAssets(list) {
     container.innerHTML = "";
+
     if (!list.length) {
       container.innerHTML = "<p>No ϱames found.</p>";
       return;
     }
+
     const grid = document.createElement("div");
     grid.className = "assets-grid";
 
     list.forEach(asset => {
-      let imgSrc = asset.image || fallbackImage;
-      let linkSrc = asset.link || fallbackLink;
-
       const card = document.createElement("div");
       card.className = "asset-card";
       if (asset.status.toLowerCase() === "soon") card.classList.add("soon");
 
       const link = document.createElement("a");
-      link.href = linkSrc;
+      link.href = asset.link || fallbackLink;
       link.target = "_blank";
       link.rel = "noopener";
 
       const img = document.createElement("img");
-      img.src = imgSrc;
+      img.src = asset.image || fallbackImage;
       img.onerror = () => (img.src = fallbackImage);
 
       const title = document.createElement("h4");
@@ -253,9 +251,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const author = document.createElement("p");
       author.textContent = asset.author;
 
-      link.appendChild(img);
-      link.appendChild(title);
-      link.appendChild(author);
+      link.append(img, title, author);
       card.appendChild(link);
       grid.appendChild(card);
     });
@@ -263,36 +259,68 @@ document.addEventListener("DOMContentLoaded", async () => {
     container.appendChild(grid);
   }
 
-  renderassets(assets);
+  renderAssets(assets);
 
-  // ---- CATEGORY FILTER ----
+  /* ==============================
+     CATEGORY FILTER
+     ============================== */
   buttons.forEach(btn => {
     btn.addEventListener("click", () => {
-      const cat = btn.dataset.category.toLowerCase();
-      const filtered = assets.filter(a => a.category.toLowerCase() === cat);
-      renderassets(filtered);
+      searchInput.value = "";
+      currentCategory = btn.dataset.category.toLowerCase();
+
+      const filtered = assets.filter(a =>
+        a.category.toLowerCase() === currentCategory
+      );
+
+      renderAssets(filtered);
     });
   });
 
-  // ---- SEARCH ----
-  function searchassets() {
-    const q = searchInput.value.toLowerCase();
+  /* ==============================
+     LIVE SEARCH
+     ============================== */
+  function runSearch() {
+    const q = searchInput.value.trim().toLowerCase();
+
+    // Empty search → restore category or all
+    if (!q) {
+      if (currentCategory) {
+        renderAssets(
+          assets.filter(a =>
+            a.category.toLowerCase() === currentCategory
+          )
+        );
+      } else {
+        renderAssets(assets);
+      }
+      return;
+    }
+
+    // Disable category filtering while searching
+    currentCategory = null;
+
     const filtered = assets.filter(a =>
       a.title.toLowerCase().includes(q) ||
-      a.subcategory.toLowerCase().includes(q)
+      a.subcategory.toLowerCase().includes(q) ||
+      a.author.toLowerCase().includes(q)
     );
-    renderassets(filtered);
-  }
-  searchBtn.addEventListener("click", searchassets);
-  searchInput.addEventListener("keydown", e => {
-    if (e.key === "Enter") searchassets();
-  });
 
-  // ---- PROFILE PIC ----
+    renderAssets(filtered);
+  }
+
+  searchInput.addEventListener("input", runSearch);
+  searchBtn.addEventListener("click", runSearch);
+
+  /* ==============================
+     PROFILE PIC
+     ============================== */
   const savedPic = localStorage.getItem("profilePic");
   if (savedPic) document.getElementById("pfp").src = savedPic;
 
-  // ---- DASHBOARD ----
+  /* ==============================
+     DASHBOARD MENU
+     ============================== */
   const dashboardBtn = document.getElementById("dashboardBtn");
   const dashboardMenu = document.getElementById("dashboardMenu");
 
@@ -300,9 +328,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   dashboardMenu.style.opacity = 0;
   dashboardMenu.style.transition = "opacity 0.3s ease";
 
-  dashboardBtn.addEventListener("click", (e) => {
+  dashboardBtn.addEventListener("click", e => {
     e.stopPropagation();
     const open = dashboardMenu.style.display === "block";
+
     if (open) {
       dashboardMenu.style.opacity = 0;
       setTimeout(() => (dashboardMenu.style.display = "none"), 300);
@@ -312,15 +341,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  document.addEventListener("click", (e) => {
+  document.addEventListener("click", e => {
     if (!dashboardMenu.contains(e.target) && e.target !== dashboardBtn) {
-      if (dashboardMenu.style.display === "block") {
-        dashboardMenu.style.opacity = 0;
-        setTimeout(() => (dashboardMenu.style.display = "none"), 300);
-      }
+      dashboardMenu.style.opacity = 0;
+      setTimeout(() => (dashboardMenu.style.display = "none"), 300);
     }
   });
-
 });
 </script>
 
