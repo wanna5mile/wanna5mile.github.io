@@ -150,23 +150,29 @@ function initPreloader() {
   preloader.dataset.gifDelay = gifs.delay;
 
   // ======= Create or update loaderImage =======
-  let loaderImg = dom.loaderImage;
-  if (!loaderImg) {
-    loaderImg = document.createElement("img");
-    loaderImg.id = "loaderImage";
-    loaderImg.alt = "Loading animation";
-    Object.assign(loaderImg.style, {
-      opacity: "0",
-      position: "absolute",
-      top: "0",
-      left: "0",
-      width: "120px",
-      transition: "opacity .0s ease"
-    });
-    preloader.appendChild(loaderImg);
-    dom.loaderImage = loaderImg;
-  }
-  loaderImg.src = gifs.loading;
+let loaderImg = dom.loaderImage;
+
+if (!loaderImg) {
+  loaderImg = document.createElement("img");
+  loaderImg.id = "loaderImage";
+  loaderImg.alt = "Loading background";
+
+  // IMPORTANT: append to the image layer, not directly to preloader
+  const gifLayer =
+    document.getElementById("loader-gif") ||
+    (() => {
+      const layer = document.createElement("div");
+      layer.id = "loader-gif";
+      preloader.appendChild(layer);
+      return layer;
+    })();
+
+  gifLayer.appendChild(loaderImg);
+  dom.loaderImage = loaderImg;
+}
+
+// JS ONLY sets the source
+loaderImg.src = gifs.loading;
 
   // ======= Create or update loadedImage =======
   let loadedImg = dom.loadedImage;
