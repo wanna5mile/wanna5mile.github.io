@@ -175,28 +175,27 @@ if (!loaderImg) {
 loaderImg.src = gifs.loading;
 
   // ======= Create or update loadedImage =======
-  let loadedImg = dom.loadedImage;
-  if (!loadedImg) {
-    loadedImg = document.createElement("img");
-    loadedImg.id = "loadedImage";
-    loadedImg.alt = "Loaded animation";
-    Object.assign(loadedImg.style, {
-      opacity: "0",
-      position: "absolute",
-      top: "0",
-      left: "0",
-      width: "120px",
-      transition: "opacity .0s ease"
-    });
-    loaderImg.parentElement.appendChild(loadedImg);
-    dom.loadedImage = loadedImg;
-  }
-  loadedImg.src = gifs.loaded;
+let loadedImg = dom.loadedImage;
+
+if (!loadedImg) {
+  loadedImg = document.createElement("img");
+  loadedImg.id = "loadedImage";
+  loadedImg.alt = "Loaded animation";
+
+  // Append to the same layer as loaderImage
+  loaderImg.parentElement.appendChild(loadedImg);
+
+  dom.loadedImage = loadedImg;
+}
+
+// JS ONLY sets the source
+loadedImg.src = gifs.loaded;
 
   // ======= Show preloader =======
-  preloader.style.display = "flex";
-  preloader.style.opacity = "0";
-  preloader.dataset.hidden = "false";
+preloader.style.display = "flex";
+preloader.style.opacity = "1"; // 👈 MUST be visible while loading
+preloader.style.pointerEvents = "all";
+preloader.dataset.hidden = "false";
 
   // ======= Progress bar & text =======
   let counter = preloader.querySelector("#counter");
@@ -246,11 +245,14 @@ loaderImg.src = gifs.loading;
   };
 
   // ======= UPDATED: Theme-aware loaded animation delay =======
-  window.showLoadedState = async (gifDelay = Number(preloader.dataset.gifDelay) || 1000) => {
-    if (dom.loaderImage) dom.loaderImage.style.opacity = "0";
-    if (dom.loadedImage) dom.loadedImage.style.opacity = "0";
-    await delay(gifDelay);
-  };
+window.showLoadedState = async (
+  gifDelay = Number(preloader.dataset.gifDelay) || 1000
+) => {
+  if (dom.loaderImage) dom.loaderImage.style.opacity = "0";
+  if (dom.loadedImage) dom.loadedImage.style.opacity = "1"; // 👈 show loaded image
+
+  await delay(gifDelay);
+};
 
   // ======= Optional: Update GIFs dynamically if theme changes =======
   window.updatePreloaderGifsForTheme = (theme) => {
