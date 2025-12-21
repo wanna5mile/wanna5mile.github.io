@@ -58,14 +58,22 @@
 
 <!-- ================= PRELOADER ================= -->
 <div id="preloader" class="preloader">
-<div id="loader-gif">
-    <img id="loaderImage" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
-    <img id="loadedImage" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" style="opacity:0;">
+  <!-- GIF/Image Layer -->
+  <div id="loader-gif">
+    <img id="loaderImage" src="https://raw.githubusercontent.com/mcmattyobriore/themeify/main/loading/v078xmasfixed.png" alt="Loading">
+    <img id="loadedImage" src="https://raw.githubusercontent.com/mcmattyobriore/themeify/main/loading/v078xmasfixed.png" alt="Loaded">
   </div>
+
+  <!-- Progress Bar -->
   <div class="load-progress-bar">
     <div id="progressBar" class="load-progress-fill"></div>
   </div>
+
+  <!-- Text Layer -->
   <div id="loaderText" class="loading-text">Loading...</div>
+
+  <!-- Counter -->
+  <div id="counter"></div>
 </div>
 
 <!-- ================= HEADER ================= -->
