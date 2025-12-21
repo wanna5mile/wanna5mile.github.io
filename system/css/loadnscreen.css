@@ -59,8 +59,8 @@
   height: 100vh;
   object-fit: cover;
   image-rendering: pixelated;
-  opacity: 0 !important;
-  visibility: hidden !important;
+  opacity: 1 !important;
+  visibility: visible !important;
   pointer-events: none;
   transition: none;
 }
