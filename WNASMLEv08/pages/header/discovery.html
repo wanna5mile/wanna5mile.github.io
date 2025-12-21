@@ -46,13 +46,13 @@
     border-radius: 8px;
     padding: 0.5em 1.1em;
     cursor: pointer;
-    font-size: .95rem;
+    font-size: 0.95rem;
     transition: background .25s, transform .2s;
   }
 
   #discoveryPage .category-buttons button:hover {
     background: #444;
-    transform: scale(1.05);
+    transform: scale(1.08);
   }
 
   #discoveryPage .assets-grid {
@@ -110,37 +110,53 @@
     opacity: .6;
     pointer-events: none;
   }
+
+#discoveryPage h1 {
+  font-size: 2rem;
+  margin-bottom: 1.2rem;
+  transition: color 0.3s, transform 0.2s; /* add transform transition */
+  display: inline-block; /* ensures transform scaling works nicely */
+}
+
+#discoveryPage h1:hover {
+  color: #ff3b3b;
+  transform: scale(1.1);
+}
 </style>
 </head>
 
 <body>
 
-<header>
-  <nav class="nav-links">
-    <a href="index.html">Home</a>
-    <a href="favorites.html">Favorites</a>
-    <a href="discovery.html" class="active">Discovery</a>
-    <a href="settings.html">Settings</a>
-    <a href="support.html">Support</a>
-    <a href="info.html">Info</a>
-  </nav>
+  <header>
+    <nav class="nav-links">
+<a href="index.html">Home</a>
+<a href="pages/header/favorites.html">Favorites</a>
+<a href="pages/header/discovery.html">Discovery</a>
+<a href="pages/header/settings.html">Settings</a>
+<a href="pages/header/support.html">Support</a>
+<a href="pages/header/info.html">Info</a>
 
-  <div class="header-controls">
-    <a href="profile.html">
-      <img id="pfp" src="/system/icons/profile.png" alt="Profile">
-    </a>
-    <button id="dashboardBtn">
-      <img src="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/icons/dashboard.png">
-    </button>
-  </div>
-</header>
+    </nav>
+
+    <div class="header-controls">
+
+<a href="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/pages/profile.html">
+<img id="pfp" src="https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/icons/profile.png">
+      </a>
+      <button id="dashboardBtn">
+        <img src="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/icons/dashboard.png">
+      </button>
+    </div>
+      </div>
+
+  </header>
 
 <main id="discoveryPage">
 
   <h1>Discover ϱames</h1>
 
   <!-- Uses GLOBAL search-box styles -->
-  <div class="search-box" style="max-width:420px;margin:0 auto 1.6rem;">
+  <div class="search-box" style="width:550px;margin:0 auto 1.6rem;">
     <input id="searchInput" type="text" placeholder="Search ϱames..." />
     <button id="searchBtn">
       <img src="https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/icons/search.png">
@@ -148,24 +164,40 @@
   </div>
 
   <div class="category-buttons">
-    <button data-category="Action">Action</button>
-    <button data-category="Adventure">Adventure</button>
-    <button data-category="Arcade">Arcade</button>
-    <button data-category="Puzzle">Puzzle</button>
-    <button data-category="Racing">Racing</button>
-    <button data-category="Sports">Sports</button>
-    <button data-category="Shooting">ƨʜooting</button>
-    <button data-category="Multiplayer">Multiplayer</button>
-    <button data-category="Horror">Horror</button>
-    <button data-category="Strategy">Strategy</button>
-    <button data-category="Simulation">Simulation</button>
-    <button data-category="Idle">Idle</button>
-    <button data-category="Rhythm">Rhythm</button>
-    <button data-category="Platformer">Platformer</button>
-    <button data-category="Fighting">Fighting</button>
-    <button data-category="Tower Defense">Tower Defense</button>
-    <button data-category="Sandbox">Sandbox</button>
-    <button data-category="Educational">Educational</button>
+<button data-category="rhythm">rhythm</button>
+<button data-category="story">story</button>
+<button data-category="endless-runner">endless-runner</button>
+<button data-category="holiday">holiday</button>
+<button data-category="battle-royale">battle-royale</button>
+<button data-category="action">action</button>
+<button data-category="sports">sports</button>
+<button data-category="simulator">simulator</button>
+<button data-category="tycoon">tycoon</button>
+<button data-category="arcade">arcade</button>
+<button data-category="horror">horror</button>
+<button data-category="rpg">rpg</button>
+<button data-category="turn-based-combat">turn-based-combat</button>
+<button data-category="sandbox">sandbox</button>
+<button data-category="boss-fight">boss-fight</button>
+<button data-category="visual-novel">visual-novel</button>
+<button data-category="adventure">adventure</button>
+<button data-category="mystery">mystery</button>
+<button data-category="survival">survival</button>
+<button data-category="top-down">top-down</button>
+<button data-category="shooter">shooter</button>
+<button data-category="platformer">platformer</button>
+<button data-category="tower-defense">tower-defense</button>
+<button data-category="classic">classic</button>
+<button data-category="puzzle">puzzle</button>
+<button data-category="math">math</button>
+<button data-category="idle">idle</button>
+<button data-category="clicker">clicker</button>
+<button data-category="parkour">parkour</button>
+<button data-category="vsgr">vsgr</button>
+<button data-category="maze">maze</button>
+<button data-category="racing">racing</button>
+<button data-category="strategy">strategy</button>
+<button data-category="2-player">2-player</button>
     <button data-category="Other">Other</button>
   </div>
 
@@ -174,20 +206,27 @@
 </main>
 
 <footer>
-  <a href="sources.html">sources</a>
-  <a href="contributors.html">contribute</a>
-  <a href="discord.html">Discord</a>
-  <a href="bugsNfixes.html">Bugs & fixes</a>
-  <a href="contact.html">Socials</a>
-  <a href="version-log.html">version V0.8</a>
+<a href="https://sundaezipper.github.io./">Source</a>
+<a href="https://sundaezipper.github.io./">Contribute</a>
+<a href="https://discord.gg/4AKdJxJUMH">Discord</a>
+<a href="pages/footer/SBF.html">Suggestions | Bugs | Fixes</a>
+<a href="pages/footer/social.html">Socials</a>
+<a href="pages/footer/download.html">download versions</a>
+  <a href="pages/footer/version.html" id="footerVersion">Version loading...</a>
 </footer>
 
-<div id="dashboardMenu" class="dashboard-menu">
-  <a href="music-player.html">Music Player</a>
-  <a href="settings-themes.html">Themes</a>
-  <a href="credits.html">Credits</a>
-  <a href="alt.html">Alternative Links</a>
-</div>
+<!-- ================= SIDEBAR ================= -->
+<aside id="dashboardMenu" class="dashboard-menu">
+  <p>pages</p>
+  <a href="pages/dashboard/music-player.html">Music Player</a>
+  <a href="pages/dashboard/themes.html">Themes</a>
+  <a href="pages/dashboard/credits.html">Credits</a>
+  <p>dev tools</p>
+  <a href="pages/dashboard/devtools/rawfetch.html">raw image link fetcher</a>
+  <a href="pages/dashboard/devtools/textflip.html">text flip/mirror</a>
+  <p>other</p>
+  <a href="pages/dashboard/alternative.html">Alternative Links</a>
+</aside>
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
@@ -195,7 +234,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const container = document.getElementById("discoveryContainer");
   const searchInput = document.getElementById("searchInput");
-  const searchBtn = document.getElementById("searchBtn");
   const buttons = document.querySelectorAll(".category-buttons button");
 
   const fallbackImage = "https://raw.githubusercontent.com/theworldpt1/theworldpt1.github.io/main/system/images/404_blank.png";
@@ -230,7 +268,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   /* ==============================
-     RENDER
+     RENDER FUNCTION
      ============================== */
   function renderAssets(list) {
     container.innerHTML = "";
@@ -246,6 +284,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     list.forEach(asset => {
       const card = document.createElement("div");
       card.className = "asset-card";
+      card.dataset.category = asset.category.toLowerCase();
       if (asset.status.toLowerCase() === "soon") card.classList.add("soon");
 
       const link = document.createElement("a");
@@ -256,7 +295,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const img = document.createElement("img");
       img.src = asset.image || fallbackImage;
       img.onerror = () => (img.src = fallbackImage);
-      img.style.background = "transparent"; // FIX transparent PNGs
+      img.style.background = "transparent";
 
       const title = document.createElement("h4");
       title.textContent = asset.title;
@@ -272,86 +311,91 @@ document.addEventListener("DOMContentLoaded", async () => {
     container.appendChild(grid);
   }
 
-  /* ==============================
-     FILTER CONTROLLER
-     ============================== */
-  function applyFilters() {
-    const q = searchInput.value.trim().toLowerCase();
-
-    let result = assets;
-
-    if (activeCategory) {
-      result = result.filter(a =>
-        a.category.toLowerCase() === activeCategory
-      );
-    }
-
-    if (q) {
-      result = result.filter(a =>
-        a.title.toLowerCase().includes(q) ||
-        a.subcategory.toLowerCase().includes(q) ||
-        a.author.toLowerCase().includes(q)
-      );
-    }
-
-    renderAssets(result);
-  }
-
   renderAssets(assets);
 
   /* ==============================
-     CATEGORY FILTER
+     FILTER FUNCTION (DOM-based)
+     ============================== */
+  function applyFilters() {
+    const query = searchInput.value.trim().toLowerCase();
+    const cards = document.querySelectorAll("#discoveryContainer .asset-card");
+
+    cards.forEach(card => {
+      const title = card.querySelector("h4")?.textContent.toLowerCase() || "";
+      const author = card.querySelector("p")?.textContent.toLowerCase() || "";
+      const cardCategory = card.dataset.category || "";
+
+      const matchesCategory = !activeCategory || cardCategory === activeCategory;
+      const matchesSearch = !query || title.includes(query) || author.includes(query);
+
+      card.style.display = matchesCategory && matchesSearch ? "" : "none";
+    });
+  }
+
+  /* ==============================
+     CATEGORY BUTTON TOGGLE
      ============================== */
   buttons.forEach(btn => {
     btn.addEventListener("click", () => {
-      activeCategory = btn.dataset.category.toLowerCase();
+      const cat = btn.dataset.category.toLowerCase();
+      if (activeCategory === cat) {
+        activeCategory = null; // toggle off
+        btn.classList.remove("active");
+      } else {
+        activeCategory = cat;
+        buttons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+      }
       applyFilters();
     });
   });
 
   /* ==============================
-     LIVE SEARCH
+     LIVE SEARCH (DOM-based, immediate)
      ============================== */
   searchInput.addEventListener("input", applyFilters);
-  searchBtn.addEventListener("click", applyFilters);
 
-  /* ==============================
-     PROFILE PIC
-     ============================== */
-  const savedPic = localStorage.getItem("profilePic");
-  if (savedPic) document.getElementById("pfp").src = savedPic;
-
-  /* ==============================
-     DASHBOARD MENU
-     ============================== */
-  const dashboardBtn = document.getElementById("dashboardBtn");
-  const dashboardMenu = document.getElementById("dashboardMenu");
-
-  dashboardMenu.style.display = "none";
-  dashboardMenu.style.opacity = 0;
-  dashboardMenu.style.transition = "opacity 0.3s ease";
-
-  dashboardBtn.addEventListener("click", e => {
-    e.stopPropagation();
-    const open = dashboardMenu.style.display === "block";
-
-    if (open) {
-      dashboardMenu.style.opacity = 0;
-      setTimeout(() => (dashboardMenu.style.display = "none"), 300);
-    } else {
-      dashboardMenu.style.display = "block";
-      setTimeout(() => (dashboardMenu.style.opacity = 1), 10);
-    }
-  });
-
-  document.addEventListener("click", e => {
-    if (!dashboardMenu.contains(e.target) && e.target !== dashboardBtn) {
-      dashboardMenu.style.opacity = 0;
-      setTimeout(() => (dashboardMenu.style.display = "none"), 300);
-    }
-  });
 });
 </script>
+<script>
+// ==================== loadProfile.js ====================
+// Wait until DOM is fully loaded
+document.addEventListener("DOMContentLoaded", () => {
+  const pfpElement = document.getElementById("pfp");
+  if (!pfpElement) return;
 
+  // List of profile images
+  const profileImages = [
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/bleh.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/catcher.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/clown.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/clowninabox.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/dream.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/eye.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/eyes.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/glitched.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/me.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/purpleu.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/sleeppy.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/smile.png",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/starry.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/starwalk.jpeg",
+    "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/images/profile/yum.jpeg"
+  ];
+
+  // Attempt to retrieve saved profile from localStorage
+  const savedPfp = localStorage.getItem("selectedProfile");
+
+  if (savedPfp && profileImages.includes(savedPfp)) {
+    // Use saved profile if valid
+    pfpElement.src = savedPfp;
+  } else {
+    // Pick a random profile
+    const randomIndex = Math.floor(Math.random() * profileImages.length);
+    const randomPfp = profileImages[randomIndex];
+    pfpElement.src = randomPfp;
+  }
+});
+</script>
 </body>
 </html>
