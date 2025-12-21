@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WannaSmile | Settings</title>
+  <link id="favicon" rel="icon" href="https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/favicons/logo.png">
+
+  <meta name="author" content="Bg.uhm by rhap5ody">
+  <meta name="keywords" content="settings, fun, library, github, rhap5ody">
+
+  <!-- Core Styles (CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/css/themes.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/css/main.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/css/quotes.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/css/commands.css">
+<style>
+/* ==========================================
+   SETTINGS PAGE
+   Themed + interactive styling
+   ========================================== */
+
+.settings-page {
+  padding: 2rem;
+  background-color: var(--main-bg);
+  color: var(--text-color);
+  font-family: system-ui, sans-serif;
+}
+
+.settings-page h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--accent-color);
+  padding-bottom: 0.5rem;
+}
+
+.setting-group {
+  background-color: var(--card-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.setting-group:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+.setting-group h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: var(--accent-color);
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.form-row label {
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+input[type="text"],
+input[type="url"],
+input[type="password"],
+select {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  border-radius: 10px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--accent-color);
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+#searchBtnHeader:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: var(--accent-color); /* optional: keep the hover border color */
+}
+
+/* ==========================================
+   BUTTONS (unified style)
+   ========================================== */
+
+button,
+.submit-btn,
+.action-btn,
+.theme-btn {
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  border: 2px solid var(--accent-color);
+  background-color: var(--search-btn-bg);
+  color: var(--link-color);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-top: 0.4rem;
+  margin-right: 0.4rem;
+}
+
+button:hover,
+.submit-btn:hover,
+.action-btn:hover,
+.theme-btn:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+button:active,
+.submit-btn:active,
+.action-btn:active,
+.theme-btn:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+/* “Clear” or secondary buttons */
+.clear-btn {
+  background-color: transparent;
+  color: var(--accent-color);
+  border: 2px solid var(--accent-color);
+}
+
+.clear-btn:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+/* ==========================================
+   THEME BUTTONS GRID
+   ========================================== */
+.theme-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.theme-btn {
+  flex: 1 1 180px;
+  text-align: center;
+  background-color: var(--card-bg);
+  border: 2px solid var(--accent-color);
+  color: var(--text-color);
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.theme-btn:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+  box-shadow: 0 0 8px var(--accent-color);
+}
+
+.custom-btn {
+  background-color: transparent;
+  color: var(--accent-color);
+}
+
+.custom-btn:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+/* ==========================================
+   CUSTOM THEME MENU
+   ========================================== */
+.custom-theme-controls {
+  margin-top: 1rem;
+  border-top: 1px solid var(--input-border);
+  padding-top: 1rem;
+}
+
+.custom-theme-controls label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.custom-theme-controls input[type="color"] {
+  width: 40px;
+  height: 30px;
+  border: none;
+  cursor: pointer;
+  background: none;
+}
+
+/* ==========================================
+   CHECKBOXES
+   ========================================== */
+.setting-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.setting-checkbox-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-color);
+}
+
+/* ==========================================
+   NOTES / TEXT
+   ========================================== */
+.note {
+  font-size: 0.85rem;
+  color: var(--input-placeholder);
+  margin: 0.3rem 0 0.8rem 0;
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+@media (max-width: 768px) {
+  .settings-page {
+    padding: 1rem;
+  }
+
+  .setting-group {
+    padding: 1rem;
+  }
+
+  .theme-buttons-container {
+    flex-direction: column;
+  }
+
+  button,
+  input,
+  select {
+    font-size: 1rem;
+  }
+}
+/*
+======= RETURN BUTTON ========
+*/
+.return-container {
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
+}
+
+.return-btn {
+  background: var(--accent-color, #6c5ce7);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.return-btn:hover {
+  background: var(--header-bg, #555);
+  transform: scale(1.05);
+}
+
+</style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header>
+    <nav class="nav-links" aria-label="Main Navigation">
+      <a href="/index.html">Home</a>
+      <a href="/system/pages/favorites.html">Favorites</a>
+      <a href="/system/pages/discovery.html">Discovery</a>
+      <a href="/system/pages/settings.html" aria-current="page">Settings</a>
+      <a href="/system/pages/support.html">Support</a>
+      <a href="/system/pages/info.html">Info</a>
+    </nav>
+
+    <div class="header-controls">
+
+      <a href="/system/pages/profile.html">
+        <img src="https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/icons/profile.png" alt="Profile Picture" id="pfp">
+      </a>
+      <button id="dashboardBtn" aria-controls="dashboardMenu">
+        <img src="https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/icons/dashboard.png" alt="Dashboard">
+      </button>
+    </div>
+</div>
+  </header>
+
+  <!-- Dashboard Menu -->
+  <aside id="dashboardMenu" class="dashboard-menu">
+    <a href="/system/pages/music-player.html">Music Player</a>
+    <a href="/system/pages/settings-themes.html">Themes</a>
+    <a href="/system/pages/credits.html">Credits</a>
+    <a href="/system/pages/alt.html">Alternative Links</a>
+  </aside>
+
+  <!-- Main -->
+  <main class="settings-page">
+    <header class="settings-header">
+      <h1>Settings</h1>
+      <p class="settings-intro">
+        Customize how WannaSmile looks, behaves, and protects your privacy.
+      </p>
+    </header>
+
+    <!-- Tab Cloaking -->
+    <section class="setting-group">
+      <h2>Tab Cloaking & Security</h2>
+      <p class="note">
+        Disguise this site as something else to stay hidden and safe.
+      </p>
+
+      <form onsubmit="setCloakCookie(event)">
+        <div class="form-row">
+          <label for="webname">Website Title</label>
+          <input type="text" id="webname" placeholder="10x76 Library">
+        </div>
+
+        <div class="form-row">
+          <label for="webicon">Tab Icon URL</label>
+          <input type="url" id="webicon" placeholder="https://google.com/favicon.ico">
+        </div>
+
+        <div class="form-row">
+          <label for="presetCloaks">Quick Presets</label>
+          <select id="presetCloaks">
+            <option value="google">Google</option>
+            <option value="drive">Google Drive</option>
+            <option value="classroom">Google Classroom</option>
+            <option value="newtab">New Tab</option>
+            <option value="docs">Google Docs</option>
+            <option value="schoology">Schoology</option>
+          </select>
+        </div>
+
+        <button class="submit-btn">Apply Tab Cloak</button>
+      </form>
+
+      <button onclick="clearCloak()" class="action-btn clear-btn">
+        Clear Tab Cloak
+      </button>
+
+      <div class="setting-checkbox-row">
+        <input type="checkbox" id="tabDisguise">
+        <label for="tabDisguise">Auto-disguise when tab loses focus</label>
+      </div>
+
+      <div class="setting-checkbox-row">
+        <input type="checkbox" id="blockClose">
+        <label for="blockClose">Prevent accidental tab closing</label>
+      </div>
+    </section>
+
+    <!-- Theme -->
+    <section class="setting-group">
+      <h2>Theme & Appearance</h2>
+      <p class="note">
+        Change how WannaSmile looks across the site.
+      </p>
+
+      <div class="theme-buttons-container">
+        <button onclick="setTheme('redux')" class="theme-btn">Redux</button>
+        <button onclick="setTheme('classic')" class="theme-btn">Classic</button>
+        <button onclick="setTheme('dark')" class="theme-btn">Dark</button>
+        <button onclick="setTheme('light')" class="theme-btn">Light</button>
+        <button onclick="setTheme('graduation')" class="theme-btn">Graduation</button>
+        <button onclick="setTheme('flower-boy')" class="theme-btn">Flower Boy</button>
+        <button onclick="setTheme('star-platnium')" class="theme-btn">Star Platinum</button>
+        <button onclick="setTheme('star-world')" class="theme-btn">Star World</button>
+        <button onclick="setTheme('the-king')" class="theme-btn">King Crimson</button>
+        <button onclick="setTheme('slackerish')" class="theme-btn">Slackerish</button>
+        <button onclick="customTheme()" class="theme-btn custom-btn">
+          Custom Theme…
+        </button>
+      </div>
+
+      <div id="customThemeMenu" class="custom-theme-controls" style="display:none;">
+        <label>UI Background <input type="color" id="uibg"></label>
+        <label>Main Background <input type="color" id="bg"></label>
+        <label>Text Color <input type="color" id="textcolor"></label>
+        <label>Accent Color <input type="color" id="accentcolor"></label>
+        <button onclick="applyCustomTheme()" class="submit-btn">Apply</button>
+
+        <div class="form-row">
+          <label for="bgimg">Background Image URL</label>
+          <input type="url" id="bgimg">
+        </div>
+      </div>
+    </section>
+
+    <!-- Panic -->
+    <section class="setting-group">
+      <h2>Panic Mode & Password</h2>
+      <p class="note">
+        Instantly redirect away or lock access when needed.
+      </p>
+
+      <form onsubmit="setPanicMode(event)">
+        <input type="url" id="panicURL" placeholder="https://google.com">
+        <button class="submit-btn">Save Panic URL</button>
+      </form>
+
+      <form onsubmit="setPassword(event)">
+        <input type="password" id="pass" placeholder="Password">
+        <button class="submit-btn">Set Password</button>
+        <button type="button" onclick="delPassword()" class="action-btn clear-btn">
+          Remove Password
+        </button>
+      </form>
+    </section>
+
+    <!-- Sort Mode -->
+    <section class="setting-group">
+      <h2>Sort Mode</h2>
+      <p class="note">Control how content is ordered.</p>
+      <div class="theme-buttons-container">
+        <button id="sheetOrderBtn" class="theme-btn">Default Order</button>
+        <button id="alphabeticalBtn" class="theme-btn">Alphabetical (A–Z)</button>
+      </div>
+    </section>
+
+    <div class="return-container">
+      <a href="/index.html" class="return-btn">← Back to Home</a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <a href="/system/pages/version-log.html">Version V0.8</a>
+  </footer>
+
+  <!-- Scripts (CDN) -->
+  <script src="https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/js/settings.js" defer></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const pfp = document.getElementById("pfp");
+      const savedPic = localStorage.getItem("profilePic");
+      if (pfp && savedPic) pfp.src = savedPic;
+
+      setTimeout(() => {
+        document.getElementById("preloader")?.remove();
+      }, 100);
+    });
+  </script>
+</body>
+</html>
